@@ -1,0 +1,418 @@
+<project name = "R Package builder" default = "all" basedir=".">
+    <property environment = "env" />
+    <tstamp>
+        <format property="TODAY" pattern="yyyy-MM-dd" />
+    </tstamp>
+
+    <condition property="hostname" value="${env.COMPUTERNAME}" else="${env.HOSTNAME}" >
+        <os family="windows" />
+    </condition>
+
+    <echo message="HOSTNAME : ${hostname}" />
+
+    <property name = "user.property.file" value="${hostname}.properties" />
+    <echo message="Inferring your personal property file: ${user.property.file}" />
+
+    <available file="${basedir}/${user.property.file}" type="file" property="user.property.found" value="true" />
+
+    <condition property="message.property.file" 
+        value="${user.property.file},default.properties" 
+        else="default.properties" >
+        <equals arg1="${user.property.found}" arg2="true"/>
+    </condition>
+
+    <condition property="foo.message.001" value="found" else="not found" >
+        <equals arg1="${user.property.found}" arg2="true"/>
+    </condition>
+
+    <echo message="The personal ${user.property.file} is ${foo.message.001}." />
+    <echo message="The build process will use: ${message.property.file} " />
+
+    <property file="${basedir}/${user.property.file}" />
+    <property file="${basedir}/default.properties" />
+
+    <fail message="package.src.dir is not set!  Please set package.src.dir to the relative path of package source directory" >
+        <condition>
+            <not>
+                <isset property="package.src.dir" />
+            </not>
+        </condition>
+    </fail>
+
+    <loadresource property="package.name" >
+        <file file="${basedir}/${package.src.dir}/DESCRIPTION"/>
+        <filterchain>
+            <!-- ensure delimOutput is set to empty, or \n will be appended to the string -->
+            <tokenfilter delimOutput="">
+                <containsregex pattern="^Package:\s*(.*)\s*$" replace="\1"/>
+            </tokenfilter>
+        </filterchain>
+    </loadresource>
+    <!-- if not given, use the default version -->
+    <loadresource property="package.version" >
+        <file file="${basedir}/${package.src.dir}/DESCRIPTION"/>
+        <filterchain>
+            <tokenfilter delimOutput="">
+                <containsregex pattern="^Version:\s*(.*)\s*$" replace="\1"/>
+            </tokenfilter>
+        </filterchain>
+    </loadresource>
+
+    <property name="artefact.basename" value="${package.name}_${package.version}" />
+    <property name="build.dir" value="${basedir}/.__workingspace"/>
+    <property name="artefact.dir" value="${basedir}/.__artefacts" />
+    <property name = "artifacts" value="${artefact.basename}.zip,${artefact.basename}*.tar.gz"/>
+    <property name="sweave.doc.path" value="${package.src.dir}/vignettes" />
+    <property name="sweave.doc.name" value="${package.name}.Rnw"       />
+
+    <!-- path can be overrided in the property files -->
+    <condition property = "path" value = "${env.Path}" else = "${env.PATH}" >
+        <os family="windows" />
+    </condition>
+    <property name = "r.local.libs.user" value = "${basedir}/.__rlibs" />
+    <echo message = "PATH setting: ${path} " />
+
+    <!-- target.os.arch can be overridden in property files -->
+    <condition property="target.os.arch" value="x86" else="x64" >
+        <os arch="x86" />
+    </condition>
+    <echo message = "Arch : ${target.os.arch} " />
+
+    <available file="${r.home}/bin/x64" type="dir" property="r.64.bit.installed" value="true" />
+
+    <!-- build.with.64.bit.r can also be forced in property files -->
+    <condition property="build.with.64.bit.r" value="true" else="false" >
+        <and>
+            <equals arg1="${target.os.arch}" arg2="x64" />
+            <!--equals arg1="${force.run.with.64.bit.r}" arg2="true" /-->
+            <equals arg1="${r.64.bit.installed}" arg2="true" />
+        </and>
+    </condition>
+
+    <condition property="r.arch.dep.path" value="/x64/" else="/" >
+        <equals arg1="${build.with.64.bit.r}" arg2="true" />
+    </condition>
+
+    <condition property="build.options.vignettes" value="" else="--no-vignettes" >
+        <equals arg1="${build.vignette}" arg2="true" />
+    </condition>
+
+	<target name="clean">
+        <delete dir="${build.dir}"/>
+        <delete dir="${artefact.dir}"/>
+        <mkdir dir="${build.dir}"/>
+        <mkdir dir="${artefact.dir}"/>
+        <copy todir="${build.dir}" overwrite="true">
+            <fileset dir="${basedir}">
+                <exclude name=".*/**"/>
+                <exclude name="build.xml"/>
+                <exclude name="**/.svn/**"/>
+                <exclude name="**/.*"/>
+            </fileset>
+        </copy>
+        <!-- we may have other supporting libs e.g. XML or RUnit -->
+        <delete dir="${r.local.libs.user}/${package.name}" />
+        <mkdir dir="${r.local.libs.user}"/>
+	</target>
+
+    <target name="collect.artefacts">
+        <copy todir="${artefact.dir}" overwrite="true">
+            <fileset dir="${build.dir}" includes="${artifacts},*.tar.gz,*.zip,*.html,*.xml" excludes="build*.xml"/>
+        </copy>
+    </target>
+
+    <condition property="package.has.vignette.source.file.and.need.build.vignette" value="true"> 
+        <and>
+            <equals arg1="${build.vignette}" arg2="true"/>
+            <resourcecount when="gt" count="0" >
+                <fileset dir="${basedir}/${package.src.dir}" >
+                    <include name="vignettes/*.Rnw"/>
+                </fileset>
+            </resourcecount>
+        </and>
+    </condition>
+
+    <target name="collect.vignette" if="package.has.vignette.source.file.and.need.build.vignette">
+        <copy todir="${artefact.dir}" overwrite="true">
+            <fileset dir="${r.local.libs.user}/${package.name}/doc" includes="*.pdf" />
+        </copy>
+    </target>
+
+    <target name="collect" depends='test,collect.artefacts,collect.vignette' >
+        <echo message="Build Success, artefacts collected to ${artefact.dir}"/>
+    </target>
+  
+    <condition property="tag.svn.version" value=" (SVN ver. ${env.SVN_REVISION})" else="">
+        <and>
+            <isset property="env.SVN_REVISION" />
+            <equals arg1="${add.svn.tag}" arg2="true"/>
+        </and>
+    </condition>
+
+    <property name="windows.line.separator" value="&#13;&#10;"/>
+    <property name="unix.line.separator" value="&#10;"/>
+
+    <target name ="updateDescFile" depends='clean'>
+        <copy file="${basedir}/${package.src.dir}/DESCRIPTION" 
+              tofile="${build.dir}/${package.src.dir}/DESCRIPTION" overwrite="true" >
+            <filterchain>
+                <replaceregex pattern="^(Version:)(.*)$" replace="\1 ${package.version}" flags="m"/>
+                <replaceregex pattern="^(Date:)(.*)$" replace="\1 ${TODAY}" flags="m"/>
+            </filterchain>
+        </copy>
+        <!-- Description can have multiple line with ^\s+ as continuation of line -->
+        <loadresource property="foo.tmp.002" >
+            <file file="${build.dir}/${package.src.dir}/DESCRIPTION" />
+            <filterchain>
+                <tokenfilter>
+                    <filetokenizer/>
+                    <!-- \s can be space or tab -->
+                    <replaceregex pattern="${windows.line.separator}(\s)" 
+                                  replace="___WINDOWSLINECONTINUATION{\1}___" flags="sg"/>
+                    <!-- make sure windows line sep is before unix line sep -->
+                    <replaceregex pattern="${unix.line.separator}(\s)" 
+                                  replace="___UNIXLINECONTINUATION{\1}___" flags="sg"/>
+                </tokenfilter>
+                <tokenfilter>
+                    <replaceregex pattern="^(Description:)(.*)$" 
+                                  replace="\1\2${tag.svn.version}" flags="m"/>
+                </tokenfilter>
+                <tokenfilter>
+                    <filetokenizer/>
+                    <replaceregex pattern="___UNIXLINECONTINUATION\{(.)\}___" 
+                                  replace="${unix.line.separator}\1" flags="sg"/>
+                    <replaceregex pattern="___WINDOWSLINECONTINUATION\{(\s)\}___" 
+                                  replace="${windows.line.separator}\1" flags="sg"/>
+                </tokenfilter>
+            </filterchain>
+        </loadresource>
+        <echo message="${foo.tmp.002}" file="${build.dir}/${package.src.dir}/DESCRIPTION"/>
+        <echo message=" Description updated " />
+	</target>
+
+    <condition property='force.docgen.flag' value='true' >
+        <and>
+            <isset property='force.docgen' />
+            <equals arg1="${force.docgen}" arg2="true" />
+        </and>
+    </condition>
+
+    <target name='roxygen' depends='clean,updateDescFile' if='force.docgen.flag'>
+	    <echo message="Rd documents generated." />
+        <exec executable="${r.home}/bin${r.arch.dep.path}Rscript" dir="${build.dir}" failonerror = "true">
+		    <env key="R_HOME" value="${r.home}"/>
+		    <env key="R_LIBS_USER" value="${r.local.libs.user}"/>
+		    <env key="PATH" value="${path}"/>
+			<arg value ="${rdgen.script}" />
+			<arg value ="${package.src.dir}" /> 
+		</exec>
+        <echo message="Rd documents generated." />
+    </target>
+
+    <condition property="resave.data.option" value="--resave-data=${resave.data}" 
+        else="--resave-data=no" >
+        <isset property="resave.data" />
+    </condition>
+
+    <!-- build the tar.gz file -->
+	<target name ="build" depends='clean,updateDescFile,roxygen'>
+        <exec executable="${r.home}/bin${r.arch.dep.path}R" dir ="${build.dir}" failonerror = "true">
+		    <env key="R_HOME" value="${r.home}"/>
+		    <env key="R_LIBS_USER" value="${r.local.libs.user}"/>
+		    <env key="PATH" value="${path}"/>
+            <arg line ='CMD build ${resave.data.option} ${build.options.vignettes} ${package.src.dir}'/>
+		</exec>
+	</target>
+
+    <condition property="data.compress.option" value="--data-compress=${data.compress}" 
+        else="--data-compress=none" >
+        <isset property="data.compress" />
+    </condition>
+
+    <!-- for developer writting and check vignette docs only -->
+	<target name ="build.vignette.only" >
+        <copy todir="${build.dir}" overwrite="true">
+            <fileset dir="${basedir}">
+                <include name="**/vignettes/**"/>
+                <exclude name=".*/**"/>
+                <exclude name="build.xml"/>
+                <exclude name="**/.svn/**"/>
+                <exclude name="**/.*"/>
+            </fileset>
+        </copy>
+        <!-- The following R started in .__rlibs, we need to clean it first -->
+        <delete dir="${r.local.libs.user}/${package.name}" />
+        <mkdir dir="${r.local.libs.user}"/>
+        <exec executable="${r.home}/bin${r.arch.dep.path}R" dir ="${build.dir}" failonerror = "true">
+		    <env key="R_HOME" value="${r.home}"/>
+		    <env key="R_LIBS_USER" value="${r.local.libs.user}"/>
+		    <env key="PATH" value="${path}"/>
+            <arg line ='CMD build ${resave.data.option} ${package.src.dir}'/>
+		</exec>
+        <echo message="${artefact.basename}.tar.gz"/>
+        <exec executable="${r.home}/bin${r.arch.dep.path}R" dir ="${build.dir}" failonerror = "true">
+		    <env key="R_HOME" value="${r.home}"/>
+		    <env key="R_LIBS_USER" value="${r.local.libs.user}"/>
+		    <env key="PATH" value="${path}"/>
+            <arg line ='CMD INSTALL --build ${data.compress.option} ${artefact.basename}.tar.gz'/>
+		</exec>
+	</target>
+
+    <!-- create sweaved.tex.doc and sweaved.output.doc if not given -->
+    <loadresource property="sweaved.tex.doc">
+        <propertyresource name="sweave.doc.name"/>
+        <filterchain>
+            <tokenfilter>
+                <filetokenizer/>
+                <replaceregex pattern="^(.*)\..*$" replace="\1.tex"/>
+            </tokenfilter>
+        </filterchain>
+    </loadresource>
+    <loadresource property="sweaved.output.doc">
+        <propertyresource name="sweave.doc.name"/>
+        <filterchain>
+            <tokenfilter>
+                <filetokenizer/>
+                <replaceregex pattern="^(.*)\..*$" replace="\1.pdf"/>
+            </tokenfilter>
+        </filterchain>
+    </loadresource>
+
+    <!-- create tex and code chunk for debugging purpose -->
+    <target name="sweave">
+        <copy todir="${build.dir}" overwrite="true">
+            <fileset dir="${basedir}">
+                <include name="${sweave.doc.path}/**"/>
+                <exclude name=".*/**"/>
+                <exclude name="build.xml"/>
+                <exclude name="**/.svn/**"/>
+                <exclude name="**/.*"/>
+            </fileset>
+        </copy>
+        <!-- need Sweave.sty -->
+        <copy todir="${build.dir}">
+            <fileset dir="${r.home}/share/texmf/tex/latex">
+                <include name="*.sty"/>
+            </fileset>
+        </copy>
+        <!-- The following R started in .__rlibs, we need to clean it first -->
+        <delete dir="${r.local.libs.user}/${package.name}" />
+        <mkdir dir="${r.local.libs.user}"/>
+        <exec executable="${r.home}/bin${r.arch.dep.path}R" dir ="${build.dir}" failonerror = "true">
+		    <env key="R_HOME" value="${r.home}"/>
+		    <env key="R_LIBS_USER" value="${r.local.libs.user}"/>
+		    <env key="PATH" value="${path}"/>
+            <arg line ='CMD Stangle ${sweave.doc.path}/${sweave.doc.name}'/>
+		</exec>
+        <exec executable="${r.home}/bin${r.arch.dep.path}R" dir ="${build.dir}" failonerror = "true">
+		    <env key="R_HOME" value="${r.home}"/>
+		    <env key="R_LIBS_USER" value="${r.local.libs.user}"/>
+		    <env key="PATH" value="${path}"/>
+            <arg line ='CMD Sweave ${sweave.doc.path}/${sweave.doc.name}'/>
+		</exec>
+    </target>
+
+    <!-- yet another debug purpose -->
+    <target name="latex">
+        <exec executable="${miktex.home}/bin/pdflatex.exe" dir="${build.dir}" failonerror = "true">
+            <arg line ='${sweaved.tex.doc}'/>
+        </exec>
+    </target>
+
+    <target name="tex" depends="sweave,latex">
+        <copy todir="${artefact.dir}" overwrite="true" >
+            <fileset dir="${build.dir}" includes="${sweaved.output.doc}"/>
+        </copy>
+    </target>
+
+	<target name ="vignette" depends='build.vignette.only,collect.vignette'>
+        <echo message=" Vignette generated " />
+	</target>
+
+    <!-- deploy to library path in ${deploy.lib.path} -->
+    <condition property="deploy.lib.option" value='--library="${deploy.lib.path}"' else="">
+        <and>
+            <isset property="deploy.lib.path" />
+            <available file="${deploy.lib.path}" type="dir"/>
+        </and>
+    </condition>
+
+    <target name='deploy.only'>
+        <exec executable="${r.home}/bin${r.arch.dep.path}R" dir ="${artefact.dir}" failonerror = "true">
+		    <env key="R_HOME" value="${r.home}"/>
+		    <env key="PATH" value="${path}"/>
+			<arg line="CMD"/>
+			<arg line="INSTALL"/>
+            <arg line="${data.compress.option}"/>
+            <arg line="${deploy.lib.option}"/>
+            <arg line="${artefact.basename}.zip"/>
+		</exec>
+    </target>
+
+    <target name="all" depends='test,collect.artefacts,collect.vignette,deploy.only' >
+        <echo message="Build Success, artefacts collected to ${artefact.dir}"/>
+        <condition property="deploy.lib.message" value='artefact is installed to ${deploy.lib.path}' 
+                   else="artefact is installed to R default library path">
+            <and>
+                <isset property="deploy.lib.path" />
+                <available file="${deploy.lib.path}" type="dir"/>
+            </and>
+        </condition>
+        <echo message="${deploy.lib.message}"/>
+    </target>
+
+    <target name = 'deploy' depends='buildzip,collect.artefacts,collect.vignette,deploy.only'>
+        <echo message='Package ${package.name} Installed successfully.'/>
+    </target>
+
+    <condition property="multiarch.option" value="--force-biarch" else="--no-multiarch">
+        <and>
+            <os family="windows" /> 
+            <equals arg1="${build.with.64.bit.r}" arg2="true" />
+            <equals arg1="${force.multiarch}" arg2="true" />
+        </and>
+    </condition>
+
+    <condition property="byte.compile.option" value="--byte-compile" else="">
+        <equals arg1="${byte.compile}" arg2="true" />
+    </condition>
+
+    <!-- ensure vignette are built -->
+	<target name ='buildzip' depends='build'>
+	<property name = "libs" value="${r.local.libs.user}" />
+	
+        <exec executable="${r.home}/bin${r.arch.dep.path}R" dir ="${build.dir}" failonerror = "true">
+		    <env key="R_HOME" value="${r.home}"/>
+		    <env key="R_LIBS_USER" value="${r.local.libs.user}"/>
+		    <env key="PATH" value="${path}"/>
+			<arg line="CMD"/>
+			<arg line="INSTALL"/>
+			<arg line="--build"/>
+            <arg line="${data.compress.option}"/>
+            <arg line="${multiarch.option}"/>
+            <arg line="${byte.compile.option}"/>
+            <arg line="${artefact.basename}.tar.gz"/>
+		</exec>
+	</target>
+	
+    <!-- we always assume build on windows -->
+	<target name ='test' depends='buildzip'>
+        <exec executable = "${r.home}/bin${r.arch.dep.path}Rscript" dir="${build.dir}" failonerror = "true">
+		    <env key="R_HOME" value="${r.home}"/>
+		    <env key="R_LIBS_USER" value="${r.local.libs.user}"/>
+		    <env key="PATH" value="${path}"/>
+			<arg line ='${test.script} ${xmlprotocol.switch}'/>
+		</exec>
+	</target>
+
+
+    <target name ="rcheck" depends='clean,roxygen'>
+        <exec executable="${r.home}/bin${r.arch.dep.path}R" dir ="${build.dir}" failonerror = "true">
+		    <env key="R_HOME" value="${r.home}"/>
+		    <env key="R_LIBS_USER" value="${r.local.libs.user}"/>
+		    <env key="PATH" value="${path}"/>
+			<arg line ='CMD check ${package.src.dir}'/>
+		</exec>
+    </target>
+	
+</project>
