@@ -1,0 +1,10 @@
+Package: DDMoRe.TEL
+Type: Package
+Title: Brings in implementation of TEL
+Version: 0.0.1
+Date: 2014-06-04
+Author: Mango Solutions
+Maintainer: Support Mango Solutions <support@mango-solutions.com>
+Description: Initial implementation of the TEL in R. It integrates with FIS using REST API. 
+License: TBD
+Depends: R(>= 2.13), RCurl(>= 1.95), rjson(>= 0.2.13)

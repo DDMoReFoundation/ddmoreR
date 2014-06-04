@@ -8,11 +8,13 @@
         <os family="windows" />
     </condition>
 
-    <echo message="HOSTNAME : ${hostname}" />
+
 
     <property name = "user.property.file" value="${hostname}.properties" />
     <echo message="Inferring your personal property file: ${user.property.file}" />
 
+    <echo message="Inferring your personal property file: ${user.property.file}" />
+    
     <available file="${basedir}/${user.property.file}" type="file" property="user.property.found" value="true" />
 
     <condition property="message.property.file" 
@@ -64,13 +66,13 @@
     <property name = "artifacts" value="${artefact.basename}.zip,${artefact.basename}*.tar.gz"/>
     <property name="sweave.doc.path" value="${package.src.dir}/vignettes" />
     <property name="sweave.doc.name" value="${package.name}.Rnw"       />
-
-    <!-- path can be overrided in the property files -->
-    <condition property = "path" value = "${env.Path}" else = "${env.PATH}" >
+    <property name="PATH" value="${r.home}/bin;${rtools.home}/bin;${rtools.home}/MinGW/bin;${miktex.home}/bin"/>
+    <!-- path can be overridden in the property files -->
+    <!--condition property = "path" value = "${env.Path}" else = "${env.PATH}" >
         <os family="windows" />
     </condition>
-    <property name = "r.local.libs.user" value = "${basedir}/.__rlibs" />
-    <echo message = "PATH setting: ${path} " />
+    <property name = "local.lib" value = "${local.lib}" />
+    <echo message = "PATH setting: ${path} " /-->
 
     <!-- target.os.arch can be overridden in property files -->
     <condition property="target.os.arch" value="x86" else="x64" >
@@ -98,6 +100,10 @@
     </condition>
 
 	<target name="clean">
+        <delete dir ="${local.lib}" failonerror = "true"/>
+        <mkdir  dir ="${local.lib}" />
+        <!-- Remove man dir-->
+        <delete dir ="${package.name}/man" failonerror = "false"/>
         <delete dir="${build.dir}"/>
         <delete dir="${artefact.dir}"/>
         <mkdir dir="${build.dir}"/>
@@ -110,10 +116,20 @@
                 <exclude name="**/.*"/>
             </fileset>
         </copy>
-        <!-- we may have other supporting libs e.g. XML or RUnit -->
-        <delete dir="${r.local.libs.user}/${package.name}" />
-        <mkdir dir="${r.local.libs.user}"/>
 	</target>
+  
+    <target name ="buildEnv" depends="clean">
+   <exec executable = "${r.home}/bin${r.arch.dep.path}Rscript" dir="${build.dir}" failonerror = "true">
+      <env key   = "R_LIBS" value="${local.lib}"/>
+      <arg value = "--vanilla"/>
+      <arg value = "--quiet"/>
+      <arg value = "--slave"/>
+      <arg value = "--file=buildEnv.R" />
+      <arg value = "--args"/>
+      <arg value = "${package.name}"/>
+      <arg value = "${output.folder}"/>
+    </exec>
+  </target>
 
     <target name="collect.artefacts">
         <copy todir="${artefact.dir}" overwrite="true">
@@ -152,7 +168,7 @@
     <property name="windows.line.separator" value="&#13;&#10;"/>
     <property name="unix.line.separator" value="&#10;"/>
 
-    <target name ="updateDescFile" depends='clean'>
+    <target name ="updateDescFile" depends='buildEnv'>
         <copy file="${basedir}/${package.src.dir}/DESCRIPTION" 
               tofile="${build.dir}/${package.src.dir}/DESCRIPTION" overwrite="true" >
             <filterchain>
@@ -197,12 +213,12 @@
         </and>
     </condition>
 
-    <target name='roxygen' depends='clean,updateDescFile' if='force.docgen.flag'>
+    <target name='roxygen' depends='clean,updateDescFile,buildEnv' if='force.docgen.flag'>
 	    <echo message="Rd documents generated." />
         <exec executable="${r.home}/bin${r.arch.dep.path}Rscript" dir="${build.dir}" failonerror = "true">
 		    <env key="R_HOME" value="${r.home}"/>
-		    <env key="R_LIBS_USER" value="${r.local.libs.user}"/>
-		    <env key="PATH" value="${path}"/>
+		    <env key="R_LIBS_USER" value="${local.lib}"/>
+		    <env key="PATH" value="${PATH}"/>
 			<arg value ="${rdgen.script}" />
 			<arg value ="${package.src.dir}" /> 
 		</exec>
@@ -219,7 +235,7 @@
         <exec executable="${r.home}/bin${r.arch.dep.path}R" dir ="${build.dir}" failonerror = "true">
 		    <env key="R_HOME" value="${r.home}"/>
 		    <env key="R_LIBS_USER" value="${r.local.libs.user}"/>
-		    <env key="PATH" value="${path}"/>
+		    <env key="PATH" value="${PATH}"/>
             <arg line ='CMD build ${resave.data.option} ${build.options.vignettes} ${package.src.dir}'/>
 		</exec>
 	</target>
@@ -229,7 +245,7 @@
         <isset property="data.compress" />
     </condition>
 
-    <!-- for developer writting and check vignette docs only -->
+    <!-- for developer writing and check vignette docs only -->
 	<target name ="build.vignette.only" >
         <copy todir="${build.dir}" overwrite="true">
             <fileset dir="${basedir}">
@@ -246,14 +262,14 @@
         <exec executable="${r.home}/bin${r.arch.dep.path}R" dir ="${build.dir}" failonerror = "true">
 		    <env key="R_HOME" value="${r.home}"/>
 		    <env key="R_LIBS_USER" value="${r.local.libs.user}"/>
-		    <env key="PATH" value="${path}"/>
+		    <env key="PATH" value="${PATH}"/>
             <arg line ='CMD build ${resave.data.option} ${package.src.dir}'/>
 		</exec>
         <echo message="${artefact.basename}.tar.gz"/>
         <exec executable="${r.home}/bin${r.arch.dep.path}R" dir ="${build.dir}" failonerror = "true">
 		    <env key="R_HOME" value="${r.home}"/>
 		    <env key="R_LIBS_USER" value="${r.local.libs.user}"/>
-		    <env key="PATH" value="${path}"/>
+		    <env key="PATH" value="${PATH}"/>
             <arg line ='CMD INSTALL --build ${data.compress.option} ${artefact.basename}.tar.gz'/>
 		</exec>
 	</target>
@@ -301,13 +317,13 @@
         <exec executable="${r.home}/bin${r.arch.dep.path}R" dir ="${build.dir}" failonerror = "true">
 		    <env key="R_HOME" value="${r.home}"/>
 		    <env key="R_LIBS_USER" value="${r.local.libs.user}"/>
-		    <env key="PATH" value="${path}"/>
+		    <env key="PATH" value="${PATH}"/>
             <arg line ='CMD Stangle ${sweave.doc.path}/${sweave.doc.name}'/>
 		</exec>
         <exec executable="${r.home}/bin${r.arch.dep.path}R" dir ="${build.dir}" failonerror = "true">
 		    <env key="R_HOME" value="${r.home}"/>
 		    <env key="R_LIBS_USER" value="${r.local.libs.user}"/>
-		    <env key="PATH" value="${path}"/>
+		    <env key="PATH" value="${PATH}"/>
             <arg line ='CMD Sweave ${sweave.doc.path}/${sweave.doc.name}'/>
 		</exec>
     </target>
@@ -340,7 +356,7 @@
     <target name='deploy.only'>
         <exec executable="${r.home}/bin${r.arch.dep.path}R" dir ="${artefact.dir}" failonerror = "true">
 		    <env key="R_HOME" value="${r.home}"/>
-		    <env key="PATH" value="${path}"/>
+		    <env key="PATH" value="${PATH}"/>
 			<arg line="CMD"/>
 			<arg line="INSTALL"/>
             <arg line="${data.compress.option}"/>
@@ -376,22 +392,16 @@
     <condition property="byte.compile.option" value="--byte-compile" else="">
         <equals arg1="${byte.compile}" arg2="true" />
     </condition>
-
     <!-- ensure vignette are built -->
 	<target name ='buildzip' depends='build'>
-	<property name = "libs" value="${r.local.libs.user}" />
-	
         <exec executable="${r.home}/bin${r.arch.dep.path}R" dir ="${build.dir}" failonerror = "true">
 		    <env key="R_HOME" value="${r.home}"/>
-		    <env key="R_LIBS_USER" value="${r.local.libs.user}"/>
-		    <env key="PATH" value="${path}"/>
+		    <env key="R_LIBS" value="${local.lib}"/>
+        <env key="PATH" value="${PATH}"/>
 			<arg line="CMD"/>
 			<arg line="INSTALL"/>
 			<arg line="--build"/>
-            <arg line="${data.compress.option}"/>
-            <arg line="${multiarch.option}"/>
-            <arg line="${byte.compile.option}"/>
-            <arg line="${artefact.basename}.tar.gz"/>
+      <arg line="${artefact.basename}.tar.gz"/>
 		</exec>
 	</target>
 	
@@ -399,8 +409,8 @@
 	<target name ='test' depends='buildzip'>
         <exec executable = "${r.home}/bin${r.arch.dep.path}Rscript" dir="${build.dir}" failonerror = "true">
 		    <env key="R_HOME" value="${r.home}"/>
-		    <env key="R_LIBS_USER" value="${r.local.libs.user}"/>
-		    <env key="PATH" value="${path}"/>
+		    <env key="R_LIBS" value="${local.lib}"/>
+		    <env key="PATH" value="${PATH}"/>
 			<arg line ='${test.script} ${xmlprotocol.switch}'/>
 		</exec>
 	</target>
@@ -409,8 +419,8 @@
     <target name ="rcheck" depends='clean,roxygen'>
         <exec executable="${r.home}/bin${r.arch.dep.path}R" dir ="${build.dir}" failonerror = "true">
 		    <env key="R_HOME" value="${r.home}"/>
-		    <env key="R_LIBS_USER" value="${r.local.libs.user}"/>
-		    <env key="PATH" value="${path}"/>
+		    <env key="R_LIBS_USER" value="${local.lib}"/>
+		    <env key="PATH" value="${PATH}"/>
 			<arg line ='CMD check ${package.src.dir}'/>
 		</exec>
     </target>
