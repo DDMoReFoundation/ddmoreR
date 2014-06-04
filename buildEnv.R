@@ -12,14 +12,19 @@ if (!require(bitops, lib.loc=localLib)){
   install.packages("./dependencies/bitops_1.0-6.tar.gz", repos=NULL, 
   lib=localLib, type="source", INSTALL_opts = "--no-lock")
 }
-
-if (!require(RCurl, lib.loc=localLib)){
-  install.packages("./dependencies/RCurl_0.3-0.tar.gz", repos=NULL, 
-  lib=localLib, type="source", INSTALL_opts = "--no-lock")
+if (!require(bitops, lib.loc=localLib)){
+  stop("bitops does not seem to be installed")
 }
-
+if (!require(RCurl, lib.loc=localLib)){
+  install.packages("./dependencies/RCurl_1.95-4.1.zip", repos=NULL, 
+  lib=localLib, INSTALL_opts = "--no-lock")
+}
+if (!require(RCurl, lib.loc=localLib)){
+  stop("RCurl does not seem to be installed")
+}
 if (!require(XML, lib.loc=localLib)){
-  install.packages("XML", repos="http://cran.rstudio.com/", lib=localLib, INSTALL_opts = "--no-lock")
+  install.packages("./dependencies/XML_3.98-1.1.zip", repos=NULL, 
+  lib=localLib, INSTALL_opts = "--no-lock")
 }
 if (!require(XML, lib.loc=localLib)){
   stop("XML does not seem to be installed")
@@ -54,6 +59,15 @@ if (!require(roxygen2, lib.loc=localLib)){
 }
 if (!require(roxygen2, lib.loc=localLib)){
   stop("roxygen2 does not seem to be installed")
+}
+if (!require(Rcpp, lib.loc=localLib)){
+  stop("Rcpp does not seem to be installed")
+}
+if (!require(stringr, lib.loc=localLib)){
+  stop("stringr does not seem to be installed")
+}
+if (!require(brew, lib.loc=localLib)){
+  stop("brew does not seem to be installed")
 }
 
 cat("done\n")
