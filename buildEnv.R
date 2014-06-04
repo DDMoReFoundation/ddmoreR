@@ -30,7 +30,7 @@ if (!require(rjson, lib.loc=localLib)){
   lib=localLib, type="source", INSTALL_opts = "--no-lock")
 }
 if (!require(rjson, lib.loc=localLib)){
-  stop("rjason does not seem to be installed")
+  stop("rjson does not seem to be installed")
 }
 if (!require(digest, lib.loc=localLib)){
   install.packages("./dependencies/digest_0.6.4.tar.gz", repos=NULL, 
