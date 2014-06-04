@@ -66,7 +66,7 @@
     <property name = "artifacts" value="${artefact.basename}.zip,${artefact.basename}*.tar.gz"/>
     <property name="sweave.doc.path" value="${package.src.dir}/vignettes" />
     <property name="sweave.doc.name" value="${package.name}.Rnw"       />
-    <property name="PATH" value="${r.home}/bin;${rtools.home}/bin;${rtools.home}/MinGW/bin;${miktex.home}/bin"/>
+    <property name="PATH" value="${r.home}/bin;${rtools.home}/bin;${miktex.home}/bin"/>
     <!-- path can be overridden in the property files -->
     <!--condition property = "path" value = "${env.Path}" else = "${env.PATH}" >
         <os family="windows" />
@@ -121,6 +121,7 @@
     <target name ="buildEnv" depends="clean">
    <exec executable = "${r.home}/bin${r.arch.dep.path}Rscript" dir="${build.dir}" failonerror = "true">
       <env key   = "R_LIBS" value="${local.lib}"/>
+      <!--env key   = "PATH" value="${PATH}"/-->
       <arg value = "--vanilla"/>
       <arg value = "--quiet"/>
       <arg value = "--slave"/>
@@ -150,7 +151,7 @@
 
     <target name="collect.vignette" if="package.has.vignette.source.file.and.need.build.vignette">
         <copy todir="${artefact.dir}" overwrite="true">
-            <fileset dir="${r.local.libs.user}/${package.name}/doc" includes="*.pdf" />
+            <fileset dir="${local.lib}/${package.name}/doc" includes="*.pdf" />
         </copy>
     </target>
 
@@ -217,7 +218,7 @@
 	    <echo message="Rd documents generated." />
         <exec executable="${r.home}/bin${r.arch.dep.path}Rscript" dir="${build.dir}" failonerror = "true">
 		    <env key="R_HOME" value="${r.home}"/>
-		    <env key="R_LIBS_USER" value="${local.lib}"/>
+		    <env key="R_LIBS" value="${local.lib}"/>
 		    <env key="PATH" value="${PATH}"/>
 			<arg value ="${rdgen.script}" />
 			<arg value ="${package.src.dir}" /> 
@@ -234,7 +235,7 @@
 	<target name ="build" depends='clean,updateDescFile,roxygen'>
         <exec executable="${r.home}/bin${r.arch.dep.path}R" dir ="${build.dir}" failonerror = "true">
 		    <env key="R_HOME" value="${r.home}"/>
-		    <env key="R_LIBS_USER" value="${r.local.libs.user}"/>
+		   <env key="R_LIBS" value="${local.lib}"/>
 		    <env key="PATH" value="${PATH}"/>
             <arg line ='CMD build ${resave.data.option} ${build.options.vignettes} ${package.src.dir}'/>
 		</exec>
@@ -257,18 +258,18 @@
             </fileset>
         </copy>
         <!-- The following R started in .__rlibs, we need to clean it first -->
-        <delete dir="${r.local.libs.user}/${package.name}" />
+        <delete dir="${local.lib}/${package.name}" />
         <mkdir dir="${r.local.libs.user}"/>
         <exec executable="${r.home}/bin${r.arch.dep.path}R" dir ="${build.dir}" failonerror = "true">
 		    <env key="R_HOME" value="${r.home}"/>
-		    <env key="R_LIBS_USER" value="${r.local.libs.user}"/>
+		    <env key="R_LIBS" value="${local.lib}"/>
 		    <env key="PATH" value="${PATH}"/>
             <arg line ='CMD build ${resave.data.option} ${package.src.dir}'/>
 		</exec>
         <echo message="${artefact.basename}.tar.gz"/>
         <exec executable="${r.home}/bin${r.arch.dep.path}R" dir ="${build.dir}" failonerror = "true">
 		    <env key="R_HOME" value="${r.home}"/>
-		    <env key="R_LIBS_USER" value="${r.local.libs.user}"/>
+		    <env key="R_LIBS" value="${local.lib}"/>
 		    <env key="PATH" value="${PATH}"/>
             <arg line ='CMD INSTALL --build ${data.compress.option} ${artefact.basename}.tar.gz'/>
 		</exec>
@@ -312,17 +313,15 @@
             </fileset>
         </copy>
         <!-- The following R started in .__rlibs, we need to clean it first -->
-        <delete dir="${r.local.libs.user}/${package.name}" />
-        <mkdir dir="${r.local.libs.user}"/>
         <exec executable="${r.home}/bin${r.arch.dep.path}R" dir ="${build.dir}" failonerror = "true">
 		    <env key="R_HOME" value="${r.home}"/>
-		    <env key="R_LIBS_USER" value="${r.local.libs.user}"/>
+		    <env key="R_LIBS" value="${local.lib}"/>
 		    <env key="PATH" value="${PATH}"/>
             <arg line ='CMD Stangle ${sweave.doc.path}/${sweave.doc.name}'/>
 		</exec>
         <exec executable="${r.home}/bin${r.arch.dep.path}R" dir ="${build.dir}" failonerror = "true">
 		    <env key="R_HOME" value="${r.home}"/>
-		    <env key="R_LIBS_USER" value="${r.local.libs.user}"/>
+		    <env key="R_LIBS" value="${local.lib}"/>
 		    <env key="PATH" value="${PATH}"/>
             <arg line ='CMD Sweave ${sweave.doc.path}/${sweave.doc.name}'/>
 		</exec>
@@ -357,6 +356,7 @@
         <exec executable="${r.home}/bin${r.arch.dep.path}R" dir ="${artefact.dir}" failonerror = "true">
 		    <env key="R_HOME" value="${r.home}"/>
 		    <env key="PATH" value="${PATH}"/>
+        <env key="R_LIBS" value="${local.lib}"/>
 			<arg line="CMD"/>
 			<arg line="INSTALL"/>
             <arg line="${data.compress.option}"/>
@@ -419,7 +419,7 @@
     <target name ="rcheck" depends='clean,roxygen'>
         <exec executable="${r.home}/bin${r.arch.dep.path}R" dir ="${build.dir}" failonerror = "true">
 		    <env key="R_HOME" value="${r.home}"/>
-		    <env key="R_LIBS_USER" value="${local.lib}"/>
+		    <env key="R_LIBS" value="${local.lib}"/>
 		    <env key="PATH" value="${PATH}"/>
 			<arg line ='CMD check ${package.src.dir}'/>
 		</exec>
