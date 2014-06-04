@@ -1,9 +1,10 @@
-setwd("C:/PKPDStick/MDL IDE/64bits/workspace/warfarin/src/package")
+setwd("C:/Users/sdeshmukh/git/TEL.R/R/")
 source("workflowFunctions.R")
 source("execute.R")
 source("fileUtils.R")
 source("mdlUtils.R")
 source("server.R")
+source("outputObject.R")
 
 
 ## ----Initialise-------------------------------------------------------
