@@ -31,31 +31,31 @@ if (!require(XML, lib.loc=localLib)){
 }
 
 if (!require(rjson, lib.loc=localLib)){
-  install.packages("./dependencies/rjson_0.2.13.tar.gz", repos=NULL, 
-  lib=localLib, type="source", INSTALL_opts = "--no-lock")
+  install.packages("./dependencies/rjson_0.2.13.zip", repos=NULL, 
+  lib=localLib, INSTALL_opts = "--no-lock")
 }
 if (!require(rjson, lib.loc=localLib)){
   stop("rjson does not seem to be installed")
 }
 if (!require(digest, lib.loc=localLib)){
-  install.packages("./dependencies/digest_0.6.4.tar.gz", repos=NULL, 
-  lib=localLib, type="source", INSTALL_opts = "--no-lock")
+  install.packages("./dependencies/digest_0.6.4.zip", repos=NULL, 
+  lib=localLib, INSTALL_opts = "--no-lock")
 }
 if (!require(digest, lib.loc=localLib)){
   stop("digest does not seem to be installed")
 }
 if (!require(roxygen2, lib.loc=localLib)){
-  install.packages("./dependencies/brew_1.0-6.tar.gz", repos=NULL, 
-  lib=localLib, type="source", INSTALL_opts = "--no-lock")
+  install.packages("./dependencies/brew_1.0-6.zip", repos=NULL, 
+  lib=localLib, INSTALL_opts = "--no-lock")
   
-  install.packages("./dependencies/Rcpp_0.11.1.tar.gz", repos=NULL, 
-  lib=localLib, type="source", INSTALL_opts = "--no-lock")  
+  install.packages("./dependencies/Rcpp_0.11.1.zip", repos=NULL, 
+  lib=localLib, INSTALL_opts = "--no-lock")  
   
-  install.packages("./dependencies/stringr_0.6.2.tar.gz", repos=NULL, 
-  lib=localLib, type="source", INSTALL_opts = "--no-lock")
+  install.packages("./dependencies/stringr_0.6.2.zip", repos=NULL, 
+  lib=localLib, INSTALL_opts = "--no-lock")
   
-  install.packages("./dependencies/roxygen2_3.1.0.tar.gz", repos=NULL, 
-  lib=localLib, type="source", INSTALL_opts = "--no-lock")
+  install.packages("./dependencies/roxygen2_3.1.0.zip", repos=NULL, 
+  lib=localLib, INSTALL_opts = "--no-lock")
 }
 if (!require(roxygen2, lib.loc=localLib)){
   stop("roxygen2 does not seem to be installed")
