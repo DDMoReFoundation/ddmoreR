@@ -2,7 +2,7 @@
 #'
 #' Passes an MCLObject to the target software for execution.
 #'
-#' @author 
+#' @author Jonathan Chard
 #' @param MCLObject An object of class mclObj.
 #' @param target S string specifying the target software. Currently, possible targets are "NONMEM", "PsN" and "BUGS".
 #' @param subfolder Specify the name of a subfolder within the current working directory in which to store the results.
