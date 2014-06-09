@@ -1,4 +1,13 @@
-
+#' Estimate  
+#'
+#' Passes an MCLObject to the target software for execution.
+#'
+#' @author 
+#' @param MCLObject An object of class mclObj.
+#' @param target S string specifying the target software. Currently, possible targets are "NONMEM", "PsN" and "BUGS".
+#' @param subfolder Specify the name of a subfolder within the current working directory in which to store the results.
+#' @param collect Logical dictating if the results should be collected.
+#' @param addargs String specifying additional arguments to be passed to the target software.
 estimate <- function(MCLObject=NULL, target=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), collect=TRUE, addargs="" ) {
   originalDirectory <- getwd()
   outputObject <- list()
