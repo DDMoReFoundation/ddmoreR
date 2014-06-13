@@ -33,7 +33,7 @@
     <property file="${basedir}/${user.property.file}" />
     <property file="${basedir}/default.properties" />
     <property name="major.version" value="0.0"/>
-    <property name="package.version" value="${major.version}${minor.version}"/>
+    <property name="package.version" value="${major.version}.${minor.version}"/>
 
 
     <fail message="package.src.dir is not set!  Please set package.src.dir to the relative path of package source directory" >
