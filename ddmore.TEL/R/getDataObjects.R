@@ -10,7 +10,7 @@
 #'
 #' @usage getDataObjects(file, name, raw=F)
 #'
-#' @param file File path or URL of the .mdl file containing the data object.
+#' @param x File path or URL of the .mdl file containing the data object.
 #'
 #' @param name – (Optional) Specifies the data object item, by name, to be 
 #' retrieved by getDataObjects. If multiple data objects exist in the .mdl file 
@@ -46,10 +46,9 @@
 #' ## Using data object name from MCL code
 #' tumourSizeDataObject<-ThamDataObject$tumour_size_dat
 #'
-#' ## Using awk to change data Object text lines prior to parsing.
-#' ThamDataObject2<- getDataObjects(awk("myawkfile.awk", ThamDataObject@RAW))
+#' @include telClasses.R
 
-setGeneric("getDataObjects", function(file, name){ 
+setGeneric("getDataObjects", function(x, name){ 
   ## create object in R from parser:
   #x <- .callParser(loc=file, obType="dataObject", obName=name) # should return a named list of objects
   #return(x) # return the value
@@ -58,8 +57,8 @@ setGeneric("getDataObjects", function(file, name){
 
 #' @rdname getDataObjects-methods
 #' @aliases getDataObjects,mogObj,mogObj-method
-setMethod("getDataObjects", "mogObj", function(object){
-    return(object@dataObj)
+setMethod("getDataObjects", "mogObj", function(x){
+   return(x@dataObj)
 })
 
 

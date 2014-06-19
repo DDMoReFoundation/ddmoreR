@@ -5,7 +5,7 @@
 ###############################################################################
 
 
-validity.NMProblem <- function(object)
+validity.dataObj <- function(object)
 {
 	stopifnot(is.list(object$DATA_INPUT_VARIABLES))
   stopifnot(is.list(object$SOURCE))
@@ -38,3 +38,47 @@ setClass("dataObj",
     ), 
   validity = validity.dataObj
 )
+
+
+setClass("parObj", 
+  slots= c(
+  STRUCTURAL = "list",
+  PRIOR = "list",
+  VARIABILITY = "list"
+  )
+)
+
+# Create modPred class:
+setClass("modPred", 
+  slots= c(
+  ODE = "vector",
+  LIBRARY = "vector"
+  )
+)
+
+
+### Create mdlObj class:
+
+setClass("mdlObj", 
+  slots= c(
+    MODEL_INPUT_VARIABLES = "list",
+    STRUCTURAL_PARAMETERS = "vector",
+    VARIABILITY_PARAMETERS = "vector",
+    GROUP_VARIABLES = "vector",
+    RANDOM_VARIABLE_DEFINITION ="vector",
+    INDIVIDUAL_VARIABLES = "vector",
+    MODEL_PREDICTION = "modPred",
+    OBSERVATION = "list"
+  )
+)
+
+### Create mogObj class:
+
+setClass("mogObj", 
+  slots= c(
+  dataObj = "dataObj",
+  parObj = "parObj",
+  mdlObj = "mdlObj"
+  )
+)
+
