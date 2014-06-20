@@ -1,0 +1,88 @@
+##############################################################
+#' read
+#'
+#' A "read" method for Data Objects and MOG objects  (S4 objects of class 
+#' "dataObj" and "mogObj"). This uses information within the dataObj object to 
+#' define where and how to retrieve the data, attributes of dataset columns 
+#' (naming, type, units where applicable) and, if specified, how to derive 
+#' additional dataset columns.
+#'
+#' @usage read(dataObj, deriveVariables=TRUE, categoricalAsFactor=TRUE, recode=TRUE, ...)
+#' @usage read(mogObj, deriveVariables=TRUE, categoricalAsFactor=TRUE, recode=TRUE, ...)
+#'
+#' @param object Object of class "dataObj" or "mogObj"
+#' @param deriveVariables (Boolean) apply any code specified within the DATA_DERIVED_VARIABLES block. Default=TRUE
+#' @param categoricalAsFactor (Boolean) convert any dataset variables defined as categorical to factor.
+#' @param recode (Boolean) apply any “recode” attributes defined within the DATA_INPUT_VARIABLES block.
+#' @param asRaw – (Boolean) If TRUE, equivalent to setting deriveVariables, categoricalAsFactor and recode to FALSE.
+#' @param ... Other named arguments to pass on to read.csv
+#'
+#' @return Returns a data frame or list of data frames containing the dataset(s) as described in the Data 
+#' Object SOURCE and HEADER information.
+#'
+#' @export
+#' @docType methods
+#' @rdname read-methods
+#'
+#' @examples
+#' myData <- read(myMOG$tumour_size_dat) 
+#' head(myData)
+#'
+#' @include telClasses.R
+#' @include utils.R
+
+setGeneric("read", function(object, deriveVariables=TRUE, categoricalAsFactor=TRUE, recode=TRUE, asRaw=FALSE, ...){ 
+  standardGeneric("read")
+})
+
+#' @rdname read-methods
+#' @aliases read,dataObj,dataObj-method
+setMethod("read", "dataObj", function(object, deriveVariables=TRUE, categoricalAsFactor=TRUE, recode=TRUE, asRaw=FALSE, ...){
+  # if asRaw=TRUE, set the following arguments as FALSE
+  if(asRaw){
+    deriveVariables <- FALSE
+    categoricalAsFactors <- FALSE
+    recode <- FALSE
+  }
+  
+  res <- .importCSV(object, categoricalAsFactor,  ...)
+  
+  # Apply code from DATA_DERIVED_VARIABLES:
+  if(deriveVariables){
+    env1 <- new.env()
+    codeString <- object@DATA_DERIVED_VARIABLES
+    if(is.data.frame(res)){
+      # return directly if there is only one data file
+        res <- .rowEvaluate(res, codeString)
+    }else{ # create a list of the results
+        res <- lapply(res, .rowEvaluate, codeString)
+    }
+  }
+
+  # Apply code from DATA_INPUT_VARIABLES
+  if(recode){
+    input <- object@DATA_INPUT_VARIABLES
+    vars <- names(input)
+    
+    for(ii in vars){
+      type <- input[[ii]]$type
+      if(type=="categorical"){try(res[, ii] <-as.factor(res[, ii]))}
+      if(type=="continuous"){try(res[, ii] <-as.numeric(res[, ii]))}
+            #TODO: add more options here 
+    }
+  }
+  
+  return(res)
+})
+
+
+#' @rdname read-methods
+#' @aliases read,mogObj,mogObj-method
+setMethod("read", "mogObj", function(object, deriveVariables=TRUE, categoricalAsFactor=TRUE, recode=TRUE, asRaw=FALSE, ...){
+  # extract dataObj
+  ob <- object@dataObj
+  # pass to method for dataObj
+  read(ob,  deriveVariables=deriveVariables, categoricalAsFactor=categoricalAsFactor, 
+    recode=recde, asRaw=asRaw, ... )
+})
+

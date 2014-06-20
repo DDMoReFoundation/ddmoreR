@@ -52,6 +52,10 @@ setGeneric("getDataObjects", function(x, name){
   ## create object in R from parser:
   #x <- .callParser(loc=file, obType="dataObject", obName=name) # should return a named list of objects
   #return(x) # return the value
+  
+  # Extract only data objects
+  res <-  par[sapply(par, is.dataObj)]
+  
   standardGeneric("getDataObjects")
 })
 

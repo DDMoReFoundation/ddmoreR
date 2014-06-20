@@ -40,6 +40,24 @@ setClass("dataObj",
 )
 
 
+##############################################################
+#' is.dataObj
+#'
+#' Determines if an object is of class "dataObj"
+#'
+#' @usage is.dataObj(onject)
+#'
+#' @returns TRUE or FALSE 
+is.dataObj <- function(obj){
+
+  class(obj)=="dataObj"
+
+}
+
+
+
+
+
 setClass("parObj", 
   slots= c(
   STRUCTURAL = "list",
@@ -57,9 +75,9 @@ setClass("modPred",
 )
 
 
-### Create mdlObj class:
+### Create modObj class:
 
-setClass("mdlObj", 
+setClass("modObj", 
   slots= c(
     MODEL_INPUT_VARIABLES = "list",
     STRUCTURAL_PARAMETERS = "vector",
@@ -78,7 +96,7 @@ setClass("mogObj",
   slots= c(
   dataObj = "dataObj",
   parObj = "parObj",
-  mdlObj = "mdlObj"
+  modObj = "modObj"
   )
 )
 
