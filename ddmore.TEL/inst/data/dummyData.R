@@ -1,23 +1,18 @@
 #source("createClasses.R")
 
 ### Dummy dataObj:
-# Need to replace some of the values with strings:
-categorical <-"categorical"
-continuous <- "continuous"
-nonmemFormat <- "nonmemFormat"
-covdata <- "covdata"
 
 dataObj <- new("dataObj",
     DATA_INPUT_VARIABLES= list(
-    ID = list(type=categorical), 
-    TIME=list(type=continuous, units="h")
+    ID = list(type="categorical"), 
+    TIME=list(type="continuous", units="h")
   ),
   SOURCE = list(
     myData = list(
     dataFile1 = list(file="tumour_exposure.csv",
-      inputformat=nonmemFormat),
+      inputformat="nonmemFormat"),
     dataFile2 = list(file="ex_data_prolactin.csv",
-      inputformat=nonmemFormat)  
+      inputformat="nonmemFormat")  
     ),
     INLINE = "#ID TIM WT AGE SEX AMT DVID DVMDV
     1 0 6 6.7 50 1 100 0 1"),
@@ -26,9 +21,9 @@ dataObj <- new("dataObj",
   FILE = list(),
   DESIGN = list(
     SizeArm=list(20,20,40,40),
-    AGE=list(source=covdata),
-    SEX=list(source=covdata, units=""),
-    WT=list(source=covdata)
+    AGE=list(source="covdata"),
+    SEX=list(source="covdata", units=""),
+    WT=list(source="covdata")
   ),
   DATA_DERIVED_VARIABLES = "AGE=PNAY
     if (AGE>20) {
@@ -43,13 +38,13 @@ dataObj <- new("dataObj",
 
 dataObj2 <- new("dataObj",
     DATA_INPUT_VARIABLES= list(
-    NID = list(type=categorical), 
-    TIME=list(type=continuous, units="h")
+    NID = list(type="categorical"), 
+    TIME=list(type="continuous", units="h")
   ),
   SOURCE = list(
     myData = list(
     dataFile2 = list(file="ex_data_prolactin.csv",
-      inputformat=nonmemFormat)  
+      inputformat="nonmemFormat")  
     ),
     INLINE = "#ID TIM WT AGE SEX AMT DVID DVMDV
     1 0 6 6.7 50 1 100 0 1"),
@@ -58,9 +53,9 @@ dataObj2 <- new("dataObj",
   FILE = list(),
   DESIGN = list(
     SizeArm=list(20,20,40,40),
-    AGE=list(source=covdata),
-    SEX=list(source=covdata, units=""),
-    WT=list(source=covdata)
+    AGE=list(source="covdata"),
+    SEX=list(source="covdata", units=""),
+    WT=list(source="covdata")
   ),
   DATA_DERIVED_VARIABLES = "if(AMT<1){DV=999}"
 
@@ -68,9 +63,6 @@ dataObj2 <- new("dataObj",
 
 
 ### Dummy parObj:
-# Need to replace some of the values with strings:
-VAR <- "VAR"
-
 
 parObj <- new("parObj", 
   STRUCTURAL = list(
@@ -80,9 +72,9 @@ parObj <- new("parObj",
   PRIOR = list(),
   VARIABILITY = list(
     PPV_SIZE0=list(value=0.317,
-        type=VAR),
+        type="VAR"),
     PPV_TOVER=list(value=0.082,
-        type=VAR)
+        type="VAR")
   )
 )
 
@@ -93,14 +85,11 @@ modPred <- new("modPred",
 )
 
 ### Dummy modObj
-idv <- "idv"
-POP_PROB_CYP_SLOW <- "POP_PROB_CYP_SLOW"
-id <- "id"
 
 modObj <- new("modObj", 
     MODEL_INPUT_VARIABLES = list(
-      ID=list(use=id,level=2),
-      TIME=list(use=idv,units="h")
+      ID=list(use="id",level=2),
+      TIME=list(use="idv",units="h")
     ),
     STRUCTURAL_PARAMETERS = c("POP_SIZE0", "POP_TOVER",  "POP_AE50", "POP_TEQ"),
     VARIABILITY_PARAMETERS = c("POP_SIZE0", "POP_TOVER",  "POP_AE50",  "RUV_CV", "RUV_SD" ),
@@ -139,8 +128,8 @@ mogObj <- new("mogObj",
 
 
 # String code example:
-test <- "parObj <- new('parObj', STRUCTURAL = list( POP_SIZE0=list(value=6.66,lo=1,hi=10),POP_TOVER=list(value=18.9,lo=1,hi=200)),PRIOR = list(),VARIABILITY = list(PPV_SIZE0=list(value=0.317,type=VAR),PPV_TOVER=list(value=0.082,type=VAR)))"
-eval(parse(text=test))
+#test <- "parObj <- new('parObj', STRUCTURAL = list( POP_SIZE0=list(value=6.66,lo=1,hi=10),POP_TOVER=list(value=18.9,lo=1,hi=200)),PRIOR = list(),VARIABILITY = list(PPV_SIZE0=list(value=0.317,type=VAR),PPV_TOVER=list(value=0.082,type=VAR)))"
+#eval(parse(text=test))
 
 
 
