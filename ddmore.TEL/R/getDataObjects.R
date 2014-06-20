@@ -1,11 +1,11 @@
 ##############################################################
 #' getDataObjects
 #'
-#' Retrieves Data Object(s) (MCL object of class “dataObj”) from a locally stored 
-#' MDL file or from a URL and returns an S4 object of class “dataObj”. 
-#' Slots within this object are  “DATA_INPUT_VARIABLES”, “SOURCE”, “DATA_DERIVED_VARIABLES” 
-#' and “DESIGN” which are named lists of lists containing parsed information from 
-#' the relevant MCL Data Object blocks and, optionally, the “RAW” vector of 
+#' Retrieves Data Object(s) (MCL object of class "dataObj") from a locally stored 
+#' MDL file or from a URL and returns an S4 object of class "dataObj". 
+#' Slots within this object are  "DATA_INPUT_VARIABLES", "SOURCE", "DATA_DERIVED_VARIABLES" 
+#' and "DESIGN" which are named lists of lists containing parsed information from 
+#' the relevant MCL Data Object blocks and, optionally, the "RAW" vector of 
 #' character strings corresponding to the lines of MCL code within the MCL Data Object.
 #'
 #' @usage getDataObjects(file, name, raw=F)
@@ -18,7 +18,7 @@
 #'
 #' @details
 #' getDataObjects only retrieves the MCL code, it does not read any data file 
-#' identified within the “SOURCE” block. A "read" method should be applied to 
+#' identified within the "SOURCE" block. A "read" method should be applied to 
 #' the resulting object which interprets the SOURCE, FILE and HEADER information 
 #' and reads the specified data file into a data frame.
 #'

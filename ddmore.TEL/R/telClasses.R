@@ -7,13 +7,13 @@
 
 validity.dataObj <- function(object)
 {
-	stopifnot(is.list(object$DATA_INPUT_VARIABLES))
-  stopifnot(is.list(object$SOURCE))
-  stopifnot(is.list(object$RSCRIPT))
-  stopifnot(is.list(object$HEADER))
-  stopifnot(is.list(object$FILE))
-  stopifnot(is.list(object$DESIGN))
-  stopifnot(is.vector(object$DATA_DERIVED_VARIABLES))
+	stopifnot(is.list(object@DATA_INPUT_VARIABLES))
+  stopifnot(is.list(object@SOURCE))
+  stopifnot(is.list(object@RSCRIPT))
+  stopifnot(is.list(object@HEADER))
+  stopifnot(is.list(object@FILE))
+  stopifnot(is.list(object@DESIGN))
+  stopifnot(is.vector(object@DATA_DERIVED_VARIABLES))
   return(TRUE)
 }
 
