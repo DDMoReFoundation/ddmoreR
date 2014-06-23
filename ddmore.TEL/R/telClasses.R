@@ -4,7 +4,7 @@
 # Author: khanley
 ###############################################################################
 
-
+#### Data object class
 validity.dataObj <- function(object)
 {
 	stopifnot(is.list(object@DATA_INPUT_VARIABLES))
@@ -45,7 +45,7 @@ setClass("dataObj",
 #'
 #' Determines if an object is of class "dataObj"
 #'
-#' @usage is.dataObj(onject)
+#' @usage is.dataObj(object)
 #'
 #' @returns TRUE or FALSE 
 is.dataObj <- function(obj){
@@ -54,18 +54,66 @@ is.dataObj <- function(obj){
 
 }
 
+
+#### Task object class
+validity.taskObj <- function(object)
+{
+	stopifnot(is.list(object@IMPORT))
+  stopifnot(is.list(object@DATA))
+  stopifnot(is.list(object@PARAMETER))
+  stopifnot(is.list(object@MODEL))
+  stopifnot(is.list(object@TASK_FUNCTION))
+  stopifnot(is.list(object@TARGET_CODE))
+  return(TRUE)
+}
+
+#' @slot IMPORT A vector
+#' @slot DATA A named list
+#' @slot PARAMETER A named list
+#' @slot MODEL A named list
+#' @slot TASK_FUNCTION A named list
+#' @slot TARGET_CODE A named list
+#' @author khanley
 setClass("taskObj", 
   slots= c(
-  IMPORT = "vector",
-  DATA = "vector",
-  PARAMETER = "vector",
-  MODEL = "vector",
-  TASK_FUNCTION = "vector",
-  TARGET_CODE = "vector"
+  IMPORT = "list",
+  DATA = "list",
+  PARAMETER = "list",
+  MODEL = "list",
+  TASK_FUNCTION = "list",
+  TARGET_CODE = "list"
   )
 )
 
+##############################################################
+#' is.taskObj
+#'
+#' Determines if an object is of class "taskObj"
+#'
+#' @usage is.taskObj(object)
+#'
+#' @returns TRUE or FALSE 
+is.taskObj <- function(obj){
 
+  class(obj)=="taskObj"
+
+}
+
+
+#### Parameter object class
+
+validity.parObj <- function(object)
+{
+	stopifnot(is.list(object@STRUCTURAL))
+  stopifnot(is.list(object@PRIOR))
+  stopifnot(is.list(object@VARIABILITY))
+  return(TRUE)
+}
+
+#' @slot STRUCTURAL A vector
+#' @slot PRIOR A named list
+#' @slot VARIABILITY A named list
+#' @author khanley
 setClass("parObj", 
   slots= c(
   STRUCTURAL = "list",
@@ -74,7 +122,37 @@ setClass("parObj",
   )
 )
 
+#' is.parObj
+#'
+#' Determines if an object is of class "parObj"
+#'
+#' @usage is.parObj(object)
+#'
+#' @returns TRUE or FALSE 
+is.parObj <- function(obj){
+
+  class(obj)=="parObj"
+
+}
+
+
+
+#### Model prediction object class
+
+
+validity.modPred <- function(object)
+{
+	stopifnot(is.vector(object@ODE))
+  stopifnot(is.vector(object@LIBRARY))
+  return(TRUE)
+}
+
+
 # Create modPred class:
+
+#' @slot ODE A vector
+#' @slot LIBRARY A vector
+#' @author khanley
 setClass("modPred", 
   slots= c(
   ODE = "vector",
@@ -83,8 +161,48 @@ setClass("modPred",
 )
 
 
+#' is.modPred
+#'
+#' Determines if an object is of class "modPred"
+#'
+#' @usage is.modPred(object)
+#'
+#' @returns TRUE or FALSE 
+is.modPred <- function(obj){
+
+  class(obj)=="modPred"
+
+}
+
+
+
+#### Model object class
+
+
+validity.modObj<- function(object)
+{
+	stopifnot(is.list(object@MODEL_INPUT_VARIABLES))
+	stopifnot(is.vector(object@STRUCTURAL_PARAMETERS))
+	stopifnot(is.vector(object@VARIABILITY_PARAMETERS))
+	stopifnot(is.vector(object@GROUP_VARIABLES))
+	stopifnot(is.vector(object@RANDOM_VARIABLE_DEFINITION))
+	stopifnot(is.vector(object@INDIVIDUAL_VARIABLES))
+	stopifnot(is.modPred(object@MODEL_PREDICTION))
+  stopifnot(is.list(object@OBSERVATION))
+  return(TRUE)
+}
+
 ### Create modObj class:
 
+#' @slot MODEL_INPUT_VARIABLES A list
+#' @slot STRUCTURAL_PARAMETERS A vector
+#' @slot VARIABILITY_PARAMETERS A vector
+#' @slot GROUP_VARIABLES A vector
+#' @slot RANDOM_VARIABLE_DEFINITION A vector
+#' @slot INDIVIDUAL_VARIABLES A vector
+#' @slot MODEL_PREDICTION An object of class "modPred"
+#' @slot OBSERVATION A list
+#' @author khanley
 setClass("modObj", 
   slots= c(
     MODEL_INPUT_VARIABLES = "list",
@@ -98,8 +216,40 @@ setClass("modObj",
   )
 )
 
+#' is.modObj
+#'
+#' Determines if an object is of class "modObj"
+#'
+#' @usage is.modPObj(object)
+#'
+#' @returns TRUE or FALSE 
+is.modObj <- function(obj){
+
+  class(obj)=="modObj"
+
+}
+
+#### MOG class
+
+
+
+validity.mogObj<- function(object)
+{
+	stopifnot(is.dataObj(object@dataObj))
+	stopifnot(is.parObj(object@parObj))
+	stopifnot(is.modObj(object@modObj))
+	stopifnot(is.taskObj(object@taskObj))
+  return(TRUE)
+}
+
+
 ### Create mogObj class:
 
+#' @slot dataObj Object of class "dataObj"
+#' @slot parObj Object of class "parObj"
+#' @slot modObj Object of class "modObj"
+#' @slot taskObj Object of class "taskObj"
+#' @author khanley
 setClass("mogObj", 
   slots= c(
   dataObj = "dataObj",
@@ -108,4 +258,20 @@ setClass("mogObj",
   taskObj = "taskObj"
   )
 )
+
+
+#' is.mogObj
+#'
+#' Determines if an object is of class "mogObj"
+#'
+#' @usage is.mogObj(object)
+#'
+#' @returns TRUE or FALSE 
+is.mogObj <- function(obj){
+
+  class(obj)=="mogObj"
+
+}
+
+
 
