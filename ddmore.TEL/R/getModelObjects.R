@@ -22,9 +22,9 @@
 #'
 #' @usage getModelObject(file, name)
 #'
-#' @param x File path or URL of the .mdl file containing the data object.
+#' @param x File path, URL of the .mdl file containing the task object or a MOG (object of class "mogObj".
 #'
-#' @return an S4 Object of class "modObj".
+#' @return An S4 Object of class "modObj".
 #'
 #' @export
 #' @docType methods
@@ -65,7 +65,7 @@ setGeneric("getModelObjects", function(x, name){
   # Extract only data objects
   #res <-  par[sapply(par, is.dataObj)]
   warning("No parsing method implemented yet")
-  standardGeneric("getParameterObjects")
+  standardGeneric("getModelObjects")
 })
 
 #' @rdname getModelObjects-methods

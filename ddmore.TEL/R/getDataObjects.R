@@ -10,7 +10,7 @@
 #'
 #' @usage getDataObjects(file, name)
 #'
-#' @param x File path or URL of the .mdl file containing the data object.
+#' @param x File path, URL of the .mdl file containing the task object or a MOG (object of class "mogObj".
 #'
 #' @param name – (Optional) Specifies the data object item, by name, to be 
 #' retrieved by getDataObjects. If multiple data objects exist in the .mdl file 
@@ -22,8 +22,7 @@
 #' the resulting object which interprets the SOURCE, FILE and HEADER information 
 #' and reads the specified data file into a data frame.
 #'
-#' @return Returns an S4 Object of class "dataObj" containing slots "RAW", 
-#' "DATA_INPUT_VARIABLES", "SOURCE", "DATA_DERIVED_VARIABLES" and "DESIGN".
+#' @return An S4 Object of class "dataObj".
 #'
 #' @export
 #' @docType methods

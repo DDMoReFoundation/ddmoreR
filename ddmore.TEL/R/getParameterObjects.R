@@ -13,15 +13,14 @@
 #'
 #' @usage getParameterObjects(file, name)
 #'
-#' @param x File path or URL of the .mdl file containing the data object.
+#' @param x File path, URL of the .mdl file containing the task object or a MOG (object of class "mogObj".
 #'
 #' @param name – (Optional) Specifies the parameter object item, by name, to be 
 #' retrieved by getParameterObjects. If multiple parameter objects exist in the 
 #' .mdl file then using the name argument helps users target a specific parameter 
 #' object. 
 #'
-#' @return an S4 Object of class "parObj" containing slots "RAW", "STUCTURAL" 
-#' and "VARIABILITY".
+#' @return An S4 Object of class "parObj".
 #'
 #' @export
 #' @docType methods
