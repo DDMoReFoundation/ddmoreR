@@ -54,8 +54,16 @@ is.dataObj <- function(obj){
 
 }
 
-
-
+setClass("taskObj", 
+  slots= c(
+  IMPORT = "vector",
+  DATA = "vector",
+  PARAMETER = "vector",
+  MODEL = "vector",
+  TASK_FUNCTION = "vector",
+  TARGET_CODE = "vector"
+  )
+)
 
 
 setClass("parObj", 
@@ -96,7 +104,8 @@ setClass("mogObj",
   slots= c(
   dataObj = "dataObj",
   parObj = "parObj",
-  modObj = "modObj"
+  modObj = "modObj", 
+  taskObj = "taskObj"
   )
 )
 

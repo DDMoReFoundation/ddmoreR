@@ -8,7 +8,7 @@
 #' the relevant MCL Data Object blocks and, optionally, the "RAW" vector of 
 #' character strings corresponding to the lines of MCL code within the MCL Data Object.
 #'
-#' @usage getDataObjects(file, name, raw=F)
+#' @usage getDataObjects(file, name)
 #'
 #' @param x File path or URL of the .mdl file containing the data object.
 #'

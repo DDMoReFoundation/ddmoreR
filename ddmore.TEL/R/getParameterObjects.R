@@ -1,0 +1,78 @@
+##############################################################
+#' getParameterObjects
+#'
+#' Retrieves Parameter Object(s) (MCL object of type "parObj") from a locally 
+#' stored MDL file, from a URL or an object of class "mogObj" and returns an S4 object of class "parObj". 
+#' Slots within this object are  "STRUCTURAL" and "VARIABILITY" which are named 
+#' lists of lists containing parsed information from the relevant MCL Parameter 
+#' Object blocks, and, optionally, "RAW" – a vector of character strings 
+#' corresponding to the lines of MCL code within the MCL Parameter Object.
+#' The user should be able to specify a named parameter object from the MDL file 
+#' as an argument, so that the nominated parameter objects can be returned.
+
+#'
+#' @usage getParameterObjects(file, name)
+#'
+#' @param x File path or URL of the .mdl file containing the data object.
+#'
+#' @param name – (Optional) Specifies the parameter object item, by name, to be 
+#' retrieved by getParameterObjects. If multiple parameter objects exist in the 
+#' .mdl file then using the name argument helps users target a specific parameter 
+#' object. 
+#'
+#' @return an S4 Object of class "parObj" containing slots "RAW", "STUCTURAL" 
+#' and "VARIABILITY".
+#'
+#' @export
+#' @docType methods
+#' @rdname getParameterObjects-methods
+#'
+#' @examples
+#' ## Retrieve from the DDMoRe Library
+#' ThamParObject <- getParameterObjects(file="http://ddmore.eu/model-repository/model/download/127.17?filename=2008ThamJCCR.mdl")
+#' 
+#' ## retrieve from a local .mdl file
+#' ThamParObject <- getParameterObjects("2008ThamJCCR.mdl") 
+#' 
+#' ## retrieve a named item from a local .mdl file
+#' tumourSizeParObject<-getParameterObjects("2008ThamJCCR.mdl",
+#'   				name=" tumour_size_par")
+#' 
+#' ThamParObject[[1]] ## first parameter object within ThamParObject
+#' ## Using parameter object name from MCL code
+#' tumourSizeParObject<-ThamParObject$tumour_size_par
+#' 
+#' ## Change the initial values for structural parameters
+#' ## Uses the “update” method
+#' ThamParObject2<-update(ThamParObject@STRUCTURAL,
+#' 				what=”value”,
+#' 				with=list(POP_SIZE0=7, 
+#' 					    POP_TOVER=15, 
+#' 					    POP_AE50=10000, 
+#' 					    POP_TEQ=5)
+#' 				)
+#' 
+#'
+#' @include telClasses.R
+
+setGeneric("getParameterObjects", function(x, name){ 
+  ## create object in R from parser:
+  #x <- .callParser(loc=file, obType="dataObject", obName=name) # should return a named list of objects
+
+  # Extract only data objects
+  #res <-  par[sapply(par, is.dataObj)]
+  warning("No parsing method implemented yet")
+  standardGeneric("getParameterObjects")
+})
+
+#' @rdname getDataObjects-methods
+#' @aliases getParameterObjects,mogObj,mogObj-method
+setMethod("getParameterObjects", signature=signature(x="mogObj"), function(x){
+   return(x@parObj)
+})
+
+
+
+
+
+
