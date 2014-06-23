@@ -51,17 +51,16 @@
 setGeneric("getDataObjects", function(x, name){ 
   ## create object in R from parser:
   #x <- .callParser(loc=file, obType="dataObject", obName=name) # should return a named list of objects
-  #return(x) # return the value
-  
+  warning("No parsing method implemented yet")
   # Extract only data objects
-  res <-  par[sapply(par, is.dataObj)]
+  #res <-  par[sapply(par, is.dataObj)]
   
   standardGeneric("getDataObjects")
 })
 
 #' @rdname getDataObjects-methods
 #' @aliases getDataObjects,mogObj,mogObj-method
-setMethod("getDataObjects", "mogObj", function(x){
+setMethod("getDataObjects", signature=signature(x="mogObj"), function(x){
    return(x@dataObj)
 })
 
