@@ -32,7 +32,6 @@
 #' 
 ## Using task properties object name from MCL code
 #' tumourSizeTaskObject<-ThamTaskObject$tumour_size_task
-
 #' ## TODO
 #' ## Add example of altering Task Object
 #'

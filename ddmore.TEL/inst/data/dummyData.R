@@ -2,7 +2,7 @@
 
 ### Dummy dataObj:
 
-dataObj <- new("dataObj",
+dataObj1 <- new("dataObj",
     DATA_INPUT_VARIABLES= list(
     ID = list(type="categorical"), 
     TIME=list(type="continuous", units="h")
@@ -64,7 +64,7 @@ dataObj2 <- new("dataObj",
 
 ### Dummy parObj:
 
-parObj <- new("parObj", 
+parObj1 <- new("parObj", 
   STRUCTURAL = list(
       POP_SIZE0=list(value=6.66,lo=1,hi=10),
       POP_TOVER=list(value=18.9,lo=1,hi=200)
@@ -79,14 +79,14 @@ parObj <- new("parObj",
 )
 
 ### Dummy modPred
-modPred <- new("modPred", 
+modPred1 <- new("modPred", 
   ODE = c("DAE=DRUG"," DSIZE=TUMOUR"),
   LIBRARY = c("amount=nmadvan(model=13,output=list(A,F))")
 )
 
 ### Dummy modObj
 
-modObj <- new("modObj", 
+modObj1 <- new("modObj", 
     MODEL_INPUT_VARIABLES = list(
       ID=list(use="id",level=2),
       TIME=list(use="idv",units="h")
@@ -109,7 +109,7 @@ modObj <- new("modObj",
       SIZE0="GSIZE0*exp(eta_PPV_SIZE0)",
       GTOVER="POP_TOVER*168 # week -> h"
     ),
-    MODEL_PREDICTION = modPred,
+    MODEL_PREDICTION = modPred1,
     OBSERVATION = list(
       c("Y = SIZE+SIZE*eps_RUV_CV+eps_RUV_SD"), 
       ESTIMATION = "if(DVID<=1) { estimate }",
@@ -117,12 +117,33 @@ modObj <- new("modObj",
     )
 )
 
+
+
+modPred1 <- new("modPred", 
+  ODE = c("DAE=DRUG"," DSIZE=TUMOUR"),
+  LIBRARY = c("amount=nmadvan(model=13,output=list(A,F))")
+)
+
+
+taskObj1 <- new("taskObj", 
+  IMPORT = list(nmadvan = list(target = "NMTRAN_CODE", name="ADVAN", param=list(model=0,trans=0, ncmt=0))),
+  DATA = list(),
+  PARAMETER = list(),
+  MODEL = list(tolrel=9),
+  TASK_FUNCTION = list(),
+  TARGET_CODE = list("$EST MAX=9990 NSIG=3 SIGL=9 NOABORT PRINT=1
+METHOD=CONDITIONAL INTERACTION
+MSFO=SIZE.MSF
+$COV")
+)
+
 # Dummy mclObj:
 
-mogObj <- new("mogObj", 
-  dataObj = dataObj,
-  parObj = parObj,
-  modObj = modObj
+mogObj1 <- new("mogObj", 
+  dataObj = dataObj2,
+  parObj = parObj1,
+  modObj = modObj1,
+  taskObj = taskObj1
 )
 
 
