@@ -83,6 +83,6 @@ setMethod("read", "mogObj", function(object, deriveVariables=TRUE, categoricalAs
   ob <- object@dataObj
   # pass to method for dataObj
   read(ob,  deriveVariables=deriveVariables, categoricalAsFactor=categoricalAsFactor, 
-    recode=recde, asRaw=asRaw, ... )
+    recode=recode, asRaw=asRaw, ... )
 })
 
