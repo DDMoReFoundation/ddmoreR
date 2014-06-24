@@ -57,6 +57,11 @@ if (!require(roxygen2, lib.loc=localLib)){
   install.packages("./dependencies/roxygen2_3.1.0.zip", repos=NULL, 
   lib=localLib, INSTALL_opts = "--no-lock")
 }
+if (!require(RNMImport, lib.loc=localLib)){
+   install.packages("./dependencies/RNMImport_3.9.zip", repos=NULL, 
+  lib=localLib, INSTALL_opts = "--no-lock")
+}
+
 if (!require(roxygen2, lib.loc=localLib)){
   stop("roxygen2 does not seem to be installed")
 }
@@ -68,6 +73,9 @@ if (!require(stringr, lib.loc=localLib)){
 }
 if (!require(brew, lib.loc=localLib)){
   stop("brew does not seem to be installed")
+}
+if (!require(RNMImport, lib.loc=localLib)){
+  stop("RNMImport does not seem to be installed")
 }
 
 cat("done\n")

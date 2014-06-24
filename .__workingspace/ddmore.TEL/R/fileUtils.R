@@ -1,9 +1,3 @@
-remove <- FALSE
-
-cd <- function(..) {
-  setwd(..)
-}
-
 TEL.prepareWorkingFolder <- function(modelfile=NULL, src=getwd(), tmpdir=tempdir()) {
   if(file.exists(tmpdir) == FALSE) {
     stop("Temporary directory does not exist!")
