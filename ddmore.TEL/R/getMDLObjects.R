@@ -14,17 +14,16 @@
 #'
 #' @export
 #' @docType methods
-#' @rdname getTaskPropertiesObjects-methods
-#'
+#' @rdname getMDLObjects-methods
 #' @examples
 ## Retrieve from the DDMoRe Library
 #' ThamDataObject <- getMDLObjects(file="http://ddmore.eu/model-repository/model/download/127.17?filename=2008ThamJCCR.mdl")
 #' ## Retrieve the all Objects from the .mdl file
-#' ThamDataObject <- getMDLObjects(“2008ThamJCCR.mdl”, type=”All”)
+#' ThamDataObject <- getMDLObjects("2008ThamJCCR.mdl", type="All")
 #' ## Retrieve the named Objects from the .mdl file
 #' ThamMDLObjects<- getMDLObjects ("2008ThamJCCR.mdl",
-#'   				names=c(“tumour_size_dat”,”tumour_size_par",
-#' 					 “tumour_size_mdl”, “tumour_size_task”))
+#'   				names=c("tumour_size_dat","tumour_size_par",
+#' 					 "tumour_size_mdl", "tumour_size_task"))
 #' ## Convert the retrieved items to be a Model Object Group (MOG)
 #' ## Checks for one object of each type.
 #' myThamMOG <- as.MOG(ThamMDLObjects)
@@ -33,7 +32,6 @@
 #' ## Define myDesignBlock and mySimulationTaskObject
 #' myThamMOG@dataobj$DESIGN <- myDesignBlock
 #' myThamMOG@taskobj <- mySimulationTaskObject
-#' 
 #'
 #' @include telClasses.R
 setGeneric("getMDLObjects", function(x, name){ 
