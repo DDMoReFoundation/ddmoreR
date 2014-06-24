@@ -148,9 +148,6 @@ mogObj1 <- new("mogObj",
 
 
 
-# String code example:
-#test <- "parObj <- new('parObj', STRUCTURAL = list( POP_SIZE0=list(value=6.66,lo=1,hi=10),POP_TOVER=list(value=18.9,lo=1,hi=200)),PRIOR = list(),VARIABILITY = list(PPV_SIZE0=list(value=0.317,type=VAR),PPV_TOVER=list(value=0.082,type=VAR)))"
-#eval(parse(text=test))
 
 
 
