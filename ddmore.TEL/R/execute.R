@@ -41,7 +41,7 @@ estimate.NM<-function(modelfile=NULL, originalDirectory=getwd(), addargs="",...)
   
   workingDirectory <- TEL.prepareWorkingFolder(modelfile, src=originalDirectory)
 
-  oo = submit.job("execute", workingDirectory, modelfile)
+  oo <- submit.job("execute", workingDirectory, modelfile)
   
   oo$sourceDirectory <- originalDirectory
   
@@ -59,8 +59,9 @@ estimate.PsN<-function(modelfile=NULL, originalDirectory=getwd(), addargs="",...
   oo
 }
 
-execute.BUGS<-function(modelfile=NULL,addargs="",...){
+estimate.BUGS<-function(modelfile=NULL,addargs="",...){
   cat("Not supported")
 }
 
 #estimate(MOGObject="warf_PK_CONC.mdl", target="BUGS", addargs="...")
+#estimate(MOGObject="tumour_size.mdl", target="NONMEM")

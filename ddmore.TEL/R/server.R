@@ -1,5 +1,3 @@
-HOST <- 'localhost'
-PORT <- '9010'
 
 TEL.startServer <- 
   function() {
@@ -25,9 +23,10 @@ TEL.startServer <-
   }
 
 TEL.serverRunning <- 
-  function() {
+  function(HOST='localhost', PORT='9010') {
 
-    ret = "notok"
+    ret <- "notok"
+
 	  healthURL = sprintf('http://%s:%s/healthcheck', HOST, PORT)
 	
     # Need some way to work out whether the server is running, apart from this. When the server isn't running, this throws an error
@@ -40,7 +39,7 @@ TEL.serverRunning <-
   }
 
 TEL.stopServer <-
-  function() {
+  function(HOST='localhost', PORT='9010') {
     cat("Stopping server\n")
 	shutdownURL = sprintf('http://%s:%s/shutdown', HOST, PORT)
 	ret = RCurl:::postForm(shutdownURL, style="HTTPPOST", shutdown="yes")
@@ -83,7 +82,7 @@ TEL.checkConfiguration <-
 #    }
   }
 
-  submit.job <- function( command=NULL, workingDirectory = NULL, modelfile = NULL, addargs="", ... ) {
+  submit.job <- function( command=NULL, workingDirectory = NULL, modelfile = NULL, addargs="", HOST='localhost', PORT='9010', ... ) {
     outputObject <- list()
     attributes(outputObject) <- list(class="outputObject")
     
@@ -97,22 +96,22 @@ TEL.checkConfiguration <-
 		  parameters <- c(parameters, commandParameters=addargs)
 	  }
 	  
-	  json = toJSON(parameters)
+	  json <- toJSON(parameters)
 	  formParams=sprintf('%s%s','submissionRequest=',json)
 	  
 	  # Submit
 	  
-	  h=basicTextGatherer()
+	  h<-basicTextGatherer()
 	  
-	  submitURL = sprintf('http://%s:%s/submit', HOST, PORT)
+	  submitURL <- sprintf('http://%s:%s/submit', HOST, PORT)
 	  
-	  ret = RCurl:::curlPerform(url=submitURL, postfields=formParams, writefunction=h$update)
+	  ret <- RCurl:::curlPerform(url=submitURL, postfields=formParams, writefunction=h$update)
 	  #postForm("http://localhost:9010/submit", style="HTTPPOST", submissionRequest = json )
 	  
     
-	  response = fromJSON(h$value())
+	  response <- fromJSON(h$value())
     
-    outputObject$requestID = fromJSON(h$value())$requestID
+    outputObject$requestID <- fromJSON(h$value())$requestID
     
     outputObject$ret <- ret[1]
   
@@ -126,14 +125,14 @@ TEL.checkConfiguration <-
     jobID <- outputObject.getJobID(outputObject)# outputObject$submitResponse[2]$requestID
     
 	  # poll status service (need to have jobID set before this)
-	  statusURL = sprintf('%s/%s', sprintf('http://%s:%s/jobs', HOST, PORT), jobID)
+	  statusURL =<- sprintf('%s/%s', sprintf('http://%s:%s/jobs', HOST, PORT), jobID)
 	  
     outputObject$status = fromJSON(httpGET(statusURL))$status
 	  
 	  while(outputObject$status != 'COMPLETED' && outputObject$status != 'FAILED' ) {
 		  cat(sprintf('Job %s still executing ... (status %s)\n', jobID, outputObject$status))
 		  Sys.sleep(20)
-      outputObject$status = fromJSON(httpGET(statusURL))$status
+      outputObject$status <- fromJSON(httpGET(statusURL))$status
 	  }
 	  
 	  cat(sprintf('\nJob %s finished with status %s.\n\n', jobID, outputObject$status))
@@ -141,7 +140,7 @@ TEL.checkConfiguration <-
     outputObject
   }
 
-TEL.getJobs <- function() {
+TEL.getJobs <- function(HOST='localhost', PORT='9010') {
 	
 	jobsURL = sprintf('http://%s:%s/jobs', HOST, PORT)
 	
@@ -157,7 +156,7 @@ TEL.getJobs <- function() {
 	notImported
 }
   
-TEL.getJob <- function(outputObject = NULL) {
+TEL.getJob <- function(outputObject = NULL, HOST='localhost', PORT='9010') {
   
   jobID <- jobID <- outputObject.getJobID(outputObject)
   
