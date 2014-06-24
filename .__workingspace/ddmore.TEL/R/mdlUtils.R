@@ -4,7 +4,9 @@ TEL.getInputs <- function(modelfile=NULL){
 
   ## Get the input files
   if(file_ext(modelfile)=="ctl") {
-    c("warfpk.csv") 
+	parsedCtl <- importNmMod(modelfile)
+	parsedCtl[[4]][[1]]$Data[1]
+    #c("warfpk.csv") 
   }
   else {
     #c("warfarin_conc_pca.csv")

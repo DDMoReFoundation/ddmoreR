@@ -125,7 +125,11 @@ TEL.checkConfiguration <-
     jobID <- outputObject.getJobID(outputObject)# outputObject$submitResponse[2]$requestID
     
 	  # poll status service (need to have jobID set before this)
+<<<<<<< HEAD
 	  statusURL <- sprintf('%s/%s', sprintf('http://%s:%s/jobs', HOST, PORT), jobID)
+=======
+	  statusURL =<- sprintf('%s/%s', sprintf('http://%s:%s/jobs', HOST, PORT), jobID)
+>>>>>>> 86ecc4fe453f52091e3b3cddcfba2a3992f830ae
 	  
     outputObject$status = fromJSON(httpGET(statusURL))$status
 	  
