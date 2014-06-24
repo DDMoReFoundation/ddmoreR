@@ -120,14 +120,12 @@ TEL.checkConfiguration <-
 	  #c(ret[1], response, workingDirectory )
   }
   
-  TEL.poll <- function(outputObject = NULL) {
+  TEL.poll <- function(outputObject = NULL, HOST='localhost', PORT='9010' ) {
 	  
     jobID <- outputObject.getJobID(outputObject)# outputObject$submitResponse[2]$requestID
     
 	  # poll status service (need to have jobID set before this)
-
 	  statusURL <- sprintf('%s/%s', sprintf('http://%s:%s/jobs', HOST, PORT), jobID)
-	  
     outputObject$status = fromJSON(httpGET(statusURL))$status
 	  
 	  while(outputObject$status != 'COMPLETED' && outputObject$status != 'FAILED' ) {
