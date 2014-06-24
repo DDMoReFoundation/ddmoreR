@@ -120,7 +120,7 @@ TEL.checkConfiguration <-
 	  #c(ret[1], response, workingDirectory )
   }
   
-  TEL.poll <- function(outputObject = NULL, HOST='localhost', PORT='9010' ) {
+  TEL.poll <- function(outputObject = NULL, HOST='localhost', PORT='9010') {
 	  
     jobID <- outputObject.getJobID(outputObject)# outputObject$submitResponse[2]$requestID
     
