@@ -1,20 +1,20 @@
 #' Estimate  
 #'
-#' Passes an MOGObject to the target software for execution.
+#' Passes a MDL file to the target software for execution.
 #'
 #' @author Jonathan Chard
-#' @param MOGObject An object of class mogObj.
+#' @param file An object of class mogObj.
 #' @param target S string specifying the target software. Currently, possible targets are "NONMEM", "PsN" and "BUGS".
 #' @param subfolder Specify the name of a subfolder within the current working directory in which to store the results.
 #' @param collect Logical dictating if the results should be collected.
 #' @param addargs String specifying additional arguments to be passed to the target software.
-estimate <- function(MOGObject=NULL, target=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), collect=TRUE, addargs="" ) {
+estimate <- function(file=NULL, target=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), collect=TRUE, addargs="" ) {
   originalDirectory <- getwd()
   outputObject <- list()
   if(target=="NONMEM") {
-    outputObject = estimate.NM(modelfile=MOGObject, originalDirectory, addargs)
+    outputObject = estimate.NM(modelfile=file, originalDirectory, addargs)
   } else if( target=="PsN") {
-    outputObject = estimate.PsN(modelfile=MOGObject, originalDirectory, addargs)    
+    outputObject = estimate.PsN(modelfile=file, originalDirectory, addargs)    
   } else if(target=="BUGS") {
     estimate.BUGS(MOGObject, addargs)    
   } else {
@@ -34,7 +34,20 @@ estimate <- function(MOGObject=NULL, target=NULL, subfolder=format(Sys.time(), "
       outputObject <- TEL.import(outputObject, target=target)
     }
   }
-  outputObject
+  cat(outputObject)
+  
+  # Create file names:
+  lstFile <- gsub("[.][mM][dD][lL]", ".lst", file)
+  clFile <- gsub("[.][mM][dD][lL]", ".ctl", file)
+  
+  # Paste in file location:
+  lstFile <- file.path(subfolder, lstFile)
+  ctlFile <- file.path(subfolder, ctlFile)
+  
+  # Import data using RMNImport:
+  res <- importNm(conFile = ctlFile, reportFile = lstFile)
+  
+  return(res)
 }
 
 estimate.NM<-function(modelfile=NULL, originalDirectory=getwd(), addargs="",...){
