@@ -23,31 +23,35 @@ estimate <- function(file=NULL, target=NULL, subfolder=format(Sys.time(), "%Y%b%
   
   submitResponse = outputObject$ret
   
-  if(submitResponse[[1]]==0 && collect==TRUE){
+  if (submitResponse[[1]]==0 && collect==TRUE) {
     outputObject <- TEL.poll(outputObject) 
     
     target=paste(originalDirectory, subfolder, sep="/")
     
     outputObject$resultsDir = target
     
-    if(outputObject$status == "COMPLETED") {
+    if (outputObject$status == "COMPLETED") {
+    
       outputObject <- TEL.import(outputObject, target=target)
+
+      # Create file names:
+      lstFile <- gsub("[.][mM][dD][lL]", ".lst", file)
+      ctlFile <- gsub("[.][mM][dD][lL]", ".ctl", file)
+      
+      # Paste in file location:
+      lstFile <- file.path(subfolder, lstFile)
+      ctlFile <- file.path(subfolder, ctlFile)
+      
+      # Import data using RMNImport:
+      res <- importNm(conFile = ctlFile, reportFile = lstFile)
+      
+      # Successful execution -> return the imported NONMEM data
+      return(res)      
     }
   }
-  cat(outputObject)
-  
-  # Create file names:
-  lstFile <- gsub("[.][mM][dD][lL]", ".lst", file)
-  clFile <- gsub("[.][mM][dD][lL]", ".ctl", file)
-  
-  # Paste in file location:
-  lstFile <- file.path(subfolder, lstFile)
-  ctlFile <- file.path(subfolder, ctlFile)
-  
-  # Import data using RMNImport:
-  res <- importNm(conFile = ctlFile, reportFile = lstFile)
-  
-  return(res)
+
+  # Fallback to returning the output object  
+  outputObject
 }
 
 estimate.NM<-function(modelfile=NULL, originalDirectory=getwd(), addargs="",...){
