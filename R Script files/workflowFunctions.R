@@ -18,13 +18,13 @@ getNMDataObjects<-function(RNMImportObject){
   Raw<-RNMImportObject[[1]]
   Parsed<-RNMImportObject[[4]][[1]]
   
-  blockInfo<-getBlocks(RNMImportObject)
+  blockInfo<-getNMBlocks(RNMImportObject)
   rows<-unlist(blockInfo[as.character(blockInfo$Search)=="DATA",c("firstRow","nextBlockRow")])
   rawDataRows<-Raw[rows[1]:(rows[2]-1)]
-
+  
   rows<-unlist(blockInfo[as.character(blockInfo$Search)=="INPUT",c("firstRow","nextBlockRow")])
   rawInputRows<-Raw[rows[1]:(rows[2]-1)]
-
+  
   RAW<-c(rawDataRows,rawInputRows)
   if(length(grep("^\\;",RAW))>0){
     RAW<-RAW[-grep("^\\;",RAW)]
@@ -39,7 +39,7 @@ getNMParameterObjects<-function(RNMImportObject){
   Raw<-RNMImportObject[[1]]
   Parsed<-RNMImportObject[[4]][[1]]
   
-  blockInfo<-getBlocks(RNMImportObject)
+  blockInfo<-getNMBlocks(RNMImportObject)
   rows<-unlist(blockInfo[as.character(blockInfo$Search)=="THETA",c("firstRow","nextBlockRow")])
   rawThetaRows<-Raw[rows[1]:(rows[2]-1)]
   
@@ -48,14 +48,14 @@ getNMParameterObjects<-function(RNMImportObject){
   
   rows<-unlist(blockInfo[as.character(blockInfo$Search)=="SIGMA",c("firstRow","nextBlockRow")])
   rawSigmaRows<-Raw[rows[1]:(rows[2]-1)]
-
+  
   RAW<-c(rawThetaRows,rawOmegaRows,rawSigmaRows)
   if(length(grep("^\\;",RAW))>0){
     RAW<-RAW[-grep("^\\;",RAW)]
   }
   
   list(RAW=RAW,
-    STRUCTURAL=Parsed$Theta,
+       STRUCTURAL=Parsed$Theta,
        VARIABILITY=list(IIV=Parsed$Omega,
                         RUV=Parsed$Sigma))
 }
@@ -64,7 +64,7 @@ getNMTaskPropertiesObjects<-function(RNMImportObject){
   Raw<-RNMImportObject[[1]]
   Parsed<-RNMImportObject[[4]][[1]]
   
-  blockInfo<-getBlocks(RNMImportObject)
+  blockInfo<-getNMBlocks(RNMImportObject)
   rows<-unlist(blockInfo[as.character(blockInfo$Search)=="EST",c("firstRow","nextBlockRow")])
   rawEstRows<-Raw[rows[1]:(rows[2]-1)]
   
@@ -77,7 +77,7 @@ getNMTaskPropertiesObjects<-function(RNMImportObject){
   }
   
   list(RAW=RAW,
-    TARGET_CODE=list(Parsed$Estimates, 
+       TARGET_CODE=list(Parsed$Estimates, 
                         Parsed$Cov))
 }
 
@@ -94,7 +94,8 @@ readNMData<-function(mclDataObject){
 ### ----estimate.NM-----------------------------------------------------------
 estimate.NM<-function(modelfile=NULL,nonmem.exe="nonmem-7.2",modelextension=".mod",reportextension=".lst",addargs="",...){
   arg<-paste(nonmem.exe,paste(modelfile,modelextension,sep=""),paste(modelfile,reportextension,sep=""))
-  shell(cmd=shQuote(arg))
+  if(.Platform$OS.type == "windows")shell(arg,invisible=F)
+  if(.Platform$OS.type != "windows")system(arg,wait=T)
 }
 
 ### ----execute.PsN-----------------------------------------------------------
@@ -103,43 +104,44 @@ execute.PsN<-function(modelfile=NULL,addargs="",...){
   shell(arg)
 }
 
-XposeGOF<-function(){
+basicGOF.Xpose<-function(){
   ## ----setupRunnoforXpose--------------------------------------------------
-runno <- as.numeric(gsub("[a-z]", "", list.files(pattern="^sdtab")[1]))
-
-
-## ----createXpdb----------------------------------------------------------
-base.xpdb<-xpose.data(runno)
-#save(base.xpdb, file="Xpose database.RData")
-
-## ----xposeGOF------------------------------------------------------------
-dv.vs.pred.ipred(base.xpdb)
-pred.vs.idv(base.xpdb)
-ipred.vs.idv(base.xpdb)
-cwres.vs.idv(base.xpdb)
-cwres.vs.pred(base.xpdb)
-ranpar.hist(base.xpdb)
-parm.splom(base.xpdb)
-parm.vs.cov(base.xpdb)
-ind.plots(base.xpdb, layout=c(4,4))
-# etc. etc.
+  runno <- as.numeric(gsub("[a-z]", "", list.files(pattern="^sdtab")[1]))
+  
+  
+  ## ----createXpdb----------------------------------------------------------
+  base.xpdb<-xpose.data(runno)
+  #save(base.xpdb, file="Xpose database.RData")
+  
+  ## ----xposeGOF------------------------------------------------------------
+  dv.vs.pred.ipred(base.xpdb)
+  pred.vs.idv(base.xpdb)
+  ipred.vs.idv(base.xpdb)
+  cwres.vs.idv(base.xpdb)
+  cwres.vs.pred(base.xpdb)
+  ranpar.hist(base.xpdb)
+  parm.splom(base.xpdb)
+  parm.vs.cov(base.xpdb)
+  ind.plots(base.xpdb, layout=c(4,4))
+  # etc. etc.
 }
 
 ### ----VPC-----------------------------------------------------------------
-VPC<-function(modelfile,lstfile,nsamp,seed,addargs,...){
+VPC.PsN<-function(modelfile,lstfile,nsamp,seed,addargs,...){
   arg<-paste("vpc-3.5.4 ",modelfile," --lst=",lstfile," --samples=",nsamp," --seed=",seed," ",addargs,sep="")
   cat(arg)
-  shell(shQuote(arg),wait=T)
+  if(.Platform$OS.type == "windows")shell(arg,wait=T,invisible=F,translate=T)
+  if(.Platform$OS.type != "windows")system(arg,wait=T)
 }
 
 ## ----Bootstrap-----------------------------------------------------------
-bootstrap<-function(modelfile,nsamp,seed,addargs=NULL,...){
+bootstrap.PsN<-function(modelfile,nsamp,seed,addargs=NULL,...){
   arg<-paste("bootstrap-3.5.4 ",modelfile," --samples=",nsamp," --seed=",seed," ",addargs,sep="")
   shell(shQuote(arg))
 }
 
 ## ----simUncVPC,include=FALSE---------------------------------------------
-simunc.vpc<-function(modelfile,nsamp,bootres,addargs=NULL,...){
+simulate.PsN<-function(modelfile,nsamp,bootres,addargs=NULL,...){  
   arg<-paste("vpc-3.5.4 ",modelfile," --samples=",nsamp," --rawres_input=",bootres," ",addargs,sep="")
   shell(shQuote(arg))
 }
@@ -154,13 +156,13 @@ waitForFiles<-function(file){
 
 ### ----Change model attributes-------------------------------------------------
 updateMOG<-function(parsedObject,
-                      theta=parsedObject$Theta,
-                      omega=parsedObject$Omega,
-                      sigma=parsedObject$Sigma,
-                      task=parsedObject$Estimates,
-                      data=parsedObject$Data,
-                      dataNames=parsedObject$Input,
-                      tables=parsedObject$Tables){
+                    theta=parsedObject$Theta,
+                    omega=parsedObject$Omega,
+                    sigma=parsedObject$Sigma,
+                    task=parsedObject$Estimates,
+                    data=parsedObject$Data,
+                    dataNames=parsedObject$Input,
+                    tables=parsedObject$Tables){
   newObject<-parsedObject
   newObject$Theta<-theta
   newObject$Omega<-omega
@@ -190,32 +192,77 @@ updateModel<-function(parsedObject,
 
 ### ----writeModel for execution------------------------------------------------------
 
-writeControlText<-function(templateModel,parsedControl, modelfile,modelextension=".mod"){
+writeControlText<-function(templateModel,parsedControl, modelfile,modelextension=".mod",
+                           modelBlockNames=c("PK","PRE","SUB","MOD","DES","ERR")){
   
   ### Get RAW NM control stream items
   control<-templateModel
   
   ### Where do the various block statements occur?
-  blocks<-control[grep("^[$]",control)]
-    
+  blockpos<-grep("^ *[$]",control)
+  blocks<-control[blockpos]
+  
   ## Drop commented out lines
   ## blocks<-blocks[-grep("[;]",blocks)]
   ### Get first "word" to determine order
-  blocks2<-sub( " +.*", "", blocks ) 
-  blocks2<-sub("$","",blocks2, fixed=T)
-  blocks3<-unique(blocks2)
-  blocks4<-substr(blocks3,1,3)
-  orig.pos<-c(1:length(blocks4))
+  blocks1<-sub( " +.*", "", blocks ) 
+  blocks2<-sub("$","",blocks1, fixed=T)
+  orig1<-data.frame(block=blocks2,line=blockpos,stringsAsFactors=F)
+  orig2<-orig1[!duplicated(orig1$block),]
+  
+  blocks3<-substr(orig2$block,1,3)
+  orig.pos<-c(1:length(blocks3))
+  orig<-data.frame(block.id=blocks3,orig.pos=orig.pos,orig.block=orig2$block,line=orig2$line,stringsAsFactors=F)
   
   ### Get list of objects from the parsed Control file
   control2<-parsedControl
+  control2Blocks<-substr(casefold(names(control2),upper=T),1,3)
+  RNMI.pos<-c(1:length(control2Blocks))
+  RNMI<-data.frame(block.id=control2Blocks,RNMI.pos=RNMI.pos,RNMI.block=names(parsedControl),stringsAsFactors=F)
   
   ## Match blocks in control file to  items in the parsed list
-  ctrlmatch<-data.frame(block.id=blocks4, orig.block=paste("$",blocks3,sep=""), orig.pos=orig.pos,
-                        RNMI.pos=charmatch(blocks4,casefold(names(control2),upper=T)),stringsAsFactors=F)
+  ctrlmerged<-merge(orig,RNMI,by="block.id",all=T)
+  ctrlmerged<-ctrlmerged[order(ctrlmerged$orig.pos),]
+  ctrlmerged$orig.block[is.na(ctrlmerged$orig.block)]<-casefold(ctrlmerged$RNMI.block[is.na(ctrlmerged$orig.block)],upper=T)
   
-  special<-is.element(ctrlmatch$orig.block,c("$PK","$ERROR","$THETA","$SIGMA"))
-  ctrlmatch$orig.block[special]<-paste(ctrlmatch$orig.block[special],"\n")
+  ## Leave out model related blocks from parsedcontrol
+  ## Will pick these up directly from Raw file.
+  ## This means that we do not expect user to update the model!
+  otherBlocks<-ctrlmerged[!(ctrlmerged$block.id%in%modelBlockNames),]
+  control2<-control2[otherBlocks$RNMI.block]
+  
+  ## If blocks appear in the original, but not RNMImport parsed version
+  ## then create RNMImport blocks.
+  ## e.g. $DES
+  
+  modelBlockCode<-list(NULL)
+  modelBlocks<-ctrlmerged[ctrlmerged$block.id%in%modelBlockNames,]
+  for(i in 1:nrow(modelBlocks)){
+    nextBlock<-ctrlmerged[modelBlocks$orig.pos[i]+1,]
+    modelStart<-modelBlocks$line[i]
+    modelEnd<-nextBlock$line-1
+    
+    codeLines <- control[modelStart:modelEnd]
+    codeLines<-paste(codeLines,"\n")
+    modelBlockCode[[i]]<-codeLines
+    names(modelBlockCode)[[i]]<-modelBlocks$orig.block[i]
+  }
+  
+  addBlocks<-list(NULL)
+  missBlocks<-ctrlmerged[is.na(ctrlmerged$RNMI.pos)&!(ctrlmerged$block.id%in%modelBlockNames),]
+  if(nrow(missBlocks)>0){
+    for(i in 1:nrow(missBlocks)){
+      nextBlock<-ctrlmerged[missBlocks$orig.pos[i]+1,]
+      missStart<-missBlocks$line[i]+1  ## NOTE! The +1 here might cause trouble!
+      missEnd<-nextBlock$line-1
+      
+      codeLines <- control[missStart:missEnd]
+      addBlocks[[i]]<-codeLines
+      names(addBlocks)[[i]]<-as.character(missBlocks$block.id[i])
+      newRNMIpos<-max(ctrlmerged$RNMI.pos,na.rm=T)+i
+      ctrlmerged[ctrlmerged$block.id==missBlocks[i,"block.id"],"RNMI.pos"]<-newRNMIpos
+    }
+  }
   
   ### Change $THETA -Inf and Inf values to missing
   ### Change $THETA values = 0 to "0 FIX"
@@ -230,7 +277,7 @@ writeControlText<-function(templateModel,parsedControl, modelfile,modelextension
   ### THIS NEEDS WORK!!!
   ### Turn Omega matrix into diagonal etc.
   ### and handle block structures
-
+  
   Omega<-NULL
   
   ## Are only diagonals filled??
@@ -240,7 +287,6 @@ writeControlText<-function(templateModel,parsedControl, modelfile,modelextension
     Omega<-diag(control2$Omega)
     Omega[Omega==0]<-"0 FIX"
     Omega<-sapply(Omega,function(x)paste(x,"\n"))
-    Omega[1]<-paste("\n",Omega[1])
   }
   if(!OmegaDiag){
     ## Which Omegas are BLOCK
@@ -256,78 +302,109 @@ writeControlText<-function(templateModel,parsedControl, modelfile,modelextension
       Omega<-list(block,Omega.1,"\n$OMEGA\n",Omega.2)
     }
   }
-
+  
   ## Overwrite control2$Omega with Omega above.
   control2$Omega<-Omega
   names(control2$Omega)<-NULL
   
+  Sigma<-NULL
   
-  Sigma<-control2$Sigma
-  Sigma[Sigma==0]<-"0 FIX"
-  Sigma<-sapply(Sigma,function(x)paste(x,"\n"))
-  Sigma[control2$Sigma==1]<-"1 FIX \n"
+  ## Are only diagonals filled??
+  SigmaDiag<-sum(control2$Sigma[lower.tri(control2$Sigma,diag=F)])==0
+  if(SigmaDiag){
+    Sigma.blocksize<-NULL
+    Sigma<-diag(control2$Sigma)
+    Sigma[Sigma==0]<-"0 FIX"
+    Sigma<-sapply(Sigma,function(x)paste(x,"\n"))
+  }
+  if(!SigmaDiag){
+    ## Which Sigmas are BLOCK
+    Corr<-(apply(control2$Sigma,2,sum)-diag(control2$Sigma))!=0
+    block<-paste("BLOCK(",sum(Corr),")\n",sep="")
+    Sigma1<-control2$Sigma[Corr,Corr]
+    Sigma.1<-paste(Sigma1[lower.tri(Sigma1,diag=T)],"\n")
+    Sigma<-list(block,Sigma.1)
+    if(sum(Corr)!=length(diag(control2$Sigma))){
+      Sigma.2<-diag(control2$Sigma[!Corr,!Corr])
+      Sigma.2[Sigma.2==0]<-"0 FIX"
+      Sigma.2<-sapply(Sigma.2,function(x)paste(x,"\n"))
+      Sigma<-list(block,Sigma.1,"\n$Sigma\n",Sigma.2)
+    }
+  }
   
   control2$Sigma<-Sigma
   names(control2$Sigma)<-NULL
   
-  control3<-control2
+  ####################################################################
+  ### PREPARE ITEMS IN CONTROL2 FOR WRITING OUT
+  ####################################################################
   
-  ####################################################################
-  ### PREPARE ITEMS IN CONTROL3 FOR WRITING OUT
-  ####################################################################
-
   ## $INPUT records - Paste together the variables names and labels
   ## e.g. SID=ID TIME=TIME AMT=AMT BWT=DROP MDV=MDV DV=DV
   ## More detail than necessary / usual, but consistent with RNMImport object
   
   #### If the two are equal then write only one
   
-  control3$Input<-control2$Input[,"nmName"]
+  Input<-control2$Input[,"nmName"]
   diffInput<-control2$Input[,"nmName"]!=control2$Input[,"Label"]
   if(any(diffInput)){
-    control3$Input[diffInput]<-paste(control2$Input[diffInput,"nmName"],control2$Input[diffInput,"Label"],sep="=")
+    Input[diffInput]<-paste(control2$Input[diffInput,"nmName"],control2$Input[diffInput,"Label"],sep="=")
   }
+  
+  control2$Input<-Input
   
   ## $DATA records - Paste together commands and attributes
   ##  e.g. THEO.DAT IGNORE=# etc.
   
-  colnames(control3$Data)[2]<-"IGNORE"
-  ignoreAccept<-paste(colnames(control3$Data),control3$Data,sep="=")[c(2,3)]
-  ignoreAccept<-ignoreAccept[grep(".",control2$Data[c(2,3)])]  ## Non-missing
-  ### Change $DATA REWIND statement to NOREWIND rather than REWIND=FALSE
-  control3$Data[4]<-ifelse(control2$Data[4]=="FALSE","NOREWIND","")
-
-  control3$Data<-c(control2$Data[1], ignoreAccept)
+  Data<-paste("'",control2$Data[1],"'",sep="")
+  
+  if(control2$Data[2]!="NONE"){
+    colnames(control2$Data)[2]<-"IGNORE"
+    ignoreAccept<-paste(colnames(control2$Data),control2$Data,sep="=")[c(2,3)]
+    ignoreAccept<-ignoreAccept[grep(".",control2$Data[c(2,3)])]  ## Non-missing
+    ### Change $DATA REWIND statement to NOREWIND rather than REWIND=FALSE
+    control2$Data[4]<-ifelse(control2$Data[4]=="FALSE","NOREWIND","")
+    
+    Data<-c(control2$Data[1], ignoreAccept)
+  }
+  control2$Data<-Data
   
   ## Omit Data file commands that have no attributes
   
-  ## Set up $PK block for printing - new line at end of each item
-  ## i.e. Write separate line for each item as in input code
-  control3$PK<-paste(sapply(control2$PK,function(x){paste(x,"\n")}))
-  
-  ## Set up $ERROR block for printing - new line at end of each item
-  control3$Error<-paste(sapply(control2$Error,function(x){paste(x,"\n")}))
-  
   ## Combine $THETA bounds into usual NONMEM format
   ## e.g. (0, 0.5, ) OR 0.5 OR (,0.5,1000)
-  control3$Theta<-paste("(",apply(control2$Theta,1,function(x){paste(x,collapse=",")}),")\n")
-  control3$Theta<-gsub("NA","",control3$Theta)
-  control3$Theta[is.na(control2$Theta[,1]) & is.na(control2$Theta[,3])]<-paste(control2$Theta[is.na(control2$Theta[,1]) & is.na(control2$Theta[,3]),2],"\n")
+  Theta<-paste("(",apply(control2$Theta,1,function(x){paste(x,collapse=",")}),")\n")
+  Theta<-gsub("NA","",Theta)
+  Theta[is.na(control2$Theta[,1]) & is.na(control2$Theta[,3])]<-paste(control2$Theta[is.na(control2$Theta[,1]) & is.na(control2$Theta[,3]),2],"\n")
+  
+  control2$Theta<-Theta
   
   ## Prepare $OMEGA for printings
-    
-  control3$Omega<-print(unlist(control2$Omega,as.character))
-
-  ## Collect $TABLE variable strings, delete comma separator, append ONEHEADER NOPRINT statements
-  control3$Tables<-
-    apply(control3$Table,1,function(x){paste(
-      "$TABLE ",
-      gsub(",","",x[2])
-      ," ONEHEADER NOPRINT FILE=",x[1],"\n",sep="")})
-  ## First $Table statement doesn't need "$Table" since it comes from ctrlmatch
-  control3$Tables[1]<-sub("^\\$TABLE","",control3$Tables[1],perl=T)
-  control3$Tables<-gsub("ETA\\.","ETA\\(",control3$Tables,perl=T)
-  control3$Tables<-gsub("\\.","\\)",control3$Tables,perl=T)
+  
+  control2$Omega<-print(unlist(control2$Omega,as.character))
+  
+  ## Check for existence of $Tables in original code
+  if(length(control2$Tables)){
+    ## Collect $TABLE variable strings, delete comma separator, append ONEHEADER NOPRINT statements
+    Tables<-
+      apply(control2$Table,1,function(x){paste(
+        "$TABLE ",
+        gsub(",","",x[2])
+        ," ONEHEADER NOPRINT FILE=",x[1],"\n",sep="")})
+    ## First $Table statement doesn't need "$Table" since it comes from ctrlmerged if present
+    if(!is.na(ctrlmerged$orig.block[ctrlmerged$block.id=="TAB"]))Tables[1]<-sub("^\\$TABLE","",Tables[1],perl=T)
+    Tables<-gsub("ETA\\.","ETA\\(",Tables,perl=T)
+    Tables<-gsub("\\.","\\)",Tables,perl=T)
+    control2$Tables<-Tables
+  }
+  
+  control3<-list(NULL)
+  for(i in 1:nrow(ctrlmerged)){
+    if(ctrlmerged$block.id[i]%in%otherBlocks$block.id)control3[[i]]<-control2[[ctrlmerged$RNMI.block[i]]]
+    if(ctrlmerged$block.id[i]%in%modelBlockNames)control3[[i]]<-modelBlockCode[[ctrlmerged$orig.block[i]]]
+    names(control3)[[i]]<-ctrlmerged$orig.block[i]
+  }
+  
   
   #####################################
   #####################################
@@ -335,10 +412,22 @@ writeControlText<-function(templateModel,parsedControl, modelfile,modelextension
   #####################################
   #####################################
   
+  ### PROBABLY NEEDS BETTER HANDLING OF ORDER OF BLOCKS IN THE NONMEM CODE
+  ### USE RULES FROM NONMEM HELP GUIDES?
+  ### FOR NOW BASED ON ORDER IN ORIGINAL NM CODE
+  ### IF ITEMS ADDED THROUGH updateMOG(...) THEN ADD THESE AT THE END?
+  ### USUALLY TABLE ITEMS
+  
+  ## "special" blocks need $ statement on one line and content below
+  special<-is.element(ctrlmerged$block.id,c("PK","PRED","ERR","THE","OME","SIG","DES","MOD"))
+  model<-is.element(ctrlmerged$block.id,modelBlockNames)
+  ctrlmerged$orig.block[special]<-paste(ctrlmerged$orig.block[special],"\n")
+  ctrlmerged$orig.block[model]<-""
+  
   sink(file=paste(modelfile,modelextension,sep=""))
-  for (i in 1:length(blocks3)){
-    cat(paste(ctrlmatch$orig.block[i]," "))
-    cat(paste(cat(control3[[ctrlmatch$RNMI.pos[i]]]),"\n"))
+  for (i in 1:nrow(ctrlmerged)){
+    if(!ctrlmerged$block.id[i]%in%modelBlockNames)cat(paste("$",ctrlmerged$orig.block[i]," ",sep=""))
+    cat(paste(cat(control3[[i]]),"\n"))
   }
   sink()
 }
@@ -389,14 +478,14 @@ pop<-function (txt, option, mode = c("logical", "equal", "brackets","comments","
   list(op.out = op.out, txt = txt)
 }
 
-importRAWMDL<-function(file=NULL,path=getwd(),name=NULL){
+importRAWMDL<-function(file=NULL,path=getwd()){
   path <- RNMImport:::processPath(path)
   fileContents <- RNMImport:::scanFile(RNMImport:::.getFile(file, path))
   if (is.null(fileContents)) 
     RNMImport:::RNMImportStop(paste("Contents of the file", fileName, 
                                     "are empty \n"), match.call())
-#   fileContents <- RNMImport:::negGrep("^[;[:space:]]+$", fileContents, 
-#                                       value = TRUE)
+  #   fileContents <- RNMImport:::negGrep("^[;[:space:]]+$", fileContents, 
+  #                                       value = TRUE)
   fileContents <- RNMImport:::killRegex(fileContents, "^[[:blank:]]*")
   comments <- commentPop(fileContents, inPlace = FALSE)$op.out
   logMessage(logName = "highLevelParse", msg)
@@ -420,15 +509,15 @@ findObjects<-function(txt=NULL){
 }
 
 findBlocks<-function(txt=NULL){
-  start<-grep("^ *[A-Z_]+ *\\{",txt)
+  start<-grep("\\{",txt)
   ## what comes after each block?
   data<-data.frame(blockStart=start)
-  data$blockEnd<-c(data$blockStart[-1]-1,length(txt))
+  data$blockEnd<-grep("\\}",txt)
   data$name<-gsub(" *\\{ *.*","",txt[start])
   data
 }
 
-extractMDLObjects<-function(txt=NULL, type=NULL,dropComments=F){
+extractMDLObjects<-function(txt=NULL,type="All",name=NULL,dropComments=F){
   objects<-findObjects(txt)
   objLines<-objects[objects$obj==type,]
   if(type=="All")objLines<-objects
@@ -443,50 +532,133 @@ extractMDLObjects<-function(txt=NULL, type=NULL,dropComments=F){
     out[[i]]<-objLines2
   }
   names(out)<-objLines$name
+  if(length(name))out<-out[[name]]
   out
 }
 
-extractMDLBlocks<-function(txt=NULL,dropComments=F){
+extractMDLBlocks<-function(object=NULL,dropComments=F){
+  txt<-object[[1]]
   blocks<-findBlocks(txt)
   blockLines<-blocks
   nBlocks<-nrow(blockLines)
   out<-NULL
   for(i in 1:nBlocks){
     blockLines2<-blockLines[i,]
-    blockLines2<-txt[blockLines2$blockStart:blockLines2$blockEnd] 
-    blockLines2<-blockLines2[-length(blockLines2)]  ## Remove "obj{" line
-    blockLines2<-blockLines2[-1]  ## Remove "} # end object" line
-    if(dropComments)blockLines2<-blockLines2[-grep("^ *#",blockLines2)]
-    out[[i]]<-blockLines2
+    blockLines3<-txt[blockLines2$blockStart:blockLines2$blockEnd] 
+    blockLines4<-blockLines3[-length(blockLines3)]  ## Remove "obj{" line
+    blockLines5<-blockLines4[-1]  ## Remove "} # end object" line
+    #     if(dropComments)blockLines2<-blockLines2[-grep("^ *#",blockLines2)]
+    out<-c(out,list(blockLines5))
   }
   names(out)<-blockLines$name
+  out<-list(out)
+  names(out)<-names(object)
   out
 }
 
 as.MDLData<-function(dataBlocks=NULL){
-HEADER<-dataBlocks$HEADER
-colNames<-gsub("=.+","",HEADER)
-categorical<-colNames[grep("categorical",HEADER)]
-FILE<-dataBlocks$FILE
-fileSource<-grep("^source=",FILE,value=T)
-fileSource<-gsub('\\"',"",gsub("source=","",fileSource))
-fileSource<-gsub(',',"",fileSource)
-fileFormat<-grep("^inputformat=",FILE,value=T)
-fileFormat<-gsub('\\"',"",gsub("inputformat=","",fileFormat))
-fileFormat<-gsub(')+',"",fileFormat)
-#RNMImport:::.getFile(fileSource,test=T)
-out<-list(MCL=dataBlocks,SOURCE=fileSource,FORMAT=fileFormat,HEADER=colNames,CATEGORICAL=categorical)
+  HEADER<-dataBlocks$HEADER
+  colNames<-gsub("=.+","",HEADER)
+  categorical<-colNames[grep("categorical",HEADER)]
+  FILE<-dataBlocks$FILE
+  fileSource<-grep("^source=",FILE,value=T)
+  fileSource<-gsub('\\"',"",gsub("source=","",fileSource))
+  fileSource<-gsub(',',"",fileSource)
+  fileFormat<-grep("^inputformat=",FILE,value=T)
+  fileFormat<-gsub('\\"',"",gsub("inputformat=","",fileFormat))
+  fileFormat<-gsub(')+',"",fileFormat)
+  #RNMImport:::.getFile(fileSource,test=T)
+  out<-list(dataBlocks,SOURCE=fileSource,FORMAT=fileFormat,HEADER=colNames,CATEGORICAL=categorical)
+  out
 }
 
-readMDLData<-function(dataBlocks=NULL,categoricalAsFactor=T){
+read.data<-function(dataBlocks=NULL,categoricalAsFactor=T){
   if(dataBlocks$FORMAT=="NONMEM")myData<-readNmData(dataBlocks$SOURCE)
   names(myData)<-dataBlocks$HEADER
   if(categoricalAsFactor){
     if(length(dataBlocks$CATEGORICAL)){
       for(i in 1:length(dataBlocks$CATEGORICAL)){
-        myData[,dataBlocks$CATEGORICAL]<-as.factor(myData[,dataBlocks$CATEGORICAL])
+        myData[,dataBlocks$CATEGORICAL]<-lapply(myData[,dataBlocks$CATEGORICAL],as.factor)
       }
     }
   }
   myData
+}
+
+getDataObjects<-function(file=NULL,name=NULL,...){
+  out<-NULL
+  RawCode<-importRAWMDL(file=file,...)
+  Objects<-extractMDLObjects(RawCode$Raw,type="data",name=name,...)
+  rawData<-Objects
+  names(rawData)<-names(Objects)
+  if(length(name))rawData<-rawData[[name]]
+  parsedData<-lapply(extractMDLBlocks(rawData),as.MDLData)
+  out<-parsedData
+  out
+}
+
+getParameterObjects<-function(file=NULL,name=NULL,...){
+  RawCode<-importRAWMDL(file=file,...)
+  Objects<-extractMDLObjects(RawCode$Raw,type="par",name=name,...)
+  out<-Objects
+  if(length(name))out<-out[[name]]
+  out
+}
+
+getModelObjects<-function(file=NULL,name=NULL,...){
+  RawCode<-importRAWMDL(file=file,...)
+  Objects<-extractMDLObjects(RawCode$Raw,type="model",name=name,...)
+  out<-Objects
+  if(length(name))out<-out[[name]]
+  out
+}
+
+getTaskObjects<-function(file=NULL,name=NULL,...){
+  RawCode<-importRAWMDL(file=file,...)
+  Objects<-extractMDLObjects(RawCode$Raw,type="task",name=name,...)
+  out<-Objects
+  if(length(name))out<-out[[name]]
+  out
+}
+
+
+getObjects<-function(file=NULL,name=NULL,...){
+  RawCode<-importRAWMDL(file=file,...)
+  Objects<-extractMDLObjects(RawCode$Raw,type="All",name=name,...)
+  out<-Objects
+  if(length(name))out<-out[[name]]
+  out
+}
+
+parseCovMatrix<-function (values, nCov, tol = 1e-06) 
+{
+  if (is.matrix(values)) {
+    mat <- values
+  }
+  else {
+    values <- parseCharInput(values, sort = FALSE)
+    if (nCov == 1) {
+      length(values) == 1 || ectdStop("Dimension problem")
+      mat <- matrix(values[1], nrow = 1, ncol = 1)
+    }
+    else {
+      if (length(values) == 1) 
+        values <- rep(values, nCov)
+      nValues <- length(values)
+      if (nValues == nCov) {
+        mat <- diag(values)
+      }
+      else if (nValues == (nCov) * (nCov + 1)/2) {
+        mat <- matrix(0, ncol = nCov, nrow = nCov)
+        mat[upper.tri(mat, diag = TRUE)] <- values
+        mat <- t(mat)
+        mat[upper.tri(mat, diag = TRUE)] <- values
+      }
+      else {
+        ectdStop("Dimension Problem")
+      }
+    }
+  }
+  checkSymmetricPDMatrix(mat, tol)
+  mat
 }

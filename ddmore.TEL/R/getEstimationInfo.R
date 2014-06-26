@@ -15,11 +15,6 @@
 #' @param object An object of class NMRun, the output from an estimation task.
 #'
 #' @return A named list.
-#'
-#' @export
-#' @docType methods
-#' @rdname getEstimationInfo-methods
-#'
 #' @examples
 #' ## Create an S4 object of class mclobj.
 #' myWarfPKModel <- getMDLObjects ("warfarin_PK_CONC.mdl",
@@ -31,15 +26,12 @@
 #' 	parameters= myWarfPKModel$warf_PK_CONC_par, 
 #' 	task= myWarfPKModel$warf_PK_CONC_task, 	translationLanguage="BUGS", targetSoftware="WinBUGS")
 #' getEstimationInfo(myRun1)
-#' $EstimationInformation
-#' [1]"Inference for Bugs model at "C:/DOCUME~1/smith_mk/LOCALS~1/Temp/RtmpS89Lys/model1fc03d0c13db.txt" Fit using WinBUGS, 2 chains, each with 60000 iterations (first 10000 discarded) n.sims = 1e+05 iterations saved”
-#' $DIC
-#' [1] 748.0
-#' $pD
-#' [1] 66.3
+#' 
+#' @export
+#' @docType methods
+#' @rdname getEstimationInfo-methods
 #'
 #' @include telClasses.R
-
 setGeneric("getEstimationInfo", function(object){ 
   standardGeneric("getEstimationInfo")
 })
