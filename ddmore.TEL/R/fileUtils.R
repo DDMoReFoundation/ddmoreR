@@ -68,9 +68,9 @@ TEL.import <- function( outputObject=NULL, target=NULL) {
     
 		file.copy(flist, target)
 		
-		if(remove==TRUE) {
-			unlink(jobDirectory, recursive=TRUE)
-		}		
+		#if (remove==TRUE) {
+		#	unlink(jobDirectory, recursive=TRUE)
+		#}		
 		cat('Done.\n\n')
     
 		outputObject
