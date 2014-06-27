@@ -35,12 +35,12 @@ estimate <- function(file=NULL, target=NULL, subfolder=format(Sys.time(), "%Y%b%
       outputObject <- TEL.import(outputObject, target=target)
 
       # Create file names:
-      lstFile <- gsub("[.][mM][dD][lL]", ".lst", file)
       ctlFile <- gsub("[.][mM][dD][lL]", ".ctl", file)
+      lstFile <- "output.lst"
       
       # Paste in file location:
-      lstFile <- file.path(subfolder, lstFile)
       ctlFile <- file.path(subfolder, ctlFile)
+      lstFile <- file.path(subfolder, lstFile)
       
       # Import data using RMNImport:
       res <- importNm(conFile = ctlFile, reportFile = lstFile)
