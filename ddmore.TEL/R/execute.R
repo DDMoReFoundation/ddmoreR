@@ -50,8 +50,8 @@ estimate <- function(file=NULL, target=NULL, subfolder=format(Sys.time(), "%Y%b%
     }
   }
 
-  # Fallback to returning the output object  
-  outputObject
+  # Fail with an appropriate error message
+  stop(paste(c("Execution of model ", outputObject$modelFile, " failed.\n The contents of the working directory ", outputObject$workingDirectory, " may be useful for tracking down the cause of the failure."), sep=""))
 }
 
 estimate.NM<-function(modelfile=NULL, originalDirectory=getwd(), addargs="",...){
