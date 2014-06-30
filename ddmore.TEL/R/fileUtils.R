@@ -55,18 +55,25 @@ TEL.import <- function( outputObject=NULL, target=NULL) {
 		
 		#  dir.create(local.out.dir)
 		
-		# file.copy(sprintf("%s/%s/%s/%s", MAPPED_DRIVE_NAME, jobID, 'inputs', paste(fn, sep = "")), local.out.dir)
+		#  file.copy(sprintf("%s/%s/%s/%s", MAPPED_DRIVE_NAME, jobID, 'inputs', paste(fn, sep = "")), local.out.dir)
 		
-    # Get anything that matches the filename from the job folder
-		flist <- list.files(workingFolder, pattern=paste(file.name.base, "*.*", sep=""), full.names = TRUE)
+        # Get anything that matches the filename from the job folder
+		similarnamedfilelist <- list.files(workingFolder, pattern=paste(file.name.base, "*.*", sep=""), full.names = TRUE)
+		
+		# Get any files that look like datafiles
+		# TODO: Determine what the actual data file(s) is
+		datafilelist <- list.files(workingFolder, "*.csv", full.names = TRUE)
     
-    # Get lst file from NMFE execution
-    lstFile = paste(workingFolder, "output.lst", sep="\\")
-    if(file.exists(lstFile) == TRUE) {
-		  flist <- c(flist, lstFile)
-    }
+        # Get lst file from NMFE execution
+        lstFile = paste(workingFolder, "output.lst", sep="\\")
+        
+        if (file.exists(lstFile) == TRUE) {
+            fileslist <- c(similarnamedfilelist, datafilelist, lstFile)
+        } else {
+            fileslist <- c(similarnamedfilelist, datafilelist) 
+        }
     
-		file.copy(flist, target)
+		file.copy(fileslist, target)
 		
 		#if (remove==TRUE) {
 		#	unlink(jobDirectory, recursive=TRUE)
