@@ -7,8 +7,9 @@
 #' @param target S string specifying the target software. Currently, possible targets are "NONMEM", "PsN" and "BUGS".
 #' @param subfolder Specify the name of a subfolder within the current working directory in which to store the results.
 #' @param collect Logical dictating if the results should be collected.
+#' @param clearUp Logical dictating if the working directory should be deleted on successful job completion
 #' @param addargs String specifying additional arguments to be passed to the target software.
-estimate <- function(file=NULL, target=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), collect=TRUE, addargs="" ) {
+estimate <- function(file=NULL, target=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), collect=TRUE, clearUp=FALSE, addargs="" ) {
   originalDirectory <- getwd()
   outputObject <- list()
   if(target=="NONMEM") {
@@ -32,7 +33,7 @@ estimate <- function(file=NULL, target=NULL, subfolder=format(Sys.time(), "%Y%b%
     
     if (outputObject$status == "COMPLETED") {
     
-      outputObject <- TEL.import(outputObject, target=target)
+      outputObject <- TEL.import(outputObject, target=target, clearUp=clearUp)
 
       # Create file names:
       ctlFile <- gsub("[.][mM][dD][lL]", ".ctl", file)

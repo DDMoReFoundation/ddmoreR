@@ -22,13 +22,13 @@ TEL.prepareWorkingFolder <- function(modelfile=NULL, src=getwd(), tmpdir=tempdir
   tempFolder
 }
 
-TEL.import <- function( outputObject=NULL, target=NULL) {
+TEL.import <- function(outputObject=NULL, target=NULL, clearUp=FALSE) {
 
   jobID <- outputObject$requestID
   modelfile <- outputObject$modelFile
   jobDirectory <- outputObject$workingDirectory
     
-	if(nchar(modelfile)==0 || nchar(jobDirectory)==0 ) {
+	if (nchar(modelfile) == 0 || nchar(jobDirectory) == 0) {
     # Model file and/or job directory not specified, so get them from Framework Integation service
 		job = TEL.getJob(jobID)	
 		modelfile <- job$controlFile
@@ -37,7 +37,7 @@ TEL.import <- function( outputObject=NULL, target=NULL) {
 	
 	workingFolder = paste(jobDirectory, jobID, sep="/" )
 	
-	if(file.exists(workingFolder) == FALSE ) {
+	if (file.exists(workingFolder) == FALSE) {
 		cat("Job ", jobID, " already imported")
 	} else {
 		# import the data
@@ -75,9 +75,9 @@ TEL.import <- function( outputObject=NULL, target=NULL) {
     
 		file.copy(fileslist, target)
 		
-		#if (remove==TRUE) {
-		#	unlink(jobDirectory, recursive=TRUE)
-		#}		
+		if (clearUp==TRUE) {
+			unlink(jobDirectory, recursive=TRUE)
+		}		
 		cat('Done.\n\n')
     
 		outputObject
