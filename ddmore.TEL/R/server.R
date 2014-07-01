@@ -1,49 +1,58 @@
 
 TEL.startServer <- 
   function() {
-    TEL.checkConfiguration()
-    cat("TEL.startServer\n")
-    #path.package("DDMoRe.TEL")
-    packagePath <- "C:/Dev/workspace/mif-exec-exec" 
-    startMIF <- paste(packagePath, "/mif-exec/startup-mif.bat", sep="")
-    startFIS <- paste(packagePath, "/fis/startup.bat", sep="")
+  
+    homeDirs <- TEL.checkConfiguration()
+    fis.home <- homeDirs[1]
+    mif.home <- homeDirs[2]
     
-    if(file.exists(startMIF) && file.exists(startFIS) && TEL.serverRunning() == FALSE) {
-      cat("Not started, so starting server\n")
-      shell(shQuote(startMIF), wait=F)
-      shell(shQuote(startFIS), wait=F)
+    cat("Starting FIS and MIF servers...\n")
+    
+    startFIS <- file.path(fis.home, "startup.bat")
+    startMIF <- file.path(mif.home, "startup.bat")
+    
+    if (!TEL.serverRunning()) {
+      cat("FIS server not running; starting server...\n")
+      system(paste("cmd", "/c", shQuote(startMIF)), wait=F)
+      system(paste("cmd", "/c", shQuote(startFIS)), wait=F)
       count = 0
-      while( count < 20 && TEL.serverRunning() == FALSE ) {
+      cat("Retries: ")
+      while ( count < 30 && !TEL.serverRunning() ) {
         Sys.sleep(1)
         count <- count+1
-        cat("Paused\n")
+        cat(count)
+        cat(" ")
+      }
+      cat("\n")
+      if (!TEL.serverRunning()) {
+        stop("Server was unable to start")
       }
     }
-    cat("Started server\n")
+    cat("Server is running!")
   }
 
 TEL.serverRunning <- 
   function(HOST='localhost', PORT='9010') {
 
-    ret <- "notok"
-
-	  healthURL = sprintf('http://%s:%s/healthcheck', HOST, PORT)
-	
-    # Need some way to work out whether the server is running, apart from this. When the server isn't running, this throws an error
-    ret = RCurl:::postForm(healthURL, style="HTTPPOST", health="yes")
-
-    #if(RCurl:::url.exists(healthURL)) {
-     # ret = RCurl:::postForm(healthURL, style="HTTPPOST", health="yes")
-    #}
-    ret[1]=="ok"
+    healthcheckUrl <- sprintf('http://%s:%s/healthcheck', HOST, PORT)
+    
+    tryCatch(
+        {
+            response <- RCurl:::postForm(healthcheckUrl, style="HTTPPOST", health="yes")
+            return(response == "ok")
+        }, error = function(e) {
+            return(FALSE)
+        }
+    )
   }
+  
 
 TEL.stopServer <-
   function(HOST='localhost', PORT='9010') {
-    cat("Stopping server\n")
+    cat("Stopping server...\n")
 	shutdownURL = sprintf('http://%s:%s/shutdown', HOST, PORT)
 	ret = RCurl:::postForm(shutdownURL, style="HTTPPOST", shutdown="yes")
-    ret[1]=="OK"
+    ret[1]=="OK" # returns TRUE or FALSE as appropriate
   }
 
 TEL.safeStop <-
@@ -56,7 +65,27 @@ TEL.safeStop <-
 
 TEL.checkConfiguration <-
   function() {
-#    packagePath <- path.package("DDMoRe.TEL")
+    packagePath <- path.package("DDMoRe.TEL")
+    
+    see.home <- file_path_as_absolute(file.path(packagePath, '..', '..', '..', '..'))
+    
+    fis.home <- file.path(see.home, 'fis')
+    mif.home <- file.path(see.home, 'mif-exec')
+
+    errMsg <- '';
+    if (!file.exists(fis.home)) {
+        errMsg <- paste(errMsg, 'Derived FIS directory ', fis.home, ' does not exist.\n', sep='')
+    }
+    if (!file.exists(mif.home)) {
+        errMsg <- paste(errMsg, 'Derived MIF directory ', mif.home, ' does not exist.\n', sep='')
+    }
+    if (errMsg != "") {
+        stop(paste(errMsg, 'This is probably because you are not running the TEL console from within an SEE environment.\nThe FIS and/or MIF servers must be started manually.', sep=""))
+    }
+    
+    c(fis.home, mif.home) # Return value
+    
+    
 #    configFilename = paste(packagePath, "/exec/mif/etc/mif.properties", sep="")
 #    if(!file.exists(paste(configFilename))) {
 #      success = file.create(configFilename, showWarnings = FALSE, overwrite=TRUE, recursive=TRUE)
@@ -71,7 +100,7 @@ TEL.checkConfiguration <-
 #        mif.templatesDirectory     <- cat("mif.templatesDirectory=", service.home, "\\\\templates", sep="")
 #        mif.commonScriptsDirectory <- cat("mif.commonScriptsDirectory=", service.home, "\\\\scripts", sep="")
 #        mif.genericScriptsDirectory <- cat("mif.genericScriptsDirectory=", service.home, "\\\\scripts", sep="")
-  
+#  
 #        cat( mif.configuration.dir,
 #             mif.working.dir,
 #             mif.templatesDirectory,
