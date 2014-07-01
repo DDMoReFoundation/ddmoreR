@@ -80,7 +80,7 @@ TEL.checkConfiguration <-
         errMsg <- paste(errMsg, 'Derived MIF directory ', mif.home, ' does not exist.\n', sep='')
     }
     if (errMsg != "") {
-        stop(paste(errMsg, 'This is probably because you are not running the TEL console from within an SEE environment.\nThe FIS and/or MIF servers must be started manually.', sep=""))
+        warning(paste(errMsg, 'This is probably because you are not running the TEL console from within an SEE environment.\nThe FIS and/or MIF servers must be started manually.', sep=""))
     }
     
     c(fis.home, mif.home) # Return value
