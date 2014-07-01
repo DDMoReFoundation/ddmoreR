@@ -10,7 +10,10 @@
 #'
 #' @usage .callParser("myMDLFile")
 #'
-#' @param x File path or URL of the .mdl file containing the data object.
+#' @param x File path or URL of the .mdl file containing the objects.
+#'
+#' @param type String specifying the type of objects to extract. Possible values are
+#' "parobj", "taskobj", "dataobj" and "modobj"
 #'
 #' @param name – (Optional) Specifies the data object item, by name, to be 
 #' retrieved by getDataObjects. If multiple data objects exist in the .mdl file 
@@ -19,13 +22,150 @@
 #' @return A list of objects which are contained in the MDL file or URL.
 #' @include telClasses.R
 
-.callParser <- function(x, name){
-  #command to call parser
-  #par <-   #command to call parser. Returns list of all objects
+.callParser <- function(x, name, type, HOST='localhost', PORT='9010'){
+  
+  if(!type%in%c("parobj", "taskobj", "dataobj", "modobj")){
+    stop("Type specified is not one of 'parobj', 'taskobj', 'dataobj' or 'modobj'")
+  }
+  # Call parser and read in the JSON data:
+  cmd <- paste0("http://", HOST, ":", PORT, "/readmdl?fileName=", normalizePath(x, winslash="/"))
 
-  if(!missing(name)){ par <- par[name]}
-  return(par)
+  raw <- fromJSON(httpGET(cmd))[[1]]
+
+  if(!missing(name)){
+  
+    .extractNamedObject(raw, name)
+    return(res)
+    
+  } else{
+  
+  res <- .extractTypeObject(raw, type)
+  return(res)
+  
+  }
+  
 }
+
+
+.extractNamedObject <- function(dat, name){
+  
+  val <- dat[name]
+  
+  res <- .extractTypeObject(val, type=val$identifier)
+  
+  return(res)
+
+}
+
+
+
+.extractTypeObject <- function(dat, type){
+
+  switch(type, 
+    parobj  = .extractParObj(dat), 
+    mdlobj  = .extractModObj(dat), 
+    dataobj = .extractDataObj(dat)
+  )
+  
+}
+
+.extractParObj <- function(dat){
+  #Extract identifiers
+  logi <- sapply(dat, 
+    function(x){
+      x$identifier=="parobj"
+    }
+  )
+  
+  subList <- dat[logi]
+  
+  res <- lapply(subList, .createParObj)
+
+  names(res) <- names(subList)
+  
+  return(res)
+
+}
+
+.extractModObj <- function(dat){
+  #Extract identifiers
+  logi <- sapply(dat, 
+    function(x){
+      x$identifier=="mdlobj"
+    }
+  )
+  
+  subList <- dat[logi]
+  
+  res <- lapply(subList, .createModObj)
+  
+  names(res) <- names(subList)
+  
+  return(res)
+
+}
+
+.extractDataObj <- function(dat){
+  #Extract identifiers
+  logi <- sapply(dat, 
+    function(x){
+      x$identifier=="dataobj"
+    }
+  )
+  
+  subList <- dat[logi]
+  
+  res <- lapply(subList, .createDataObj)
+  
+  names(res) <- names(subList)
+  
+  return(res)
+
+}
+
+.extractTaskObj <- function(dat){
+  #Extract identifiers
+  logi <- sapply(dat, 
+    function(x){
+      x$identifier=="taskobj"
+    }
+  )
+  
+  subList <- dat[logi]
+  
+  res <- lapply(subList, .createTaskObj)
+  
+  names(res) <- names(subList)
+  
+  return(res)
+
+}
+
+
+
+
+.createParObj <- function(dat){
+
+  res <- new("parObj", 
+      STRUCTURAL = as.list(dat$STRUCTURAL),
+      PRIOR = as.list(dat$PRIOR),
+      VARIABILITY = dat$VARIABILITY
+    )
+  
+  return(res)
+
+} 
+
+
+.createDataObj <- function(){}
+
+.createModObj <- function(){}
+
+.createTaskObj <- function(){error("No functionality has been implemented to extract task objects")}
+  
+  
+  
+
 
 ##############################################################
 #' .assignFun
