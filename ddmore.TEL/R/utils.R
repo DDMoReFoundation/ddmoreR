@@ -196,10 +196,8 @@
 
     # Assign the values to the environment
     sapply(nam, .assignFun, dat=temp, env=env1)
-    # Try to evaluate the code
-    try(
       # Evaluate the code in the new environment
-      eval(parse(text=codeString), envir=env1))
+      eval(parse(text=codeString), envir=env1)
       # Bring back the updated values and put back into temp
       for(nn in objects(env1)){
         temp[nn] <- eval(parse(text=paste0("env1$", nn)))
