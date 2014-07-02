@@ -3,7 +3,7 @@
 #'
 #' Calls to the MDL parser, providing either a file path or URL, and returns
 #' a list of all objects in the MDL file. For data objects, parameter objects and
-#' model objects, R objects of class dataObj, parObj and modObj are returned. This
+#' model objects, R objects of class dataObj, parObj and mdlObj are returned. This
 #' function is not intended for use by the user. It is recommended that 
 #' the functions getDataObjects, getMOG, getParameterObjects and/or getModelObjects
 #' are used instead.
@@ -13,37 +13,44 @@
 #' @param x File path or URL of the .mdl file containing the objects.
 #'
 #' @param type String specifying the type of objects to extract. Possible values are
-#' "parobj", "taskobj", "dataobj" and "modobj"
+#' "parobj", "taskobj", "dataobj" and "mdlobj"
 #'
-#' @param name – (Optional) Specifies the data object item, by name, to be 
+#' @param name (Optional) Specifies the data object item, by name, to be 
 #' retrieved by getDataObjects. If multiple data objects exist in the .mdl file 
 #' then using the name argument helps users target a specific data object. 
 #'
 #' @return A list of objects which are contained in the MDL file or URL.
 #' @include telClasses.R
 
-.callParser <- function(x, name, type, HOST='localhost', PORT='9010'){
-  
-  if(!type%in%c("parobj", "taskobj", "dataobj", "modobj")){
-    stop("Type specified is not one of 'parobj', 'taskobj', 'dataobj' or 'modobj'")
+.callParser <- function(x, name, type, HOST='localhost', PORT='9010') {
+
+  if(!type%in%c("parobj", "taskobj", "dataobj", "mdlobj")){
+    stop("Type specified is not one of 'parobj', 'taskobj', 'dataobj' or 'mdlobj'")
   }
-  # Call parser and read in the JSON data:
-  cmd <- paste0("http://", HOST, ":", PORT, "/readmdl?fileName=", normalizePath(x, winslash="/"))
+  
+  # Call parser and read in the JSON data
+  raw <- .callParser0(x, HOST, PORT);
 
-  raw <- fromJSON(httpGET(cmd))[[1]]
-
-  if(!missing(name)){
+  if (!missing(name)) {
   
     .extractNamedObject(raw, name)
     return(res)
     
-  } else{
+  } else {
   
-  res <- .extractTypeObject(raw, type)
-  return(res)
+    res <- .extractTypeObject(raw, type)
+    return(res)
   
   }
   
+}
+
+.callParser0 <- function(x, HOST='localhost', PORT='9010') {
+
+  # Call parser and read in the JSON data:
+  cmd <- paste0("http://", HOST, ":", PORT, "/readmdl?fileName=", normalizePath(x, winslash="/"))
+
+  fromJSON(httpGET(cmd))[[1]]
 }
 
 
@@ -56,7 +63,6 @@
   return(res)
 
 }
-
 
 
 .extractTypeObject <- function(dat, type){
@@ -142,8 +148,6 @@
 }
 
 
-
-
 .createParObj <- function(dat){
 
   res <- new("parObj", 
@@ -157,9 +161,41 @@
 } 
 
 
-.createDataObj <- function(){}
+.createDataObj <- function(dat){
 
-.createModObj <- function(){}
+    res <- new("dataObj",
+        DATA_INPUT_VARIABLES = as.list(dat$DATA_INPUT_VARIABLES),
+        SOURCE = as.list(dat$SOURCE),
+        # TODO: TBC - These need to be populated
+        RSCRIPT = list(),
+        HEADER = list(),
+        FILE = list(),
+        DESIGN = list(),
+        DATA_DERIVED_VARIABLES = character()
+    )
+
+}
+
+
+.createModObj <- function(dat){
+    
+    res <- new("modObj",
+        # TODO: TBC - These need to be populated
+        MODEL_INPUT_VARIABLES = list(),
+        STRUCTURAL_PARAMETERS = character(),
+        VARIABILITY_PARAMETERS = character(),
+        GROUP_VARIABLES = character(),
+        RANDOM_VARIABLE_DEFINITION = character(),
+        INDIVIDUAL_VARIABLES = character(),
+        MODEL_PREDICTION = new("modPred",
+            ODE = character(),
+            LIBRARY = character()
+        ),
+        OBSERVATION = list()
+    )
+
+}
+
 
 .createTaskObj <- function(){error("No functionality has been implemented to extract task objects")}
   
@@ -241,6 +277,4 @@
   return(res)
 
 }
-
-
 
