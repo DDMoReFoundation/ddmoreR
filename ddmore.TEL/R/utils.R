@@ -28,7 +28,7 @@
     stop("Type specified is not one of 'parobj', 'taskobj', 'dataobj' or 'modobj'")
   }
   # Call parser and read in the JSON data:
-  cmd <- paste0("http://", HOST, ":", PORT, "/readmdl?fileName=", normalizePath(x, winslash="/"))
+  cmd <- URLencode(paste0("http://", HOST, ":", PORT, "/readmdl?fileName=", normalizePath(x, winslash="/")))
 
   raw <- fromJSON(httpGET(cmd))[[1]]
 
