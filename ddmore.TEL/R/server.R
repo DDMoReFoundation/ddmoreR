@@ -38,7 +38,7 @@ TEL.serverRunning <-
     
     tryCatch(
         {
-            response <- RCurl:::postForm(healthcheckUrl, style="HTTPPOST", health="yes")
+            response <- RCurl:::postForm(healthcheckUrl, style="POST")
             return(response == "ok")
         }, error = function(e) {
             return(FALSE)
