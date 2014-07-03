@@ -1,8 +1,8 @@
 ##############################################################
 #' getModelObjects
 #'
-#' Retrieves Model Object (MCL Object of type "modObj") from a locally stored MDL
-#' file or from a URL  and returns an S4 object of class "modObj". Slots within 
+#' Retrieves Model Object (MCL Object of type "mdlObj") from a locally stored MDL
+#' file or from a URL  and returns an S4 object of class "mdlObj". Slots within 
 #' this object are "RAW" – a vector of character strings corresponding to the 
 #' lines of MCL code within the MCL Model Object, "MODEL_INPUT_VARIABLES", 
 #' "STRUCTURAL_PARAMETERS", "VARIABILITY_PARAMETERS", "GROUP_VARIABLES", 
@@ -18,13 +18,12 @@
 #' cases e.g. stepwise covariate model building via a configuration file 
 #' (as in the "scm" method within Perl speaks NONMEM, PsN).
 #' It is assumed that only ONE Model object is contained within an .mdl file.
- 
 #'
 #' @usage getModelObject(file, name)
 #'
 #' @param x File path, URL of the .mdl file containing the task object or a MOG (object of class "mogObj".
 #'
-#' @return An S4 Object of class "modObj".
+#' @return An S4 Object of class "mdlObj".
 #'
 #' @export
 #' @docType methods
@@ -71,7 +70,7 @@ setGeneric("getModelObjects", function(x, name){
 #' @rdname getModelObjects-methods
 #' @aliases getModelObjects,mogObj,mogObj-method
 setMethod("getModelObjects", signature=signature(x="mogObj"), function(x){
-   return(x@modObj)
+   return(x@mdlObj)
 })
 
 

@@ -1,4 +1,5 @@
 ##############################################################
+##############################################################
 #' getMDLObjects
 #'
 #' Retrieves all MCL Objects from a locally stored MDL file or from a URL and 
@@ -10,7 +11,7 @@
 #'
 #' @param x File path or URL of the .mdl file containing the task object.
 #'
-#' @return A list of objects of class "dataObj", "parObj", "taskObj" and "modObj".
+#' @return A list of objects of class "dataObj", "parObj", "taskObj" and "mdlObj".
 #'
 #' @export
 #' @docType methods

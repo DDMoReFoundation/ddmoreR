@@ -69,7 +69,7 @@
 
   switch(type, 
     parobj  = .extractParObj(dat), 
-    mdlobj  = .extractModObj(dat), 
+    mdlobj  = .extractMdlObj(dat), 
     dataobj = .extractDataObj(dat)
   )
   
@@ -93,7 +93,7 @@
 
 }
 
-.extractModObj <- function(dat){
+.extractMdlObj <- function(dat){
   #Extract identifiers
   logi <- sapply(dat, 
     function(x){
@@ -103,7 +103,7 @@
   
   subList <- dat[logi]
   
-  res <- lapply(subList, .createModObj)
+  res <- lapply(subList, .createMdlObj)
   
   names(res) <- names(subList)
   
@@ -177,9 +177,9 @@
 }
 
 
-.createModObj <- function(dat){
+.createMdlObj <- function(dat){
     
-    res <- new("modObj",
+    res <- new("mdlObj",
         # TODO: TBC - These need to be populated
         MODEL_INPUT_VARIABLES = list(),
         STRUCTURAL_PARAMETERS = character(),

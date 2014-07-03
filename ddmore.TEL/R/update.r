@@ -1,13 +1,11 @@
 ##############################################################
-#' .update
+#' update
 #'
 #' Updates an object of class parObj. It allows the user to specify new initial values, 
 #' bounds (lower, upper) and prior distributions. Typically this method is used to 
 #' update initial parameter values from current values to output values from an estimation step. 
 #' Optionally will pick up any changes to parameter objects via the Task Properties Object PARAMETER block.
 #' 
-#'
-#'
 #' @usage update(object, block, type, with)
 #'
 #' @param object An object of class parObj
@@ -33,6 +31,8 @@
 #'				with=list(POP_TOVER = T))
 #'
 #' @return An object of class parObj
+#' @docType methods
+#' @rdname update-methods
 #' @include telClasses.R
 
 setGeneric("update", function(object, block, type, with){ 
@@ -40,7 +40,7 @@ setGeneric("update", function(object, block, type, with){
 })
 
 #' @rdname update-methods
-#' @aliases read,dataObj,dataObj-method
+#' @aliases read,parObj,parObj-method
 setMethod("update", "parObj", function(object, block, type, with){
   if(!all(block%in%c("STRUCTURAL", "PRIOR", "VARIABILITY"))){stop("Block provided is not one of 'STRUCTURAL', 'PRIOR' or 'VARIABILITY'")}
   if(!all(type%in%names(eval(parse(text=paste0("object", "@", block)))))){stop("Type provided does not exist in given block.")}
