@@ -237,7 +237,7 @@ validity.mogObj <- function(object)
 {
 	stopifnot(validity.dataObj(object@dataObj))
 	stopifnot(validity.parObj(object@parObj))
-	stopifnot(validity.modObj(object@modObj))
+	stopifnot(validity.mdlObj(object@mdlObj))
 	stopifnot(validity.taskObj(object@taskObj))
   return(TRUE)
 }
