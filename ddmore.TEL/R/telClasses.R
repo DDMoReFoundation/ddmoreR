@@ -233,12 +233,12 @@ is.modObj <- function(obj){
 
 
 
-validity.mogObj<- function(object)
+validity.mogObj <- function(object)
 {
-	stopifnot(is.dataObj(object@dataObj))
-	stopifnot(is.parObj(object@parObj))
-	stopifnot(is.modObj(object@modObj))
-	stopifnot(is.taskObj(object@taskObj))
+	stopifnot(validity.dataObj(object@dataObj))
+	stopifnot(validity.parObj(object@parObj))
+	stopifnot(validity.modObj(object@modObj))
+	stopifnot(validity.taskObj(object@taskObj))
   return(TRUE)
 }
 
