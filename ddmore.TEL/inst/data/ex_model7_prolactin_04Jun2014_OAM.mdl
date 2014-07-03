@@ -1,0 +1,375 @@
+# nt2mdl 1.047 beta Nick Holford n.holford@auckland.ac.nz
+ex_model7_prolactin_Jan2014_dat = dataobj{
+### Data object
+# The data object specifies a table of columns of data variables and the variable names which will be also used by the model object
+   DATA_INPUT_VARIABLES{
+      STU=list(type=continuous)
+      ID=list(type=categorical)
+      TRT=list(type=continuous)
+      NPER=list(type=continuous)
+      TIME=list(type=continuous,units="h")
+      CMT=list(type=categorical)
+      AMT=list(type=continuous,units="mg")
+      RATE=list(type=continuous)
+      EVID=list(type=categorical)
+      SEX=list(type=categorical)#,define=list(female=0,male=1,MISSING=-99),recode=list("F","M","UNK"))
+      PRL=list(type=continuous)
+      DV=list(type=continuous)
+      CLR=list(type=continuous)
+      VC=list(type=continuous)
+      VP=list(type=continuous)
+      QB=list(type=continuous)
+      KS=list(type=continuous)
+      FR=list(type=continuous)
+      DUR=list(type=continuous)
+      ALAG=list(type=continuous)
+      PAT=list(type=continuous)
+      SS=list(type=categorical)
+      II=list(type=continuous,units="h")
+   }# end DATA_INPUT_VARIABLES
+
+   SOURCE{
+      myData=list(
+           file="ex_data_prolactin.csv",
+           inputformat=nonmemFormat,
+           ignore="@")
+   }# end SOURCE
+} # end data object
+
+ex_model7_prolactin_Jan2014_par = parobj{
+### Parameter object
+# The parameter object defines the numerical values of the parameters with optional constraints (lo and high values) and units.
+
+   STRUCTURAL{
+# The STRUCTURAL block define the structural model parameters.
+      #THETA
+      POP_KOUT=list(value=0.664,lo=.1,hi=10)
+      POP_PRL0_IN_MALE_HV=list(value=7.67,lo=1,hi=15)
+      POP_PRL0_IN_MALE_PAT=list(value=16.1,lo=1,hi=30)
+      POP_PRL0_IN_FEMALES_PAT=list(value=35.2,lo=1,hi=40)
+      POP_PRL0_IN_MALES_STUDY_101=list(value=11.3,lo=0)
+      POP_PRL0_IN_FEMALES_STUDY_101=list(value=23.2,lo=0)
+      POP_KDA=list(value=.156,lo=0.001,hi=50)
+      POP_UPDA=list(value=1.44,lo=0.001,hi=10)
+      POP_AMP=list(value=0.532,lo=-.75,hi=1.5)
+      POP_PHS1=list(value=20.1,lo=12,hi=25)
+      POP_AMP2=list(value=-.314,lo=-.9,hi=0.2)
+      POP_PHS2=list(value=13.7,lo=-2,hi=15)
+      POP_KI=list(value=1.96,lo=0,hi=100)
+      POP_PHASE_SHIFT_IN_PATIENTS=list(value=-1.61,lo=-5)
+      POP_RES_ERR_IN_MALE_HV=list(value=.290,lo=0)
+      POP_RES_ERR_IN_MALE_PATIENTS=list(value=.422,lo=0)
+      POP_RES_ERR_IN_FEMALE_PATIENTS=list(value=.571,lo=0)
+   }# end STRUCTURAL
+
+   VARIABILITY{
+# The VARIABILITY block has a more complex structure because it needs to express a lower triangular matrix of parameters and how they are related to each other.
+# VARIABILITY parameters may be expressed with a type of "SD" which implies standard deviations on the diagonal and correlations
+# on the lower off diagonal elements or "VAR" which implies variances and covariances.
+      #OMEGA
+      matrix(name="struc1",type=VAR) {
+         PPV_PRL0=.425,
+         .758, PPV_KI=1.82
+      } # end matrix struc1
+      PPV_KOUT=list(value= 0.589 ,type=VAR)
+      PPV_AMP1=list(value= .0558 ,type=VAR)
+      PPV_PHS2=list(value= 1.80 ,type=VAR)
+      diag(name="struc2",type=VAR) {
+         PPV_IOV_IN_PRL0_1=.0657
+      } # end diag struc2
+      same(name="struc2") {
+         PPV_IOV_IN_PRL0_2
+      } # end same struc2
+      same(name="struc2") {
+         PPV_IOV_IN_PRL0_3
+      } # end same struc2
+      same(name="struc2") {
+         PPV_IOV_IN_PRL0_4
+      } # end same struc2
+      #SIGMA
+      RUV_EPS1=list(value= 1 ,type=VAR,fix=true)
+
+   }# end VARIABILITY
+
+} # end of parameter object
+
+ex_model7_prolactin_Jan2014_mdl = mdlobj{
+### Model object
+# The model object receives a list of input data variables from the data object and parameters (constants)from the parameter object.
+# The parameter and variable names in the model object must be matched by a similar name in the parameter and data objects.
+# Note that variables in the data object and parameters may be defined in the parameter object that are not referenced in the model object.
+# Model variables are derived from the input data variables and parameters using algebraic expressions.
+
+   MODEL_INPUT_VARIABLES{
+# A name for each input data variable is required. Special uses of input data variables are indicated by the use attribute if the data variable name is not a standard name. Standard names may include ID, IDV, AMT, DV, MDV, etc. similar to standard data items recognized by NM-TRAN or Monolix. The type option is not required but may be useful as metadata. This kind of metadata (with an option to recode) could alternatively be specified in the data object.
+      STU=list(type=continuous,use=covariate)
+      ID=list(use=id,level=2)
+      TRT=list(type=continuous,use=covariate)
+      NPER=list(type=continuous,use=covariate)
+      TIME=list(use=idv,units="h")
+      CMT=list(use=cmt)
+      AMT=list(use=amt,units="mg")
+      RATE=list(type=continuous,use=covariate)
+      EVID=list(use=evid)
+      SEX=list(type=categorical)#,define=list(female=0,male=1,MISSING=-99),use=covariate)
+      PRL=list(type=continuous,use=covariate)
+      DV=list(type=continuous,use=dv,level=1)
+      CLR=list(type=continuous,use=covariate)
+      VC=list(type=continuous,use=covariate)
+      VP=list(type=continuous,use=covariate)
+      QB=list(type=continuous,use=covariate)
+      KS=list(type=continuous,use=covariate)
+      FR=list(type=continuous,use=covariate)
+      DUR=list(type=continuous,use=covariate)
+      ALAG=list(type=continuous,use=covariate)
+      PAT=list(type=continuous,use=covariate)
+      SS=list(use=ss)
+      II=list(use=ii,units="h")
+   }# end MODEL_INPUT_VARIABLES
+
+# The STRUCTURAL_PARAMETERS Block defines the structural model parameters.
+   STRUCTURAL_PARAMETERS{
+# A name for each parameter is required. Other attributes such as units are optional.
+# Units may be used to achieve consistency between the parameter, data and model object values.
+# This could be implemented during the WP2 translation process.
+
+      #THETA
+      POP_KOUT
+      POP_PRL0_IN_MALE_HV
+      POP_PRL0_IN_MALE_PAT
+      POP_PRL0_IN_FEMALES_PAT
+      POP_PRL0_IN_MALES_STUDY_101
+      POP_PRL0_IN_FEMALES_STUDY_101
+      POP_KDA
+      POP_UPDA
+      POP_AMP
+      POP_PHS1
+      POP_AMP2
+      POP_PHS2
+      POP_KI
+      POP_PHASE_SHIFT_IN_PATIENTS
+      POP_RES_ERR_IN_MALE_HV
+      POP_RES_ERR_IN_MALE_PATIENTS
+      POP_RES_ERR_IN_FEMALE_PATIENTS
+   }# end STRUCTURAL_PARAMETERS
+
+   VARIABILITY_PARAMETERS{
+# The VARIABILITY_PARAMETERS Block defines the variability parameters.
+      #OMEGA
+      PPV_PRL0
+      PPV_KI
+      PPV_KOUT
+      PPV_AMP1
+      PPV_PHS2
+      PPV_IOV_IN_PRL0_1
+      PPV_IOV_IN_PRL0_2
+      PPV_IOV_IN_PRL0_3
+      PPV_IOV_IN_PRL0_4
+      #SIGMA
+      RUV_EPS1
+   }# end VARIABILITY_PARAMETERS
+
+   GROUP_VARIABLES{
+# The GROUP_VARIABLES block is used to express covariate models i.e. the fixed effect differences in parameters predictable from data variables.
+# If there are no covariate effects to model then this block is not required.
+# NONMEM may be able to take advantage of knowing that variables defined in this block represent the central tendency
+# of the distribution of random effects defined in the INDIVIDUAL_VARIABLES block (known as MU referencing).
+# In this example the prefix "grp_" for a variable name could be a hint that this is a MU variable for NM-TRAN.
+# Other model variables may be defined in this block according to user preference.
+
+   
+     OC1  = 0
+     OC2  = 0
+     OC3  = 0
+     OC4  = 0
+     if (NPER==1) OC1  =  1
+     if (NPER==2) OC2  =  1
+     if (NPER==3) OC3  =  1
+     if (NPER==4) OC4  =  1
+   # PK submodel
+       CL = CLR
+       V2 = VC
+       V3 = VP
+       Q = QB
+       ALAG1 = ALAG
+       D1    = DUR
+       F1    = FR
+       D2    = 0.5
+       F2    = 1
+       KA    = KS
+       K23   = Q/V2
+       K32   = Q/V3
+       K     = CL/V2
+   # PD submodel 
+   }# end GROUP_VARIABLES
+
+
+   RANDOM_VARIABLE_DEFINITION{
+# The RANDOM_VARIABLE_DEFINITION block is used to define the distribution of random variables.
+      eta_PPV_PRL0 ~ (type=normal, mean=0, var=PPV_PRL0,level=ID)
+      eta_PPV_KI ~ (type=normal, mean=0, var=PPV_KI,level=ID)
+      eta_PPV_KOUT ~ (type=normal, mean=0, var=PPV_KOUT,level=ID)
+      eta_PPV_AMP1 ~ (type=normal, mean=0, var=PPV_AMP1,level=ID)
+      eta_PPV_PHS2 ~ (type=normal, mean=0, var=PPV_PHS2,level=ID)
+      eta_PPV_IOV_IN_PRL0_1 ~ (type=normal, mean=0, var=PPV_IOV_IN_PRL0_1,level=ID)
+      eta_PPV_IOV_IN_PRL0_2 ~ (type=normal, mean=0, var=PPV_IOV_IN_PRL0_2,level=ID)
+      eta_PPV_IOV_IN_PRL0_3 ~ (type=normal, mean=0, var=PPV_IOV_IN_PRL0_3,level=ID)
+      eta_PPV_IOV_IN_PRL0_4 ~ (type=normal, mean=0, var=PPV_IOV_IN_PRL0_4,level=ID)
+      eps_RUV_EPS1 ~ (type=normal, mean=0, var=RUV_EPS1,level=DV)
+   }# end RANDOM_VARIABLE_DEFINITION
+
+   INDIVIDUAL_VARIABLES{
+# The INDIVIDUAL_VARIABLES block is used to express the individual variables and their distribution.
+# If this is not a population model then this block is not required.
+
+       KOUT  = POP_KOUT*exp(eta_PPV_KOUT)   # Elimination rate constant prolactin 
+       BASE  = POP_PRL0_IN_MALE_HV               # Base prolactin HV
+       if (PAT==1)   BASE  =  POP_PRL0_IN_MALE_PAT # Base prolactin Male patients 
+       if (SEX==1)   BASE  =  POP_PRL0_IN_FEMALES_PAT # Base prolactin Female patients
+       if (STU==101) BASE  =  POP_PRL0_IN_MALES_STUDY_101 # Base prolactin Male patients Study 101
+       if (STU==101 && SEX==1) BASE = POP_PRL0_IN_FEMALES_STUDY_101 # Base prolactin Female pat Study 101
+       OCBA  = OC1*eta_PPV_IOV_IN_PRL0_1+ OC2*eta_PPV_IOV_IN_PRL0_2+ OC3*eta_PPV_IOV_IN_PRL0_3+ OC4*eta_PPV_IOV_IN_PRL0_4    
+       PRL0   = BASE*exp(eta_PPV_PRL0+OCBA) # Baseline prolactin with IIV and IOV
+       KINB   = KOUT*PRL0      # Release rate of prolactin at baseline
+       KDA    = POP_KDA       # Turnover rate constant dopamine
+       UPDA  = POP_UPDA        # Feedback factor     
+       F4   =  PRL0            # Initialization of prolactin compartment
+       F5    = 10000           # Initialization of dopamine compartment
+       KINM  =  KINB*(1+F5)    # Maximum release rate of prolactin
+       # Circadian submodel
+       PI    = 3.141593
+       DPHS  = POP_PHASE_SHIFT_IN_PATIENTS                   # Phase shift in patients
+       AMP1  = POP_AMP*exp(eta_PPV_AMP1)        # Amplitude of 1st cosine function
+       PHS1  = POP_PHS1+ DPHS *PAT        # Phase shift of 1st cosine
+       AMP2  = POP_AMP2                   # Amplitude of 2nd cosine function
+       PHS2  = POP_PHS2+ DPHS*PAT+eta_PPV_PHS2  # Phase shift of 2nd cosine
+   # PD submodel drug effect
+       KI  = POP_KI * exp(eta_PPV_KI)
+   # Calculation of amounts in different compartments
+
+   }# end INDIVIDUAL_VARIABLES
+
+   MODEL_PREDICTION{
+# The MODEL_PREDICTION block calculates model predictions based on model variables defined in the previous model object blocks.
+# Code in this block expresses the structural model after group and individual parameter differences have been included.
+# It can be considered as an expression of a deterministic prediction. It is the essential component of a shared sub-model.
+# This block should not contain any covariate computations expressing predictable or unpredictable (random) between subject differences.
+
+
+      ## COMPARTMENTS
+      ## 
+      ##        COMP  =  ABS        #1
+      ##        COMP  =  CENT       #2
+      ##        COMP  =  PERI       #3
+      ##        COMP  =  PROL       #4
+      ##        COMP  =  DA         #5 endogenous
+
+   ODE{
+       CP    = 1000*CENT/V2   
+       DIU1  = AMP1*cos(2*PI*(T-PHS1)/24)
+       DIU2  = AMP2*cos(2*PI*(T-PHS2)/12)
+       DIU   = DIU1 + DIU2
+       RSTR  = 1
+       if (DA>0) RSTR   =  DA/(1+CP/KI+DA) 
+       KIN   = KINM * (1 - RSTR) + KINB*DIU
+       FEED = 1
+       if (PROL>0) FEED  =  (PROL/PRL0)^ UPDA
+      ABS=ode(deriv=-KA*ABS)
+      CENT=ode(deriv=KA *ABS - (K23+K)*CENT + K32*PERI)
+      PERI=ode(deriv=K23*CENT - K32*PERI)
+      PROL=ode(deriv=KIN - KOUT*PROL )
+      DA=ode(deriv=KDA*F5*FEED - KDA*DA)
+   }# end ODE
+
+   LIBRARY{
+      ##  ADVAN6 TOL=5
+      amount=nmadvan(model=6,output=list(A,F))
+   }# end LIBRARY
+   
+      IPRED  = 0
+      if (PROL>0) IPRED = ln(PROL)
+      W     = POP_RES_ERR_IN_MALE_HV
+      if (PAT==1) W  =  POP_RES_ERR_IN_MALE_PATIENTS
+      if (SEX==1) W  =  POP_RES_ERR_IN_FEMALE_PATIENTS
+      IRES  = DV-IPRED
+      IWRES = IRES/W 
+      STRT = TRT
+   }# end MODEL_PREDICTION
+
+   OBSERVATION{
+      Y =  IPRED+eps_RUV_EPS1*W
+   }# end OBSERVATION
+
+
+   MODEL_OUTPUT_VARIABLES{
+# The OUTPUT block specifies the model variables that may be exported from the model object.
+      ID
+      TIME
+      IPRED
+      IWRES
+      STU
+   }# end MODEL_OUTPUT_VARIABLES
+
+} # end of model object
+
+ex_model7_prolactin_Jan2014_task = taskobj{
+### Task Properties object
+# Modelling tasks often have many options which the user may specify.
+# The task properties object provides a way to collect together options for commonly performed tasks.
+# The task properties object may define functions which behave like a function in R. It is called with a set of arguments and returns a result object.
+# Following the R language convention the last evaluated statement in a function is used as the default result object returned by the function.
+
+# A task function is defined with the Model Coding Language
+
+# TARGET specific code
+
+TARGET_CODE(target=NMTRAN_CODE,location="$PROBLEM",first=true){***
+$PROB AGONIST-ANTAGONIST INTERACTION MODEL FOR PROLACTIN
+; FRIBERG ET AL. CPT 2009
+***} # end TARGET_CODE
+
+# End TARGET specific code
+
+   MODEL{
+      tolrel=5
+   }# end MODEL
+
+   ## TABLE
+   #NOPRINT ONEHEADER FILE=sdtab7sim_exe 
+
+   myEST=function(t,m,p,d) { 
+      EXECUTE{
+         command="call nmgo ex_model7_prolactin_Jan2014"
+      }# end EXECUTE
+
+      # estimate (more options will typically be needed)
+      ESTIMATE {
+         target=t
+         model=m
+         parameter=p
+         data=d
+
+
+TARGET_CODE(target=NMTRAN_CODE,location="$ESTIMATION"){***
+$EST PRINT=5 MAX=0 SIGDIG=3 METHOD=1
+;$COV MATRIX=S
+***} # end TARGET_CODE
+            algo=list("FOCE ")
+      }# end ESTIMATE
+   }# end of myEST
+
+}# end of task object
+
+ex_model7_prolactin_Jan2014_tel = telobj{
+## The TEL is used to specify the sequence of execution of tasks.
+# Result objects are returned by each task statement which may be used by subsequent tasks.
+
+
+# Fit model using NMTRAN_CODE
+
+ex_model7_prolactin_Jan2014_fit=ex_model7_prolactin_Jan2014_task$myEST(t=NMTRAN_CODE, m=ex_model7_prolactin_Jan2014_mdl, p=ex_model7_prolactin_Jan2014_par, d=ex_model7_prolactin_Jan2014_dat)
+
+# Update parameter estimates with final estimates
+ex_model7_prolactin_Jan2014_par=update(ex_model7_prolactin_Jan2014_fit,ex_model7_prolactin_Jan2014_par)
+
+} # end of task execution language code
