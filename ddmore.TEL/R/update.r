@@ -1,5 +1,5 @@
 ##############################################################
-#' .callParser
+#' .update
 #'
 #' Updates an object of class parObj. It allows the user to specify new initial values, 
 #' bounds (lower, upper) and prior distributions. Typically this method is used to 
