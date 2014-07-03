@@ -17,7 +17,7 @@
 #' valid, whereas "data$WEIGHT>5" would not.
 #' @param categoricalAsFactor (Boolean) convert any dataset variables defined as categorical to factor.
 #' @param recode (Boolean) apply any “recode” attributes defined within the DATA_INPUT_VARIABLES block.
-#' @param asRaw – (Boolean) If TRUE, equivalent to setting deriveVariables, categoricalAsFactor and recode to FALSE.
+#' @param asRaw (Boolean) If TRUE, equivalent to setting deriveVariables, categoricalAsFactor and recode to FALSE.
 #' @param ... Other named arguments to pass on to read.csv
 #'
 #' @return Returns a data frame or list of data frames containing the dataset(s) as described in the Data 

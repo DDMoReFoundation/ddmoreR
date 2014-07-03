@@ -3,8 +3,8 @@
 #'
 #' Retrieves Model Object (MCL Object of type "mdlObj") from a locally stored MDL
 #' file or from a URL  and returns an S4 object of class "mdlObj". Slots within 
-#' this object are "RAW" – a vector of character strings corresponding to the 
-#' lines of MCL code within the MCL Model Object, "MODEL_INPUT_VARIABLES", 
+#' this object are "RAW" (a vector of character strings corresponding to the 
+#' lines of MCL code within the MCL Model Object), "MODEL_INPUT_VARIABLES", 
 #' "STRUCTURAL_PARAMETERS", "VARIABILITY_PARAMETERS", "GROUP_VARIABLES", 
 #' "RANDOM_VARIABLE_DEFINITION", "INDIVIDUAL_VARIABLES", "MODEL_PREDICTION", 
 #' "OBSERVATION". MODEL_INPUT_VARIABLES is a named list of lists, 
@@ -21,7 +21,7 @@
 #'
 #' @usage getModelObject(file, name)
 #'
-#' @param x File path, URL of the .mdl file containing the task object or a MOG (object of class "mogObj".
+#' @param x File path, URL of the .mdl file containing the task object or a MOG (object of class "mogObj").
 #'
 #' @return An S4 Object of class "mdlObj".
 #'

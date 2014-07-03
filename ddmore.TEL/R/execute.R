@@ -4,7 +4,7 @@
 #'
 #' @author Jonathan Chard
 #' @param x An object of class mogObj or an MDL file.
-#' @param target S string specifying the target software. Currently, possible targets are "NONMEM", "PsN" and "BUGS".
+#' @param target String specifying the target software. Currently, possible targets are "NONMEM", "PsN" and "BUGS".
 #' @param subfolder Specify the name of a subfolder within the current working directory in which to store the results.
 #' @param collect Logical dictating if the results should be collected.
 #' @param clearUp Logical dictating if the working directory should be deleted on successful job completion

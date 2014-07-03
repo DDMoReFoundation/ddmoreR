@@ -12,7 +12,7 @@
 #'
 #' @param x File path, URL of the .mdl file containing the task object or a MOG (object of class "mogObj".
 #'
-#' @param name – (Optional) Specifies the data object item, by name, to be 
+#' @param name (Optional) Specifies the data object item, by name, to be 
 #' retrieved by getDataObjects. If multiple data objects exist in the .mdl file 
 #' then using the name argument helps users target a specific data object. 
 #'
