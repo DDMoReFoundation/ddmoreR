@@ -3,7 +3,7 @@
 #'
 #' Calls to the MDL parser, providing either a file path or URL, and returns
 #' a list of all objects in the MDL file. For data objects, parameter objects and
-#' model objects, R objects of class dataObj, parObj and modObj are returned. This
+#' model objects, R objects of class dataObj, parObj and mdlObj are returned. This
 #' function is not intended for use by the user. It is recommended that 
 #' the functions getDataObjects, getMOG, getParameterObjects and/or getModelObjects
 #' are used instead.
@@ -13,19 +13,19 @@
 #' @param x File path or URL of the .mdl file containing the objects.
 #'
 #' @param type String specifying the type of objects to extract. Possible values are
-#' "parobj", "taskobj", "dataobj" and "modobj"
+#' "parobj", "taskobj", "dataobj" and "mdlobj"
 #'
 #' @param name – (Optional) Specifies the data object item, by name, to be 
 #' retrieved by getDataObjects. If multiple data objects exist in the .mdl file 
 #' then using the name argument helps users target a specific data object. 
-#'
+#'+
 #' @return A list of objects which are contained in the MDL file or URL.
 #' @include telClasses.R
 
 .callParser <- function(x, name, type, HOST='localhost', PORT='9010'){
   
-  if(!type%in%c("parobj", "taskobj", "dataobj", "modobj")){
-    stop("Type specified is not one of 'parobj', 'taskobj', 'dataobj' or 'modobj'")
+  if(!type%in%c("parobj", "taskobj", "dataobj", "mdlobj")){
+    stop("Type specified is not one of 'parobj', 'taskobj', 'dataobj' or 'mdlobj'")
   }
   # Call parser and read in the JSON data:
   cmd <- URLencode(paste0("http://", HOST, ":", PORT, "/readmdl?fileName=", normalizePath(x, winslash="/")))
@@ -63,7 +63,7 @@
 
   switch(type, 
     parobj  = .extractParObj(dat), 
-    mdlobj  = .extractModObj(dat), 
+    mdlobj  = .extractmdlObj(dat), 
     dataobj = .extractDataObj(dat)
   )
   
@@ -87,7 +87,7 @@
 
 }
 
-.extractModObj <- function(dat){
+.extractmdlObj <- function(dat){
   #Extract identifiers
   logi <- sapply(dat, 
     function(x){
@@ -97,7 +97,7 @@
   
   subList <- dat[logi]
   
-  res <- lapply(subList, .createModObj)
+  res <- lapply(subList, .createmdlObj)
   
   names(res) <- names(subList)
   
@@ -159,7 +159,7 @@
 
 .createDataObj <- function(){}
 
-.createModObj <- function(){}
+.createmdlObj <- function(){}
 
 .createTaskObj <- function(){error("No functionality has been implemented to extract task objects")}
   

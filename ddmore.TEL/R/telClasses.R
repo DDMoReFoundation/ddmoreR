@@ -179,7 +179,7 @@ is.modPred <- function(obj){
 #### Model object class
 
 
-validity.modObj<- function(object)
+validity.mdlObj<- function(object)
 {
 	stopifnot(is.list(object@MODEL_INPUT_VARIABLES))
 	stopifnot(is.vector(object@STRUCTURAL_PARAMETERS))
@@ -192,7 +192,7 @@ validity.modObj<- function(object)
   return(TRUE)
 }
 
-### Create modObj class:
+### Create mdlObj class:
 
 #' @slot MODEL_INPUT_VARIABLES A list
 #' @slot STRUCTURAL_PARAMETERS A vector
@@ -203,7 +203,7 @@ validity.modObj<- function(object)
 #' @slot MODEL_PREDICTION An object of class "modPred"
 #' @slot OBSERVATION A list
 #' @author khanley
-setClass("modObj", 
+setClass("mdlObj", 
   slots= c(
     MODEL_INPUT_VARIABLES = "list",
     STRUCTURAL_PARAMETERS = "vector",
@@ -216,16 +216,16 @@ setClass("modObj",
   )
 )
 
-#' is.modObj
+#' is.mdlObj
 #'
-#' Determines if an object is of class "modObj"
+#' Determines if an object is of class "mdlObj"
 #'
-#' @usage is.modPObj(object)
+#' @usage is.mdlObj(object)
 #'
 #' @returns TRUE or FALSE 
-is.modObj <- function(obj){
+is.mdlObj <- function(obj){
 
-  class(obj)=="modObj"
+  class(obj)=="mdlObj"
 
 }
 
@@ -237,7 +237,7 @@ validity.mogObj<- function(object)
 {
 	stopifnot(is.dataObj(object@dataObj))
 	stopifnot(is.parObj(object@parObj))
-	stopifnot(is.modObj(object@modObj))
+	stopifnot(is.mdlObj(object@mdlObj))
 	stopifnot(is.taskObj(object@taskObj))
   return(TRUE)
 }
@@ -247,14 +247,14 @@ validity.mogObj<- function(object)
 
 #' @slot dataObj Object of class "dataObj"
 #' @slot parObj Object of class "parObj"
-#' @slot modObj Object of class "modObj"
+#' @slot mdlObj Object of class "mdlObj"
 #' @slot taskObj Object of class "taskObj"
 #' @author khanley
 setClass("mogObj", 
   slots= c(
   dataObj = "dataObj",
   parObj = "parObj",
-  modObj = "modObj", 
+  mdlObj = "mdlObj", 
   taskObj = "taskObj"
   )
 )
