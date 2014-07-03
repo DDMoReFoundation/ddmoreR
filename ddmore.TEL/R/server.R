@@ -28,7 +28,7 @@ TEL.startServer <-
         stop("Server was unable to start")
       }
     }
-    cat("Server is running!\n")
+    cat("Server is running!")
   }
 
 TEL.serverRunning <- 
@@ -74,13 +74,13 @@ TEL.checkConfiguration <-
 
     errMsg <- '';
     if (!file.exists(fis.home)) {
-        errMsg <- paste(errMsg, 'Derived FIS directory', fis.home, 'does not exist.')
+        errMsg <- paste(errMsg, 'Derived FIS directory ', fis.home, ' does not exist.\n', sep='')
     }
     if (!file.exists(mif.home)) {
-        errMsg <- paste(errMsg, 'Derived MIF directory', mif.home, 'does not exist.')
+        errMsg <- paste(errMsg, 'Derived MIF directory ', mif.home, ' does not exist.\n', sep='')
     }
     if (errMsg != "") {
-        warning(paste(errMsg, '\nThis is probably because you are not running the TEL console from within an SEE environment.\nThe FIS and/or MIF servers must be started manually.', sep=""))
+        warning(paste(errMsg, 'This is probably because you are not running the TEL console from within an SEE environment.\nThe FIS and/or MIF servers must be started manually.', sep=""))
     }
     
     c(fis.home, mif.home) # Return value
