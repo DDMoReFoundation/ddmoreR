@@ -84,9 +84,9 @@ modPred1 <- new("modPred",
   LIBRARY = c("amount=nmadvan(model=13,output=list(A,F))")
 )
 
-### Dummy modObj
+### Dummy mdlObj
 
-modObj1 <- new("modObj", 
+modObj1 <- new("mdlObj", 
     MODEL_INPUT_VARIABLES = list(
       ID=list(use="id",level=2),
       TIME=list(use="idv",units="h")
@@ -142,7 +142,7 @@ $COV")
 mogObj1 <- new("mogObj", 
   dataObj = dataObj2,
   parObj = parObj1,
-  modObj = modObj1,
+  mdlObj = modObj1,
   taskObj = taskObj1
 )
 
