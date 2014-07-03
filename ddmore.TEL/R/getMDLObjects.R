@@ -58,7 +58,6 @@ setGeneric("getMDLObjects", function(x, name){
   
   return(res)
   
-  standardGeneric("getMDLObjects")
 })
 
 

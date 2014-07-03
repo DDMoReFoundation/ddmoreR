@@ -48,12 +48,9 @@
 #' @include telClasses.R
 
 setGeneric("getDataObjects", function(x, name){ 
-  ## create object in R from parser:
-  #x <- .callParser(loc=file, obType="dataObject", obName=name) # should return a named list of objects
-  warning("No parsing method implemented yet")
-  # Extract only data objects
-  #res <-  par[sapply(par, is.dataObj)]
-  
+  # create object in R from parser:
+  res <- .callParser(x=x, type="dataobj")
+  return(res)
   standardGeneric("getDataObjects")
 })
 

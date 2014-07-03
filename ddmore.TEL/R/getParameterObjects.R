@@ -55,13 +55,9 @@
 #' @include telClasses.R
 
 setGeneric("getParameterObjects", function(x, name){ 
-  ## create object in R from parser:
-  #x <- .callParser(loc=file, obType="dataObject", obName=name) # should return a named list of objects
-
-  # Extract only data objects
-  #res <-  par[sapply(par, is.dataObj)]
-  warning("No parsing method implemented yet")
-  standardGeneric("getParameterObjects")
+  # create object in R from parser:
+  res <-  .callParser(x=x, type="parobj")
+  return(res)
 })
 
 #' @rdname getDataObjects-methods

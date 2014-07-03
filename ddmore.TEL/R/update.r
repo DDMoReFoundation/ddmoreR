@@ -41,7 +41,7 @@ setGeneric("update", function(object, block, type, with){
 
 #' @rdname update-methods
 #' @aliases read,parObj,parObj-method
-setMethod("update", "parObj", function(object, block, type, with){
+setMethod("update", signature=signature(object="parObj"), function(object, block, type, with){
   if(!all(block%in%c("STRUCTURAL", "PRIOR", "VARIABILITY"))){stop("Block provided is not one of 'STRUCTURAL', 'PRIOR' or 'VARIABILITY'")}
   if(!all(type%in%names(eval(parse(text=paste0("object", "@", block)))))){stop("Type provided does not exist in given block.")}
   if(!all(names(with)%in%names(eval(parse(text=paste0("object", "@", block, "$", type)))))){stop("Names given do not exist in given block and type.")}
