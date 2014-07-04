@@ -1,12 +1,14 @@
 # Course TEL workflow
 
 #set working directory
-setwd("C:\\Users\\khanley\\Documents\\Projects\\ddmore\\TEL\\training")
+#setwd("C:\\Users\\khanley\\Documents\\Projects\\ddmore\\TEL\\training")
+#setwd("C:/runtime-mdl-editor/testproj/mdl/tumour")
 
-## Load TEl package and other useful packages
+
+## Load TEL package and other useful packages
 library(xpose4)
 library(lattice)
-library(tables)
+#library(tables)
 library(DDMoRe.TEL)
 
 ## 
@@ -93,14 +95,14 @@ class(taskObj1)
 myMog <- createMogObj(dataObj = dat, taskObj = taskObj1, mdlObj = mod, parObj = par)
 
 
-################## If the write method is finished:#############################
+################################################################################
 # We can then write the MOG back out to MDL:
-writeMcl(myMog, file="myMog.mdl")
+write(myMog, f="myMog")
 
 # We can then execute this mdl file using NONMEM:
 results <- estimate("myMog.mdl", target="NONMEM")
 
-# Alternatively, we can execute the MOG directly without creating the mdl file:
+# Alternatively, we can execute the MOG directly without creating the MDL file:
 results <- estimate(myMog, target="NONMEM")
 ################################################################################
 
