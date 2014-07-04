@@ -59,7 +59,7 @@
 
 setGeneric("getModelObjects", function(x, name){ 
   # create object in R from parser:
-  res <- .callParser(x=x, type="mdlobj")
+  res <- .callParser(x, type="mdlobj")
   
   return(res)
 })

@@ -38,7 +38,7 @@
 #' @include telClasses.R
 setGeneric("getTaskPropertiesObjects", function(x, name){ 
   # create object in R from parser:
-  res <- .callParser(x=x, type="taskobj")
+  res <- .callParser(x, type="taskobj")
   
   return(res)
 })

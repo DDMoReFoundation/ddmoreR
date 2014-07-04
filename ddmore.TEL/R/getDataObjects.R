@@ -49,7 +49,7 @@
 
 setGeneric("getDataObjects", function(x, name){ 
   # create object in R from parser:
-  res <- .callParser(x=x, type="dataobj")
+  res <- .callParser(x, type="dataobj")
   return(res)
   standardGeneric("getDataObjects")
 })

@@ -56,7 +56,7 @@
 
 setGeneric("getParameterObjects", function(x, name){ 
   # create object in R from parser:
-  res <-  .callParser(x=x, type="parobj")
+  res <-  .callParser(x, type="parobj")
   return(res)
 })
 
