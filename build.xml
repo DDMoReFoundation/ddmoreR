@@ -32,8 +32,10 @@
 
     <property file="${basedir}/${user.property.file}" />
     <property file="${basedir}/default.properties" />
+    
     <property name="major.version" value="0.0"/>
-    <property name="package.version" value="${major.version}.${minor.version}.${env.BUILD_NUMBER}"/>
+    <property name="package.version" value="${major.version}.${minor.version}"/>
+    <property name="build.number" value="${env.BUILD_NUMBER}"/>
 
 
     <fail message="package.src.dir is not set!  Please set package.src.dir to the relative path of package source directory" >
@@ -50,15 +52,6 @@
             <!-- ensure delimOutput is set to empty, or \n will be appended to the string -->
             <tokenfilter delimOutput="">
                 <containsregex pattern="^Package:\s*(.*)\s*$" replace="\1"/>
-            </tokenfilter>
-        </filterchain>
-    </loadresource>
-    <!-- if not given, use the default version -->
-    <loadresource property="package.version" >
-        <file file="${basedir}/${package.src.dir}/DESCRIPTION"/>
-        <filterchain>
-            <tokenfilter delimOutput="">
-                <containsregex pattern="^Version:\s*(.*)\s*$" replace="\1"/>
             </tokenfilter>
         </filterchain>
     </loadresource>
@@ -178,6 +171,8 @@
             <filterchain>
                 <replaceregex pattern="^(Version:)(.*)$" replace="\1 ${package.version}" flags="m"/>
                 <replaceregex pattern="^(Date:)(.*)$" replace="\1 ${TODAY}" flags="m"/>
+                <!-- Provide the Jenkins build number in the DESCRIPTION file -->
+                <replaceregex pattern="^(Build-Number:)(.*)$" replace="\1 ${build.number}" flags="m"/>
             </filterchain>
         </copy>
         <!-- Description can have multiple line with ^\s+ as continuation of line -->
