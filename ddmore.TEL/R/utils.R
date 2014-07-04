@@ -202,7 +202,7 @@
 
 
 ##############################################################
-#' .write.mclobj
+#' write
 #'
 #' Takes in an instance of R class mogObj comprising a single instance of each of:
 #'  - dataObj class
@@ -218,12 +218,22 @@
 #' @param f file path to the .mdl file (optionally without the .mdl extension) that will be created
 #'
 #' @include telClasses.R
+#' @export
+#' @docType methods
+#' @rdname write-methods
 
-.write.mclobj <- function(m, f, HOST='localhost', PORT='9010') {
+setGeneric("write", function(object, f, HOST='localhost', PORT='9010') { 
+  standardGeneric("write")
+})
 
-    if (!validity.mogObj(m)) {
+#' @rdname write-methods
+#' @aliases write,mogObj,mogObj-method
+setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') {
+
+    if (!validity.mogObj(object)) {
         stop("Object is not a valid MOG Object")
     }
+    m = object
     
     parObjAsList <- list(
       STRUCTURAL = m@parObj@STRUCTURAL,
@@ -272,12 +282,15 @@
     )))
     
     .write.mclobj0(json, f, HOST, PORT)
-}
+})
 
 .write.mclobj0 <- function(json, f, HOST='localhost', PORT='9010') {
 
+    fullPath <- normalizePath(f, winslash="/", mustWork=FALSE)
+    cat(paste("Dest MDL file:", fullPath))
+
     wreq <- toJSON(list(
-        fileName = normalizePath(f, winslash="/", mustWork=FALSE),
+        fileName = fullPath,
         fileContent = json
     ))
 
