@@ -198,7 +198,7 @@ validity.mdlObj<- function(object)
 #' @slot STRUCTURAL_PARAMETERS A vector
 #' @slot VARIABILITY_PARAMETERS A vector
 #' @slot GROUP_VARIABLES A vector
-#' @slot RANDOM_VARIABLE_DEFINITION A vector
+#' @slot RANDOM_VARIABLE_DEFINITION A list
 #' @slot INDIVIDUAL_VARIABLES A vector
 #' @slot MODEL_PREDICTION An object of class "modPred"
 #' @slot OBSERVATION A list
@@ -209,7 +209,7 @@ setClass("mdlObj",
     STRUCTURAL_PARAMETERS = "vector",
     VARIABILITY_PARAMETERS = "vector",
     GROUP_VARIABLES = "vector",
-    RANDOM_VARIABLE_DEFINITION ="vector",
+    RANDOM_VARIABLE_DEFINITION ="list",
     INDIVIDUAL_VARIABLES = "vector",
     MODEL_PREDICTION = "modPred",
     OBSERVATION = "list"

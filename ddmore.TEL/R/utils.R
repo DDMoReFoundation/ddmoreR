@@ -185,7 +185,7 @@
         STRUCTURAL_PARAMETERS = character(),
         VARIABILITY_PARAMETERS = character(),
         GROUP_VARIABLES = character(),
-        RANDOM_VARIABLE_DEFINITION = character(),
+        RANDOM_VARIABLE_DEFINITION = list(),
         INDIVIDUAL_VARIABLES = character(),
         MODEL_PREDICTION = new("modPred",
             ODE = character(),
