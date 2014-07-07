@@ -1,4 +1,5 @@
 TEL.prepareWorkingFolder <- function(modelfile=NULL, src=getwd(), tmpdir=tempdir()) {
+
   if(file.exists(tmpdir) == FALSE) {
     stop("Temporary directory does not exist!")
   }
@@ -29,7 +30,7 @@ TEL.import <- function(outputObject=NULL, target=NULL, clearUp=FALSE) {
   jobDirectory <- outputObject$workingDirectory
     
 	if (nchar(modelfile) == 0 || nchar(jobDirectory) == 0) {
-    # Model file and/or job directory not specified, so get them from Framework Integation service
+    # Model file and/or job directory not specified, so get them from Framework Integration service
 		job = TEL.getJob(jobID)	
 		modelfile <- job$controlFile
 		jobDirectory <- job$workingDirectory
@@ -63,14 +64,22 @@ TEL.import <- function(outputObject=NULL, target=NULL, clearUp=FALSE) {
 		# Get any files that look like datafiles
 		# TODO: Determine what the actual data file(s) is
 		datafilelist <- list.files(workingFolder, "*.csv", full.names = TRUE)
+		
+		# Get any files that look like fit files
+		# TODO: Determine what the actual .fit file(s) is
+		fitfilelist <- list.files(workingFolder, "*.fit", full.names = TRUE)
+		
+		# Get any files that look like table files
+		# TODO: Determine what the actual table files are
+		tablefilelist <- list.files(workingFolder, pattern="^[a-z][a-z]tab[0-9]+$", full.names = TRUE)
     
         # Get lst file from NMFE execution
         lstFile = paste(workingFolder, "output.lst", sep="\\")
         
+        fileslist <- c(similarnamedfilelist, datafilelist, fitfilelist, tablefilelist)
+        
         if (file.exists(lstFile) == TRUE) {
-            fileslist <- c(similarnamedfilelist, datafilelist, lstFile)
-        } else {
-            fileslist <- c(similarnamedfilelist, datafilelist) 
+            fileslist <- c(fileslist, lstFile)
         }
     
 		file.copy(fileslist, target)
