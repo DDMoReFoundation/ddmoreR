@@ -287,7 +287,6 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
 .write.mclobj0 <- function(json, f, HOST='localhost', PORT='9010') {
 
     fullPath <- normalizePath(f, winslash="/", mustWork=FALSE)
-    cat(paste("Dest MDL file:", fullPath))
 
     wreq <- toJSON(list(
         fileName = fullPath,
