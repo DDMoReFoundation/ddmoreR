@@ -58,12 +58,7 @@ is.dataObj <- function(obj){
 #### Task object class
 validity.taskObj <- function(object)
 {
-	stopifnot(is.list(object@IMPORT))
-  stopifnot(is.list(object@DATA))
-  stopifnot(is.list(object@PARAMETER))
-  stopifnot(is.list(object@MODEL))
-  stopifnot(is.list(object@TASK_FUNCTION))
-  stopifnot(is.list(object@TARGET_CODE))
+	stopifnot(is.vector(object@content))
   return(TRUE)
 }
 
@@ -76,12 +71,7 @@ validity.taskObj <- function(object)
 #' @author khanley
 setClass("taskObj", 
   slots= c(
-  IMPORT = "list",
-  DATA = "list",
-  PARAMETER = "list",
-  MODEL = "list",
-  TASK_FUNCTION = "list",
-  TARGET_CODE = "list"
+    content = "vector"
   )
 )
 

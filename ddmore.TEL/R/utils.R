@@ -70,7 +70,8 @@
   switch(type, 
     parobj  = .extractParObj(dat), 
     mdlobj  = .extractMdlObj(dat), 
-    dataobj = .extractDataObj(dat)
+    dataobj = .extractDataObj(dat),
+    taskobj = .extractTaskObj(dat)
   )
   
 }
@@ -197,7 +198,11 @@
 }
 
 
-.createTaskObj <- function(){error("No functionality has been implemented to extract task objects")}
+.createTaskObj <- function(dat){
+  res <- new("taskObj",
+             content = dat$content
+        )  
+}
 
 
 
@@ -269,16 +274,15 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
         identifier = "mdlobj"
     )
     
-    # TODO: Implement the Task object
     taskObjAsList <- list(
-        #m@taskObj
+        content = m@taskObj@content,
         identifier = "taskobj"
     )
     
     json <- toJSON(list(list(
         mymodel_task = taskObjAsList,
         mymodel_par = parObjAsList,
-        mymodel_mdl = mdlObjAsList,
+#        mymodel_mdl = mdlObjAsList,
         mymodel_dat = dataObjAsList
     )))
     
@@ -298,7 +302,9 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
     # Call parser and post the JSON data:
     cmd <- URLencode(paste0("http://", HOST, ":", PORT, "/writemdl"))
 
-    res <- RCurl:::curlPerform(url = cmd, postfields = sprintf('%s%s','writeRequest=',wreq))
+    postfield <- sprintf('%s%s','writeRequest=',wreq)
+    
+    res <- RCurl:::curlPerform(url = cmd, postfields = postfield )
 
 }
 
