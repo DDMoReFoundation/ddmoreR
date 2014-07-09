@@ -156,7 +156,8 @@ validity.modPred <- function(object)
 setClass("modPred", 
   slots= c(
   ODE = "vector",
-  LIBRARY = "vector"
+  LIBRARY = "vector",
+  content = "vector"
   )
 )
 

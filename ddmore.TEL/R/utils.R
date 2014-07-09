@@ -180,7 +180,6 @@
 .createMdlObj <- function(dat){
     
     res <- new("mdlObj",
-        # TODO: TBC - These need to be populated
         MODEL_INPUT_VARIABLES = list(dat$MODEL_INPUT_VARIABLES),
         STRUCTURAL_PARAMETERS = dat$STRUCTURAL_PARAMETERS,
         VARIABILITY_PARAMETERS = dat$VARIABILITY_PARAMETERS,
@@ -188,8 +187,9 @@
         RANDOM_VARIABLE_DEFINITION = dat$RANDOM_VARIABLE_DEFINITION,
         INDIVIDUAL_VARIABLES = dat$INDIVIDUAL_VARIABLES,
         MODEL_PREDICTION = new("modPred",
-            ODE = character(),
-            LIBRARY = character()
+            ODE = dat$MODEL_PREDICTION$ODE,
+            LIBRARY = dat$MODEL_PREDICTION$LIBRARY,
+            content = dat$MODEL_PREDICTION$content
         ),
         OBSERVATION = list(dat$OBSERVATION)
     )
@@ -262,7 +262,8 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
         INDIVIDUAL_VARIABLES = m@mdlObj@INDIVIDUAL_VARIABLES,
         MODEL_PREDICTION = list(
             ODE = m@mdlObj@MODEL_PREDICTION@ODE,
-            LIBRARY = m@mdlObj@MODEL_PREDICTION@LIBRARY
+            LIBRARY = m@mdlObj@MODEL_PREDICTION@LIBRARY,
+            content = m@mdlObj@MODEL_PREDICTION@content
         ),
         OBSERVATION = m@mdlObj@OBSERVATION,
         identifier = "mdlobj"
