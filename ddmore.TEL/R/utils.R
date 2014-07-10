@@ -258,13 +258,17 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
         identifier = "dataobj"
     )
     
+    individualVariables <- m@mdlObj@INDIVIDUAL_VARIABLES
+    
+    individualVariables <- gsub("&", "%26", individualVariables)
+    
     mdlObjAsList <- list(
         MODEL_INPUT_VARIABLES = m@mdlObj@MODEL_INPUT_VARIABLES,
         STRUCTURAL_PARAMETERS = m@mdlObj@STRUCTURAL_PARAMETERS,
         VARIABILITY_PARAMETERS = m@mdlObj@VARIABILITY_PARAMETERS,
         GROUP_VARIABLES = m@mdlObj@GROUP_VARIABLES,
         RANDOM_VARIABLE_DEFINITION = m@mdlObj@RANDOM_VARIABLE_DEFINITION,
-        INDIVIDUAL_VARIABLES = m@mdlObj@INDIVIDUAL_VARIABLES,
+        INDIVIDUAL_VARIABLES = individualVariables,
         MODEL_PREDICTION = list(
             ODE = m@mdlObj@MODEL_PREDICTION@ODE,
             LIBRARY = m@mdlObj@MODEL_PREDICTION@LIBRARY,
@@ -282,10 +286,10 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
     json <- toJSON(list(list(
         mymodel_task = taskObjAsList,
         mymodel_par = parObjAsList,
-#        mymodel_mdl = mdlObjAsList,
+        mymodel_mdl = mdlObjAsList,
         mymodel_dat = dataObjAsList
     )))
-    
+ 
     .write.mclobj0(json, f, HOST, PORT)
 })
 
@@ -297,7 +301,6 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
         fileName = fullPath,
         fileContent = json
     ))
-
 
     # Call parser and post the JSON data:
     cmd <- URLencode(paste0("http://", HOST, ":", PORT, "/writemdl"))
