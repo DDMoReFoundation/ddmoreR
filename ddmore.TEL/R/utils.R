@@ -297,10 +297,10 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
 
     fullPath <- normalizePath(f, winslash="/", mustWork=FALSE)
 
-    wreq <- toJSON(list(
+    wreq <- URLencode(toJSON(list(
         fileName = fullPath,
         fileContent = json
-    ))
+    )))
 
     # Call parser and post the JSON data:
     cmd <- URLencode(paste0("http://", HOST, ":", PORT, "/writemdl"))
@@ -309,6 +309,22 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
     
     res <- RCurl:::curlPerform(url = cmd, postfields = postfield )
 
+}
+
+
+
+##############################################################
+#' URLencode
+#'
+#' As per the standard utility function utils::URLencode but encoding
+#' the plus character in the URL string; this being a bug in URLencode.
+#'
+#' @param x URL or GET/POST string to be URL-encoded
+#' @param the resulting URL-encoded string
+#'
+#' @export
+URLencode <- function(x, ...) {
+    gsub('[+]', '%2B', utils::URLencode(x, ...))
 }
 
 
