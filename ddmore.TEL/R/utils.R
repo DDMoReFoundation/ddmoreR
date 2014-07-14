@@ -174,7 +174,11 @@
         DESIGN = list(),
         DATA_DERIVED_VARIABLES = character()
     )
+    
+    # Unquote the file name
+    res$SOURCE$file <- strip_quotes(res$SOURCE$file)
 
+    res
 }
 
 
@@ -258,6 +262,8 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
         identifier = "dataobj"
     )
     
+    dataObjAsList$SOURCE$file <- add_quotes(dataObjAsList$SOURCE$file)
+    
     individualVariables <- m@mdlObj@INDIVIDUAL_VARIABLES
     
     individualVariables <- gsub("&", "%26", individualVariables)
@@ -327,8 +333,31 @@ URLencode <- function(x, ...) {
     gsub('[+]', '%2B', utils::URLencode(x, ...))
 }
 
+##############################################################
+#' strip_quotes
+#'
+#' Remove any enclosing double quotes around a string if present.
+#'
+#' @param x the input string
+#' @param the output string
+#'
+#' @export
+strip_quotes <- function(x) {
+    gsub("^\"(.*)\"$", "\\1", x)
+}
 
-
+##############################################################
+#' add_quotes
+#'
+#' Add enclosing double quotes round a string if none are already present.
+#'
+#' @param x the input string
+#' @param the output string
+#'
+#' @export
+add_quotes <- function(x) {
+    gsub("^(.*)$", "\"\\1\"", strip_quotes(x))
+}
 
 
 
