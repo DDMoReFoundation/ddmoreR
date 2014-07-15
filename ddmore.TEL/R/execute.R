@@ -14,13 +14,15 @@
 #' @rdname estimate-methods
 #' @include telClasses.R
 setGeneric("estimate", function(x=NULL, target=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), collect=TRUE, clearUp=FALSE, addargs="" ) {
-  originalDirectory <- getwd()
-  outputObject <- list()
-  if(target=="NONMEM") {
-    outputObject = estimate.NM(modelfile=x, originalDirectory, addargs)
-  } else if( target=="PsN") {
-    outputObject = estimate.PsN(modelfile=x, originalDirectory, addargs)    
-  } else if(target=="BUGS") {
+
+  outputObject <- list() # Empty list
+  
+  if (target=="NONMEM") {
+    outputObject = estimate.NM(modelfile=x, addargs)
+  } else if (target=="PsN") {
+    outputObject = estimate.PsN(modelfile=x, addargs)
+  } else if (target=="BUGS") {
+    # TODO: Implement this
     estimate.BUGS(MOGObject, addargs)    
   } else {
 	stop(sprintf('Unrecognized target: %s.', target))
@@ -31,21 +33,19 @@ setGeneric("estimate", function(x=NULL, target=NULL, subfolder=format(Sys.time()
   if (submitResponse[[1]]==0 && collect==TRUE) {
     outputObject <- TEL.poll(outputObject) 
     
-    target=paste(originalDirectory, subfolder, sep="/")
-    
-    outputObject$resultsDir = target
+    outputObject$resultsDir = file.path(outputObject$sourceDirectory, subfolder)
     
     if (outputObject$status == "COMPLETED") {
     
-      outputObject <- TEL.import(outputObject, target=target, clearUp=clearUp)
+      outputObject <- TEL.import(outputObject, target=outputObject$resultsDir, clearUp=clearUp)
 
       # Create file names:
-      ctlFile <- gsub("[.][mM][dD][lL]", ".ctl", x)
+      ctlFile <- gsub("[.][mM][dD][lL]", ".ctl", outputObject$modelFile)
       lstFile <- "output.lst"
       
       # Paste in file location:
-      ctlFile <- file.path(subfolder, ctlFile)
-      lstFile <- file.path(subfolder, lstFile)
+      ctlFile <- file.path(outputObject$resultsDir, ctlFile)
+      lstFile <- file.path(outputObject$resultsDir, lstFile)
       
       # Import data using RMNImport:
       res <- importNm(conFile = ctlFile, reportFile = lstFile)
@@ -76,30 +76,23 @@ setMethod("estimate", signature=signature(x="mogObj"),
   })
 
 
-estimate.NM<-function(modelfile=NULL, originalDirectory=getwd(), addargs="",...){
+estimate.NM <- function(modelfile, addargs="", ...) {
   
-  workingDirectory <- TEL.prepareWorkingFolder(modelfile, src=originalDirectory)
+  workingDirectory <- TEL.prepareWorkingFolder(modelfile)
 
-  oo <- submit.job("execute", workingDirectory, modelfile)
-  
-  oo$sourceDirectory <- originalDirectory
-  
-  oo
+  outputObject <- submit.job("execute", workingDirectory, modelfile)
 }
 
 ### ----execute.PsN-----------------------------------------------------------
-estimate.PsN<-function(modelfile=NULL, originalDirectory=getwd(), addargs="",...){
-  workingDirectory <- TEL.prepareWorkingFolder(modelfile, src=originalDirectory)
+estimate.PsN <- function(modelfile, addargs="", ...) {
+
+  workingDirectory <- TEL.prepareWorkingFolder(modelfile)
 	
-  oo <- submit.job("psn.execute", workingDirectory, modelfile)
-  
-  oo$sourceDirectory <- originalDirectory
-  
-  oo
+  outputObject <- submit.job("psn.execute", workingDirectory, modelfile)
 }
 
-estimate.BUGS<-function(modelfile=NULL,addargs="",...){
-  cat("Not supported")
+estimate.BUGS<-function(modelfile,addargs="",...){
+  stop("estimate.BUGS is currently not supported")
 }
 
 #estimate(MOGObject="warf_PK_CONC.mdl", target="BUGS", addargs="...")

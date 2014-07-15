@@ -1,19 +1,25 @@
-TEL.prepareWorkingFolder <- function(modelfile=NULL, src=getwd(), tmpdir=tempdir()) {
 
-  if(file.exists(tmpdir) == FALSE) {
+# Assumption: The data files are within the same directory as the model file.
+TEL.prepareWorkingFolder <- function(modelfile=NULL, tmpdir=tempdir()) {
+
+  if (file.exists(tmpdir) == FALSE) {
     stop("Temporary directory does not exist!")
   }
   tempFolder = tempfile("TEL.job",tmpdir)
-  if(file.exists(modelfile) == FALSE) {
-		stop("Model file missing")
+  
+  if (file.exists(modelfile) == FALSE) {
+    stop("Model file missing")
   } else {
-    if(file.exists(tempFolder) == FALSE) {
+    if (file.exists(tempFolder) == FALSE) {
       dir.create(tempFolder)
     }
-  
-    modelfile = paste(src, modelfile, sep="/")
     
-    inputs = paste(src, TEL.getInputs(modelfile), sep="/")
+    # Obtain the full path to the model file
+    modelfile <- file_path_as_absolute(modelfile)
+
+    srcdir <- parent.folder(modelfile)
+    
+    inputs = file.path(srcdir, TEL.getInputs(modelfile, srcdir))
     
     flist = c(modelfile, inputs)
   
@@ -36,7 +42,7 @@ TEL.import <- function(outputObject=NULL, target=NULL, clearUp=FALSE) {
 		jobDirectory <- job$workingDirectory
 	}
 	
-	workingFolder = paste(jobDirectory, jobID, sep="/" )
+	workingFolder = file.path(jobDirectory, jobID)
 	
 	if (file.exists(workingFolder) == FALSE) {
 		cat("Job ", jobID, " already imported")

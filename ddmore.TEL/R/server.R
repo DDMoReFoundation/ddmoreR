@@ -111,42 +111,47 @@ TEL.checkConfiguration <-
 #    }
   }
 
-  submit.job <- function( command=NULL, workingDirectory = NULL, modelfile = NULL, addargs="", HOST='localhost', PORT='9010', ... ) {
+  submit.job <- function( command=NULL, workingDirectory, modelfile, addargs="", HOST='localhost', PORT='9010', ... ) {
     outputObject <- list()
     attributes(outputObject) <- list(class="outputObject")
     
+    # Strip off the path to the model file leaving just the file name itself
+    # TODO: Cater for relative paths of model files too? (currently just path-less files and absolute-path files are supported)
+    modelfile_without_path <- tail(strsplit(modelfile, "[\\\\|/]")[[1]], n=1)
+
     outputObject$command <- command
-    outputObject$modelFile <- modelfile
+    outputObject$modelFile <- modelfile_without_path
+    # Parent folder of the model file is the source directory
+    outputObject$sourceDirectory <- parent.folder(modelfile)
     outputObject$workingDirectory <- workingDirectory
-    
+
     # Build form
-	  parameters <- c(command=command, workingDirectory=workingDirectory, executionFile=modelfile)
-	  if(nchar(addargs) > 0) {
-		  parameters <- c(parameters, commandParameters=addargs)
-	  }
+    parameters <- c(command=command, workingDirectory=workingDirectory, executionFile=(modelfile_without_path))
+	if (nchar(addargs) > 0) {
+        parameters <- c(parameters, commandParameters=addargs)
+    }
+
+    json <- toJSON(parameters)
+    formParams=sprintf('%s%s','submissionRequest=',json)
+
+    # Submit
+
+    h<-basicTextGatherer()
+
+    submitURL <- sprintf('http://%s:%s/submit', HOST, PORT)
 	  
-	  json <- toJSON(parameters)
-	  formParams=sprintf('%s%s','submissionRequest=',json)
-	  
-	  # Submit
-	  
-	  h<-basicTextGatherer()
-	  
-	  submitURL <- sprintf('http://%s:%s/submit', HOST, PORT)
-	  
-	  ret <- RCurl:::curlPerform(url=submitURL, postfields=formParams, writefunction=h$update)
-	  #postForm("http://localhost:9010/submit", style="HTTPPOST", submissionRequest = json )
-	  
-    
-	  response <- fromJSON(h$value())
-    
+    ret <- RCurl:::curlPerform(url=submitURL, postfields=formParams, writefunction=h$update)
+    #postForm("http://localhost:9010/submit", style="HTTPPOST", submissionRequest = json)
+
+    response <- fromJSON(h$value())
+
     outputObject$requestID <- fromJSON(h$value())$requestID
-    
+
     outputObject$ret <- ret[1]
-  
+
     outputObject
     
-	  #c(ret[1], response, workingDirectory )
+    #c(ret[1], response, workingDirectory)
   }
   
   TEL.poll <- function(outputObject = NULL, HOST='localhost', PORT='9010') {
