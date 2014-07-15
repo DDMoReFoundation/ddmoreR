@@ -11,12 +11,13 @@
 #' @usage read(mogObj, deriveVariables=TRUE, categoricalAsFactor=TRUE, recode=TRUE, ...)
 #'
 #' @param object Object of class "dataObj" or "mogObj"
+#' @param sourceDir if provided, the directory in which the data file(s) can be found; defaults to the current directory.
 #' @param deriveVariables (Boolean) apply any code specified within the DATA_DERIVED_VARIABLES block. Default=TRUE. Please
 #'  note that the code provided in the block must be valid R syntax. It must also be written in a way that allows the code to 
 #'  be applied to each row of a data frame in turn. For example, if a row "WEIGHT" exists in the data frame, "WEIGHT>5" would be
 #' valid, whereas "data$WEIGHT>5" would not.
 #' @param categoricalAsFactor (Boolean) convert any dataset variables defined as categorical to factor.
-#' @param recode (Boolean) apply any “recode” attributes defined within the DATA_INPUT_VARIABLES block.
+#' @param recode (Boolean) apply any recode attributes defined within the DATA_INPUT_VARIABLES block.
 #' @param asRaw (Boolean) If TRUE, equivalent to setting deriveVariables, categoricalAsFactor and recode to FALSE.
 #' @param ... Other named arguments to pass on to read.csv
 #'
@@ -34,13 +35,13 @@
 #' @include telClasses.R
 #' @include utils.R
 
-setGeneric("read", function(object, deriveVariables=TRUE, categoricalAsFactor=TRUE, recode=TRUE, asRaw=FALSE, ...){ 
+setGeneric("read", function(object, sourceDir=getwd(), deriveVariables=TRUE, categoricalAsFactor=TRUE, recode=TRUE, asRaw=FALSE, ...) { 
   standardGeneric("read")
 })
 
 #' @rdname read-methods
 #' @aliases read,dataObj,dataObj-method
-setMethod("read", "dataObj", function(object, deriveVariables=TRUE, categoricalAsFactor=TRUE, recode=TRUE, asRaw=FALSE, ...){
+setMethod("read", "dataObj", function(object, sourceDir=getwd(), deriveVariables=TRUE, categoricalAsFactor=TRUE, recode=TRUE, asRaw=FALSE, ...){
   # if asRaw=TRUE, set the following arguments as FALSE
   if(asRaw){
     deriveVariables <- FALSE
@@ -48,7 +49,7 @@ setMethod("read", "dataObj", function(object, deriveVariables=TRUE, categoricalA
     recode <- FALSE
   }
   
-  res <- .importCSV(object, categoricalAsFactor,  ...)
+  res <- .importCSV(object, sourceDir=sourceDir, categoricalAsFactor, ...)
   
   # Overwrite the names from the csv with names from DATA_DERIVED_VARIABLES
   names(res) <- names(object@DATA_INPUT_VARIABLES)
