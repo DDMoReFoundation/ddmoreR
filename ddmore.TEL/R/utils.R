@@ -361,6 +361,22 @@ add_quotes <- function(x) {
 }
 
 
+##############################################################
+#' parent.folder
+#'
+#' Derive the absolute path to a file (or folder), takes its parent,
+#' and returns the path to this parent folder.
+#'
+#' Note that the file/folder must exist.
+#'
+#' @param f file/folder for which to find its parent
+#' @param the absolute path to the parent folder of the input file/folder
+#'
+#' @export
+parent.folder <- function(f) {
+    file_path_as_absolute(file.path(file_path_as_absolute(f), ".."))
+}
+
 
 ##############################################################
 #' .assignFun
