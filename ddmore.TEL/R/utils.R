@@ -176,7 +176,7 @@
     )
     
     # Unquote the file name
-    res$SOURCE$file <- strip_quotes(res$SOURCE$file)
+    res@SOURCE$file <- strip_quotes(res@SOURCE$file)
 
     res
 }
@@ -264,17 +264,13 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
     
     dataObjAsList$SOURCE$file <- add_quotes(dataObjAsList$SOURCE$file)
     
-    individualVariables <- m@mdlObj@INDIVIDUAL_VARIABLES
-    
-    individualVariables <- gsub("&", "%26", individualVariables)
-    
     mdlObjAsList <- list(
         MODEL_INPUT_VARIABLES = m@mdlObj@MODEL_INPUT_VARIABLES,
         STRUCTURAL_PARAMETERS = m@mdlObj@STRUCTURAL_PARAMETERS,
         VARIABILITY_PARAMETERS = m@mdlObj@VARIABILITY_PARAMETERS,
         GROUP_VARIABLES = m@mdlObj@GROUP_VARIABLES,
         RANDOM_VARIABLE_DEFINITION = m@mdlObj@RANDOM_VARIABLE_DEFINITION,
-        INDIVIDUAL_VARIABLES = individualVariables,
+        INDIVIDUAL_VARIABLES = m@mdlObj@INDIVIDUAL_VARIABLES,
         MODEL_PREDICTION = list(
             ODE = m@mdlObj@MODEL_PREDICTION@ODE,
             LIBRARY = m@mdlObj@MODEL_PREDICTION@LIBRARY,
