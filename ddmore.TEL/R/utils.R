@@ -175,8 +175,10 @@
         DATA_DERIVED_VARIABLES = character()
     )
     
-    # Unquote the file name
+    # Unquote the file name so that the file name within the R object is more easily manipulated
     res@SOURCE$file <- strip_quotes(res@SOURCE$file)
+    # Similarly for the Ignore character
+    res@SOURCE$ignore <- strip_quotes(res@SOURCE$ignore)
 
     res
 }
@@ -262,7 +264,10 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
         identifier = "dataobj"
     )
     
+    # Enclose the file name in double quotes ready for writing back to MDL
     dataObjAsList$SOURCE$file <- add_quotes(dataObjAsList$SOURCE$file)
+    # Similarly for the Ignore character
+    dataObjAsList$SOURCE$ignore <- add_quotes(dataObjAsList$SOURCE$ignore)
     
     mdlObjAsList <- list(
         MODEL_INPUT_VARIABLES = m@mdlObj@MODEL_INPUT_VARIABLES,
