@@ -105,3 +105,39 @@ setMethod("read", "mogObj", function(object, deriveVariables=TRUE, categoricalAs
     recode=recode, asRaw=asRaw, ... )
 })
 
+
+##############################################################
+#' .importCSV
+#'
+#' Imports the CSV files from a data object (class dataObj) and returns either
+#' a single data frame, or a list of data frames if there is more than one.
+#
+#' @param dataObj object of class "dataObj"
+#' @param sourceDir if specified, the directory in which the data files are held,
+#'                  in case they are not in the current directory
+#' @param categoricalAsFactor passed to read.csv() as parameter "stringsAsFactors"
+#'
+.importCSV <- function(dataObj, sourceDir=getwd(), categoricalAsFactor, ...){
+
+  # extract information from the "SOURCE" slot, and unlist to create a vector
+  allInf <- unlist(dataObj@SOURCE)
+  
+  # pick out the csv files in the vector
+  dataFiles <- allInf[grep("[[:print:]]+.csv", allInf)]
+  if(length(dataFiles)==0){
+    stop("No csv data files were found in the data object")
+  }
+
+  # Prepend the source directory (the current directory if not specified) to the data files
+  dataFiles <- file.path(sourceDir, dataFiles)
+  
+  if (length(dataFiles)==1){
+    # return directly if there is only one data file
+    res <- read.csv(dataFiles, stringsAsFactors=categoricalAsFactor, ...)
+  } else{ # create a list of the results
+    res <- lapply(dataFiles, read.csv, stringsAsFactors=categoricalAsFactor, ...)
+  }
+
+  return(res)
+
+}

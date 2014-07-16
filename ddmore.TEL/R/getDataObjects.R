@@ -49,7 +49,7 @@
 
 setGeneric("getDataObjects", function(x, name){ 
   # create object in R from parser:
-  res <- .callParser(x, type="dataobj")
+  res <- .parseMDLFile(x, type="dataobj")
   return(res)
   standardGeneric("getDataObjects")
 })
