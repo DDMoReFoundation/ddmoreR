@@ -51,7 +51,7 @@ setGeneric("estimate", function(x=NULL, target=NULL, subfolder=format(Sys.time()
       res <- importNm(conFile = ctlFile, reportFile = lstFile)
       
       # Successful execution -> return the imported NONMEM data
-      return(res)      
+      return(res)
     }
   }
 
@@ -66,7 +66,8 @@ setMethod("estimate", signature=signature(x="mogObj"),
   function(x=NULL, target=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), collect=TRUE, clearUp=FALSE, addargs="" ) {
     print("mogMethod")
     # First write out MOG to MDL:
-    writeMog(x, file="output.mdl")
+    # TODO: This will write out to the current directory - probably not what is desired!
+    write(x, f="output.mdl")
     
     # Now call the generic method using the mdl file:
     res <- estimate(x="output.mdl", target=target, subfolder=subfolder, collect=collect, clearUp=clearUp, addargs=addargs)
