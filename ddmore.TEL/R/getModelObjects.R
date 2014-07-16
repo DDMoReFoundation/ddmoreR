@@ -23,6 +23,9 @@
 #'
 #' @param x File path, URL of the .mdl file containing the task object or a MOG (object of class "mogObj").
 #'
+#' @param HOST hostname of the server running the FIS service, defaults to localhost
+#' @param PORT port of the server running the FIS service, defaults to 9010
+#'
 #' @return An S4 Object of class "mdlObj".
 #'
 #' @export
@@ -57,9 +60,9 @@
 #'
 #' @include telClasses.R
 
-setGeneric("getModelObjects", function(x, name){ 
+setGeneric("getModelObjects", function(x, name, HOST='localhost', PORT='9010') { 
   # create object in R from parser:
-  res <- .parseMDLFile(x, type="mdlobj")
+  res <- .parseMDLFile(x, type="mdlobj", HOST=HOST, PORT=PORT)
   
   return(res)
 })

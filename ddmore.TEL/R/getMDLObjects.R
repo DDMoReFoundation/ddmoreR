@@ -11,6 +11,9 @@
 #'
 #' @param x File path or URL of the .mdl file containing the task object.
 #'
+#' @param HOST hostname of the server running the FIS service, defaults to localhost
+#' @param PORT port of the server running the FIS service, defaults to 9010
+#'
 #' @return A list of objects of class "dataObj", "parObj", "taskObj" and "mdlObj".
 #'
 #' @export
@@ -35,17 +38,17 @@
 #' myThamMOG@taskobj <- mySimulationTaskObject
 #'
 #' @include telClasses.R
-setGeneric("getMDLObjects", function(x, name){ 
+setGeneric("getMDLObjects", function(x, name, HOST='localhost', PORT='9010') { 
   
   if(!is.character(x)){stop("x must be a string containing either the file name or URL of the MDL file")}
   if(!missing(name)){
     if(!is.vector(name)){stop("argument 'name' must be a vector of strings")}
   }
   
-  dataList <- getDataObjects(x)
-  modList <- getModelObjects(x)
-  paramList <- getParameterObjects(x)
-  taskList <- getTaskPropertiesObjects(x)
+  dataList <- getDataObjects(x, HOST=HOST, PORT=PORT)
+  modList <- getModelObjects(x, HOST=HOST, PORT=PORT)
+  paramList <- getParameterObjects(x, HOST=HOST, PORT=PORT)
+  taskList <- getTaskPropertiesObjects(x, HOST=HOST, PORT=PORT)
   
   # Combine all objects into one list
   res <- c(dataList, modList, paramList, taskList)
@@ -59,9 +62,4 @@ setGeneric("getMDLObjects", function(x, name){
   return(res)
   
 })
-
-
-
-
-
 

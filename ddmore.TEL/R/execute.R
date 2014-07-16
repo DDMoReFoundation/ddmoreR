@@ -5,33 +5,36 @@
 #' @author Jonathan Chard
 #' @param x An object of class mogObj or an MDL file.
 #' @param target String specifying the target software. Currently, possible targets are "NONMEM", "PsN" and "BUGS".
-#' @param subfolder Specify the name of a subfolder within the current working directory in which to store the results.
+#' @param subfolder Specify the name of a subfolder within the current working directory in which to store the results,
+#'                  defaults to a timestamped folder
 #' @param collect Logical dictating if the results should be collected.
 #' @param clearUp Logical dictating if the working directory should be deleted on successful job completion
+#' @param HOST hostname of the server running the FIS service, defaults to localhost
+#' @param PORT port of the server running the FIS service, defaults to 9010
 #' @param addargs String specifying additional arguments to be passed to the target software.
 #' @return An object of class NMRun.
 #' @docType methods
 #' @rdname estimate-methods
 #' @include telClasses.R
-setGeneric("estimate", function(x=NULL, target=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), collect=TRUE, clearUp=FALSE, addargs="" ) {
+setGeneric("estimate", function(x, target=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), collect=TRUE, clearUp=FALSE, HOST='localhost', PORT='9010', addargs="") {
 
   outputObject <- list() # Empty list
   
   if (target=="NONMEM") {
-    outputObject = estimate.NM(modelfile=x, addargs)
+    outputObject = estimate.NM(modelfile=x, HOST=HOST, PORT=PORT, addargs)
   } else if (target=="PsN") {
-    outputObject = estimate.PsN(modelfile=x, addargs)
+    outputObject = estimate.PsN(modelfile=x, HOST=HOST, PORT=PORT, addargs)
   } else if (target=="BUGS") {
     # TODO: Implement this
-    estimate.BUGS(MOGObject, addargs)    
+    estimate.BUGS(MOGObject, HOST=HOST, PORT=PORT, addargs)
   } else {
-	stop(sprintf('Unrecognized target: %s.', target))
+	stop(sprintf('Unrecognised target: %s.', target))
   }
   
   submitResponse = outputObject$ret
   
   if (submitResponse[[1]]==0 && collect==TRUE) {
-    outputObject <- TEL.poll(outputObject) 
+    outputObject <- TEL.poll(outputObject, HOST=HOST, PORT=PORT) 
     
     outputObject$resultsDir = file.path(outputObject$sourceDirectory, subfolder)
     
@@ -63,36 +66,36 @@ setGeneric("estimate", function(x=NULL, target=NULL, subfolder=format(Sys.time()
 #' @rdname estimate-methods
 #' @aliases estimate,mogObj,mogObj-method
 setMethod("estimate", signature=signature(x="mogObj"), 
-  function(x=NULL, target=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), collect=TRUE, clearUp=FALSE, addargs="" ) {
+  function(x, target=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), collect=TRUE, clearUp=FALSE, HOST='localhost', PORT='9010', addargs="") {
     print("mogMethod")
     # First write out MOG to MDL:
     # TODO: This will write out to the current directory - probably not what is desired!
     write(x, f="output.mdl")
     
     # Now call the generic method using the mdl file:
-    res <- estimate(x="output.mdl", target=target, subfolder=subfolder, collect=collect, clearUp=clearUp, addargs=addargs)
+    res <- estimate(x="output.mdl", target=target, subfolder=subfolder, collect=collect, clearUp=clearUp, HOST=HOST, PORT=PORT, addargs=addargs)
     
     return(res)
 
   })
 
 
-estimate.NM <- function(modelfile, addargs="", ...) {
+estimate.NM <- function(modelfile, HOST='localhost', PORT='9010', addargs="", ...) {
   
   workingDirectory <- TEL.prepareWorkingFolder(modelfile)
 
-  outputObject <- submit.job("execute", workingDirectory, modelfile)
+  outputObject <- submit.job("execute", workingDirectory, modelfile, HOST, PORT)
 }
 
 ### ----execute.PsN-----------------------------------------------------------
-estimate.PsN <- function(modelfile, addargs="", ...) {
+estimate.PsN <- function(modelfile, HOST='localhost', PORT='9010', addargs="", ...) {
 
   workingDirectory <- TEL.prepareWorkingFolder(modelfile)
 	
-  outputObject <- submit.job("psn.execute", workingDirectory, modelfile)
+  outputObject <- submit.job("psn.execute", workingDirectory, modelfile, HOST, PORT)
 }
 
-estimate.BUGS<-function(modelfile,addargs="",...){
+estimate.BUGS<-function(modelfile, HOST='localhost', PORT='9010', addargs="", ...) {
   stop("estimate.BUGS is currently not supported")
 }
 

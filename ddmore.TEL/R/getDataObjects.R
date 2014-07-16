@@ -14,7 +14,10 @@
 #'
 #' @param name (Optional) Specifies the data object item, by name, to be 
 #' retrieved by getDataObjects. If multiple data objects exist in the .mdl file 
-#' then using the name argument helps users target a specific data object. 
+#' then using the name argument helps users target a specific data object.
+#'
+#' @param HOST hostname of the server running the FIS service, defaults to localhost
+#' @param PORT port of the server running the FIS service, defaults to 9010 
 #'
 #' @details
 #' getDataObjects only retrieves the MCL code, it does not read any data file 
@@ -47,9 +50,9 @@
 #'
 #' @include telClasses.R
 
-setGeneric("getDataObjects", function(x, name){ 
+setGeneric("getDataObjects", function(x, name, HOST='localhost', PORT='9010'){ 
   # create object in R from parser:
-  res <- .parseMDLFile(x, type="dataobj")
+  res <- .parseMDLFile(x, type="dataobj", HOST=HOST, PORT=PORT)
   return(res)
   standardGeneric("getDataObjects")
 })

@@ -11,6 +11,9 @@
 #'
 #' @param x File path, URL of the .mdl file containing the task object or a MOG (object of class "mogObj".
 #'
+#' @param HOST hostname of the server running the FIS service, defaults to localhost
+#' @param PORT port of the server running the FIS service, defaults to 9010
+#'
 #' @return An S4 Object of class "taskObj".
 #'
 #' @export
@@ -36,9 +39,9 @@
 #' ## Add example of altering Task Object
 #'
 #' @include telClasses.R
-setGeneric("getTaskPropertiesObjects", function(x, name){ 
+setGeneric("getTaskPropertiesObjects", function(x, name, HOST='localhost', PORT='9010') { 
   # create object in R from parser:
-  res <- .parseMDLFile(x, type="taskobj")
+  res <- .parseMDLFile(x, type="taskobj", HOST=HOST, PORT=PORT)
   
   return(res)
 })

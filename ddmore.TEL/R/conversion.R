@@ -12,13 +12,13 @@
 #' @usage .parseMDLFile("myMDLFile")
 #'
 #' @param f File path or URL of the .mdl file containing the objects.
-#'
 #' @param type String specifying the type of objects to extract. Possible values are
 #' "parobj", "taskobj", "dataobj" and "mdlobj"
-#'
 #' @param name (Optional) Specifies the data object item, by name, to be 
 #' retrieved by getDataObjects. If multiple data objects exist in the .mdl file 
-#' then using the name argument helps users target a specific data object. 
+#' then using the name argument helps users target a specific data object.
+#' @param HOST hostname of the server running the FIS service, defaults to localhost
+#' @param PORT port of the server running the FIS service, defaults to 9010
 #'
 #' @return A list of objects which are contained in the MDL file or URL.
 #' @include telClasses.R
@@ -228,6 +228,8 @@
 #'
 #' @param m instance of R class mogObj
 #' @param f file path to the .mdl file (optionally without the .mdl extension) that will be created
+#' @param HOST hostname of the server running the FIS service, defaults to localhost
+#' @param PORT port of the server running the FIS service, defaults to 9010
 #'
 #' @include telClasses.R
 #' @export

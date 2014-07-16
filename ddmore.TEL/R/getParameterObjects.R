@@ -9,7 +9,6 @@
 #' corresponding to the lines of MCL code within the MCL Parameter Object.
 #' The user should be able to specify a named parameter object from the MDL file 
 #' as an argument, so that the nominated parameter objects can be returned.
-
 #'
 #' @usage getParameterObjects(file, name)
 #'
@@ -18,7 +17,10 @@
 #' @param name (Optional) Specifies the parameter object item, by name, to be 
 #' retrieved by getParameterObjects. If multiple parameter objects exist in the 
 #' .mdl file then using the name argument helps users target a specific parameter 
-#' object. 
+#' object.
+#'
+#' @param HOST hostname of the server running the FIS service, defaults to localhost
+#' @param PORT port of the server running the FIS service, defaults to 9010 
 #'
 #' @return An S4 Object of class "parObj".
 #'
@@ -54,9 +56,9 @@
 #'
 #' @include telClasses.R
 
-setGeneric("getParameterObjects", function(x, name){ 
+setGeneric("getParameterObjects", function(x, name, HOST='localhost', PORT='9010') { 
   # create object in R from parser:
-  res <-  .parseMDLFile(x, type="parobj")
+  res <-  .parseMDLFile(x, type="parobj", HOST=HOST, PORT=PORT)
   return(res)
 })
 

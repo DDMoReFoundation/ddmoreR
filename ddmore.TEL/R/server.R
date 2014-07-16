@@ -56,10 +56,10 @@ TEL.stopServer <-
   }
 
 TEL.safeStop <-
-  function() {
+  function(HOST='localhost', PORT='9010') {
     cat("Safestop\n")
-    if(TEL.serverRunning()) {
-      TEL.stopServer()
+    if(TEL.serverRunning(HOST, PORT)) {
+      TEL.stopServer(HOST, PORT)
     }
   }
 
@@ -111,7 +111,7 @@ TEL.checkConfiguration <-
 #    }
   }
 
-  submit.job <- function( command=NULL, workingDirectory, modelfile, addargs="", HOST='localhost', PORT='9010', ... ) {
+submit.job <- function( command=NULL, workingDirectory, modelfile, HOST='localhost', PORT='9010', addargs="", ... ) {
     outputObject <- list()
     attributes(outputObject) <- list(class="outputObject")
     
@@ -152,26 +152,26 @@ TEL.checkConfiguration <-
     outputObject
     
     #c(ret[1], response, workingDirectory)
-  }
+}
   
-  TEL.poll <- function(outputObject = NULL, HOST='localhost', PORT='9010') {
-	  
-    jobID <- outputObject.getJobID(outputObject)# outputObject$submitResponse[2]$requestID
+TEL.poll <- function(outputObject = NULL, HOST='localhost', PORT='9010') {
     
-	  # poll status service (need to have jobID set before this)
-	  statusURL <- sprintf('%s/%s', sprintf('http://%s:%s/jobs', HOST, PORT), jobID)
+    jobID <- outputObject.getJobID(outputObject)  # outputObject$submitResponse[2]$requestID
+    
+    # poll status service (need to have jobID set before this)
+    statusURL <- sprintf('%s/%s', sprintf('http://%s:%s/jobs', HOST, PORT), jobID)
     outputObject$status = fromJSON(httpGET(statusURL))$status
-	  
-	  while(outputObject$status != 'COMPLETED' && outputObject$status != 'FAILED' ) {
-		  cat(sprintf('Job %s still executing ... (status %s)\n', jobID, outputObject$status))
-		  Sys.sleep(20)
-      outputObject$status <- fromJSON(httpGET(statusURL))$status
-	  }
-	  
-	  cat(sprintf('\nJob %s finished with status %s.\n\n', jobID, outputObject$status))
+    
+    while(outputObject$status != 'COMPLETED' && outputObject$status != 'FAILED' ) {
+        cat(sprintf('Job %s still executing ... (status %s)\n', jobID, outputObject$status))
+        Sys.sleep(20)
+        outputObject$status <- fromJSON(httpGET(statusURL))$status
+    }
+    
+    cat(sprintf('\nJob %s finished with status %s.\n\n', jobID, outputObject$status))
     
     outputObject
-  }
+}
 
 TEL.getJobs <- function(HOST='localhost', PORT='9010') {
 	
