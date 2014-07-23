@@ -4,16 +4,17 @@
 #'
 #' Calls the MDL parser, providing either a file path or URL, and returns
 #' a list of all objects in the MDL file. For data objects, parameter objects and
-#' model objects, R objects of class dataObj, parObj and mdlObj are returned. This
-#' function is not intended for use by the user. It is recommended that 
-#' the functions getDataObjects, getMOG, getParameterObjects and/or getModelObjects
+#' model objects, R objects of class \code{dataObj}, \code{parObj} and \code{mdlObj} 
+#' are returned. This function is not intended for use by the user. It is recommended that 
+#' the functions \code{getDataObjects}, \code{getMOG}, \code{getParameterObjects} 
+#' and/or \code{getModelObjects}
 #' are used instead.
 #'
 #' @usage .parseMDLFile("myMDLFile")
 #'
 #' @param f File path or URL of the .mdl file containing the objects.
 #' @param type String specifying the type of objects to extract. Possible values are
-#' "parobj", "taskobj", "dataobj" and "mdlobj"
+#' \code{parobj}, \code{taskobj}, \code{dataobj} and \code{mdlobj}
 #' @param name (Optional) Specifies the data object item, by name, to be 
 #' retrieved by getDataObjects. If multiple data objects exist in the .mdl file 
 #' then using the name argument helps users target a specific data object.
@@ -186,7 +187,22 @@
 
 
 .createMdlObj <- function(dat){
-    
+    if("ODE" %in% names(dat$MODEL_PREDICTION)){
+      datODE <-dat$MODEL_PREDICTION$ODE 
+    } else{
+      datODE <- list()
+    }
+    if("LIBRARY" %in% names(dat$MODEL_PREDICTION)){
+      datLib <-dat$MODEL_PREDICTION$LIBRARY
+    } else{
+      datLib <- list()
+    }
+    if("content" %in% names(dat$MODEL_PREDICTION)){
+      datCon <-list(dat$MODEL_PREDICTION$content)
+    } else{
+      datCon <- list()
+    }
+  print(class(datCon))
     res <- new("mdlObj",
         MODEL_INPUT_VARIABLES = list(dat$MODEL_INPUT_VARIABLES),
         STRUCTURAL_PARAMETERS = dat$STRUCTURAL_PARAMETERS,
@@ -195,9 +211,9 @@
         RANDOM_VARIABLE_DEFINITION = dat$RANDOM_VARIABLE_DEFINITION,
         INDIVIDUAL_VARIABLES = dat$INDIVIDUAL_VARIABLES,
         MODEL_PREDICTION = new("modPred",
-            ODE = dat$MODEL_PREDICTION$ODE,
-            LIBRARY = dat$MODEL_PREDICTION$LIBRARY,
-            content = dat$MODEL_PREDICTION$content
+            ODE = datODE ,
+            LIBRARY = datLib,
+            content = datCon
         ),
         OBSERVATION = list(dat$OBSERVATION)
     )
@@ -207,7 +223,7 @@
 
 .createTaskObj <- function(dat){
   res <- new("taskObj",
-             content = dat$content
+             content = list(dat$content)
         )  
 }
 

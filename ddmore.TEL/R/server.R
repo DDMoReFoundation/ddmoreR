@@ -1,4 +1,7 @@
-
+#'TEL.startServer 
+#'
+#' Starts TEL sever
+#'
 TEL.startServer <- 
   function() {
   
@@ -31,6 +34,10 @@ TEL.startServer <-
     cat("Server is running!")
   }
 
+#' TEL.serverRunning 
+#'
+#' Checks if TEL server is running
+#'
 TEL.serverRunning <- 
   function(HOST='localhost', PORT='9010') {
 
@@ -46,7 +53,10 @@ TEL.serverRunning <-
     )
   }
   
-
+#' TEL.stopServer 
+#'
+#' Stops TEL server
+#'
 TEL.stopServer <-
   function(HOST='localhost', PORT='9010') {
     cat("Stopping server...\n")
@@ -55,6 +65,10 @@ TEL.stopServer <-
     ret[1]=="OK" # returns TRUE or FALSE as appropriate
   }
 
+#' TEL.safeStop
+#'
+#' Safely stops TEL server
+#'
 TEL.safeStop <-
   function(HOST='localhost', PORT='9010') {
     cat("Safestop\n")
@@ -63,6 +77,10 @@ TEL.safeStop <-
     }
   }
 
+#' TEL.checkConfiguration
+#'
+#' Checks TEL Configuration
+#'
 TEL.checkConfiguration <-
   function() {
     packagePath <- path.package("DDMoRe.TEL")
@@ -111,6 +129,10 @@ TEL.checkConfiguration <-
 #    }
   }
 
+#' submit.job
+#'
+#' Submits a job to the TEL server
+#'  
 submit.job <- function( command=NULL, workingDirectory, modelfile, HOST='localhost', PORT='9010', addargs="", ... ) {
     outputObject <- list()
     attributes(outputObject) <- list(class="outputObject")
@@ -153,7 +175,11 @@ submit.job <- function( command=NULL, workingDirectory, modelfile, HOST='localho
     
     #c(ret[1], response, workingDirectory)
 }
-  
+ 
+#' TEL.poll
+#'
+#' Polls TEL
+#
 TEL.poll <- function(outputObject = NULL, HOST='localhost', PORT='9010') {
     
     jobID <- outputObject.getJobID(outputObject)  # outputObject$submitResponse[2]$requestID
@@ -173,6 +199,10 @@ TEL.poll <- function(outputObject = NULL, HOST='localhost', PORT='9010') {
     outputObject
 }
 
+#' TEL.getJobs
+#'
+#' Gets TEL jobs
+#
 TEL.getJobs <- function(HOST='localhost', PORT='9010') {
 	
 	jobsURL = sprintf('http://%s:%s/jobs', HOST, PORT)
@@ -188,7 +218,11 @@ TEL.getJobs <- function(HOST='localhost', PORT='9010') {
 	}
 	notImported
 }
-  
+
+#' TEL.getJob
+#'
+#' Gets a TEL job
+#
 TEL.getJob <- function(outputObject = NULL, HOST='localhost', PORT='9010') {
   
   jobID <- jobID <- outputObject.getJobID(outputObject)

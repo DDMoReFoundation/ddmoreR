@@ -10,12 +10,12 @@
 #' @usage read(dataObj, deriveVariables=TRUE, categoricalAsFactor=TRUE, recode=TRUE, ...)
 #' @usage read(mogObj, deriveVariables=TRUE, categoricalAsFactor=TRUE, recode=TRUE, ...)
 #'
-#' @param object Object of class "dataObj" or "mogObj"
+#' @param object Object of class \code{dataObj} or \code{mogObj}
 #' @param sourceDir if provided, the directory in which the data file(s) can be found; defaults to the current directory.
 #' @param deriveVariables (Boolean) apply any code specified within the DATA_DERIVED_VARIABLES block. Default=TRUE. Please
 #'  note that the code provided in the block must be valid R syntax. It must also be written in a way that allows the code to 
 #'  be applied to each row of a data frame in turn. For example, if a row "WEIGHT" exists in the data frame, "WEIGHT>5" would be
-#' valid, whereas "data$WEIGHT>5" would not.
+#' valid, whereas \code{data$WEIGHT>5} would not.
 #' @param categoricalAsFactor (Boolean) convert any dataset variables defined as categorical to factor.
 #' @param recode (Boolean) apply any recode attributes defined within the DATA_INPUT_VARIABLES block.
 #' @param asRaw (Boolean) If TRUE, equivalent to setting deriveVariables, categoricalAsFactor and recode to FALSE.

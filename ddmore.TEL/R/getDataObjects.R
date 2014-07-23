@@ -1,32 +1,35 @@
 ##############################################################
 #' getDataObjects
 #'
-#' Retrieves Data Object(s) (MCL object of class "dataObj") from a locally stored 
-#' MDL file or from a URL and returns an S4 object of class "dataObj". 
-#' Slots within this object are  "DATA_INPUT_VARIABLES", "SOURCE", "DATA_DERIVED_VARIABLES" 
-#' and "DESIGN" which are named lists of lists containing parsed information from 
-#' the relevant MCL Data Object blocks and, optionally, the "RAW" vector of 
+#' Retrieves Data Object(s) (MCL object of class \code{dataObj}) from a locally stored 
+#' MDL file or from a URL and returns an S4 object of class \code{dataObj}. 
+#' Slots within this object are  \code{DATA_INPUT_VARIABLES}, \code{SOURCE}, 
+#' \code{DATA_DERIVED_VARIABLES}
+#' and \code{DESIGN} which are named lists of lists containing parsed information from 
+#' the relevant MCL Data Object blocks and, optionally, the \code{RAW} vector of 
 #' character strings corresponding to the lines of MCL code within the MCL Data Object.
 #'
-#' @usage getDataObjects(file, name)
+#' @usage getDataObjects(file, object, name, MCLcode=TRUE, HOST="localhost", PORT="9010")
 #'
-#' @param x File path, URL of the .mdl file containing the task object or a MOG (object of class "mogObj".
+#' @param file File path or URL of the .mdl file containing the task object
+#' @param object MOG (object of class \code{mogObj}. This argument should not be used
+#' in conjunction with the \code{file} argument
 #'
 #' @param name (Optional) Specifies the data object item, by name, to be 
 #' retrieved by getDataObjects. If multiple data objects exist in the .mdl file 
 #' then using the name argument helps users target a specific data object.
-#'
-#' @param HOST hostname of the server running the FIS service, defaults to localhost
-#' @param PORT port of the server running the FIS service, defaults to 9010 
+#' @param MCLcode (logical) Should the unparsed MCL code be included as a character
+#' vector in the object
+#' @param HOST hostname of the server running the FIS service, defaults to "localhost"
+#' @param PORT port of the server running the FIS service, defaults to "9010"
 #'
 #' @details
 #' getDataObjects only retrieves the MCL code, it does not read any data file 
-#' identified within the "SOURCE" block. A "read" method should be applied to 
+#' identified within the \code{SOURCE} block. A \code{read} method should be applied to 
 #' the resulting object which interprets the SOURCE, FILE and HEADER information 
-#' and reads the specified data file into a data frame.
+#' and reads the specified data file into a data frame. See \code{read} method.
 #'
-#' @return An S4 Object of class "dataObj".
-#'
+#' @return An S4 Object of class \code{dataObj}.
 #' @export
 #' @docType methods
 #' @rdname getDataObjects-methods
@@ -50,16 +53,23 @@
 #'
 #' @include telClasses.R
 
-setGeneric("getDataObjects", function(x, name, HOST='localhost', PORT='9010'){ 
+setGeneric("getDataObjects", function(file, object, name, MCLcode=TRUE, HOST="localhost", PORT="9010"){ 
   # create object in R from parser:
-  res <- .parseMDLFile(x, type="dataobj", HOST=HOST, PORT=PORT)
+  if(!missing(name)){
+    res <- .parseMDLFile(file, name=name, type="dataobj", HOST=HOST, PORT=PORT)
+  } else{
+    res <- .parseMDLFile(file, type="dataobj", HOST=HOST, PORT=PORT)
+  }
   return(res)
   standardGeneric("getDataObjects")
 })
 
 #' @rdname getDataObjects-methods
 #' @aliases getDataObjects,mogObj,mogObj-method
-setMethod("getDataObjects", signature=signature(x="mogObj"), function(x){
+setMethod("getDataObjects", signature=signature(object="mogObj"), 
+  function(file, object, name, MCLcode=TRUE, HOST="localhost", PORT="9010"){
+   if(!missing(file)){warning("You have specified the file argument in addition
+    to a mogObj. The file argument will be ignored.")  }
    return(x@dataObj)
 })
 

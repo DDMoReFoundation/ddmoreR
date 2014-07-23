@@ -7,8 +7,7 @@
 #'
 #' @param x URL or GET/POST string to be URL-encoded
 #' @param the resulting URL-encoded string
-#'
-#' @export
+
 URLencode <- function(x, ...) {
     gsub('[+]', '%2B', utils::URLencode(x, ...))
 }
@@ -20,8 +19,6 @@ URLencode <- function(x, ...) {
 #'
 #' @param x the input string
 #' @param the output string
-#'
-#' @export
 strip_quotes <- function(x) {
     gsub("^\"(.*)\"$", "\\1", x)
 }
@@ -33,8 +30,6 @@ strip_quotes <- function(x) {
 #'
 #' @param x the input string
 #' @param the output string
-#'
-#' @export
 add_quotes <- function(x) {
     gsub("^(.*)$", "\"\\1\"", strip_quotes(x))
 }
@@ -50,8 +45,6 @@ add_quotes <- function(x) {
 #'
 #' @param f file/folder for which to find its parent
 #' @param the absolute path to the parent folder of the input file/folder
-#'
-#' @export
 parent.folder <- function(f) {
     file_path_as_absolute(file.path(file_path_as_absolute(f), ".."))
 }
