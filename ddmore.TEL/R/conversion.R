@@ -202,7 +202,7 @@
     } else{
       datCon <- list()
     }
-  print(class(datCon))
+
     res <- new("mdlObj",
         MODEL_INPUT_VARIABLES = list(dat$MODEL_INPUT_VARIABLES),
         STRUCTURAL_PARAMETERS = dat$STRUCTURAL_PARAMETERS,
