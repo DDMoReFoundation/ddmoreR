@@ -264,5 +264,43 @@ is.mogObj <- function(obj){
 
 }
 
+#' as.mogObj
+#'
+#' Creates a mogObj from a list of dataObj, parObj, mdlObk and taskObj objects. Note
+#' that only one of each type may be included, and all types need to be present.
+#'
+#' @usage as.mogObj(list)
+#' @export
+#' @returns An object of class mogObj
+as.mogObj <- function(list){
+
+  classes <- sapply(list, function(x){class(x)})
+
+  nDat <- sum(classes=="dataObj")
+  nPar <- sum(classes=="parObj")
+  nMdl <- sum(classes=="mdlObj")
+  nTask <- sum(classes=="taskObj")
+  
+  if(nDat!=1 | nPar!=1 | nMdl!=1 | nTask!=1){stop("The list provided must contain exactly one
+    of each type of object: dataObj, parObj, mdlObj and taskObj")}
+  
+  dat <- list[classes=="dataObj"][[1]]
+  par <- list[classes=="parObj"][[1]]
+  mdl <- list[classes=="mdlObj"][[1]]
+  task <- list[classes=="taskObj"][[1]]
+  
+  
+  res <- new("mogObj", 
+    dataObj = dat,
+    parObj = par,
+    mdlObj = mdl, 
+    taskObj = task 
+  )
+  
+  return(res)
+
+}
+
+
 
 
