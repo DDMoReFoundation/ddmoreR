@@ -8,7 +8,6 @@
 #' additional dataset columns.
 #'
 #' @usage read(dataObj, deriveVariables=TRUE, categoricalAsFactor=TRUE, recode=TRUE, ...)
-#' @usage read(mogObj, deriveVariables=TRUE, categoricalAsFactor=TRUE, recode=TRUE, ...)
 #'
 #' @param object Object of class \code{dataObj} or \code{mogObj}
 #' @param sourceDir if provided, the directory in which the data file(s) can be found; defaults to the current directory.
