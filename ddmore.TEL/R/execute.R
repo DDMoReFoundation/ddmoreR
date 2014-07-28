@@ -13,6 +13,7 @@
 #' @param PORT port of the server running the FIS service, defaults to 9010
 #' @param addargs String specifying additional arguments to be passed to the target software.
 #' @return An object of class NMRun.
+#' @export
 #' @docType methods
 #' @rdname estimate-methods
 #' @include telClasses.R
