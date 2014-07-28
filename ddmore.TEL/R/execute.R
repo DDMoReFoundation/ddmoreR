@@ -102,3 +102,92 @@ estimate.BUGS<-function(modelfile, HOST='localhost', PORT='9010', addargs="", ..
 
 #estimate(MOGObject="warf_PK_CONC.mdl", target="BUGS", addargs="...")
 #estimate(MOGObject="tumour_size.mdl", target="NONMEM")
+
+#' VPC.PsN
+#' Performs a VPC of a given model using PsN (assuming a translation to NM-TRAN).
+#' @param command
+#' @param modelfile
+#' @param nsamp
+#' @param seed
+#' @param addargs
+#' @param cleanup
+#' @param ...
+#' @export
+VPC.PsN<-function(command="c:\\pkpd\\bin\\vpc-3.5.4.bat ", modelfile, nsamp, seed, addargs, cleanup=T, ...){
+  
+  command<-paste(command, modelfile, " --samples=", nsamp, " --seed=", seed, " ", addargs, sep="")
+  
+  if(.Platform$OS.type == "windows"){ 
+    args<-list(command, intern=F, minimized=F ,invisible=F ,show.output.on.console=T ,wait=T)
+  }
+  if(.Platform$OS.type != "windows"){ 
+    args<-list(command, wait=T)
+  }
+  
+  do.call(system,args)
+}
+
+#' bootstrap.PsN
+#' Performs a VPC of a given model using PsN (assuming a translation to NM-TRAN).
+#' @param command
+#' @param modelfile
+#' @param nsamp
+#' @param seed
+#' @param addargs
+#' @param cleanup
+#' @param ...
+#' @export
+bootstrap.PsN<-function(command="c:\\pkpd\\bin\\bootstrap-3.5.4.bat ", modelfile, nsamp, seed, addargs=NULL, cleanup=T,  ...){
+  
+  command<-paste(command, modelfile, " --samples=", nsamp, " --seed=", seed, " ", addargs, sep="")
+  
+  if(.Platform$OS.type == "windows"){
+    args<-list(command, intern=F, minimized=F, invisible=F, show.output.on.console=T, wait=T)
+  }
+  if(.Platform$OS.type != "windows"){ 
+    args<-list(command, wait=T)
+  }
+   
+  do.call(system,args)
+}
+
+#' SEE.PsN
+#' Performs a VPC of a given model using PsN (assuming a translation to NM-TRAN).
+#' @param command
+#' @param modelfile
+#' @param nsamp
+#' @param seed
+#' @param addargs
+#' @param cleanup
+#' @param ...
+#' @export
+SSE.PsN<-function(command="c:\\pkpd\\bin\\sse-3.5.4.bat ", modelfile, nsamp, seed, addargs=NULL, cleanup=T,...){
+  
+  command<-paste(command, modelfile, " --samples=", nsamp, " --seed=", seed, " ", addargs, sep="")
+  
+  if(.Platform$OS.type == "windows"){ 
+    args<-list(command, intern=F, minimized=F, invisible=F, show.output.on.console=T, wait=T)
+  }
+  if(.Platform$OS.type != "windows"){
+    args<-list(command, wait=T)
+  }
+  
+  do.call(system,args)
+}
+
+
+estimate.PsN <- function(modelfile=NULL, HOST='localhost', PORT='9010', command="C:/SEE/Perl/bin/execute-3.6.2.bat", addargs="", ...){
+       fullCommand <- paste(command, shQuote(modelfile), "-directory=\"PsN_Execute\"", addargs)
+       cat(paste(fullCommand,"\n"))
+       
+       workingDirectory <- DDMoRe.TEL:::TEL.prepareWorkingFolder(modelfile)
+       
+       outputObject <- submit.job("cmdline.execute", workingDirectory, modelfile, HOST, PORT, addargs=fullCommand)
+}
+
+
+
+
+
+
+
