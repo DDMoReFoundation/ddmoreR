@@ -22,12 +22,12 @@ setGeneric("estimate", function(x, target=NULL, subfolder=format(Sys.time(), "%Y
   outputObject <- list() # Empty list
   
   if (target=="NONMEM") {
-    outputObject = estimate.NM(modelfile=x, HOST=HOST, PORT=PORT, addargs)
+    outputObject = estimate.NM(modelfile=x, HOST=HOST, PORT=PORT, addargs=addargs)
   } else if (target=="PsN") {
-    outputObject = estimate.PsN(modelfile=x, HOST=HOST, PORT=PORT, addargs)
+    outputObject = estimate.PsN(modelfile=x, HOST=HOST, PORT=PORT, addargs=addargs)
   } else if (target=="BUGS") {
     # TODO: Implement this
-    estimate.BUGS(MOGObject, HOST=HOST, PORT=PORT, addargs)
+    estimate.BUGS(MOGObject, HOST=HOST, PORT=PORT, addargs=addargs)
   } else {
 	stop(sprintf('Unrecognised target: %s.', target))
   }
@@ -80,20 +80,11 @@ setMethod("estimate", signature=signature(x="mogObj"),
 
   })
 
-
 estimate.NM <- function(modelfile, HOST='localhost', PORT='9010', addargs="", ...) {
   
   workingDirectory <- TEL.prepareWorkingFolder(modelfile)
 
   outputObject <- submit.job("execute", workingDirectory, modelfile, HOST, PORT)
-}
-
-### ----execute.PsN-----------------------------------------------------------
-estimate.PsN <- function(modelfile, HOST='localhost', PORT='9010', addargs="", ...) {
-
-  workingDirectory <- TEL.prepareWorkingFolder(modelfile)
-	
-  outputObject <- submit.job("psn.execute", workingDirectory, modelfile, HOST, PORT)
 }
 
 estimate.BUGS<-function(modelfile, HOST='localhost', PORT='9010', addargs="", ...) {
@@ -175,19 +166,13 @@ SSE.PsN<-function(command="c:\\pkpd\\bin\\sse-3.5.4.bat ", modelfile, nsamp, see
   do.call(system,args)
 }
 
+estimate.PsN <- function(modelfile, HOST='localhost', PORT='9010', command="C:/SEE/Perl/bin/execute-3.6.2.bat", addargs="", ...){
 
-estimate.PsN <- function(modelfile=NULL, HOST='localhost', PORT='9010', command="C:/SEE/Perl/bin/execute-3.6.2.bat", addargs="", ...){
-       fullCommand <- paste(command, shQuote(modelfile), "-directory=\"PsN_Execute\"", addargs)
-       cat(paste(fullCommand,"\n"))
+	fullCommand <- paste(command, shQuote(modelfile), "-directory=\"PsN_Execute\"", addargs)
+	cat(paste(fullCommand,"\n"))
        
-       workingDirectory <- DDMoRe.TEL:::TEL.prepareWorkingFolder(modelfile)
+	workingDirectory <- DDMoRe.TEL:::TEL.prepareWorkingFolder(modelfile)
        
-       outputObject <- submit.job("cmdline.execute", workingDirectory, modelfile, HOST, PORT, addargs=fullCommand)
+	outputObject <- submit.job("cmdline.execute", workingDirectory, modelfile, HOST, PORT, addargs=fullCommand)
 }
-
-
-
-
-
-
 
