@@ -20,7 +20,7 @@ TEL.startServer <-
       system(paste("cmd", "/c", shQuote(startFIS)), wait=F)
       count = 0
       cat("Retries: ")
-      while ( count < 30 && !TEL.serverRunning() ) {
+      while ( count < 60 && !TEL.serverRunning() ) {
         Sys.sleep(1)
         count <- count+1
         cat(count)
