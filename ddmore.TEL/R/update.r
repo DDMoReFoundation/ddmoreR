@@ -31,6 +31,7 @@
 #'				with=list(POP_TOVER = T))
 #'
 #' @return An object of class parObj
+#' @export
 #' @docType methods
 #' @rdname update-methods
 #' @include telClasses.R
