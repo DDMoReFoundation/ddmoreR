@@ -87,6 +87,16 @@ estimate.NM <- function(modelfile, HOST='localhost', PORT='9010', addargs="", ..
   outputObject <- submit.job("execute", workingDirectory, modelfile, HOST, PORT)
 }
 
+estimate.PsN <- function(modelfile, HOST='localhost', PORT='9010', command="execute-3.6.2.bat", addargs="", ...){
+	
+	fullCommand <- paste(command, shQuote(modelfile), "-directory=\"PsN_Execute\"", addargs)
+	cat(paste(paste("PsN command is:", fullCommand), "\n"))
+	
+	workingDirectory <- TEL.prepareWorkingFolder(modelfile)
+	
+	outputObject <- submit.job("cmdline.execute", workingDirectory, modelfile, HOST, PORT, addargs=fullCommand)
+}
+
 estimate.BUGS<-function(modelfile, HOST='localhost', PORT='9010', addargs="", ...) {
   stop("estimate.BUGS is currently not supported")
 }
@@ -164,15 +174,5 @@ SSE.PsN<-function(command="c:\\pkpd\\bin\\sse-3.5.4.bat ", modelfile, nsamp, see
   }
   
   do.call(system,args)
-}
-
-estimate.PsN <- function(modelfile, HOST='localhost', PORT='9010', command="C:/SEE/Perl/bin/execute-3.6.2.bat", addargs="", ...){
-
-	fullCommand <- paste(command, shQuote(modelfile), "-directory=\"PsN_Execute\"", addargs)
-	cat(paste(fullCommand,"\n"))
-       
-	workingDirectory <- DDMoRe.TEL:::TEL.prepareWorkingFolder(modelfile)
-       
-	outputObject <- submit.job("cmdline.execute", workingDirectory, modelfile, HOST, PORT, addargs=fullCommand)
 }
 
