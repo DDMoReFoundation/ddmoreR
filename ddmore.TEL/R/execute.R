@@ -92,26 +92,23 @@ estimate.NM <- function(modelfile, HOST='localhost', PORT='9010', addargs="", ..
   outputObject <- submit.job("execute", workingDirectory, modelfile, HOST, PORT)
 }
 
-estimate.PsN <- function(modelfile, HOST='localhost', PORT='9010', command="execute-3.6.2.bat", addargs="", ...) {
-	outputObject <- .execute.PsN(modelfile, HOST, PORT, command, addargs)
-}
-
 estimate.BUGS<-function(modelfile, HOST='localhost', PORT='9010', addargs="", ...) {
   stop("estimate.BUGS is currently not supported")
 }
 
-# Generic internal function called by all PsN variants to invoke the execution
-.execute.PsN <- function(modelfile, HOST='localhost', PORT='9010', command, args) {
-	fullCommand <- paste(command, shQuote(modelfile), "-directory=\"PsN_Execute\"", args)
+#estimate(MOGObject="warf_PK_CONC.mdl", target="BUGS", addargs="...")
+#estimate(MOGObject="tumour_size.mdl", target="NONMEM")
+
+execute.PsN <- function(modelfile, HOST='localhost', PORT='9010', command="execute-3.6.2.bat", addargs="", ...) {
+	modelfileWithoutPath <- tail(strsplit(file_path_as_absolute(modelfile), '/')[[1]], n=1) # Strip off leading path
+	
+	fullCommand <- paste(command, shQuote(modelfileWithoutPath), "-directory=\"PsN_Execute\"", addargs)
 	cat(paste(paste("PsN command is:", fullCommand), "\n"))
 	
 	workingDirectory <- TEL.prepareWorkingFolder(modelfile)
 	
 	outputObject <- submit.job("cmdline.execute", workingDirectory, modelfile, HOST, PORT, addargs=fullCommand)
 }
-
-#estimate(MOGObject="warf_PK_CONC.mdl", target="BUGS", addargs="...")
-#estimate(MOGObject="tumour_size.mdl", target="NONMEM")
 
 #' VPC.PsN
 #' Performs a VPC of a given model using PsN (assuming a translation to NM-TRAN).
