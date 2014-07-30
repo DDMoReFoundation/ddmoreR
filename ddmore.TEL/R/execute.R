@@ -99,15 +99,20 @@ estimate.BUGS<-function(modelfile, HOST='localhost', PORT='9010', addargs="", ..
 #estimate(MOGObject="warf_PK_CONC.mdl", target="BUGS", addargs="...")
 #estimate(MOGObject="tumour_size.mdl", target="NONMEM")
 
-execute.PsN <- function(modelfile, HOST='localhost', PORT='9010', command="execute-3.6.2.bat", addargs="", ...) {
+# Internal generic function to be called by all PsN variants to make the call to the framework
+.execute.PsN.command <- function(modelfile, HOST='localhost', PORT='9010', command, args="", ...) {
 	modelfileWithoutPath <- tail(strsplit(file_path_as_absolute(modelfile), '/')[[1]], n=1) # Strip off leading path
 	
-	fullCommand <- paste(command, shQuote(modelfileWithoutPath), "-directory=\"PsN_Execute\"", addargs)
+	fullCommand <- paste(command, shQuote(modelfileWithoutPath), "-directory=\"PsN_Execute\"", args)
 	cat(paste(paste("PsN command is:", fullCommand), "\n"))
 	
 	workingDirectory <- TEL.prepareWorkingFolder(modelfile)
 	
 	outputObject <- submit.job("cmdline.execute", workingDirectory, modelfile, HOST, PORT, addargs=fullCommand)
+}
+
+execute.PsN <- function(modelfile, HOST='localhost', PORT='9010', command="execute-3.6.2.bat", args="", ...) {
+	outputObject <- .execute.PsN.command(modelfile, HOST, PORT, command, args)
 }
 
 #' VPC.PsN
