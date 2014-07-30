@@ -34,33 +34,38 @@ setGeneric("estimate", function(x, target=NULL, subfolder=format(Sys.time(), "%Y
   
   submitResponse = outputObject$ret
   
-  if (submitResponse[[1]]==0 && collect==TRUE) {
-    outputObject <- TEL.poll(outputObject, HOST=HOST, PORT=PORT) 
-    
-    outputObject$resultsDir = file.path(outputObject$sourceDirectory, subfolder)
-    
-    if (outputObject$status == "COMPLETED") {
-    
-      outputObject <- TEL.import(outputObject, target=outputObject$resultsDir, clearUp=clearUp)
+  if (submitResponse[[1]] == 0) {
 
-      # Create file names:
-      ctlFile <- gsub("[.][mM][dD][lL]", ".ctl", outputObject$modelFile)
-      lstFile <- "output.lst"
-      
-      # Paste in file location:
-      ctlFile <- file.path(outputObject$resultsDir, ctlFile)
-      lstFile <- file.path(outputObject$resultsDir, lstFile)
-      
-      # Import data using RMNImport:
-      res <- importNm(conFile = ctlFile, reportFile = lstFile)
-      
-      # Successful execution -> return the imported NONMEM data
-      return(res)
-    }
+	if (collect) {
+
+	    outputObject <- TEL.poll(outputObject, HOST=HOST, PORT=PORT) 
+	    
+	    outputObject$resultsDir = file.path(outputObject$sourceDirectory, subfolder)
+	    
+	    if (outputObject$status == "COMPLETED") {
+	    
+	      outputObject <- TEL.import(outputObject, target=outputObject$resultsDir, clearUp=clearUp)
+	
+	      # Create file names:
+	      ctlFile <- gsub("[.][mM][dD][lL]", ".ctl", outputObject$modelFile)
+	      lstFile <- "output.lst"
+	      
+	      # Paste in file location:
+	      ctlFile <- file.path(outputObject$resultsDir, ctlFile)
+	      lstFile <- file.path(outputObject$resultsDir, lstFile)
+	      
+	      # Import data using RMNImport:
+	      res <- importNm(conFile = ctlFile, reportFile = lstFile)
+	      
+	      # Successful execution -> return the imported NONMEM data
+	      return(res)
+		}
+	}
+	
+  } else {
+	# Response was not successul -> Fail with an appropriate error message
+	stop(paste(c("Execution of model ", outputObject$modelFile, " failed.\n The contents of the working directory ", outputObject$workingDirectory, " may be useful for tracking down the cause of the failure."), sep=""))
   }
-
-  # Fail with an appropriate error message
-  stop(paste(c("Execution of model ", outputObject$modelFile, " failed.\n The contents of the working directory ", outputObject$workingDirectory, " may be useful for tracking down the cause of the failure."), sep=""))
 
 })
 
