@@ -87,18 +87,22 @@ estimate.NM <- function(modelfile, HOST='localhost', PORT='9010', addargs="", ..
   outputObject <- submit.job("execute", workingDirectory, modelfile, HOST, PORT)
 }
 
-estimate.PsN <- function(modelfile, HOST='localhost', PORT='9010', command="execute-3.6.2.bat", addargs="", ...){
-	
-	fullCommand <- paste(command, shQuote(modelfile), "-directory=\"PsN_Execute\"", addargs)
+estimate.PsN <- function(modelfile, HOST='localhost', PORT='9010', command="execute-3.6.2.bat", addargs="", ...) {
+	outputObject <- .execute.PsN(modelfile, HOST, PORT, command, addargs)
+}
+
+estimate.BUGS<-function(modelfile, HOST='localhost', PORT='9010', addargs="", ...) {
+  stop("estimate.BUGS is currently not supported")
+}
+
+# Generic internal function called by all PsN variants to invoke the execution
+.execute.PsN <- function(modelfile, HOST='localhost', PORT='9010', command, args) {
+	fullCommand <- paste(command, shQuote(modelfile), "-directory=\"PsN_Execute\"", args)
 	cat(paste(paste("PsN command is:", fullCommand), "\n"))
 	
 	workingDirectory <- TEL.prepareWorkingFolder(modelfile)
 	
 	outputObject <- submit.job("cmdline.execute", workingDirectory, modelfile, HOST, PORT, addargs=fullCommand)
-}
-
-estimate.BUGS<-function(modelfile, HOST='localhost', PORT='9010', addargs="", ...) {
-  stop("estimate.BUGS is currently not supported")
 }
 
 #estimate(MOGObject="warf_PK_CONC.mdl", target="BUGS", addargs="...")
@@ -114,7 +118,7 @@ estimate.BUGS<-function(modelfile, HOST='localhost', PORT='9010', addargs="", ..
 #' @param cleanup
 #' @param ...
 #' @export
-VPC.PsN<-function(command="c:\\pkpd\\bin\\vpc-3.5.4.bat ", modelfile, nsamp, seed, addargs, cleanup=T, ...){
+VPC.PsN<-function(command="vpc-3.6.2.bat", modelfile, nsamp, seed, addargs, cleanup=T, ...){
   
   command<-paste(command, modelfile, " --samples=", nsamp, " --seed=", seed, " ", addargs, sep="")
   
@@ -138,7 +142,7 @@ VPC.PsN<-function(command="c:\\pkpd\\bin\\vpc-3.5.4.bat ", modelfile, nsamp, see
 #' @param cleanup
 #' @param ...
 #' @export
-bootstrap.PsN<-function(command="c:\\pkpd\\bin\\bootstrap-3.5.4.bat ", modelfile, nsamp, seed, addargs=NULL, cleanup=T,  ...){
+bootstrap.PsN<-function(command="bootstrap-3.6.2.bat", modelfile, nsamp, seed, addargs=NULL, cleanup=T, ...) {
   
   command<-paste(command, modelfile, " --samples=", nsamp, " --seed=", seed, " ", addargs, sep="")
   
@@ -162,7 +166,7 @@ bootstrap.PsN<-function(command="c:\\pkpd\\bin\\bootstrap-3.5.4.bat ", modelfile
 #' @param cleanup
 #' @param ...
 #' @export
-SSE.PsN<-function(command="c:\\pkpd\\bin\\sse-3.5.4.bat ", modelfile, nsamp, seed, addargs=NULL, cleanup=T,...){
+SSE.PsN<-function(command="sse-3.6.2.bat", modelfile, nsamp, seed, addargs=NULL, cleanup=T, ...) {
   
   command<-paste(command, modelfile, " --samples=", nsamp, " --seed=", seed, " ", addargs, sep="")
   
