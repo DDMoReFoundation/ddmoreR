@@ -62,8 +62,19 @@ TEL.stopServer <-
     cat("Stopping server...\n")
 	shutdownURL = sprintf('http://%s:%s/shutdown', HOST, PORT)
 	ret = RCurl:::postForm(shutdownURL, style="HTTPPOST", shutdown="yes")
-    ret[1]=="OK" # returns TRUE or FALSE as appropriate
+	if (ret[1]=="OK") {
+		cat("Server is now stopped.")
+	} else {
+		cat("Server could not be stopped.")
+	}
   }
+  
+#' Override the default quit function to try to stop the server before quitting normally.
+#' @export
+q <- function() {
+	TEL.stopServer();
+	base:::q()
+}
 
 #' TEL.safeStop
 #'
@@ -71,8 +82,7 @@ TEL.stopServer <-
 #'
 TEL.safeStop <-
   function(HOST='localhost', PORT='9010') {
-    cat("Safestop\n")
-    if(TEL.serverRunning(HOST, PORT)) {
+    if (TEL.serverRunning(HOST, PORT)) {
       TEL.stopServer(HOST, PORT)
     }
   }
