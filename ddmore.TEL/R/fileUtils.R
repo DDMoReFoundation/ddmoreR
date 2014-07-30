@@ -49,7 +49,7 @@ TEL.import <- function(outputObject=NULL, target=NULL, clearUp=FALSE) {
 	} else {
 		# import the data
 		cat(sprintf('Copying the result data back to local machine for job ID: %s ...\n', jobID))
-		cat(sprintf('From: %s\\%s to %s\n', jobDirectory, jobID, target))
+		cat(sprintf('From: %s to %s\n', workingFolder, target))
 		
 		if(file.exists(target)==FALSE) {
 			dir.create(target)
