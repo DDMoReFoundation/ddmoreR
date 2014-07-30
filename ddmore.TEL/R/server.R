@@ -72,7 +72,7 @@ TEL.stopServer <-
 #' Override the default quit function to try to stop the server before quitting normally.
 #' @export
 q <- function() {
-	TEL.stopServer();
+	TEL.safeStop();
 	base:::q()
 }
 
