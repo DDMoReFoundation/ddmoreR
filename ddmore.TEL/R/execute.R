@@ -111,79 +111,67 @@ estimate.BUGS<-function(modelfile, HOST='localhost', PORT='9010', addargs="", ..
 	outputObject <- submit.job("cmdline.execute", workingDirectory, modelfile, HOST, PORT, addargs=fullCommand)
 }
 
-execute.PsN <- function(modelfile, HOST='localhost', PORT='9010', command="execute-3.6.2.bat", args="", ...) {
-	outputObject <- .execute.PsN.command(modelfile, HOST, PORT, command, args)
+#' execute.PsN
+#' Estimates parameters using PsN Execute.
+#' @param modelfile
+#' @param HOST
+#' @param PORT
+#' @param command
+#' @param addargs
+#' @param ...
+#' @export
+execute.PsN <- function(modelfile, HOST='localhost', PORT='9010', command="execute-3.6.2.bat", addargs="", ...) {
+	outputObject <- .execute.PsN.command(modelfile, HOST, PORT, command, addargs)
 }
 
 #' VPC.PsN
-#' Performs a VPC of a given model using PsN (assuming a translation to NM-TRAN).
-#' @param command
+#' Performs a VPC (Visual Predictive Check) of a given model using PsN.
 #' @param modelfile
+#' @param HOST
+#' @param PORT
+#' @param command
 #' @param nsamp
 #' @param seed
 #' @param addargs
 #' @param cleanup
 #' @param ...
 #' @export
-VPC.PsN<-function(command="vpc-3.6.2.bat", modelfile, nsamp, seed, addargs, cleanup=T, ...){
-  
-  command<-paste(command, modelfile, " --samples=", nsamp, " --seed=", seed, " ", addargs, sep="")
-  
-  if(.Platform$OS.type == "windows"){ 
-    args<-list(command, intern=F, minimized=F ,invisible=F ,show.output.on.console=T ,wait=T)
-  }
-  if(.Platform$OS.type != "windows"){ 
-    args<-list(command, wait=T)
-  }
-  
-  do.call(system,args)
+VPC.PsN <- function(modelfile, HOST='localhost', PORT='9010', command="vpc-3.6.2.bat", nsamp, seed, addargs="", cleanup=T, ...) {
+	args <- paste0("--samples=", nsamp, " --seed=", seed, " ", addargs)
+	outputObject <- .execute.PsN.command(modelfile, HOST, PORT, command, args)
 }
 
 #' bootstrap.PsN
-#' Performs a VPC of a given model using PsN (assuming a translation to NM-TRAN).
-#' @param command
+#' Performs bootstrapping to generate new datasets from the dataset of a given model.
 #' @param modelfile
+#' @param HOST
+#' @param PORT
+#' @param command
 #' @param nsamp
 #' @param seed
 #' @param addargs
 #' @param cleanup
 #' @param ...
 #' @export
-bootstrap.PsN<-function(command="bootstrap-3.6.2.bat", modelfile, nsamp, seed, addargs=NULL, cleanup=T, ...) {
-  
-  command<-paste(command, modelfile, " --samples=", nsamp, " --seed=", seed, " ", addargs, sep="")
-  
-  if(.Platform$OS.type == "windows"){
-    args<-list(command, intern=F, minimized=F, invisible=F, show.output.on.console=T, wait=T)
-  }
-  if(.Platform$OS.type != "windows"){ 
-    args<-list(command, wait=T)
-  }
-   
-  do.call(system,args)
+bootstrap.PsN <- function(modelfile, HOST='localhost', PORT='9010', command="bootstrap-3.6.2.bat", nsamp, seed, addargs="", cleanup=T, ...) {
+	args <- paste0("--samples=", nsamp, " --seed=", seed, " ", addargs)
+	outputObject <- .execute.PsN.command(modelfile, HOST, PORT, command, args)
 }
 
-#' SEE.PsN
-#' Performs a VPC of a given model using PsN (assuming a translation to NM-TRAN).
-#' @param command
+#' SSE.PsN
+#' Performs SSE (Stochastic Simulation and Estimation) on a given model.
 #' @param modelfile
+#' @param HOST
+#' @param PORT
+#' @param command
 #' @param nsamp
 #' @param seed
 #' @param addargs
 #' @param cleanup
 #' @param ...
 #' @export
-SSE.PsN<-function(command="sse-3.6.2.bat", modelfile, nsamp, seed, addargs=NULL, cleanup=T, ...) {
-  
-  command<-paste(command, modelfile, " --samples=", nsamp, " --seed=", seed, " ", addargs, sep="")
-  
-  if(.Platform$OS.type == "windows"){ 
-    args<-list(command, intern=F, minimized=F, invisible=F, show.output.on.console=T, wait=T)
-  }
-  if(.Platform$OS.type != "windows"){
-    args<-list(command, wait=T)
-  }
-  
-  do.call(system,args)
+SSE.PsN <- function(modelfile, HOST='localhost', PORT='9010', command="sse-3.6.2.bat", nsamp, seed, addargs="", cleanup=T, ...) {
+	args <- paste0("--samples=", nsamp, " --seed=", seed, " ", addargs)
+	outputObject <- .execute.PsN.command(modelfile, HOST, PORT, command, args)
 }
 
