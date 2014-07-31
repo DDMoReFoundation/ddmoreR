@@ -2,9 +2,7 @@ as.xpdb <- function(outputObject=NULL, ...) {
   
   modelfile <- outputObject$modelFile
   
-  file.name.base = gsub('.mdl', '', modelfile)
-  file.name.base = gsub('.xml', '', file.name.base)
-  file.name.base = gsub('.ctl', '', file.name.base)
+  file.name.base = file_path_sans_ext(modelfile)
   
   table.names = c("_data", "mutab", 
                   "_params", "catab", "cotab", "mytab", "extra", "xptab", 

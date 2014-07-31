@@ -47,7 +47,7 @@ setGeneric("estimate", function(x, target=NULL, subfolder=format(Sys.time(), "%Y
 	      outputObject <- TEL.import(outputObject, target=outputObject$resultsDir, clearUp=clearUp)
 	
 	      # Create file names:
-	      ctlFile <- gsub("[.][mM][dD][lL]", ".ctl", outputObject$modelFile)
+	      ctlFile <- paste0(file_path_sans_ext(outputObject$modelFile), ".ctl")
 	      lstFile <- "output.lst"
 	      
 	      # Paste in file location:

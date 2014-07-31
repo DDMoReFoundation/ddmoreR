@@ -69,9 +69,7 @@ TEL.import <- function(outputObject=NULL, target=NULL, clearUp=FALSE) {
 		
 # WAS the following. TODO: Check how the above file copying compares to the below (specifically, finding similarly named files to the control file).    
 #		#  local.out.dir = sprintf("%s/%s", PROTO_HOME, jobID)
-#		file.name.base = gsub('.mdl', '', modelfile)
-#		file.name.base = gsub('.xml', '', file.name.base)
-#		file.name.base = gsub('.ctl', '', file.name.base)
+#		file.name.base = file_path_sans_ext(modelfile)
 #		
 #		#  dir.create(local.out.dir)
 #		
