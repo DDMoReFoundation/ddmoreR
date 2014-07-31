@@ -61,9 +61,10 @@ TEL.import <- function(outputObject=NULL, target=NULL, clearUp=FALSE) {
 		
 		all.regular.files <- list.files(workingFolder, pattern="^[^.].*")
 		files.to.copy <- all.regular.files[-which(all.regular.files==jobID)] # Exclude the job directory (i.e. MIF working directory)
+		files.to.copy <- paste0(workingFolder, "/", files.to.copy) # Turn the filenames into full paths
 		
 		file.copy(files.to.copy, target, recursive=TRUE)
-		
+
 		
 		
 # WAS the following. TODO: Check how the above file copying compares to the below (specifically, finding similarly named files to the control file).    
