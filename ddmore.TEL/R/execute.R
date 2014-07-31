@@ -102,7 +102,7 @@ estimate.BUGS<-function(modelfile, HOST='localhost', PORT='9010', addargs="", ..
 #estimate(MOGObject="tumour_size.mdl", target="NONMEM")
 
 # Internal generic function to be called by all PsN variants to make the call to the framework
-.execute.PsN.command <- function(modelfile, HOST='localhost', PORT='9010', command, args="", ...) {
+.execute.PsN.command <- function(modelfile, HOST='localhost', PORT='9010', command, args="", subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), collect=TRUE, clearUp=FALSE, ...) {
 	
 	# Strip off leading path and obtain NONMEM .ctl file from the provided .mdl (or .ctl) file; this is what PsN will execute upon
 	control_file_without_path <- paste0(file_path_sans_ext(tail(strsplit(file_path_as_absolute(modelfile), '/')[[1]], n=1)), ".ctl")
@@ -113,6 +113,31 @@ estimate.BUGS<-function(modelfile, HOST='localhost', PORT='9010', addargs="", ..
 	workingDirectory <- TEL.prepareWorkingFolder(modelfile)
 	
 	outputObject <- submit.job("cmdline.execute", workingDirectory, modelfile, HOST, PORT, addargs=fullCommand)
+	
+	submitResponse = outputObject$ret
+	
+	if (submitResponse[[1]] == 0) {
+		
+		if (collect) {
+			
+			outputObject <- TEL.poll(outputObject, HOST=HOST, PORT=PORT) 
+			
+			outputObject$resultsDir = file.path(outputObject$sourceDirectory, subfolder)
+			
+			if (outputObject$status == "COMPLETED") {
+				
+				outputObject <- TEL.import(outputObject, target=outputObject$resultsDir, clearUp=clearUp)
+	
+			} else { # outputObject$status != "COMPLETED"
+				stop(paste(c("Execution of model ", outputObject$modelFile, " failed.\n  The contents of the working directory ", outputObject$workingDirectory, " may be useful for tracking down the cause of the failure."), sep=""))
+			}
+		
+		}
+
+	} else {
+		stop("Submission of execution request was unsuccessful.")
+	}
+	
 }
 
 #' execute.PsN
