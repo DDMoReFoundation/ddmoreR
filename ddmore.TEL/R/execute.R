@@ -101,9 +101,11 @@ estimate.BUGS<-function(modelfile, HOST='localhost', PORT='9010', addargs="", ..
 
 # Internal generic function to be called by all PsN variants to make the call to the framework
 .execute.PsN.command <- function(modelfile, HOST='localhost', PORT='9010', command, args="", ...) {
-	modelfileWithoutPath <- tail(strsplit(file_path_as_absolute(modelfile), '/')[[1]], n=1) # Strip off leading path
 	
-	fullCommand <- paste(command, shQuote(modelfileWithoutPath), "-directory=\"PsN_Execute\"", args)
+	# Strip off leading path and obtain NONMEM .ctl file from the provided .mdl (or .ctl) file; this is what PsN will execute upon
+	control_file_without_path <- paste0(file_path_sans_ext(tail(strsplit(file_path_as_absolute(modelfile), '/')[[1]], n=1)), ".ctl")
+	
+	fullCommand <- paste(command, shQuote(control_file_without_path), "-directory=\"PsN_Execute\"", args)
 	cat(paste(paste("PsN command is:", fullCommand), "\n"))
 	
 	workingDirectory <- TEL.prepareWorkingFolder(modelfile)
