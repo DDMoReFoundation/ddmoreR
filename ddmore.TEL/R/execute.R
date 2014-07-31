@@ -107,7 +107,7 @@ estimate.BUGS<-function(modelfile, HOST='localhost', PORT='9010', addargs="", ..
 	# Strip off leading path and obtain NONMEM .ctl file from the provided .mdl (or .ctl) file; this is what PsN will execute upon
 	control_file_without_path <- paste0(file_path_sans_ext(tail(strsplit(file_path_as_absolute(modelfile), '/')[[1]], n=1)), ".ctl")
 	
-	fullCommand <- paste(command, shQuote(control_file_without_path), "--directory=\"PsN_Execute\"", args)
+	fullCommand <- paste(command, shQuote(control_file_without_path), args)
 	cat(paste(paste("PsN command is:", fullCommand), "\n"))
 	
 	workingDirectory <- TEL.prepareWorkingFolder(modelfile)
