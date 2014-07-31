@@ -44,27 +44,29 @@ setGeneric("estimate", function(x, target=NULL, subfolder=format(Sys.time(), "%Y
 	    
 	    if (outputObject$status == "COMPLETED") {
 	    
-	      outputObject <- TEL.import(outputObject, target=outputObject$resultsDir, clearUp=clearUp)
+			outputObject <- TEL.import(outputObject, target=outputObject$resultsDir, clearUp=clearUp)
 	
-	      # Create file names:
-	      ctlFile <- paste0(file_path_sans_ext(outputObject$modelFile), ".ctl")
-	      lstFile <- "output.lst"
+			# Create file names:
+			ctlFile <- paste0(file_path_sans_ext(outputObject$modelFile), ".ctl")
+			lstFile <- "output.lst"
 	      
-	      # Paste in file location:
-	      ctlFile <- file.path(outputObject$resultsDir, ctlFile)
-	      lstFile <- file.path(outputObject$resultsDir, lstFile)
+			# Paste in file location:
+			ctlFile <- file.path(outputObject$resultsDir, ctlFile)
+			lstFile <- file.path(outputObject$resultsDir, lstFile)
 	      
-	      # Import data using RMNImport:
-	      res <- importNm(conFile = ctlFile, reportFile = lstFile)
+			# Import data using RMNImport:
+			res <- importNm(conFile = ctlFile, reportFile = lstFile)
 	      
-	      # Successful execution -> return the imported NONMEM data
-	      return(res)
+			# Successful execution -> return the imported NONMEM data
+			return(res)
+			
+		} else { # outputObject$status != "COMPLETED"
+			stop(paste(c("Execution of model ", outputObject$modelFile, " failed.\n  The contents of the working directory ", outputObject$workingDirectory, " may be useful for tracking down the cause of the failure."), sep=""))
 		}
 	}
 	
   } else {
-	# Response was not successul -> Fail with an appropriate error message
-	stop(paste(c("Execution of model ", outputObject$modelFile, " failed.\n The contents of the working directory ", outputObject$workingDirectory, " may be useful for tracking down the cause of the failure."), sep=""))
+	stop("Submission of execution request was unsuccessful.")
   }
 
 })
