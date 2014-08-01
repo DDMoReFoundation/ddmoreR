@@ -187,20 +187,20 @@
 
 
 .createMdlObj <- function(dat){
-    if("ODE" %in% names(dat$MODEL_PREDICTION)){
+    if ("ODE" %in% names(dat$MODEL_PREDICTION)) {
       datODE <-dat$MODEL_PREDICTION$ODE 
     } else{
-      datODE <- list()
+      datODE <- ""
     }
-    if("LIBRARY" %in% names(dat$MODEL_PREDICTION)){
+    if ("LIBRARY" %in% names(dat$MODEL_PREDICTION)) {
       datLib <-dat$MODEL_PREDICTION$LIBRARY
     } else{
-      datLib <- list()
+      datLib <- ""
     }
-    if("content" %in% names(dat$MODEL_PREDICTION)){
-      datCon <-list(dat$MODEL_PREDICTION$content)
+    if ("content" %in% names(dat$MODEL_PREDICTION)) {
+      datCon <- dat$MODEL_PREDICTION$content
     } else{
-      datCon <- list()
+      datCon <- ""
     }
 
     res <- new("mdlObj",
@@ -211,7 +211,7 @@
         RANDOM_VARIABLE_DEFINITION = dat$RANDOM_VARIABLE_DEFINITION,
         INDIVIDUAL_VARIABLES = dat$INDIVIDUAL_VARIABLES,
         MODEL_PREDICTION = new("modPred",
-            ODE = datODE ,
+            ODE = datODE,
             LIBRARY = datLib,
             content = datCon
         ),
@@ -222,9 +222,9 @@
 
 
 .createTaskObj <- function(dat){
-  res <- new("taskObj",
-             content = list(dat$content)
-        )  
+	res <- new("taskObj",
+		content = dat$content
+	)  
 }
 
 
