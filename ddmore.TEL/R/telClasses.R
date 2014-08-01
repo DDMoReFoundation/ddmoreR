@@ -58,8 +58,8 @@ is.dataObj <- function(obj){
 #### Task object class
 validity.taskObj <- function(object)
 {
-	stopifnot(is.list(object@content))
-  return(TRUE)
+	stopifnot(is.vector(object@content))
+	return(TRUE)
 }
 
 #' @slot IMPORT A vector
@@ -71,7 +71,7 @@ validity.taskObj <- function(object)
 #' @author khanley
 setClass("taskObj", 
   slots= c(
-    content = "list"
+    content = "vector"
   )
 )
 
@@ -147,7 +147,7 @@ setClass("modPred",
   slots= c(
   ODE = "vector",
   LIBRARY = "vector",
-  content = "list"
+  content = "vector"
   )
 )
 
