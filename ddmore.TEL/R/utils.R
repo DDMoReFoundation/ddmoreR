@@ -7,7 +7,6 @@
 #'
 #' @param x URL or GET/POST string to be URL-encoded
 #' @param the resulting URL-encoded string
-
 URLencode <- function(x, ...) {
     gsub('[+]', '%2B', utils::URLencode(x, ...))
 }
