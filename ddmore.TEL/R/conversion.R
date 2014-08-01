@@ -310,10 +310,10 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
     )
     
     json <- toJSON(list(list(
-        mymodel_task = taskObjAsList,
-        mymodel_par = parObjAsList,
-        mymodel_mdl = mdlObjAsList,
-        mymodel_dat = dataObjAsList
+        outputMog_task = taskObjAsList,
+		outputMog_par = parObjAsList,
+		outputMog_mdl = mdlObjAsList,
+		outputMog_dat = dataObjAsList
     )))
  
     .write.mclobj0(json, f, HOST, PORT)
