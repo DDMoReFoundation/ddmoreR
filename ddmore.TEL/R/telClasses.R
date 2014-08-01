@@ -132,7 +132,7 @@ is.parObj <- function(obj){
 
 validity.modPred <- function(object)
 {
-	stopifnot(is.vector(object@ODE))
+  stopifnot(is.vector(object@ODE))
   stopifnot(is.vector(object@LIBRARY))
   return(TRUE)
 }
@@ -179,7 +179,7 @@ validity.mdlObj<- function(object)
 	stopifnot(is.vector(object@RANDOM_VARIABLE_DEFINITION))
 	stopifnot(is.vector(object@INDIVIDUAL_VARIABLES))
 	stopifnot(is.modPred(object@MODEL_PREDICTION))
-  stopifnot(is.list(object@OBSERVATION))
+    stopifnot(is.list(object@OBSERVATION))
   return(TRUE)
 }
 
