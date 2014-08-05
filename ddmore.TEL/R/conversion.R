@@ -216,6 +216,7 @@
             content = datCon
         ),
         OBSERVATION = list(dat$OBSERVATION),
+		ESTIMATION = dat$ESTIMATION,
 		MODEL_OUTPUT_VARIABLES = dat$MODEL_OUTPUT_VARIABLES
     )
 
@@ -302,6 +303,7 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
             content = m@mdlObj@MODEL_PREDICTION@content
         ),
         OBSERVATION = m@mdlObj@OBSERVATION,
+		ESTIMATION = m@mdlObj@ESTIMATION,
 		MODEL_OUTPUT_VARIABLES = m@mdlObj@MODEL_OUTPUT_VARIABLES,
         identifier = "mdlobj"
     )

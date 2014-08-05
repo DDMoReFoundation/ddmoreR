@@ -180,6 +180,7 @@ validity.mdlObj<- function(object)
 	stopifnot(is.vector(object@INDIVIDUAL_VARIABLES))
 	stopifnot(is.modPred(object@MODEL_PREDICTION))
     stopifnot(is.list(object@OBSERVATION))
+	stopifnot(is.vector(object@ESTIMATION))
 	stopifnot(is.vector(object@MODEL_OUTPUT_VARIABLES))
   return(TRUE)
 }
@@ -194,6 +195,8 @@ validity.mdlObj<- function(object)
 #' @slot INDIVIDUAL_VARIABLES A vector
 #' @slot MODEL_PREDICTION An object of class "modPred"
 #' @slot OBSERVATION A list
+#' @slot ESTIMATION A vector
+#' @slot MODEL_OUTPUT_VARIABLES A vector
 #' @author khanley
 setClass("mdlObj", 
   slots= c(
@@ -205,6 +208,7 @@ setClass("mdlObj",
     INDIVIDUAL_VARIABLES = "vector",
     MODEL_PREDICTION = "modPred",
     OBSERVATION = "list",
+	ESTIMATION = "vector",
 	MODEL_OUTPUT_VARIABLES = "vector"
   )
 )
