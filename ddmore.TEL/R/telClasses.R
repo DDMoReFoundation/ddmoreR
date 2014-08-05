@@ -180,6 +180,7 @@ validity.mdlObj<- function(object)
 	stopifnot(is.vector(object@INDIVIDUAL_VARIABLES))
 	stopifnot(is.modPred(object@MODEL_PREDICTION))
     stopifnot(is.list(object@OBSERVATION))
+	stopifnot(is.vector(object@MODEL_OUTPUT_VARIABLES))
   return(TRUE)
 }
 
@@ -203,7 +204,8 @@ setClass("mdlObj",
     RANDOM_VARIABLE_DEFINITION ="list",
     INDIVIDUAL_VARIABLES = "vector",
     MODEL_PREDICTION = "modPred",
-    OBSERVATION = "list"
+    OBSERVATION = "list",
+	MODEL_OUTPUT_VARIABLES = "vector"
   )
 )
 
