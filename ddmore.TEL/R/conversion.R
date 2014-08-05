@@ -215,9 +215,9 @@
             LIBRARY = datLib,
             content = datCon
         ),
-        OBSERVATION = list(dat$OBSERVATION),
-		ESTIMATION = list(dat$ESTIMATION),
-		MODEL_OUTPUT_VARIABLES = list(dat$MODEL_OUTPUT_VARIABLES)
+        OBSERVATION = list(dat$OBSERVATION), # Wrap within a list in case it is null (which R cannot handle in classes)
+		ESTIMATION = list(dat$ESTIMATION), # Wrap within a list in case it is null (which R cannot handle in classes)
+		MODEL_OUTPUT_VARIABLES = list(dat$MODEL_OUTPUT_VARIABLES) # Wrap within a list in case it is null (which R cannot handle in classes)
     )
 
 }
@@ -267,14 +267,14 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
     }
     m = object
     
-    parObjAsList <- list(
+    parObjAsList <- .removeNullEntries(list(
       STRUCTURAL = m@parObj@STRUCTURAL,
       PRIOR = m@parObj@PRIOR,
       VARIABILITY = m@parObj@VARIABILITY,
       identifier = "parobj"
-    )
+	))
     
-    dataObjAsList <- list(
+    dataObjAsList <- .removeNullEntries(list(
         DATA_INPUT_VARIABLES = m@dataObj@DATA_INPUT_VARIABLES,
         SOURCE = m@dataObj@SOURCE,
         RSCRIPT = m@dataObj@RSCRIPT,
@@ -283,30 +283,30 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
         DESIGN = m@dataObj@DESIGN,
         DATA_DERIVED_VARIABLES = m@dataObj@DATA_DERIVED_VARIABLES,
         identifier = "dataobj"
-    )
+    ))
     
     # Enclose the file name in double quotes ready for writing back to MDL
     dataObjAsList$SOURCE$file <- add_quotes(dataObjAsList$SOURCE$file)
     # Similarly for the Ignore character
     dataObjAsList$SOURCE$ignore <- add_quotes(dataObjAsList$SOURCE$ignore)
     
-    mdlObjAsList <- list(
+    mdlObjAsList <- .removeNullEntries(list(
         MODEL_INPUT_VARIABLES = m@mdlObj@MODEL_INPUT_VARIABLES,
         STRUCTURAL_PARAMETERS = m@mdlObj@STRUCTURAL_PARAMETERS,
         VARIABILITY_PARAMETERS = m@mdlObj@VARIABILITY_PARAMETERS,
         GROUP_VARIABLES = m@mdlObj@GROUP_VARIABLES,
         RANDOM_VARIABLE_DEFINITION = m@mdlObj@RANDOM_VARIABLE_DEFINITION,
         INDIVIDUAL_VARIABLES = m@mdlObj@INDIVIDUAL_VARIABLES,
-        MODEL_PREDICTION = list(
+        MODEL_PREDICTION = .removeNullEntries(list(
             ODE = m@mdlObj@MODEL_PREDICTION@ODE,
             LIBRARY = m@mdlObj@MODEL_PREDICTION@LIBRARY,
             content = m@mdlObj@MODEL_PREDICTION@content
-        ),
-        OBSERVATION = m@mdlObj@OBSERVATION,
+        )),
+        OBSERVATION = m@mdlObj@OBSERVATION[[1]], # take the first element because the string/vector is wrapped in a list in case it is null
 		ESTIMATION = m@mdlObj@ESTIMATION[[1]], # take the first element because the string/vector is wrapped in a list in case it is null
 		MODEL_OUTPUT_VARIABLES = m@mdlObj@MODEL_OUTPUT_VARIABLES[[1]], # take the first element because the string/vector is wrapped in a list in case it is null
         identifier = "mdlobj"
-    )
+    ))
     
     taskObjAsList <- list(
         content = m@taskObj@content,
@@ -341,3 +341,7 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
 
 }
 
+# Process a list removing any null entries from it
+.removeNullEntries <- function(l) {
+	l[!sapply(l, is.null)]
+}

@@ -197,7 +197,7 @@ validity.mdlObj <- function(object)
 #' @slot RANDOM_VARIABLE_DEFINITION A list
 #' @slot INDIVIDUAL_VARIABLES A vector
 #' @slot MODEL_PREDICTION An object of class "modPred"
-#' @slot OBSERVATION A list
+#' @slot OBSERVATION  A list; should just be a Vector but R cannot handle null in slots in classes
 #' @slot ESTIMATION A list; should just be a Vector but R cannot handle null in slots in classes
 #' @slot MODEL_OUTPUT_VARIABLES A list; should just be a Vector but R cannot handle null in slots in classes
 #' @author khanley
@@ -210,7 +210,7 @@ setClass("mdlObj",
     RANDOM_VARIABLE_DEFINITION ="list",
     INDIVIDUAL_VARIABLES = "vector",
     MODEL_PREDICTION = "modPred",
-    OBSERVATION = "list",
+    OBSERVATION = "list", # Should just be a Vector but R cannot handle null in slots in classes
 	ESTIMATION = "list", # Should just be a Vector but R cannot handle null in slots in classes
 	MODEL_OUTPUT_VARIABLES = "list" # Should just be a Vector but R cannot handle null in slots in classes
   ),
