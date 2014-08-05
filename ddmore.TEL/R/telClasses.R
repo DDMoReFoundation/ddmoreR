@@ -72,7 +72,8 @@ validity.taskObj <- function(object)
 setClass("taskObj", 
   slots= c(
     content = "vector"
-  )
+  ),
+  validity = validity.taskObj
 )
 
 ##############################################################
@@ -109,7 +110,8 @@ setClass("parObj",
   STRUCTURAL = "list",
   PRIOR = "list",
   VARIABILITY = "list"
-  )
+  ),
+  validity = validity.parObj
 )
 
 #' is.parObj
@@ -148,7 +150,8 @@ setClass("modPred",
   ODE = "vector",
   LIBRARY = "vector",
   content = "vector"
-  )
+  ),
+  validity = validity.modPred
 )
 
 
@@ -170,7 +173,7 @@ is.modPred <- function(obj){
 #### Model object class
 
 
-validity.mdlObj<- function(object)
+validity.mdlObj <- function(object)
 {
 	stopifnot(is.list(object@MODEL_INPUT_VARIABLES))
 	stopifnot(is.vector(object@STRUCTURAL_PARAMETERS))
@@ -180,8 +183,8 @@ validity.mdlObj<- function(object)
 	stopifnot(is.vector(object@INDIVIDUAL_VARIABLES))
 	stopifnot(is.modPred(object@MODEL_PREDICTION))
     stopifnot(is.list(object@OBSERVATION))
-	stopifnot(is.vector(object@ESTIMATION))
-	stopifnot(is.vector(object@MODEL_OUTPUT_VARIABLES))
+	stopifnot(is.list(object@ESTIMATION))
+	stopifnot(is.list(object@MODEL_OUTPUT_VARIABLES))
   return(TRUE)
 }
 
@@ -195,8 +198,8 @@ validity.mdlObj<- function(object)
 #' @slot INDIVIDUAL_VARIABLES A vector
 #' @slot MODEL_PREDICTION An object of class "modPred"
 #' @slot OBSERVATION A list
-#' @slot ESTIMATION A vector
-#' @slot MODEL_OUTPUT_VARIABLES A vector
+#' @slot ESTIMATION A list; should just be a Vector but R cannot handle null in slots in classes
+#' @slot MODEL_OUTPUT_VARIABLES A list; should just be a Vector but R cannot handle null in slots in classes
 #' @author khanley
 setClass("mdlObj", 
   slots= c(
@@ -208,9 +211,10 @@ setClass("mdlObj",
     INDIVIDUAL_VARIABLES = "vector",
     MODEL_PREDICTION = "modPred",
     OBSERVATION = "list",
-	ESTIMATION = "vector",
-	MODEL_OUTPUT_VARIABLES = "vector"
-  )
+	ESTIMATION = "list", # Should just be a Vector but R cannot handle null in slots in classes
+	MODEL_OUTPUT_VARIABLES = "list" # Should just be a Vector but R cannot handle null in slots in classes
+  ),
+  validity = validity.mdlObj
 )
 
 #' is.mdlObj
@@ -226,8 +230,9 @@ is.mdlObj <- function(obj){
 
 }
 
-#### MOG class
 
+
+#### MOG class
 
 
 validity.mogObj<- function(object)
@@ -253,7 +258,8 @@ setClass("mogObj",
   parObj = "parObj",
   mdlObj = "mdlObj", 
   taskObj = "taskObj"
-  )
+  ),
+  validity = validity.mogObj
 )
 
 
@@ -306,7 +312,4 @@ as.mogObj <- function(list){
   return(res)
 
 }
-
-
-
 
