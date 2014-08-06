@@ -173,7 +173,6 @@ submit.job <- function( command=NULL, workingDirectory, modelfile, HOST='localho
     submitURL <- sprintf('http://%s:%s/submit', HOST, PORT)
 	  
     ret <- RCurl:::curlPerform(url=submitURL, postfields=formParams, writefunction=h$update)
-    #postForm("http://localhost:9010/submit", style="HTTPPOST", submissionRequest = json)
 
     response <- fromJSON(h$value())
 
@@ -182,8 +181,6 @@ submit.job <- function( command=NULL, workingDirectory, modelfile, HOST='localho
     outputObject$ret <- ret[1]
 
     outputObject
-    
-    #c(ret[1], response, workingDirectory)
 }
  
 #' TEL.poll
