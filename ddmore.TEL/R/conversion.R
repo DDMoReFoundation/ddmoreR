@@ -337,8 +337,14 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
 
     postfield <- sprintf('%s%s','writeRequest=',wreq)
     
-    res <- RCurl:::curlPerform(url = cmd, postfields = postfield )
+	h = basicTextGatherer()
+    RCurl:::curlPerform(url = cmd, postfields = postfield, writefunction = h$update)
+	retStatus <- h$value()
 
+	if (fromJSON(retStatus)$status != "Successful") {
+		stop("Failed to send write request. Details of the error: ", retStatus)
+	}
+	retStatus
 }
 
 # Process a list removing any null entries from it
