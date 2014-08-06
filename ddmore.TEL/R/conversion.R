@@ -204,7 +204,7 @@
     }
 
     res <- new("mdlObj",
-        MODEL_INPUT_VARIABLES = list(dat$MODEL_INPUT_VARIABLES),
+        MODEL_INPUT_VARIABLES = list(dat$MODEL_INPUT_VARIABLES), # Wrap within a list in case it is null (which R cannot handle in classes)
         STRUCTURAL_PARAMETERS = dat$STRUCTURAL_PARAMETERS,
         VARIABILITY_PARAMETERS = dat$VARIABILITY_PARAMETERS,
         GROUP_VARIABLES = dat$GROUP_VARIABLES,
@@ -291,7 +291,7 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
     dataObjAsList$SOURCE$ignore <- add_quotes(dataObjAsList$SOURCE$ignore)
     
     mdlObjAsList <- .removeNullEntries(list(
-        MODEL_INPUT_VARIABLES = m@mdlObj@MODEL_INPUT_VARIABLES,
+        MODEL_INPUT_VARIABLES = m@mdlObj@MODEL_INPUT_VARIABLES[[1]], # take the first element because the string/vector is wrapped in a list in case it is null
         STRUCTURAL_PARAMETERS = m@mdlObj@STRUCTURAL_PARAMETERS,
         VARIABILITY_PARAMETERS = m@mdlObj@VARIABILITY_PARAMETERS,
         GROUP_VARIABLES = m@mdlObj@GROUP_VARIABLES,
@@ -319,7 +319,7 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
 		outputMog_mdl = mdlObjAsList,
 		outputMog_dat = dataObjAsList
     )))
- 
+
     .write.mclobj0(json, f, HOST, PORT)
 })
 
