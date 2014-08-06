@@ -330,7 +330,7 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
     wreq <- URLencode(toJSON(list(
         fileName = fullPath,
         fileContent = json
-    )))
+    )), reserved=TRUE) # ensures that & characters etc. get encoded too
 
     # Call parser and post the JSON data:
     cmd <- URLencode(paste0("http://", HOST, ":", PORT, "/writemdl"))
