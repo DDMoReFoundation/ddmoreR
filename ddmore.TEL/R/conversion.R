@@ -155,8 +155,8 @@
 .createParObj <- function(dat){
 
   res <- new("parObj", 
-      STRUCTURAL = as.list(dat$STRUCTURAL),
-      PRIOR = as.list(dat$PRIOR),
+      STRUCTURAL = translateIntoNamedList(dat$STRUCTURAL), # as.list done within the function
+      PRIOR = as.list(dat$PRIOR), # TODO: TBC
       VARIABILITY = as.list(dat$VARIABILITY)
     )
   
@@ -168,7 +168,7 @@
 .createDataObj <- function(dat){
 
     res <- new("dataObj",
-        DATA_INPUT_VARIABLES = as.list(dat$DATA_INPUT_VARIABLES),
+        DATA_INPUT_VARIABLES = translateIntoNamedList(dat$DATA_INPUT_VARIABLES), # as.list done within the function
         SOURCE = as.list(dat$SOURCE),
         # TODO: TBC - These need to be populated
         RSCRIPT = list(),
@@ -190,11 +190,11 @@
 .createMdlObj <- function(dat){
 
     res <- new("mdlObj",
-        MODEL_INPUT_VARIABLES = as.list(dat$MODEL_INPUT_VARIABLES),
-        STRUCTURAL_PARAMETERS = as.list(dat$STRUCTURAL_PARAMETERS),
-        VARIABILITY_PARAMETERS = as.list(dat$VARIABILITY_PARAMETERS),
+        MODEL_INPUT_VARIABLES = translateIntoNamedList(dat$MODEL_INPUT_VARIABLES), # as.list done within the function
+        STRUCTURAL_PARAMETERS = translateIntoNamedList(dat$STRUCTURAL_PARAMETERS), # as.list done within the function
+        VARIABILITY_PARAMETERS = translateIntoNamedList(dat$VARIABILITY_PARAMETERS), # as.list done within the function
         GROUP_VARIABLES = as.character(dat$GROUP_VARIABLES),
-        RANDOM_VARIABLE_DEFINITION = as.list(dat$RANDOM_VARIABLE_DEFINITION),
+        RANDOM_VARIABLE_DEFINITION = translateIntoNamedList(dat$RANDOM_VARIABLE_DEFINITION),
         INDIVIDUAL_VARIABLES = as.character(dat$INDIVIDUAL_VARIABLES),
         MODEL_PREDICTION = new("modPred",
             ODE = as.character(dat$MODEL_PREDICTION$ODE),
@@ -203,7 +203,7 @@
         ),
         OBSERVATION = as.character(dat$OBSERVATION),
 		ESTIMATION = as.character(dat$ESTIMATION),
-		MODEL_OUTPUT_VARIABLES = as.list(dat$MODEL_OUTPUT_VARIABLES)
+		MODEL_OUTPUT_VARIABLES = translateIntoNamedList(dat$MODEL_OUTPUT_VARIABLES) # as.list done within the function
     )
 
 }
@@ -254,14 +254,14 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
     m = object
     
     parObjAsList <- .removeNullEntries(list(
-      STRUCTURAL = m@parObj@STRUCTURAL,
+      STRUCTURAL = translateNamedListIntoList(m@parObj@STRUCTURAL),
       PRIOR = m@parObj@PRIOR,
       VARIABILITY = m@parObj@VARIABILITY,
       identifier = "parobj"
 	))
     
     dataObjAsList <- .removeNullEntries(list(
-        DATA_INPUT_VARIABLES = m@dataObj@DATA_INPUT_VARIABLES,
+        DATA_INPUT_VARIABLES = translateNamedListIntoList(m@dataObj@DATA_INPUT_VARIABLES),
         SOURCE = .removeNullEntries(m@dataObj@SOURCE), # removeNullEntries() required since ignoreChar etc. might not be specified
         RSCRIPT = m@dataObj@RSCRIPT,
         HEADER = m@dataObj@HEADER,
@@ -277,11 +277,11 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
     dataObjAsList$SOURCE$ignore <- add_quotes(dataObjAsList$SOURCE$ignore)
     
     mdlObjAsList <- .removeNullEntries(list(
-        MODEL_INPUT_VARIABLES = m@mdlObj@MODEL_INPUT_VARIABLES,
-        STRUCTURAL_PARAMETERS = m@mdlObj@STRUCTURAL_PARAMETERS,
-        VARIABILITY_PARAMETERS = m@mdlObj@VARIABILITY_PARAMETERS,
+        MODEL_INPUT_VARIABLES = translateNamedListIntoList(m@mdlObj@MODEL_INPUT_VARIABLES),
+        STRUCTURAL_PARAMETERS = translateNamedListIntoList(m@mdlObj@STRUCTURAL_PARAMETERS),
+        VARIABILITY_PARAMETERS = translateNamedListIntoList(m@mdlObj@VARIABILITY_PARAMETERS),
         GROUP_VARIABLES = m@mdlObj@GROUP_VARIABLES,
-        RANDOM_VARIABLE_DEFINITION = m@mdlObj@RANDOM_VARIABLE_DEFINITION,
+        RANDOM_VARIABLE_DEFINITION = translateNamedListIntoList(m@mdlObj@RANDOM_VARIABLE_DEFINITION),
         INDIVIDUAL_VARIABLES = m@mdlObj@INDIVIDUAL_VARIABLES,
         MODEL_PREDICTION = .removeNullEntries(list(
             ODE = m@mdlObj@MODEL_PREDICTION@ODE,
@@ -290,7 +290,7 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
         )),
         OBSERVATION = m@mdlObj@OBSERVATION,
 		ESTIMATION = m@mdlObj@ESTIMATION,
-		MODEL_OUTPUT_VARIABLES = m@mdlObj@MODEL_OUTPUT_VARIABLES,
+		MODEL_OUTPUT_VARIABLES = translateNamedListIntoList(m@mdlObj@MODEL_OUTPUT_VARIABLES),
         identifier = "mdlobj"
     ))
     
@@ -342,4 +342,23 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
 	l[!sapply(l,
 		function(x) { length(x) == 0 }
 	)]
+}
+
+# Incoming (JSON->R) lists of variables etc. have their names as attributes of the list
+# elements; use these as the names in the creation of a named list of these variables etc.,
+# to go in the slots in the R classes.
+# This allows for easier access and manipulation of the R objects by R workflows.
+# This function also handles null which gets converted into an empty list.
+translateIntoNamedList <- function(x) {
+	l <- as.list(x) # Handle null which gets converted into an empty list
+	names(l) <- lapply(l, function(y) { y$name })
+	l
+}
+
+# When writing out JSON, the named lists from the R objects need to have their names
+# stripped off, in order that they are written out as lists in the JSON rather than
+# (unordered) maps.
+translateNamedListIntoList <- function(l) {
+	names(l) <- NULL
+	l
 }
