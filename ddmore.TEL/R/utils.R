@@ -19,7 +19,9 @@ URLencode <- function(x, ...) {
 #' @param x the input string
 #' @param the output string
 strip_quotes <- function(x) {
-    gsub("^\"(.*)\"$", "\\1", x)
+	if (!is.null(x)) {
+    	gsub("^\"(.*)\"$", "\\1", x)
+	}
 }
 
 ##############################################################
@@ -30,7 +32,9 @@ strip_quotes <- function(x) {
 #' @param x the input string
 #' @param the output string
 add_quotes <- function(x) {
-    gsub("^(.*)$", "\"\\1\"", strip_quotes(x))
+	if (!is.null(x)) {
+		gsub("^(.*)$", "\"\\1\"", strip_quotes(x))
+	}
 }
 
 
