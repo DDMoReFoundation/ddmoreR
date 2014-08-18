@@ -52,7 +52,8 @@
   # Call parser and read in the JSON data:
   cmd <- URLencode(paste0("http://", HOST, ":", PORT, "/readmdl?fileName=", normalizePath(f, winslash="/")))
 
-  fromJSON(httpGET(cmd))[[1]]
+  json <- httpGET(cmd)
+  fromJSON(json)[[1]]
 }
 
 
@@ -156,7 +157,7 @@
   res <- new("parObj", 
       STRUCTURAL = as.list(dat$STRUCTURAL),
       PRIOR = as.list(dat$PRIOR),
-      VARIABILITY = dat$VARIABILITY
+      VARIABILITY = as.list(dat$VARIABILITY)
     )
   
   return(res)
@@ -174,7 +175,7 @@
         HEADER = list(),
         FILE = list(),
         DESIGN = list(),
-        DATA_DERIVED_VARIABLES = character()
+        DATA_DERIVED_VARIABLES = list()
     )
     
     # Unquote the file name so that the file name within the R object is more easily manipulated
@@ -187,37 +188,22 @@
 
 
 .createMdlObj <- function(dat){
-    if ("ODE" %in% names(dat$MODEL_PREDICTION)) {
-      datODE <-dat$MODEL_PREDICTION$ODE 
-    } else{
-      datODE <- ""
-    }
-    if ("LIBRARY" %in% names(dat$MODEL_PREDICTION)) {
-      datLib <-dat$MODEL_PREDICTION$LIBRARY
-    } else{
-      datLib <- ""
-    }
-    if ("content" %in% names(dat$MODEL_PREDICTION)) {
-      datCon <- dat$MODEL_PREDICTION$content
-    } else{
-      datCon <- ""
-    }
 
     res <- new("mdlObj",
-        MODEL_INPUT_VARIABLES = list(dat$MODEL_INPUT_VARIABLES), # Wrap within a list in case it is null (which R cannot handle in classes)
-        STRUCTURAL_PARAMETERS = dat$STRUCTURAL_PARAMETERS,
-        VARIABILITY_PARAMETERS = dat$VARIABILITY_PARAMETERS,
-        GROUP_VARIABLES = dat$GROUP_VARIABLES,
-        RANDOM_VARIABLE_DEFINITION = dat$RANDOM_VARIABLE_DEFINITION,
-        INDIVIDUAL_VARIABLES = dat$INDIVIDUAL_VARIABLES,
+        MODEL_INPUT_VARIABLES = as.list(dat$MODEL_INPUT_VARIABLES),
+        STRUCTURAL_PARAMETERS = as.list(dat$STRUCTURAL_PARAMETERS),
+        VARIABILITY_PARAMETERS = as.list(dat$VARIABILITY_PARAMETERS),
+        GROUP_VARIABLES = as.character(dat$GROUP_VARIABLES),
+        RANDOM_VARIABLE_DEFINITION = as.list(dat$RANDOM_VARIABLE_DEFINITION),
+        INDIVIDUAL_VARIABLES = as.character(dat$INDIVIDUAL_VARIABLES),
         MODEL_PREDICTION = new("modPred",
-            ODE = datODE,
-            LIBRARY = datLib,
-            content = datCon
+            ODE = as.character(dat$MODEL_PREDICTION$ODE),
+            LIBRARY = as.character(dat$MODEL_PREDICTION$LIBRARY),
+            content = as.character(dat$MODEL_PREDICTION$content)
         ),
-        OBSERVATION = list(dat$OBSERVATION), # Wrap within a list in case it is null (which R cannot handle in classes)
-		ESTIMATION = list(dat$ESTIMATION), # Wrap within a list in case it is null (which R cannot handle in classes)
-		MODEL_OUTPUT_VARIABLES = list(dat$MODEL_OUTPUT_VARIABLES) # Wrap within a list in case it is null (which R cannot handle in classes)
+        OBSERVATION = as.character(dat$OBSERVATION),
+		ESTIMATION = as.character(dat$ESTIMATION),
+		MODEL_OUTPUT_VARIABLES = as.list(dat$MODEL_OUTPUT_VARIABLES)
     )
 
 }
@@ -225,7 +211,7 @@
 
 .createTaskObj <- function(dat){
 	res <- new("taskObj",
-		content = dat$content
+		content = as.character(dat$content)
 	)  
 }
 
@@ -276,7 +262,7 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
     
     dataObjAsList <- .removeNullEntries(list(
         DATA_INPUT_VARIABLES = m@dataObj@DATA_INPUT_VARIABLES,
-        SOURCE = m@dataObj@SOURCE,
+        SOURCE = .removeNullEntries(m@dataObj@SOURCE), # removeNullEntries() required since ignoreChar etc. might not be specified
         RSCRIPT = m@dataObj@RSCRIPT,
         HEADER = m@dataObj@HEADER,
         FILE = m@dataObj@FILE,
@@ -286,12 +272,12 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
     ))
     
     # Enclose the file name in double quotes ready for writing back to MDL
-    dataObjAsList$SOURCE$file <- add_quotes(dataObjAsList$SOURCE$file)
+	dataObjAsList$SOURCE$file <- add_quotes(dataObjAsList$SOURCE$file)
     # Similarly for the Ignore character
     dataObjAsList$SOURCE$ignore <- add_quotes(dataObjAsList$SOURCE$ignore)
     
     mdlObjAsList <- .removeNullEntries(list(
-        MODEL_INPUT_VARIABLES = m@mdlObj@MODEL_INPUT_VARIABLES[[1]], # take the first element because the string/vector is wrapped in a list in case it is null
+        MODEL_INPUT_VARIABLES = m@mdlObj@MODEL_INPUT_VARIABLES,
         STRUCTURAL_PARAMETERS = m@mdlObj@STRUCTURAL_PARAMETERS,
         VARIABILITY_PARAMETERS = m@mdlObj@VARIABILITY_PARAMETERS,
         GROUP_VARIABLES = m@mdlObj@GROUP_VARIABLES,
@@ -302,16 +288,16 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
             LIBRARY = m@mdlObj@MODEL_PREDICTION@LIBRARY,
             content = m@mdlObj@MODEL_PREDICTION@content
         )),
-        OBSERVATION = m@mdlObj@OBSERVATION[[1]], # take the first element because the string/vector is wrapped in a list in case it is null
-		ESTIMATION = m@mdlObj@ESTIMATION[[1]], # take the first element because the string/vector is wrapped in a list in case it is null
-		MODEL_OUTPUT_VARIABLES = m@mdlObj@MODEL_OUTPUT_VARIABLES[[1]], # take the first element because the string/vector is wrapped in a list in case it is null
+        OBSERVATION = m@mdlObj@OBSERVATION,
+		ESTIMATION = m@mdlObj@ESTIMATION,
+		MODEL_OUTPUT_VARIABLES = m@mdlObj@MODEL_OUTPUT_VARIABLES,
         identifier = "mdlobj"
     ))
     
-    taskObjAsList <- list(
+    taskObjAsList <- .removeNullEntries(list(
         content = m@taskObj@content,
         identifier = "taskobj"
-    )
+    ))
     
     json <- toJSON(list(list(
         outputMog_task = taskObjAsList,
@@ -347,7 +333,13 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
 	retStatus
 }
 
-# Process a list removing any null entries from it
+# Process a list removing any empty lists or strings (character vectors) entries from it.
+# Applied to the outgoing JSON as it is being written out, this is the reverse of applying
+# as.list() / as.character() to the JSON coming in to transform missing blocks in the
+# original MDL into empty lists / character vectors respectively.
+# This translation is only required because R cannot handle null in slots in S4 classes.
 .removeNullEntries <- function(l) {
-	l[!sapply(l, is.null)]
+	l[!sapply(l,
+		function(x) { length(x) == 0 }
+	)]
 }

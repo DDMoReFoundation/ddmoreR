@@ -1,40 +1,39 @@
-# $LastChangedDate: 2014-06-19 $
-# $LastChangedBy: khanley $
 # 
-# Author: khanley
+# Author: khanley, mwise
 ###############################################################################
 
 #### Data object class
 validity.dataObj <- function(object)
 {
-	stopifnot(is.list(object@DATA_INPUT_VARIABLES))
+  stopifnot(is.list(object@DATA_INPUT_VARIABLES))
   stopifnot(is.list(object@SOURCE))
   stopifnot(is.list(object@RSCRIPT))
   stopifnot(is.list(object@HEADER))
   stopifnot(is.list(object@FILE))
   stopifnot(is.list(object@DESIGN))
-  stopifnot(is.vector(object@DATA_DERIVED_VARIABLES))
+  stopifnot(is.list(object@DATA_DERIVED_VARIABLES))
   return(TRUE)
 }
 
-#' @slot DATA_INPUT_VARIABLES A named list
-#' @slot SOURCE A list of parsed sections of the control file
+#' @slot DATA_INPUT_VARIABLES A list
+#' @slot SOURCE A named list of parsed sections of the control file
 #' @slot RSCRIPT TBC 
 #' @slot HEADER TBC
-#' @slot FILE String containing name of the data file
-#' @slot DESIGN  Named list of lists describing the design of the experiment
+#' @slot FILE String containing name of the data file - TBC
+#' @slot DESIGN  Named list of lists describing the design of the experiment - TBC
 #' @slot DATA_DERIVED_VARIABLES TBC - vector of strings?
 #' @author khanley
 
 setClass("dataObj", 
   slots=c(
     DATA_INPUT_VARIABLES="list",
+	# TODO: TBC - These need to be populated
     SOURCE = "list",
     RSCRIPT = "list",
     HEADER = "list",
     FILE = "list",
     DESIGN = "list",
-    DATA_DERIVED_VARIABLES = "vector"
+    DATA_DERIVED_VARIABLES = "list"
     ), 
   validity = validity.dataObj
 )
@@ -58,20 +57,15 @@ is.dataObj <- function(obj){
 #### Task object class
 validity.taskObj <- function(object)
 {
-	stopifnot(is.vector(object@content))
+	stopifnot(is.character(object@content))
 	return(TRUE)
 }
 
-#' @slot IMPORT A vector
-#' @slot DATA A named list
-#' @slot PARAMETER A named list
-#' @slot MODEL A named list
-#' @slot TASK_FUNCTION A named list
-#' @slot TARGET_CODE A named list
+#' @slot content A character vector containing the full content of the block "as-is"
 #' @author khanley
 setClass("taskObj", 
   slots= c(
-    content = "vector"
+    content = "character"
   ),
   validity = validity.taskObj
 )
@@ -95,13 +89,13 @@ is.taskObj <- function(obj){
 
 validity.parObj <- function(object)
 {
-	stopifnot(is.list(object@STRUCTURAL))
+  stopifnot(is.list(object@STRUCTURAL))
   stopifnot(is.list(object@PRIOR))
   stopifnot(is.list(object@VARIABILITY))
   return(TRUE)
 }
 
-#' @slot STRUCTURAL A vector
+#' @slot STRUCTURAL A list
 #' @slot PRIOR A named list
 #' @slot VARIABILITY A named list
 #' @author khanley
@@ -134,22 +128,24 @@ is.parObj <- function(obj){
 
 validity.modPred <- function(object)
 {
-  stopifnot(is.vector(object@ODE))
-  stopifnot(is.vector(object@LIBRARY))
+  stopifnot(is.character(object@ODE))
+  stopifnot(is.character(object@LIBRARY))
+  stopifnot(is.character(object@content))
   return(TRUE)
 }
 
 
 # Create modPred class:
 
-#' @slot ODE A vector
-#' @slot LIBRARY A vector
+#' @slot ODE A character vector
+#' @slot LIBRARY A character vector
+#' @slot content A character vector
 #' @author khanley
 setClass("modPred", 
   slots= c(
-  ODE = "vector",
-  LIBRARY = "vector",
-  content = "vector"
+  ODE = "character",
+  LIBRARY = "character",
+  content = "character"
   ),
   validity = validity.modPred
 )
@@ -176,14 +172,14 @@ is.modPred <- function(obj){
 validity.mdlObj <- function(object)
 {
 	stopifnot(is.list(object@MODEL_INPUT_VARIABLES))
-	stopifnot(is.vector(object@STRUCTURAL_PARAMETERS))
-	stopifnot(is.vector(object@VARIABILITY_PARAMETERS))
-	stopifnot(is.vector(object@GROUP_VARIABLES))
+	stopifnot(is.list(object@STRUCTURAL_PARAMETERS))
+	stopifnot(is.list(object@VARIABILITY_PARAMETERS))
+	stopifnot(is.character(object@GROUP_VARIABLES))
 	stopifnot(is.list(object@RANDOM_VARIABLE_DEFINITION))
-	stopifnot(is.vector(object@INDIVIDUAL_VARIABLES))
+	stopifnot(is.character(object@INDIVIDUAL_VARIABLES))
 	stopifnot(is.modPred(object@MODEL_PREDICTION))
-    stopifnot(is.list(object@OBSERVATION))
-	stopifnot(is.list(object@ESTIMATION))
+    stopifnot(is.character(object@OBSERVATION))
+	stopifnot(is.character(object@ESTIMATION))
 	stopifnot(is.list(object@MODEL_OUTPUT_VARIABLES))
   return(TRUE)
 }
@@ -191,28 +187,28 @@ validity.mdlObj <- function(object)
 ### Create mdlObj class:
 
 #' @slot MODEL_INPUT_VARIABLES A list
-#' @slot STRUCTURAL_PARAMETERS A vector
-#' @slot VARIABILITY_PARAMETERS A vector
-#' @slot GROUP_VARIABLES A vector
+#' @slot STRUCTURAL_PARAMETERS A list
+#' @slot VARIABILITY_PARAMETERS A list
+#' @slot GROUP_VARIABLES A character vector
 #' @slot RANDOM_VARIABLE_DEFINITION A list
-#' @slot INDIVIDUAL_VARIABLES A vector
+#' @slot INDIVIDUAL_VARIABLES A character vector
 #' @slot MODEL_PREDICTION An object of class "modPred"
-#' @slot OBSERVATION  A list; should just be a Vector but R cannot handle null in slots in classes
-#' @slot ESTIMATION A list; should just be a Vector but R cannot handle null in slots in classes
-#' @slot MODEL_OUTPUT_VARIABLES A list; should just be a Vector but R cannot handle null in slots in classes
+#' @slot OBSERVATION  A character vector
+#' @slot ESTIMATION A character vector
+#' @slot MODEL_OUTPUT_VARIABLES A list
 #' @author khanley
 setClass("mdlObj", 
   slots= c(
     MODEL_INPUT_VARIABLES = "list",
-    STRUCTURAL_PARAMETERS = "vector",
-    VARIABILITY_PARAMETERS = "vector",
-    GROUP_VARIABLES = "vector",
+    STRUCTURAL_PARAMETERS = "list",
+    VARIABILITY_PARAMETERS = "list",
+    GROUP_VARIABLES = "character",
     RANDOM_VARIABLE_DEFINITION ="list",
-    INDIVIDUAL_VARIABLES = "vector",
+    INDIVIDUAL_VARIABLES = "character",
     MODEL_PREDICTION = "modPred",
-    OBSERVATION = "list", # Should just be a Vector but R cannot handle null in slots in classes
-	ESTIMATION = "list", # Should just be a Vector but R cannot handle null in slots in classes
-	MODEL_OUTPUT_VARIABLES = "list" # Should just be a Vector but R cannot handle null in slots in classes
+    OBSERVATION = "character",
+	ESTIMATION = "character",
+	MODEL_OUTPUT_VARIABLES = "list"
   ),
   validity = validity.mdlObj
 )
