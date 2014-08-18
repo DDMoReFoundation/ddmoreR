@@ -347,18 +347,21 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
 # Incoming (JSON->R) lists of variables etc. have their names as attributes of the list
 # elements; use these as the names in the creation of a named list of these variables etc.,
 # to go in the slots in the R classes.
-# This allows for easier access and manipulation of the R objects by R workflows.
+# Also, remove the name attribute to avoid duplication and confusion.
+# Named lists allow for easier access and manipulation of the R objects by R workflows.
 # This function also handles null which gets converted into an empty list.
 translateIntoNamedList <- function(x) {
 	l <- as.list(x) # Handle null which gets converted into an empty list
-	names(l) <- lapply(l, function(y) { y$name })
-	l
+	names(l) <- lapply(l, function(e) { e$name }) # 'e' is the list element
+	lapply(l, function(e) { e$name <- NULL; e }) # 'e' is the list element
 }
 
 # When writing out JSON, the named lists from the R objects need to have their names
 # stripped off, in order that they are written out as lists in the JSON rather than
 # (unordered) maps.
+# Each name is 'moved' onto an attribute named "name" of the list element instead.
 translateNamedListIntoList <- function(l) {
+	l <- lapply(names(l), function(n) { l[[n]]$name <- n; l[[n]] } ) # 'n' is the name of the list element
 	names(l) <- NULL
 	l
 }
