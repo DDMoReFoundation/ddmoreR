@@ -10,9 +10,9 @@
 #' default behaviour is to sample by ID variables and retain all data for each 
 #' sampled ID.
 #'
-#' @usage sample(dataObject, size, replace=FALSE, prob=NULL, by=dataObject@Data$ID,...) 
+#' @usage sample(object, size, replace=FALSE, prob=NULL, by=object@Data$ID,...) 
 #'
-#' @param dataObject  an object of class \code{dataObj}
+#' @param object  an object of class \code{dataObj}
 #' @param size a non-negative integer giving 
 #' the total number of samples. The proportions of samples from each strata 
 #' (as selected by the "by" argument) will be preserved. For example, if the population
@@ -20,7 +20,7 @@
 #' @param replace should sampling be with replacement?
 #' @param prob a vector of probabilities for obtaining the elements of the 
 #'  observations being sampled. Must sum to 1.
-#' @param by a stratification variable defined within dataObject. Default is to sample by ID.
+#' @param by a stratification variable defined within object. Default is to sample by ID.
 #' @param... additional arguments to be passed to the TEL read method
 #'
 #' @seealso R base function \code{sample}
@@ -41,20 +41,32 @@
 #' @docType methods
 #' @rdname sample-methods
 setGeneric("sample", 
-  function(dataObject, size, replace=FALSE, prob=NULL, by="ID",...){
+  function(object, size, replace=FALSE, prob=NULL, by="ID",...){
       standardGeneric("sample")
 })
 #' @rdname sample-methods
-#' @aliases sample,dataObj,dataObj-method
+#' @aliases sample,mogObj,mogObj-method
+setMethod("sample", signature=signature(object="mogObj"), 
+  function(object, size, replace=FALSE, prob, by="ID",...){
+  # Extract out dataObj:
+  obj <- object@dataObj
+  
+  # Then call the dataObj method
+  #print(sourceDir)
+  sample(obj, size, replace, prob, by, ... )
 
-setMethod("sample", signature=signature(dataObject="dataObj"), 
-  function(dataObject, size, replace=FALSE, prob=NULL, by="ID",...){
+})
+#' @rdname sample-methods
+#' @aliases sample,dataObj,dataObj-method
+setMethod("sample", signature=signature(object="dataObj"), 
+  function(object, size, replace=FALSE, prob, by="ID",...){
     # Check "by" column exists in the data
-    if(!("ID" %in% names(dataObject@DATA_INPUT_VARIABLES))){
+    # Check "by" column exists in the data
+    if(!(by %in% names(object@DATA_INPUT_VARIABLES))){
       stop("'by' name is not a column of the data, as detailed in the DATA_INPUT_VARIABLES slot")
     }
     # read in the data and split by "by" column:
-    dat <- read(dataObject, ...)
+    dat <- read(object, ...)
     
     # If not specified, the sample is assumed to be the same size as the original dataset
     if(missing(size)){
@@ -94,10 +106,23 @@ setMethod("sample", signature=signature(dataObject="dataObj"),
     
     # Now look at each strata, and sample the required number of values
     
-    sampledList <- lapply(finalDat, strataSampler, data=dat, size=size, by=by, replace=replace) 
+    stratOut <- lapply(finalDat, strataSampler, data=dat, size=size, by=by, replace=replace)
+   
+    sampledList <- lapply(stratOut, function(x){x[[1]]})
     res <- do.call("rbind", sampledList)
     row.names(res) <- NULL
     res$prob <- NULL
+    
+    # Extract out logicals indocating whether the sample was floored and a warning
+    # is required:
+    logi <- sapply(stratOut, function(x){x[[2]]})
+    
+    if(any(logi)){warning(paste("Due to stratified sampling, the number of samples from
+        at least one strata is/are rounded to the nearest whole number. Therefore, the number of samples returned
+        may not match the number requested. To prevent this, consider removing the 'by' argument
+        to no longer take a stratified sample"))}
+    
+    
     return(res)
 })
 
@@ -113,15 +138,15 @@ strataSampler <- function(strata, data, size, by, replace, ...){
       # We floor the value to obtain an integer, and to ensure we don't have too
       # many samples returned.
       len <- dim(strata)[1]
-      print(len)
+  
       rs <- len/dim(data)[1] * size
-      print(rs)
-      if(!rs == as.integer(rs)){warning(paste("Due to stratified sampling, the number of samples from
-        the", by, "=", strata[1,by], "strata is rounded to the nearest whole number. Therefore, the number of samples returned
-        may not match the number requested. To prevent this, consider removing the 'by' argument
-        to no longer take a stratified sample"))}
+
+      #if(!rs == as.integer(rs)){warning(paste("Due to stratified sampling, the number of samples from
+       # the", by, "=", paste(strata[1,by], sep=","), "strata(s) is/are rounded to the nearest whole number. Therefore, the number of samples returned
+      #  may not match the number requested. To prevent this, consider removing the 'by' argument
+       # to no longer take a stratified sample"))}
       relSize <- round(rs)
-      
+      if(!rs == as.integer(rs)){warn=TRUE}
       # Sample the correct number of values from the strata.
       if("prob" %in% names(strata)){
         ind <- base:::sample(rownames(strata), size=relSize, prob=strata$prob, replace=replace, ...)
@@ -131,7 +156,7 @@ strataSampler <- function(strata, data, size, by, replace, ...){
         samp <- strata[ind,]
       }
       
-      return(samp)
+      return(list(samp, warn))
 
     }
 
