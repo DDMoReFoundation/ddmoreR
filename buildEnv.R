@@ -77,5 +77,12 @@ if (!require(brew, lib.loc=localLib)){
 if (!require(RNMImport, lib.loc=localLib)){
   stop("RNMImport does not seem to be installed")
 }
+if (!require(testthat, lib.loc=localLib)){
+  install.packages("./dependencies/testthat_0.7.2.99.tar.gz", repos=NULL, 
+  lib=localLib, INSTALL_opts = "--no-lock", type="source")
+}
+if (!require(testthat, lib.loc=localLib)){
+  stop("testthat does not seem to be installed")
+}
 
 cat("done\n")

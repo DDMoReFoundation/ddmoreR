@@ -151,7 +151,7 @@
         </copy>
     </target>
 
-    <target name="collect" depends='test,collect.artefacts,collect.vignette' >
+    <target name="collect" depends='unitTests,collect.artefacts,collect.vignette' >
         <echo message="Build Success, artefacts collected to ${artefact.dir}"/>
     </target>
   
@@ -363,7 +363,7 @@
 		</exec>
     </target>
 
-    <target name="all" depends='test,collect.artefacts,collect.vignette,deploy.only' >
+    <target name="all" depends='unitTests,collect.artefacts,collect.vignette,deploy.only' >
         <echo message="Build Success, artefacts collected to ${artefact.dir}"/>
         <condition property="deploy.lib.message" value='artefact is installed to ${deploy.lib.path}' 
                    else="artefact is installed to R default library path">
@@ -403,18 +403,22 @@
 		</exec>
 	</target>
 	
+
+  
+  
     <!-- we always assume build on windows -->
-	<target name ='test' depends='buildzip'>
+	<target name ='unitTests' depends='buildzip'>
         <exec executable = "${r.home}/bin${r.arch.dep.path}Rscript" dir="${build.dir}" failonerror = "true">
 		    <env key="R_HOME" value="${r.home}"/>
 		    <env key="R_LIBS" value="${local.lib}"/>
 		    <env key="PATH" value="${PATH}"/>
-			<arg line ='${test.script} ${xmlprotocol.switch}'/>
+			<arg line ='${test.script}'/>
+			<arg line ='${build.dir}/${artefact.basename}.tar.gz'/>
 		</exec>
 	</target>
+  
 
-
-    <target name ="rcheck" depends='clean,roxygen'>
+    <target name ="rcheck" depends='clean,roxygen, unitTests'>
         <exec executable="${r.home}/bin${r.arch.dep.path}R" dir ="${build.dir}" failonerror = "true">
 		    <env key="R_HOME" value="${r.home}"/>
 		    <env key="R_LIBS" value="${local.lib}"/>
