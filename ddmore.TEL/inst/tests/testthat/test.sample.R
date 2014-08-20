@@ -41,6 +41,7 @@ test_that("Samples returns results with all columns and correct number of rows",
   expect_equal(dim(res), c(978L, 4L))
   expect_equal(names(res), c( "ID", "TIME", "AMT", "DV"))
 
+
 })
 
 
@@ -77,10 +78,6 @@ test_that("When called on a mogObj, the function correctly extracts the dataObj 
   expect_equal(names(res), c( "ID", "TIME", "AMT", "DV"))
 
 })
-
-
-
-
 
 # Re-set to old working directory:
 setwd(oldwd)
