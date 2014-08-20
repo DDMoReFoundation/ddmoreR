@@ -53,13 +53,15 @@ setMethod("subset", signature=signature(dataObject="dataObj"),
   function(dataObject, by, sourceDir=getwd(), deriveVariables=TRUE, 
     categoricalAsFactor=TRUE, recode=TRUE, asRaw=FALSE, ...){
     
-    temp <- read(object=dataObject, sourceDir, deriveVariables, categoricalAsFactor, recode, asRaw)
-    
-    res <- base:::subset(x=temp, subset=by, ...)
-    
-    return(res)
+  temp <- read(object=dataObject, sourceDir, deriveVariables, categoricalAsFactor, recode, asRaw)
+ 
+  e <- substitute(by)
+  x <- eval(e, temp, parent.frame())
+  
+  res <- base:::subset(temp, subset=x, ...)
+
+  return(res)
+  
+
 })
-
-
-
 
