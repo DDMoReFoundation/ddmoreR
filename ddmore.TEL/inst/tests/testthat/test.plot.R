@@ -4,18 +4,15 @@ oldwd <- getwd()
 tmp <- tempdir()
 setwd(tmp)
 
-# Copy MDL and related csv file to temp directory:
-mdl <- system.file("data", "training", "tumour_size_25June2014_OAM.mdl", package="DDMoRe.TEL")
+# Copy csv file to temp directory:
 csv <- system.file("data", "training", "tumour_exposure.csv", package="DDMoRe.TEL")
-
-logi <- file.copy(c(mdl, csv), ".")
+logi <- file.copy(csv, ".")
 
 # Stop if not copied successfully:
-stopifnot(all(logi))
+stopifnot(logi)
 
-# Import data from mdl:
-dat <- getMDLObjects("tumour_size_25June2014_OAM.mdl")
-myMog <- as.mogObj(dat)
+# Import data
+source(system.file("data", "training", "mogObjTumourSize.r", package="DDMoRe.TEL"))
 stopifnot(DDMoRe.TEL:::is.mogObj(myMog))
 
 
