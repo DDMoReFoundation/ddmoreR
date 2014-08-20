@@ -8,4 +8,4 @@ Author: Mango Solutions
 Maintainer: Support at Mango Solutions <support@mango-solutions.com>
 Description: Initial implementation of the TEL in R. It integrates with FIS using REST API. 
 License: TBD
-Depends: R(>= 2.13), RCurl(>= 1.95), rjson(>= 0.2.13), RNMImport(>= 0.3.6), tools(>= 3.0.2), lattice(>= 0.20-14)
+Depends: R(>= 2.13), RCurl(>= 1.95), rjson(>= 0.2.13), RNMImport(>= 0.3.6), tools(>= 3.0.2), lattice(>= 0.20-14), testthat(>= 0.8.1)
