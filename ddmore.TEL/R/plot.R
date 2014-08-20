@@ -74,10 +74,12 @@ setMethod("plot", signature=signature(object="dataObj"),
   cmd <- paste("DV", IDVVar, sep="~")
   
   # Function requires columns called DV and IDV, and will error if not:
-  if(!all(c("DV", IDVVar)%in%nam)){stop("Columns DV and/or IDV are not present in the data set. Unable to produce plot.")}
+  if(!"DV"%in%nam){stop("Column DV is not present in the data set. Unable to produce plot.")}
+  if(!IDVVar%in%nam){stop("Column specified by IDVVar argument is not present in the data set. Unable to produce plot.")}
+ 
  
   if(!missing(by)){
-    if(!by%in%nam){stop(paste("Column", by, "is not present in the data set. Unable to produce plot."))}
+    if(!by%in%nam){stop("Column specified by 'by' argument is not present in the data set. Unable to produce plot.")}
     # If by variable included, add to formula string for evaluation
     cmd <- paste(cmd, "|", by)
   
@@ -86,7 +88,7 @@ setMethod("plot", signature=signature(object="dataObj"),
 
   if(!missing(group)){
     
-    if(!group%in%nam){stop(paste("Column", group, "is not present in the data set. Unable to produce plot."))}
+    if(!group%in%nam){stop("Column specified by 'group' argument is not present in the data set. Unable to produce plot.")}
 
     xyplot(formula(cmd), group=dat[,group], data=dat, ...)
   
