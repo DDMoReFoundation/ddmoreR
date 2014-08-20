@@ -26,7 +26,9 @@ try( test_package(packageName,
   reporter = JUnitReporter$new(file =file.path(getwd(),
   paste("testReport", packageName, ".xml", sep = "")    )))
 )
+
 cat("Saving test report to", getwd())
+
 
 
 
