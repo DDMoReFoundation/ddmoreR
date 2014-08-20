@@ -37,11 +37,10 @@ test_that("Plots are produced correctly", {
   
   md5 <- tools::md5sum("out.bmp")
   names(md5)<-NULL
-  cat(md5)
 
   
   if (.Platform$OS.type == "windows") {
-    expect_equal(md5, "fbe0488f5eb47d6fb728b3addb967ecd")
+    expect_equal(md5, "ba1e7cf7c99474a2fd992acce33e7ffc")
   } else if (.Platform$OS.type == "unix") {
     expect_equivalent(md5, "!! Unix MD5 Here !!")
   } else {
