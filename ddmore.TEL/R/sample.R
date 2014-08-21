@@ -47,25 +47,25 @@ setGeneric("sample",
 #' @rdname sample-methods
 #' @aliases sample,mogObj,mogObj-method
 setMethod("sample", signature=signature(object="mogObj"), 
-  function(object, size, replace=FALSE, prob, by="ID",...){
+  function(object, size, replace=FALSE, prob=NULL, by="ID",...){
   # Extract out dataObj:
   obj <- object@dataObj
   
+  
   # Then call the dataObj method
-  #print(sourceDir)
   sample(obj, size, replace, prob, by, ... )
 
 })
 #' @rdname sample-methods
 #' @aliases sample,dataObj,dataObj-method
 setMethod("sample", signature=signature(object="dataObj"), 
-  function(object, size, replace=FALSE, prob, by="ID",...){
-    # Check "by" column exists in the data
+  function(object, size, replace=FALSE, prob=NULL, by="ID",...){
+
     # Check "by" column exists in the data
     if(!(by %in% names(object@DATA_INPUT_VARIABLES))){
       stop("'by' name is not a column of the data, as detailed in the DATA_INPUT_VARIABLES slot")
     }
-    # read in the data and split by "by" column:
+    # read in the data:
     dat <- read(object, ...)
     
     # If not specified, the sample is assumed to be the same size as the original dataset
@@ -74,7 +74,9 @@ setMethod("sample", signature=signature(object="dataObj"),
     }
     
     # if prob exists, append to data frame
-    if(!missing(prob)){
+    if(missing(prob)){prob<-NULL}
+    
+    if(!is.null(prob)){
       
       if(length(prob)!=dim(dat)[[1]]){stop("Length of 'prob' vector is not equal to the number of 
         rows in the data frame")}
@@ -87,40 +89,35 @@ setMethod("sample", signature=signature(object="dataObj"),
     }
     
     # If "by" variable is specified, split the data into strata. 
-    if(!missing(by)){
       spF <- dat[,by]
       splitDat <- split(dat, f=spF)
-      if(!missing(prob)){
+      if(!is.null(prob)){
       
-      # Rescale the probabilities
-      # within each strata. This is based on:
-      # prob(being chosen) = prob(being in strata) * prob(being selected from strata), we
-      # therefore scale by dividing by the probability of being in the strata (the
-      # number of rows in the strata divided by the number of rows in the data set)
-      splitDat <- lapply(splitDat,stratProb, data=dat) 
+        # Rescale the probabilities
+        # within each strata. This is based on:
+        # prob(being chosen) = prob(being in strata) * prob(being selected from strata), we
+        # therefore scale by dividing by the probability of being in the strata (the
+        # number of rows in the strata divided by the number of rows in the data set)
+        splitDat <- lapply(splitDat,stratProb, data=dat) 
       }
       finalDat <- splitDat
-    } else{
-      finalDat <- list(dat)
-    }
-    
+       
     # Now look at each strata, and sample the required number of values
     
-    stratOut <- lapply(finalDat, strataSampler, data=dat, size=size, by=by, replace=replace)
+    stratOut <- lapply(finalDat, strataSampler, data=dat, size=size, replace=replace)
    
     sampledList <- lapply(stratOut, function(x){x[[1]]})
     res <- do.call("rbind", sampledList)
     row.names(res) <- NULL
     res$prob <- NULL
     
-    # Extract out logicals indocating whether the sample was floored and a warning
+    # Extract out logicals indicating whether the sample was floored and a warning
     # is required:
     logi <- sapply(stratOut, function(x){x[[2]]})
     
     if(any(logi)){warning(paste("Due to stratified sampling, the number of samples from
         at least one strata is/are rounded to the nearest whole number. Therefore, the number of samples returned
-        may not match the number requested. To prevent this, consider removing the 'by' argument
-        to no longer take a stratified sample"))}
+        may not match the number requested."))}
     
     
     return(res)
@@ -132,7 +129,7 @@ setMethod("sample", signature=signature(object="dataObj"),
 #'
 #' Function that returns stratified samples
 #'
-strataSampler <- function(strata, data, size, by, replace, ...){
+strataSampler <- function(strata, data, size, replace, ...){
       # Calculate the size of the strata relative to the size of the data, then 
       # multiply by size to obtain the number of samples to take from this strata.
       # We floor the value to obtain an integer, and to ensure we don't have too
@@ -141,12 +138,13 @@ strataSampler <- function(strata, data, size, by, replace, ...){
   
       rs <- len/dim(data)[1] * size
 
-      #if(!rs == as.integer(rs)){warning(paste("Due to stratified sampling, the number of samples from
-       # the", by, "=", paste(strata[1,by], sep=","), "strata(s) is/are rounded to the nearest whole number. Therefore, the number of samples returned
-      #  may not match the number requested. To prevent this, consider removing the 'by' argument
-       # to no longer take a stratified sample"))}
       relSize <- round(rs)
-      if(!rs == as.integer(rs)){warn=TRUE}
+      if(rs != as.integer(rs)){
+        warn=TRUE
+      } else{
+        warn=FALSE
+      }
+
       # Sample the correct number of values from the strata.
       if("prob" %in% names(strata)){
         ind <- base:::sample(rownames(strata), size=relSize, prob=strata$prob, replace=replace, ...)
