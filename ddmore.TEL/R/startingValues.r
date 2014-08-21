@@ -38,7 +38,11 @@ setGeneric("startingValues",
 #' @aliases startingValues,mogObj,mogObj-method
 setMethod("startingValues", signature=signature(object="mogObj"), 
   function(object, distList){
+  # Extract out dataObj:
+  obj <- object@parObj
 
+  # Then call the dataObj method
+  startingValues(obj, distList=distList)
   
 })
 #' @rdname startingValues-methods
