@@ -16,6 +16,7 @@ stopifnot(logi)
 source(system.file("data", "training", "mogObjTumourSize.r", package="DDMoRe.TEL"))
 stopifnot(DDMoRe.TEL:::is.mogObj(myMog))
 
+set.seed(123)
 
 test_that("Warning is returned when stratified sampling causes number of sampled rows to
   not match the number requested", {
@@ -34,11 +35,11 @@ test_that("Error is returned when requesting a sample without replacement when
   
 })
 
-
-test_that("Samples returns results with all columns and correct number of rows", {
   
-  res <- sample(myMog@dataObj, size=1000, replace=TRUE, by="TIME")
-  expect_equal(dim(res), c(978L, 4L))
+res <- sample(myMog@dataObj, size=1000, replace=TRUE)
+test_that("Samples returns results with all columns and correct number of rows", {
+
+  expect_equal(dput(dim(res)), c(1005L, 4L))
   expect_equal(names(res), c( "ID", "TIME", "AMT", "DV"))
 
 
@@ -68,14 +69,14 @@ test_that("Expected errors are produced when sum of prob vector is greater than 
 
 })
 
-
+  
+res2 <- sample(myMog, size=1000, replace=TRUE)
 test_that("When called on a mogObj, the function correctly extracts the dataObj and 
   passes to the correct sample method", {
   
-  res <- sample(myMog, size=1000, replace=TRUE, by="TIME")
 
-  expect_equal(dim(res), c(978L, 4L))
-  expect_equal(names(res), c( "ID", "TIME", "AMT", "DV"))
+  expect_equal(dput(dim(res2)), c(1005L, 4L))
+  expect_equal(names(res2), c( "ID", "TIME", "AMT", "DV"))
 
 })
 
