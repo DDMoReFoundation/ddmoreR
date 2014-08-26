@@ -162,18 +162,34 @@
 	# as per all the other such lists of named parameters/variables there are in the R objects.
 	# A side effect of this though, peculiar to the VARIABILITY block due to its heterogeneous
 	# nature, is that this gives rise to multiple elements having the same name in the list
-	# (multiple "same" blocks probably being the most common scenario); but R doesn't actually
-	# complain, and although the first element encountered with a given name would be the one that
-	# is arbitrarily returned, workflow functions wouldn't be accessing the aforementioned 'special'
-	# variability elements via their "same"/"diag"/"matrix" keywords anyway since this wouldn't make
-	# sense from a functionality point of view.
+	# (multiple "same" blocks probably being the most common scenario).
+	# Although R doesn't actually complain, having duplicate names in a named list undoubtedly
+	# isn't a good idea, so such elements have a "_n" suffix appended to their names where "n"
+	# is an number that increments individually for "matrix", "diag" and "same"; when writing
+	# the R objects back out to JSON (MDL), these suffixes are dropped.
 
 	res <- new("parObj", 
 			STRUCTURAL = translateIntoNamedList(dat$STRUCTURAL), # as.list done within the function
 			PRIOR = as.list(dat$PRIOR), # TODO: TBC
 			VARIABILITY = lapply(as.list(dat$VARIABILITY), function(x) x[[1]])
 	)
-	names(res@VARIABILITY) <- lapply(as.list(dat$VARIABILITY), function(x) names(x))
+	diagCnt <- 0; matrixCnt <- 0; sameCnt <- 0;
+	names(res@VARIABILITY) <- lapply(as.list(dat$VARIABILITY), function(x) {
+		elemName <- names(x)
+		if (elemName == "diag") {
+			diagCnt <<- diagCnt + 1
+			elemName <- paste0(elemName, "_", diagCnt)
+		}
+		else if (elemName == "matrix") {
+			matrixCnt <<- matrixCnt + 1
+			elemName <- paste0(elemName, "_", matrixCnt)
+		}
+		else if (elemName == "same") {
+			sameCnt <<- sameCnt + 1
+			elemName <- paste0(elemName, "_", sameCnt)
+		}
+		elemName
+	})
 	
 	return(res)
 } 
@@ -276,7 +292,10 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
       identifier = "parobj"
 	))
 	lapply(1:length(myMog@parObj@VARIABILITY), function(i) {
-		names(parObjAsList$VARIABILITY[[i]]) <<- names(myMog@parObj@VARIABILITY)[[i]]
+		elemName <- names(myMog@parObj@VARIABILITY)[[i]]
+		# Strip off the redundant count from the end of 'special' variability parameter elements
+		elemName <- gsub("^(same|diag|matrix)_.*$", "\\1", elemName, fixed=FALSE)
+		names(parObjAsList$VARIABILITY[[i]]) <<- elemName
 	})
 	names(parObjAsList$VARIABILITY) <- NULL
     
