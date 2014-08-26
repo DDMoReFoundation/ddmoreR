@@ -45,8 +45,8 @@ setGeneric("plot", function(object, by, group, IDVVar="IDV", sourceDir=getwd(), 
     standardGeneric("plot")
  })
 
-#' @rdname read-methods
-#' @aliases read,mogObj,mogObj-method
+#' @rdname plot-methods
+#' @aliases plot,mogObj,mogObj-method
 setMethod("plot", signature=signature(object="mogObj"), 
   function(object, by, group, IDVVar="IDV", sourceDir=getwd(), deriveVariables=FALSE, 
     categoricalAsFactor=FALSE, recode=FALSE, ...){
@@ -60,8 +60,8 @@ setMethod("plot", signature=signature(object="mogObj"),
 
 })
 
-#' @rdname read-methods
-#' @aliases read,dataObj,dataObj-method
+#' @rdname plot-methods
+#' @aliases plot,dataObj,dataObj-method
 setMethod("plot", signature=signature(object="dataObj"), 
   function(object, by, group, IDVVar="IDV", sourceDir=getwd(), deriveVariables=FALSE, 
     categoricalAsFactor=FALSE, recode=FALSE, ...){
