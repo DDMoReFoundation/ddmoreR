@@ -49,7 +49,7 @@ add_quotes <- function(x) {
 #' @param f file/folder for which to find its parent
 #' @param the absolute path to the parent folder of the input file/folder
 parent.folder <- function(f) {
-    file_path_as_absolute(file.path(file_path_as_absolute(f), ".."))
+    dirname(file_path_as_absolute(f))
 }
 
 
