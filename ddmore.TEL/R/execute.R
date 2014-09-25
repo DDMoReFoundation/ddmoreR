@@ -54,6 +54,9 @@ setGeneric("estimate", function(x, target=NULL, subfolder=format(Sys.time(),
 			# Create file names:
 			ctlFile <- paste0(file_path_sans_ext(outputObject$modelFile), ".ctl")
 			lstFile <- "output.lst"
+  			if (target=="PsN") {
+			   lstFile <- paste0(file_path_sans_ext(outputObject$modelFile), ".lst")
+			}				 
 	      
 			# Paste in file location:
 			ctlFile <- file.path(outputObject$resultsDir, ctlFile)
@@ -104,6 +107,13 @@ estimate.NM <- function(modelfile, HOST='localhost', PORT='9010', addargs="", ..
   workingDirectory <- TEL.prepareWorkingFolder(modelfile)
 
   outputObject <- submit.job("execute", workingDirectory, modelfile, HOST, PORT)
+}
+
+estimate.PsN <- function(modelfile, HOST='localhost', PORT='9010', addargs="", ...) {
+  
+  workingDirectory <- TEL.prepareWorkingFolder(modelfile)
+
+  outputObject <- submit.job("psn.execute", workingDirectory, modelfile, HOST, PORT, addargs)
 }
 
 estimate.BUGS<-function(modelfile, HOST='localhost', PORT='9010', addargs="", ...) {
