@@ -96,6 +96,8 @@
     </condition>
 
 	<target name="clean">
+        <delete dir ="${local.lib}" failonerror = "true"/>
+        <mkdir  dir ="${local.lib}" />
         <!-- Remove man dir-->
         <delete dir ="${package.name}/man" failonerror = "false"/>
         <delete dir="${build.dir}"/>
