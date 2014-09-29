@@ -36,7 +36,7 @@ test_that("Error is returned when requesting a sample without replacement when
 })
 
   
-res <- sample(myMog@dataObj, size=1000, replace=TRUE)
+res <- read(sample(myMog@dataObj, size=1000, replace=TRUE))
 test_that("Samples returns results with all columns and correct number of rows", {
 
   expect_equal(dput(dim(res)), c(1005L, 4L))
@@ -70,7 +70,7 @@ test_that("Expected errors are produced when sum of prob vector is greater than 
 })
 
   
-res2 <- sample(myMog, size=1000, replace=TRUE)
+res2 <- read(sample(myMog, size=1000, replace=TRUE))
 test_that("When called on a mogObj, the function correctly extracts the dataObj and 
   passes to the correct sample method", {
   
