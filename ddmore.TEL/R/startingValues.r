@@ -10,7 +10,7 @@
 #'
 #' @usage startingValues(object, distribution=list(STRUCTURAL = list(), VARIABILITY = list()))
 #' 
-#' param object – an object of class parObj or mogObj
+#' @param object – an object of class parObj or mogObj
 #' distribution – list of lists, which takes the following form: 
 #' \code{list(STRUCTURAL = list(paramName1 = list(dist="rnorm", args=list(mean=0, sd=1))), VARIABILITY = list()))}
 #'
