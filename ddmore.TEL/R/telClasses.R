@@ -46,7 +46,7 @@ setClass("dataObj",
 #'
 #' @usage is.dataObj(object)
 #'
-#' @returns TRUE or FALSE 
+#' @return TRUE or FALSE 
 is.dataObj <- function(obj){
 
   class(obj)=="dataObj"
@@ -77,7 +77,7 @@ setClass("taskObj",
 #'
 #' @usage is.taskObj(object)
 #'
-#' @returns TRUE or FALSE 
+#' @return TRUE or FALSE 
 is.taskObj <- function(obj){
 
   class(obj)=="taskObj"
@@ -114,7 +114,7 @@ setClass("parObj",
 #'
 #' @usage is.parObj(object)
 #'
-#' @returns TRUE or FALSE 
+#' @return TRUE or FALSE 
 is.parObj <- function(obj){
 
   class(obj)=="parObj"
@@ -157,7 +157,7 @@ setClass("modPred",
 #'
 #' @usage is.modPred(object)
 #'
-#' @returns TRUE or FALSE 
+#' @return TRUE or FALSE 
 is.modPred <- function(obj){
 
   class(obj)=="modPred"
@@ -219,7 +219,7 @@ setClass("mdlObj",
 #'
 #' @usage is.mdlObj(object)
 #'
-#' @returns TRUE or FALSE 
+#' @return TRUE or FALSE 
 is.mdlObj <- function(obj){
 
   class(obj)=="mdlObj"
@@ -265,7 +265,7 @@ setClass("mogObj",
 #'
 #' @usage is.mogObj(object)
 #'
-#' @returns TRUE or FALSE 
+#' @return TRUE or FALSE 
 is.mogObj <- function(obj){
 
   class(obj)=="mogObj"
@@ -279,7 +279,7 @@ is.mogObj <- function(obj){
 #'
 #' @usage as.mogObj(list)
 #' @export
-#' @returns An object of class mogObj
+#' @return An object of class mogObj
 as.mogObj <- function(list){
 
   classes <- sapply(list, function(x){class(x)})
