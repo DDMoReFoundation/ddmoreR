@@ -41,8 +41,6 @@ test_that("Plots are produced correctly", {
   
   if (.Platform$OS.type == "windows") {
     expect_equal(md5, "ba1e7cf7c99474a2fd992acce33e7ffc")
-  } else if (.Platform$OS.type == "unix") {
-    expect_equivalent(md5, "!! Unix MD5 Here !!")
   } else {
     stop("unsupported OS type: ", .Platform$OS.type)
 }
