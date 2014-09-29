@@ -10,14 +10,13 @@
 #'
 #' @usage startingValues(object, distribution=list(STRUCTURAL = list(), VARIABILITY = list()))
 #' 
-#' param object – an object of class parObj or mogObj
-#' distribution – list of lists, which takes the following form: 
+#' @param object an object of class parObj or mogObj
+#' @param distribution list of lists, which takes the following form: 
 #' \code{list(STRUCTURAL = list(paramName1 = list(dist="rnorm", args=list(mean=0, sd=1))), VARIABILITY = list()))}
 #'
-#' @return
-#' A named list containing STRUCTURAL and VARIABILITY items with one value per parameter.
+#' @return A named list containing STRUCTURAL and VARIABILITY items with one value per parameter.
 #' 
-#' @exampledat <- getMDLObjects("tumour_size_25June2014_OAM.mdl")
+#' @examples dat <- getMDLObjects("tumour_size_25June2014_OAM.mdl")
 #' # Read in example data (found in the R package under data/training)
 #' dat <- getMDLObjects("tumour_size_25June2014_OAM.mdl")
 #' myMog <- as.mogObj(dat)
@@ -30,6 +29,10 @@
 #' # We can use the function either on the arObj, or a mogObj
 #' startingValues(myMog@parObj, ml)
 #' startingValues(myMog, ml)
+#' @include telClasses.R
+#' @export
+#' @docType methods
+#' @rdname startingValues-methods
 setGeneric("startingValues", 
   function(object, size, replace=FALSE, prob=NULL, by="ID",...){
       standardGeneric("startingValues")
