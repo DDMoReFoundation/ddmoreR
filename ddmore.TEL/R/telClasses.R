@@ -24,7 +24,7 @@ validity.dataObj <- function(object)
 #' @slot DATA_DERIVED_VARIABLES TBC - vector of strings?
 #' @author khanley
 
-setClass("dataObj", 
+setClass("dataObj", package="DDMoRe.TEL", 
   slots=c(
     DATA_INPUT_VARIABLES="list",
 	# TODO: TBC - These need to be populated
@@ -63,7 +63,7 @@ validity.taskObj <- function(object)
 
 #' @slot content A character vector containing the full content of the block "as-is"
 #' @author khanley
-setClass("taskObj", 
+setClass("taskObj", package="DDMoRe.TEL", 
   slots= c(
     content = "character"
   ),
@@ -99,7 +99,7 @@ validity.parObj <- function(object)
 #' @slot PRIOR A named list
 #' @slot VARIABILITY A named list
 #' @author khanley
-setClass("parObj", 
+setClass("parObj", package="DDMoRe.TEL", 
   slots= c(
   STRUCTURAL = "list",
   PRIOR = "list",
@@ -141,7 +141,7 @@ validity.modPred <- function(object)
 #' @slot LIBRARY A character vector
 #' @slot content A character vector
 #' @author khanley
-setClass("modPred", 
+setClass("modPred", package="DDMoRe.TEL", 
   slots= c(
   ODE = "character",
   LIBRARY = "character",
@@ -197,7 +197,7 @@ validity.mdlObj <- function(object)
 #' @slot ESTIMATION A character vector
 #' @slot MODEL_OUTPUT_VARIABLES A list
 #' @author khanley
-setClass("mdlObj", 
+setClass("mdlObj", package="DDMoRe.TEL", 
   slots= c(
     MODEL_INPUT_VARIABLES = "list",
     STRUCTURAL_PARAMETERS = "list",
@@ -248,7 +248,7 @@ validity.mogObj<- function(object)
 #' @slot mdlObj Object of class "mdlObj"
 #' @slot taskObj Object of class "taskObj"
 #' @author khanley
-setClass("mogObj", 
+setClass("mogObj", package="DDMoRe.TEL", 
   slots= c(
   dataObj = "dataObj",
   parObj = "parObj",
