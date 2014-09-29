@@ -4,35 +4,39 @@
 #'
 #' @author Jonathan Chard
 #' @param x An object of class mogObj or an MDL file.
-#' @param target String specifying the target software. Currently, possible targets are "NONMEM", "PsN" and "BUGS".
-#' @param subfolder Specify the name of a subfolder within the current working directory in which to store the results,
+#' @param target String specifying the target software. Currently, possible 
+#' targets are "NONMEM", "PsN", "monolix" and "BUGS".
+#' @param subfolder Specify the name of a subfolder within the current working 
+#' directory in which to store the results,
 #'                  defaults to a timestamped folder
 #' @param collect Logical dictating if the results should be collected.
-#' @param clearUp Logical dictating if the working directory should be deleted on successful job completion
+#' @param clearUp Logical dictating if the working directory should be deleted 
+#' on successful job completion
 #' @param HOST hostname of the server running the FIS service, defaults to localhost
 #' @param PORT port of the server running the FIS service, defaults to 9010
-#' @param addargs String specifying additional arguments to be passed to the target software.
+#' @param addargs String specifying additional arguments to be passed to the 
+#' target software.
 #' @return An object of class NMRun.
 #' @export
 #' @docType methods
 #' @rdname estimate-methods
 #' @include telClasses.R
-setGeneric("estimate", function(x, target=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), collect=TRUE, clearUp=FALSE, HOST='localhost', PORT='9010', addargs="") {
+setGeneric("estimate", function(x, target=NULL, subfolder=format(Sys.time(), 
+  "%Y%b%d%H%M%S"), collect=TRUE, clearUp=FALSE, HOST='localhost', 
+  PORT='9010', addargs="") {
 
-  outputObject <- list() # Empty list
+  outputObject <- NULL 
   
-  if (target=="NONMEM") {
-    outputObject = estimate.NM(modelfile=x, HOST=HOST, PORT=PORT, addargs=addargs)
-  } else if (target=="PsN") {
-    outputObject = estimate.PsN(modelfile=x, HOST=HOST, PORT=PORT, addargs=addargs)
-  } else if (target=="BUGS") {
-    # TODO: Implement this
-    estimate.BUGS(MOGObject, HOST=HOST, PORT=PORT, addargs=addargs)
-  } else {
-	stop(sprintf('Unrecognised target: %s.', target))
+  workingDirectory <- TEL.prepareWorkingFolder(modelfile=x)
+
+  if(target=="PsN"){
+     outputObject <- execute.PsN(modelfile=x, HOST=HOST, PORT=PORT, addargs=addargs)
+  } else{ 
+    outputObject <- submit.job(command=target, workingDirectory=workingDirectory, 
+      modelfile=x, HOST=HOST, PORT=PORT, addargs=addargs)
   }
   
-  submitResponse = outputObject$ret
+  submitResponse <- outputObject$ret
   
   if (submitResponse[[1]] == 0) {
 
@@ -44,7 +48,8 @@ setGeneric("estimate", function(x, target=NULL, subfolder=format(Sys.time(), "%Y
 	    
 	    if (outputObject$status == "COMPLETED") {
 	    
-			outputObject <- TEL.import(outputObject, target=outputObject$resultsDir, clearUp=clearUp)
+			outputObject <- TEL.import(outputObject, target=outputObject$resultsDir, 
+        clearUp=clearUp)
 	
 			# Create file names:
 			ctlFile <- paste0(file_path_sans_ext(outputObject$modelFile), ".ctl")
@@ -61,7 +66,11 @@ setGeneric("estimate", function(x, target=NULL, subfolder=format(Sys.time(), "%Y
 			return(res)
 			
 		} else { # outputObject$status != "COMPLETED"
-			stop(paste(c("Execution of model ", outputObject$modelFile, " failed.\n  The contents of the working directory ", outputObject$workingDirectory, " may be useful for tracking down the cause of the failure."), sep=""))
+
+			stop(paste(c("Execution of model ", outputObject$modelFile, 
+        " failed.\n  The contents of the working directory ",
+        outputObject$workingDirectory, 
+        " may be useful for tracking down the cause of the failure."), sep=""))
 		}
 	}
 	
@@ -71,40 +80,32 @@ setGeneric("estimate", function(x, target=NULL, subfolder=format(Sys.time(), "%Y
 
 })
 
+
 #' @rdname estimate-methods
 #' @aliases estimate,mogObj,mogObj-method
 setMethod("estimate", signature=signature(x="mogObj"), 
-  function(x, target=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), collect=TRUE, clearUp=FALSE, HOST='localhost', PORT='9010', addargs="") {
+  function(x, target=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), 
+    collect=TRUE, clearUp=FALSE, HOST='localhost', PORT='9010', addargs="") {
     print("mogMethod")
     # First write out MOG to MDL:
     # TODO: This will write out to the current directory - probably not what is desired!
     write(x, f="output.mdl")
     
     # Now call the generic method using the mdl file:
-    res <- estimate(x="output.mdl", target=target, subfolder=subfolder, collect=collect, clearUp=clearUp, HOST=HOST, PORT=PORT, addargs=addargs)
+    res <- estimate(x="output.mdl", target=target, subfolder=subfolder, 
+      collect=collect, clearUp=clearUp, HOST=HOST, PORT=PORT, addargs=addargs)
     
     return(res)
 
   })
 
-estimate.NM <- function(modelfile, HOST='localhost', PORT='9010', addargs="", ...) {
-  
-  workingDirectory <- TEL.prepareWorkingFolder(modelfile)
-
-  outputObject <- submit.job("execute", workingDirectory, modelfile, HOST, PORT)
-}
-
-estimate.BUGS<-function(modelfile, HOST='localhost', PORT='9010', addargs="", ...) {
-  stop("estimate.BUGS is currently not supported")
-}
-
-#estimate(MOGObject="warf_PK_CONC.mdl", target="BUGS", addargs="...")
-#estimate(MOGObject="tumour_size.mdl", target="NONMEM")
-
 # Internal generic function to be called by all PsN variants to make the call to the framework
-.execute.PsN.command <- function(modelfile, HOST='localhost', PORT='9010', command, args="", subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), collect=TRUE, clearUp=FALSE, ...) {
+.execute.PsN.command <- function(modelfile, HOST='localhost', PORT='9010', command, 
+  args="", subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), collect=TRUE, 
+  clearUp=FALSE, ...) {
 	
-	# Strip off leading path and obtain NONMEM .ctl file from the provided .mdl (or .ctl) file; this is what PsN will execute upon
+	# Strip off leading path and obtain NONMEM .ctl file from the provided .mdl 
+  # (or .ctl) file; this is what PsN will execute upon
 	control_file_without_path <- paste0(file_path_sans_ext(tail(strsplit(file_path_as_absolute(modelfile), '/')[[1]], n=1)), ".ctl")
 	
 	fullCommand <- paste(command, shQuote(control_file_without_path), args)
@@ -112,7 +113,8 @@ estimate.BUGS<-function(modelfile, HOST='localhost', PORT='9010', addargs="", ..
 	
 	workingDirectory <- TEL.prepareWorkingFolder(modelfile)
 	
-	outputObject <- submit.job("cmdline.execute", workingDirectory, modelfile, HOST, PORT, addargs=fullCommand)
+	outputObject <- submit.job("cmdline.execute", workingDirectory, modelfile, 
+    HOST, PORT, addargs=fullCommand)
 	
 	submitResponse = outputObject$ret
 	
@@ -126,10 +128,13 @@ estimate.BUGS<-function(modelfile, HOST='localhost', PORT='9010', addargs="", ..
 			
 			if (outputObject$status == "COMPLETED") {
 				
-				outputObject <- TEL.import(outputObject, target=outputObject$resultsDir, clearUp=clearUp)
+				outputObject <- TEL.import(outputObject, target=outputObject$resultsDir, 
+          clearUp=clearUp)
 	
 			} else { # outputObject$status != "COMPLETED"
-				stop(paste(c("Execution of model ", outputObject$modelFile, " failed.\n  The contents of the working directory ", outputObject$workingDirectory, " may be useful for tracking down the cause of the failure."), sep=""))
+				stop(paste(c("Execution of model ", outputObject$modelFile, 
+          " failed.\n  The contents of the working directory ", outputObject$workingDirectory,
+          " may be useful for tracking down the cause of the failure."), sep=""))
 			}
 		
 		}
@@ -149,7 +154,8 @@ estimate.BUGS<-function(modelfile, HOST='localhost', PORT='9010', addargs="", ..
 #' @param addargs
 #' @param ...
 #' @export
-execute.PsN <- function(modelfile, HOST='localhost', PORT='9010', command="execute-3.6.2.bat", addargs="", ...) {
+execute.PsN <- function(modelfile, HOST='localhost', PORT='9010', 
+  command="execute-3.6.2.bat", addargs="", ...) {
 	outputObject <- .execute.PsN.command(modelfile, HOST, PORT, command, addargs)
 }
 
@@ -165,7 +171,8 @@ execute.PsN <- function(modelfile, HOST='localhost', PORT='9010', command="execu
 #' @param cleanup
 #' @param ...
 #' @export
-VPC.PsN <- function(modelfile, HOST='localhost', PORT='9010', command="vpc-3.6.2.bat", nsamp, seed, addargs="", cleanup=T, ...) {
+VPC.PsN <- function(modelfile, HOST='localhost', PORT='9010', 
+  command="vpc-3.6.2.bat", nsamp, seed, addargs="", cleanup=T, ...) {
 	args <- paste0("--samples=", nsamp, " --seed=", seed, " ", addargs)
 	outputObject <- .execute.PsN.command(modelfile, HOST, PORT, command, args)
 }
@@ -182,7 +189,8 @@ VPC.PsN <- function(modelfile, HOST='localhost', PORT='9010', command="vpc-3.6.2
 #' @param cleanup
 #' @param ...
 #' @export
-bootstrap.PsN <- function(modelfile, HOST='localhost', PORT='9010', command="bootstrap-3.6.2.bat", nsamp, seed, addargs="", cleanup=T, ...) {
+bootstrap.PsN <- function(modelfile, HOST='localhost', PORT='9010', 
+  command="bootstrap-3.6.2.bat", nsamp, seed, addargs="", cleanup=T, ...) {
 	args <- paste0("--samples=", nsamp, " --seed=", seed, " ", addargs)
 	outputObject <- .execute.PsN.command(modelfile, HOST, PORT, command, args)
 }
@@ -199,7 +207,8 @@ bootstrap.PsN <- function(modelfile, HOST='localhost', PORT='9010', command="boo
 #' @param cleanup
 #' @param ...
 #' @export
-SSE.PsN <- function(modelfile, HOST='localhost', PORT='9010', command="sse-3.6.2.bat", nsamp, seed, addargs="", cleanup=T, ...) {
+SSE.PsN <- function(modelfile, HOST='localhost', PORT='9010', 
+  command="sse-3.6.2.bat", nsamp, seed, addargs="", cleanup=T, ...) {
 	args <- paste0("--samples=", nsamp, " --seed=", seed, " ", addargs)
 	outputObject <- .execute.PsN.command(modelfile, HOST, PORT, command, args)
 }
