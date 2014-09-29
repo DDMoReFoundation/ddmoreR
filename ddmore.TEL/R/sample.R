@@ -24,7 +24,7 @@
 #' @param... additional arguments to be passed to the TEL read method
 #'
 #' @seealso R base function \code{sample}
-#' @return A data frame with sampled data
+#' @return A copy of the dataObj with the sampled data set substituted for the original
 #'
 #' @examples 
 #' ## Create myData based on ThamDataObject
@@ -119,8 +119,21 @@ setMethod("sample", signature=signature(object="dataObj"),
         at least one strata is/are rounded to the nearest whole number. Therefore, the number of samples returned
         may not match the number requested."))}
     
+    # Write the data out as a csv:
+    fileName <- paste0("sample", Sys.time(), ".csv")
     
-    return(res)
+    # Remove punctuation and spaces from file name:
+    fileName <- gsub(":", "", fileName)
+    fileName <- gsub("-", "", fileName)
+    fileName <- gsub(" ", "", fileName)
+    
+    write.csv(res, fileName, row.names=FALSE)
+ 
+    # Create a dataObj with a pointer to the data
+    mogOut <- object
+    mogOut@SOURCE$file <- fileName
+    
+    return(mogOut)
 })
 
 
