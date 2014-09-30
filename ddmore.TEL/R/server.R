@@ -16,8 +16,8 @@ TEL.startServer <-
     
     if (!TEL.serverRunning()) {
       cat("FIS server not running; starting server...\n")
-      system(paste("cmd", "/c", shQuote(startMIF)), wait=F)
-      system(paste("cmd", "/c", shQuote(startFIS)), wait=F)
+      system(shQuote(startMIF), wait=F)
+      system(shQuote(startFIS), wait=F)
       count = 0
       cat("Retries: ")
       while ( count < 60 && !TEL.serverRunning() ) {
