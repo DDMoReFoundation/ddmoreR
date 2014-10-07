@@ -29,12 +29,8 @@ setGeneric("estimate", function(x, target=NULL, subfolder=format(Sys.time(),
   
   workingDirectory <- TEL.prepareWorkingFolder(modelfile=x)
 
-  if(target=="PsN"){
-     outputObject <- execute.PsN(modelfile=x, HOST=HOST, PORT=PORT, addargs=addargs)
-  } else{ 
     outputObject <- submit.job(command=target, workingDirectory=workingDirectory, 
       modelfile=x, HOST=HOST, PORT=PORT, addargs=addargs)
-  }
   
   submitResponse <- outputObject$ret
   
@@ -102,25 +98,5 @@ setMethod("estimate", signature=signature(x="mogObj"),
 
   })
 
-estimate.NM <- function(modelfile, HOST='localhost', PORT='9010', addargs="", ...) {
-  
-  workingDirectory <- TEL.prepareWorkingFolder(modelfile)
-
-  outputObject <- submit.job("execute", workingDirectory, modelfile, HOST, PORT)
-}
-
-estimate.PsN <- function(modelfile, HOST='localhost', PORT='9010', addargs="", ...) {
-  
-  workingDirectory <- TEL.prepareWorkingFolder(modelfile)
-
-  outputObject <- submit.job("psn.execute", workingDirectory, modelfile, HOST, PORT, addargs)
-}
-
-estimate.BUGS<-function(modelfile, HOST='localhost', PORT='9010', addargs="", ...) {
-  stop("estimate.BUGS is currently not supported")
-}
-
-#estimate(MOGObject="warf_PK_CONC.mdl", target="BUGS", addargs="...")
-#estimate(MOGObject="tumour_size.mdl", target="NONMEM")
 
 
