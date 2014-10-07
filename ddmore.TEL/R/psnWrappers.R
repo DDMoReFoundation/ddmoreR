@@ -2,15 +2,14 @@
 # Internal generic function to be called by all PsN variants to make the call to the framework
 .execute.PsN.command <- function(modelfile, HOST='localhost', PORT='9010', command, args="", subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), collect=TRUE, clearUp=FALSE, ...) {
 	
-	# Strip off leading path and obtain NONMEM .ctl file from the provided .mdl (or .ctl) file; this is what PsN will execute upon
-	control_file_without_path <- paste0(file_path_sans_ext(tail(strsplit(file_path_as_absolute(modelfile), '/')[[1]], n=1)), ".ctl")
 	
-	fullCommand <- paste(command, shQuote(control_file_without_path), args)
+	#prepareWorkingFolder copies lst-files TODO remove that and move to individual wrappers where needed
+	workingDirectory <- TEL.prepareWorkingFolder(modelfile)
+
+	fullCommand <- paste(command, args)
 	cat(paste(paste("PsN command is:", fullCommand), "\n"))
 	
-	workingDirectory <- TEL.prepareWorkingFolder(modelfile)
-	
-	outputObject <- submit.job("cmdline.execute", workingDirectory, modelfile, HOST, PORT, addargs=fullCommand)
+	outputObject <- submit.job("psn.generic", workingDirectory, modelfile, HOST, PORT, addargs=fullCommand)
 	
 	submitResponse = outputObject$ret
 	
@@ -47,7 +46,7 @@
 #' @param addargs
 #' @param ...
 #' @export
-execute.PsN <- function(modelfile, HOST='localhost', PORT='9010', command="execute-3.6.2.bat", addargs="", ...) {
+execute.PsN <- function(modelfile, HOST='localhost', PORT='9010', command="execute", addargs="", ...) {
 	outputObject <- .execute.PsN.command(modelfile, HOST, PORT, command, addargs)
 }
 
@@ -63,7 +62,7 @@ execute.PsN <- function(modelfile, HOST='localhost', PORT='9010', command="execu
 #' @param cleanup
 #' @param ...
 #' @export
-VPC.PsN <- function(modelfile, HOST='localhost', PORT='9010', command="vpc-3.6.2.bat", nsamp, seed, addargs="", cleanup=T, ...) {
+VPC.PsN <- function(modelfile, HOST='localhost', PORT='9010', command="vpc", nsamp, seed, addargs="", cleanup=T, ...) {
 	args <- paste0("--samples=", nsamp, " --seed=", seed, " ", addargs)
 	outputObject <- .execute.PsN.command(modelfile, HOST, PORT, command, args)
 }
@@ -80,7 +79,7 @@ VPC.PsN <- function(modelfile, HOST='localhost', PORT='9010', command="vpc-3.6.2
 #' @param cleanup
 #' @param ...
 #' @export
-bootstrap.PsN <- function(modelfile, HOST='localhost', PORT='9010', command="bootstrap-3.6.2.bat", nsamp, seed, addargs="", cleanup=T, ...) {
+bootstrap.PsN <- function(modelfile, HOST='localhost', PORT='9010', command="bootstrap", nsamp, seed, addargs="", cleanup=T, ...) {
 	args <- paste0("--samples=", nsamp, " --seed=", seed, " ", addargs)
 	outputObject <- .execute.PsN.command(modelfile, HOST, PORT, command, args)
 }
@@ -97,7 +96,7 @@ bootstrap.PsN <- function(modelfile, HOST='localhost', PORT='9010', command="boo
 #' @param cleanup
 #' @param ...
 #' @export
-SSE.PsN <- function(modelfile, HOST='localhost', PORT='9010', command="sse-3.6.2.bat", nsamp, seed, addargs="", cleanup=T, ...) {
+SSE.PsN <- function(modelfile, HOST='localhost', PORT='9010', command="sse", nsamp, seed, addargs="", cleanup=T, ...) {
 	args <- paste0("--samples=", nsamp, " --seed=", seed, " ", addargs)
 	outputObject <- .execute.PsN.command(modelfile, HOST, PORT, command, args)
 }
