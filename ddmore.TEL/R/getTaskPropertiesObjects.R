@@ -46,8 +46,8 @@ setGeneric("getTaskPropertiesObjects", function(x, name, HOST='localhost', PORT=
   return(res)
 })
 
-#' @rdname getModelObjects-methods
-#' @aliases getModelObjects,mogObj,mogObj-method
+#' @rdname getTaskPropertiesObjects-methods
+#' @aliases getTaskPropertiesObjects,mogObj,mogObj-method
 setMethod("getTaskPropertiesObjects", signature=signature(x="mogObj"), function(x){
    return(x@taskObj)
 })
