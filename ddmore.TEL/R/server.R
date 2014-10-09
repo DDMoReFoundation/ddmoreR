@@ -5,19 +5,15 @@
 TEL.startServer <- 
   function() {
   
-    homeDirs <- TEL.checkConfiguration()
-    fis.home <- homeDirs[1]
-    mif.home <- homeDirs[2]
+    see.home <- TEL.checkConfiguration()
     
     cat("Starting FIS and MIF servers...\n")
     
-    startFIS <- file.path(fis.home, "startup.bat")
-    startMIF <- file.path(mif.home, "startup.bat")
+	startupScript <- file.path(see.home, "startup.bat")
     
     if (!TEL.serverRunning()) {
-      cat("FIS server not running; starting server...\n")
-      system(shQuote(startMIF), wait=F)
-      system(shQuote(startFIS), wait=F)
+      cat("Server not running; starting server...\n")
+      system(shQuote(startupScript), wait=F)
       count = 0
       cat("Retries: ")
       while ( count < 60 && !TEL.serverRunning() ) {
@@ -93,51 +89,35 @@ TEL.safeStop <-
 #'
 TEL.checkConfiguration <-
   function() {
-    packagePath <- path.package("DDMoRe.TEL")
-    
-    see.home <- file_path_as_absolute(file.path(packagePath, '..', '..', '..', '..'))
-    
-    fis.home <- file.path(see.home, 'fis')
-    mif.home <- file.path(see.home, 'mif-exec')
 
-    errMsg <- '';
-    if (!file.exists(fis.home)) {
-        errMsg <- paste(errMsg, 'Derived FIS directory ', fis.home, ' does not exist.\n', sep='')
-    }
-    if (!file.exists(mif.home)) {
-        errMsg <- paste(errMsg, 'Derived MIF directory ', mif.home, ' does not exist.\n', sep='')
-    }
-    if (errMsg != "") {
-        warning(paste(errMsg, 'This is probably because you are not running the TEL console from within an SEE environment.\nThe FIS and/or MIF servers must be started manually.', sep=""))
-    }
+	if ("package:DDMoRe.TEL" %in% search()) {
+		# The package is loaded, proceed
+
+    	packagePath <- path.package("DDMoRe.TEL")
     
-    c(fis.home, mif.home) # Return value
+    	see.home <- file_path_as_absolute(file.path(packagePath, '..', '..', '..', '..'))
     
+    	fis.home <- file.path(see.home, 'fis')
+    	mif.home <- file.path(see.home, 'mif-exec')
+
+    	errMsg <- '';
+    	if (!file.exists(fis.home)) {
+        	errMsg <- paste(errMsg, 'Derived FIS directory ', fis.home, ' does not exist.\n', sep='')
+    	}
+    	if (!file.exists(mif.home)) {
+        	errMsg <- paste(errMsg, 'Derived MIF directory ', mif.home, ' does not exist.\n', sep='')
+    	}
+    	if (errMsg != "") {
+        	stop(paste(errMsg, 'This is probably because you are not running the TEL console from within an SEE environment.\nThe FIS and MIF servers must be started manually.', sep=""))
+    	}
     
-#    configFilename = paste(packagePath, "/exec/mif/etc/mif.properties", sep="")
-#    if(!file.exists(paste(configFilename))) {
-#      success = file.create(configFilename, showWarnings = FALSE, overwrite=TRUE, recursive=TRUE)
-#      if(success == TRUE) {
-#        service.home=paste(packagePath, "\\\\exec", sep="")
-#        mif.home=paste(service.home, "\\\\mif", sep="")
-#  
-#        mifProperties <- file(description=configFilename, open="wt")
-#        
-#        mif.configuration.dir      <- cat("mif.configuration.dir=", mif.home, "\\\\etc", sep="")
-#        mif.working.dir            <- cat("mif.working.dir=", mif.home, "\\\\metadata", sep="")
-#        mif.templatesDirectory     <- cat("mif.templatesDirectory=", service.home, "\\\\templates", sep="")
-#        mif.commonScriptsDirectory <- cat("mif.commonScriptsDirectory=", service.home, "\\\\scripts", sep="")
-#        mif.genericScriptsDirectory <- cat("mif.genericScriptsDirectory=", service.home, "\\\\scripts", sep="")
-#  
-#        cat( mif.configuration.dir,
-#             mif.working.dir,
-#             mif.templatesDirectory,
-#             mif.commonScriptsDirectory,
-#             mif.genericScriptsDirectory, sep="\n", file=mifProperties)
-#        close(mifProperties)
-#      }
-#    }
-  }
+    	see.home # Return value
+		
+	} else {
+		stop("The DDMoRe.TEL package is not loaded. The FIS and MIF servers must be started manually.")
+	}
+    
+}
 
 #' submit.job
 #'
