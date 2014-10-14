@@ -49,10 +49,7 @@ setGeneric("estimate", function(x, target=NULL, subfolder=format(Sys.time(),
 	
 			# Create file names:
 			ctlFile <- paste0(file_path_sans_ext(outputObject$modelFile), ".ctl")
-			lstFile <- "output.lst"
-  			if (target=="PsN") {
-			   lstFile <- paste0(file_path_sans_ext(outputObject$modelFile), ".lst")
-			}				 
+			lstFile <- paste0(file_path_sans_ext(outputObject$modelFile), ".lst")
 	      
 			# Paste in file location:
 			ctlFile <- file.path(outputObject$resultsDir, ctlFile)
