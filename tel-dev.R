@@ -7,7 +7,7 @@ scripts.dir <- paste0(dirname(sys.frame(1)$ofile), "/ddmore.TEL/R/")
 
 script.files = c(
     "telClasses", "createMogObj",
-    "utils", "execute", "fileUtils", "mdlUtils", "conversion", "read", "update", "outputObject",
+    "utils", "execute", "fileUtils", "mdlUtils", "conversion", "read", "update",
     "getDataObjects", "getParameterObjects", "getModelObjects", "getTaskPropertiesObjects", "getMDLObjects",
     "server","psnWrappers"
 )
