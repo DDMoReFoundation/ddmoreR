@@ -1,0 +1,53 @@
+<PharmML xmlns:xsi=http://www.w3.org/2001/XMLSchema-instance>
+    <!-- part 1 - ModelDefinition -->
+    <ModelDefinition/>
+    <!-- part 2 - TrialDesign -->
+    <TrialDesign xmlns="http://www.pharmml.org/2013/03/TrialDesign"/>
+    <!-- part 3 - ModellingSteps -->
+    <ModellingSteps/>
+    <!-- part 4 - SO -->
+    <SO>
+        <Estimation>
+            <MLE>
+                <ct:Assign>
+                    <ct:Real>140</ct:Real>
+                </ct:Assign>
+            </MLE>
+            <PosteriorMean>
+                <Parameter symbIdRef="V">
+                    <ct:Assign>
+                        <ct:Real>10</ct:Real>
+                    </ct:Assign>
+                </Parameter>
+            </PosteriorMean>
+            <FIM1>
+                <DataFile oid="FIM">
+                    <path>FIM.csv</path>
+                    <format>CSV</format>
+                    <delimiter>COMMA</delimiter>
+                </DataFile>
+            </FIM1>
+            <!-- Or As -->
+            <FIM2>
+                <mdef:Matrix>
+                    <ct:MatrixRow><ct:Real>1</ct:Real><ct:Real>2</ct:Real></ct:MatrixRow>
+                    <ct:MatrixRow><ct:Real>4</ct:Real><ct:Real>5</ct:Real></ct:MatrixRow>
+                    <ct:MatrixRow><ct:Real>7</ct:Real><ct:Real>8</ct:Real></ct:MatrixRow>
+                </mdef:Matrix>
+            </FIM2>
+        <!-- omitted output examples -->
+        </Estimation>
+        <!-- Model Diagnostic and Evaluation -->
+        <ModelDiagnosticEvaluation>
+        <!-- omitted output examples -->
+        </ModelDiagnosticEvaluation>
+        <!-- Simulation and exploration -->
+        <SimulationExploration>
+        <!-- omitted output examples -->
+        </SimulationExploration>
+        <!-- Optimal Design -->
+        <OptimalDesign>
+        <!-- omitted output examples -->
+        </OptimalDesign>
+    </SO>
+</PharmML>
