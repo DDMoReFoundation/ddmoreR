@@ -51,7 +51,7 @@ TEL.import <- function(submission, target=file.path(submission$sourceDirectory, 
 	workingFolder = file.path(jobDirectory) # should be FIS working directory not MIF working directory
 	
 	if (file.exists(workingFolder) == FALSE) {
-		cat("Working directory ", workingFolder, " does not exist; Job ", jobID, " may have already been imported.\n")
+		cat("Working directory", workingFolder, "does not exist; Job", jobID, "may have already been imported.\n")
 	} else {
 		# import the data
 		cat(sprintf('Copying the result data back to the local machine for job ID: %s ...\n', jobID))
