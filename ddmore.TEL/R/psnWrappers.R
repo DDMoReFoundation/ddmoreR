@@ -1,5 +1,10 @@
 
 # Internal generic function to be called by all PsN variants to make the call to the framework
+#
+# TODO: This shares too much code with the standard estimate() function.
+# In fact, once the Connectors populate the Standard Output object themselves,
+# this function can call the standard estimate() function with the appropriate arguments.
+#
 .execute.PsN.command <- function(modelfile, HOST='localhost', PORT='9010', command, args="", subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), collect=TRUE, clearUp=FALSE, ...) {
 	
 	
@@ -9,7 +14,7 @@
 	fullCommand <- paste(command, args)
 	cat(paste(paste("PsN command is:", fullCommand), "\n"))
 	
-	outputObject <- submit.job("psn.generic", workingDirectory, modelfile, HOST, PORT, addargs=fullCommand)
+	outputObject <- TEL.submitJob("psn.generic", workingDirectory, modelfile, HOST, PORT, addargs=fullCommand)
 	
 	submitResponse = outputObject$ret
 	

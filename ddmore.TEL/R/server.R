@@ -5,19 +5,15 @@
 TEL.startServer <- 
   function() {
   
-    homeDirs <- TEL.checkConfiguration()
-    fis.home <- homeDirs[1]
-    mif.home <- homeDirs[2]
+    see.home <- TEL.checkConfiguration()
     
     cat("Starting FIS and MIF servers...\n")
     
-    startFIS <- file.path(fis.home, "startup.bat")
-    startMIF <- file.path(mif.home, "startup.bat")
+	startupScript <- file.path(see.home, "startup.bat")
     
     if (!TEL.serverRunning()) {
-      cat("FIS server not running; starting server...\n")
-      system(shQuote(startMIF), wait=F)
-      system(shQuote(startFIS), wait=F)
+      cat("Server not running; starting server...\n")
+      system(paste(shQuote(startupScript), '/B'), wait=F)  # /B argument suppresses the display of the command windows
       count = 0
       cat("Retries: ")
       while ( count < 60 && !TEL.serverRunning() ) {
@@ -93,72 +89,59 @@ TEL.safeStop <-
 #'
 TEL.checkConfiguration <-
   function() {
-    packagePath <- path.package("DDMoRe.TEL")
-    
-    see.home <- file_path_as_absolute(file.path(packagePath, '..', '..', '..', '..'))
-    
-    fis.home <- file.path(see.home, 'fis')
-    mif.home <- file.path(see.home, 'mif-exec')
 
-    errMsg <- '';
-    if (!file.exists(fis.home)) {
-        errMsg <- paste(errMsg, 'Derived FIS directory ', fis.home, ' does not exist.\n', sep='')
-    }
-    if (!file.exists(mif.home)) {
-        errMsg <- paste(errMsg, 'Derived MIF directory ', mif.home, ' does not exist.\n', sep='')
-    }
-    if (errMsg != "") {
-        warning(paste(errMsg, 'This is probably because you are not running the TEL console from within an SEE environment.\nThe FIS and/or MIF servers must be started manually.', sep=""))
-    }
+	if ("package:DDMoRe.TEL" %in% search()) {
+		# The package is loaded, proceed
+
+    	packagePath <- path.package("DDMoRe.TEL")
     
-    c(fis.home, mif.home) # Return value
+    	see.home <- file_path_as_absolute(file.path(packagePath, '..', '..', '..', '..'))
     
+    	fis.home <- file.path(see.home, 'fis')
+    	mif.home <- file.path(see.home, 'mif-exec')
+
+    	errMsg <- '';
+    	if (!file.exists(fis.home)) {
+        	errMsg <- paste(errMsg, 'Derived FIS directory ', fis.home, ' does not exist.\n', sep='')
+    	}
+    	if (!file.exists(mif.home)) {
+        	errMsg <- paste(errMsg, 'Derived MIF directory ', mif.home, ' does not exist.\n', sep='')
+    	}
+    	if (errMsg != "") {
+        	stop(paste(errMsg, 'This is probably because you are not running the TEL console from within an SEE environment.\nThe FIS and MIF servers must be started manually.', sep=""))
+    	}
     
-#    configFilename = paste(packagePath, "/exec/mif/etc/mif.properties", sep="")
-#    if(!file.exists(paste(configFilename))) {
-#      success = file.create(configFilename, showWarnings = FALSE, overwrite=TRUE, recursive=TRUE)
-#      if(success == TRUE) {
-#        service.home=paste(packagePath, "\\\\exec", sep="")
-#        mif.home=paste(service.home, "\\\\mif", sep="")
-#  
-#        mifProperties <- file(description=configFilename, open="wt")
-#        
-#        mif.configuration.dir      <- cat("mif.configuration.dir=", mif.home, "\\\\etc", sep="")
-#        mif.working.dir            <- cat("mif.working.dir=", mif.home, "\\\\metadata", sep="")
-#        mif.templatesDirectory     <- cat("mif.templatesDirectory=", service.home, "\\\\templates", sep="")
-#        mif.commonScriptsDirectory <- cat("mif.commonScriptsDirectory=", service.home, "\\\\scripts", sep="")
-#        mif.genericScriptsDirectory <- cat("mif.genericScriptsDirectory=", service.home, "\\\\scripts", sep="")
-#  
-#        cat( mif.configuration.dir,
-#             mif.working.dir,
-#             mif.templatesDirectory,
-#             mif.commonScriptsDirectory,
-#             mif.genericScriptsDirectory, sep="\n", file=mifProperties)
-#        close(mifProperties)
-#      }
-#    }
-  }
+    	see.home # Return value
+		
+	} else {
+		stop("The DDMoRe.TEL package is not loaded. The FIS and MIF servers must be started manually.")
+	}
+    
+}
 
 #' submit.job
 #'
 #' Submits a job to the TEL server
-#'  
-submit.job <- function( command=NULL, workingDirectory, modelfile, HOST='localhost', PORT='9010', addargs="", ... ) {
-    outputObject <- list()
-    attributes(outputObject) <- list(class="outputObject")
+#' 
+TEL.submitJob <- function( executionType=NULL, workingDirectory, modelfile, HOST='localhost', PORT='9010', addargs="", ... ) {
+    submission <- list()
+	
+    #attributes(submission) <- list(class="outputObject")
     
     # Strip off the path to the model file leaving just the file name itself
     # TODO: Cater for relative paths of model files too? (currently just path-less files and absolute-path files are supported)
     modelfile_without_path <- tail(strsplit(modelfile, "[\\\\|/]")[[1]], n=1)
 
-    outputObject$command <- command
-    outputObject$modelFile <- modelfile_without_path
+    submission$executionType <- executionType
+    submission$modelFile <- modelfile_without_path
     # Parent folder of the model file is the source directory
-    outputObject$sourceDirectory <- parent.folder(modelfile)
-    outputObject$workingDirectory <- workingDirectory
+    submission$sourceDirectory <- parent.folder(modelfile)
+    submission$workingDirectory <- workingDirectory
+	
+	submission$status <- ''
 
     # Build form
-    parameters <- c(command=command, workingDirectory=workingDirectory, executionFile=(modelfile_without_path))
+    parameters <- c(command=executionType, workingDirectory=workingDirectory, executionFile=(modelfile_without_path))
 	if (nchar(addargs) > 0) {
         parameters <- c(parameters, commandParameters=addargs)
     }
@@ -173,56 +156,72 @@ submit.job <- function( command=NULL, workingDirectory, modelfile, HOST='localho
     submitURL <- sprintf('http://%s:%s/submit', HOST, PORT)
 	  
     ret <- RCurl:::curlPerform(url=submitURL, postfields=formParams, writefunction=h$update)
+	
+	if (ret[[1]] == 0) {
 
-    response <- fromJSON(h$value())
+	    response <- fromJSON(h$value())
+	
+	    submission$requestID <- response$requestID
+		
+		submission$status <- 'NEW'
 
-    outputObject$requestID <- fromJSON(h$value())$requestID
+	}
 
-    outputObject$ret <- ret[1]
-
-    outputObject
+    submission
 }
  
 #' TEL.poll
 #'
 #' Polls TEL
 #
-TEL.poll <- function(outputObject = NULL, HOST='localhost', PORT='9010') {
+TEL.poll <- function(submission = NULL, HOST='localhost', PORT='9010') {
     
-    jobID <- outputObject.getJobID(outputObject)  # outputObject$submitResponse[2]$requestID
+    jobID <- submission$requestID
     
     # poll status service (need to have jobID set before this)
     statusURL <- sprintf('%s/%s', sprintf('http://%s:%s/jobs', HOST, PORT), jobID)
-    outputObject$status = fromJSON(httpGET(statusURL))$status
+    submission$status = fromJSON(httpGET(statusURL))$status
     
-    while(outputObject$status != 'COMPLETED' && outputObject$status != 'FAILED' ) {
-        cat(sprintf('Job %s still executing ... (status %s)\n', jobID, outputObject$status))
+    while (submission$status != 'COMPLETED' && submission$status != 'FAILED' ) {
+        cat(sprintf('Job %s still executing ... (status %s)\n', jobID, submission$status))
         Sys.sleep(20)
-        outputObject$status <- fromJSON(httpGET(statusURL))$status
+        submission$status <- fromJSON(httpGET(statusURL))$status
     }
     
-    cat(sprintf('\nJob %s finished with status %s.\n\n', jobID, outputObject$status))
+    cat(sprintf('\nJob %s finished with status %s.\n\n', jobID, submission$status))
     
-    outputObject
+    submission
 }
 
 #' TEL.getJobs
 #'
-#' Gets TEL jobs
+#' Gets all jobs
 #
 TEL.getJobs <- function(HOST='localhost', PORT='9010') {
 	
-	jobsURL = sprintf('http://%s:%s/jobs', HOST, PORT)
+	jobsURL <- sprintf('http://%s:%s/jobs', HOST, PORT)
 	
-	jobs = fromJSON(httpGET(jobsURL))
+	jobs <- fromJSON(httpGET(jobsURL))
 	
-	notImported = list()
+	jobs
+}
+
+#' TEL.getNotImportedJobIDs
+#'
+#' Gets the IDs of the jobs that have completed but haven't been imported (assuming clearUp=TRUE)
+#
+TEL.getNotImportedJobIDs <- function(HOST='localhost', PORT='9010') {
 	
-	for(job in jobs) {
-		if(job$status == "COMPLETED" && file.exists(job$workingDirectory)) {
+	jobs <- TEL.getJobs()
+	
+	notImported <- list()
+	
+	for (job in jobs) {
+		if (job$status == "COMPLETED" && file.exists(job$workingDirectory)) {
 			notImported <- c( notImported, job$id )
-		}	
+		}
 	}
+	
 	notImported
 }
 
@@ -230,9 +229,9 @@ TEL.getJobs <- function(HOST='localhost', PORT='9010') {
 #'
 #' Gets a TEL job
 #
-TEL.getJob <- function(outputObject = NULL, HOST='localhost', PORT='9010') {
+TEL.getJob <- function(submission, HOST='localhost', PORT='9010') {
   
-  jobID <- jobID <- outputObject.getJobID(outputObject)
+	jobID <- submission$requestID
   
 	jobsURL = paste("http://", HOST, ":", PORT, "/jobs/", jobID, sep="")
 	

@@ -5,72 +5,65 @@
 #' @author Jonathan Chard
 #' @param x An object of class mogObj or an MDL file.
 #' @param target String specifying the target software. Currently, possible 
-#' targets are "NONMEM", "PsN", "monolix" and "BUGS".
+#'        targets are "NONMEM", "PsN", "monolix" and "BUGS".
 #' @param subfolder Specify the name of a subfolder within the current working 
-#' directory in which to store the results,
-#'                  defaults to a timestamped folder
+#'        directory in which to store the results, defaults to a timestamped folder
 #' @param collect Logical dictating if the results should be collected.
 #' @param clearUp Logical dictating if the working directory should be deleted 
-#' on successful job completion
+#'        on successful job completion
 #' @param HOST hostname of the server running the FIS service, defaults to localhost
 #' @param PORT port of the server running the FIS service, defaults to 9010
-#' @param addargs String specifying additional arguments to be passed to the 
-#' target software.
+#' @param addargs String specifying additional arguments to be passed to the target software.
 #' @return An object of class NMRun.
 #' @export
 #' @docType methods
 #' @rdname estimate-methods
 #' @include telClasses.R
-setGeneric("estimate", function(x, target=NULL, subfolder=format(Sys.time(), 
-  "%Y%b%d%H%M%S"), collect=TRUE, clearUp=FALSE, HOST='localhost', 
-  PORT='9010', addargs="") {
-
-  outputObject <- NULL 
+setGeneric("estimate", function(x, target=NULL,
+	subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), wait=TRUE, collect=TRUE, clearUp=FALSE, HOST='localhost', PORT='9010', addargs="") {
   
   workingDirectory <- TEL.prepareWorkingFolder(modelfile=x)
 
-    outputObject <- submit.job(command=target, workingDirectory=workingDirectory, 
+  submission <- TEL.submitJob(executionType=target, workingDirectory=workingDirectory, 
       modelfile=x, HOST=HOST, PORT=PORT, addargs=addargs)
   
-  submitResponse <- outputObject$ret
-  
-  if (submitResponse[[1]] == 0) {
+  if (submission$status == "NEW") { # Successfully submitted
+	  
+	if (wait) {
 
-	if (collect) {
-
-	    outputObject <- TEL.poll(outputObject, HOST=HOST, PORT=PORT) 
+	    submission <- TEL.poll(submission, HOST=HOST, PORT=PORT)
 	    
-	    outputObject$resultsDir = file.path(outputObject$sourceDirectory, subfolder)
-	    
-	    if (outputObject$status == "COMPLETED") {
-	    
-			outputObject <- TEL.import(outputObject, target=outputObject$resultsDir, 
-        clearUp=clearUp)
-	
-			# Create file names:
-			ctlFile <- paste0(file_path_sans_ext(outputObject$modelFile), ".ctl")
-			lstFile <- "output.lst"
-  			if (target=="PsN") {
-			   lstFile <- paste0(file_path_sans_ext(outputObject$modelFile), ".lst")
-			}				 
-	      
-			# Paste in file location:
-			ctlFile <- file.path(outputObject$resultsDir, ctlFile)
-			lstFile <- file.path(outputObject$resultsDir, lstFile)
-	      
-			# Import data using RMNImport:
-			res <- importNm(conFile = ctlFile, reportFile = lstFile)
-	      
-			# Successful execution -> return the imported NONMEM data
-			return(res)
+	    if (submission$status == "COMPLETED") {
 			
-		} else { # outputObject$status != "COMPLETED"
+			if (collect) {
+	    
+				submission <- TEL.import(submission, target=file.path(submission$sourceDirectory, subfolder), clearUp=clearUp)
+		
+				# Create file names:
+				ctlFile <- paste0(file_path_sans_ext(submission$modelFile), ".ctl")
+				lstFile <- paste0(file_path_sans_ext(submission$modelFile), ".lst")
+		      
+				# Paste in file location:
+				ctlFile <- file.path(submission$resultsDir, ctlFile)
+				lstFile <- file.path(submission$resultsDir, lstFile)
+		      
+				# Successful execution -> return the RNMImport-imported NONMEM data
+				importNm(conFile = ctlFile, reportFile = lstFile)
+				
+			} else { # Not collecting the results
+				submission
+			}
+			
+		} else { # submission$status != "COMPLETED"
 
-			stop(paste(c("Execution of model ", outputObject$modelFile, 
-        " failed.\n  The contents of the working directory ",
-        outputObject$workingDirectory, 
-        " may be useful for tracking down the cause of the failure."), sep=""))
+			stop(paste(c("Execution of model ", submission$modelFile, 
+        	" failed.\n  The contents of the working directory ",
+        	submission$workingDirectory, 
+        	" may be useful for tracking down the cause of the failure."), sep=""))
 		}
+		
+	} else { # Don't wait for the job to complete
+		submission
 	}
 	
   } else {
