@@ -6,6 +6,40 @@ Build-Number: 1
 Date: 2014-mm-dd
 Author: Mango Solutions
 Maintainer: Support at Mango Solutions <support@mango-solutions.com>
-Description: Initial implementation of the TEL in R. It integrates with FIS using REST API. 
+Description: Initial implementation of the TEL in R. It integrates with FIS
+    using REST API.
 License: TBD
-Depends: R(>= 2.13), RCurl(>= 1.95), rjson(>= 0.2.13), RNMImport(>= 0.3.6), tools(>= 3.0.2), lattice(>= 0.20-14)
+Depends:
+    R(>= 2.13),
+    RCurl(>= 1.95),
+    rjson(>= 0.2.13),
+    RNMImport(>= 0.3.6),
+    tools(>= 3.0.2),
+    lattice(>= 0.20-14)
+Collate:
+    'DDMoRe.TEL-internal.R'
+    'StandardOutputMethods.R'
+    'StandardOutputSubClasses.R'
+    'StandardOutputObject.R'
+    'telClasses.R'
+    'conversion.R'
+    'createMogObj.R'
+    'execute.R'
+    'fileUtils.R'
+    'getDataObjects.R'
+    'getEstimationInfo.R'
+    'getMDLObjects.R'
+    'getModelObjects.R'
+    'getParameterObjects.R'
+    'getTaskPropertiesObjects.R'
+    'mdlUtils.R'
+    'outputObject.R'
+    'utils.R'
+    'plot.R'
+    'psnWrappers.R'
+    'read.R'
+    'sample.R'
+    'server.R'
+    'startingValues.r'
+    'subset.R'
+    'update.r'
