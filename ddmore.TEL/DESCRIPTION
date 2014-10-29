@@ -33,7 +33,6 @@ Collate:
     'getParameterObjects.R'
     'getTaskPropertiesObjects.R'
     'mdlUtils.R'
-    'outputObject.R'
     'utils.R'
     'plot.R'
     'psnWrappers.R'
