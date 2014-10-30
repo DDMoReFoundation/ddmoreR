@@ -9,7 +9,7 @@ script.files = c(
     "telClasses", "createMogObj",
     "utils", "execute", "fileUtils", "mdlUtils", "conversion", "read", "update",
     "getDataObjects", "getParameterObjects", "getModelObjects", "getTaskPropertiesObjects", "getMDLObjects",
-    "server","psnWrappers", "StandardOutputObject", "StandardOutputSubClasses", "StandardOutputMethods"
+    "server","psnWrappers", "StandardOutputMethods", "StandardOutputSubClasses", "StandardOutputObject"
 )
 
 sapply(script.files, function(s) {
