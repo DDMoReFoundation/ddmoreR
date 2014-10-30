@@ -407,7 +407,7 @@
   
   
     <!-- we always assume build on windows -->
-	<target name ='unitTests' depends='buildzip'>
+	<target name ='unitTests' depends='buildzip' unless="skip.unit.tests">
         <exec executable = "${r.home}/bin${r.arch.dep.path}Rscript" dir="${build.dir}" failonerror = "true">
 		    <env key="R_HOME" value="${r.home}"/>
 		    <env key="R_LIBS" value="${local.lib}"/>
