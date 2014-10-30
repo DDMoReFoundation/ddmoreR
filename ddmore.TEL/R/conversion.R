@@ -166,16 +166,19 @@
 	# Although R doesn't actually complain, having duplicate names in a named list undoubtedly
 	# isn't a good idea, so such elements have a "_n" suffix appended to their names where "n"
 	# is an number that increments individually for "matrix", "diag" and "same"; when writing
-	# the R objects back out to JSON (MDL), these suffixes are dropped.
+	# the R objects back out to JSON (and thence to MDL), these suffixes are dropped.
 
 	res <- new("parObj", 
-			STRUCTURAL = translateIntoNamedList(dat$STRUCTURAL), # as.list done within the function
-			PRIOR = as.list(dat$PRIOR), # TODO: TBC
-			VARIABILITY = lapply(as.list(dat$VARIABILITY), function(x) x[[1]])
+		STRUCTURAL = translateIntoNamedList(dat$STRUCTURAL), # as.list done within the function
+		VARIABILITY = lapply(as.list(dat$VARIABILITY), function(x) x[[1]]),
+		# TODO: TBC - These need to be populated
+		PRIOR_PARAMETERS = list(),
+		TARGET_CODE = as.character(dat$TARGET_CODE)
 	)
+	
 	diagCnt <- 0; matrixCnt <- 0; sameCnt <- 0;
 	names(res@VARIABILITY) <- lapply(as.list(dat$VARIABILITY), function(x) {
-		elemName <- names(x)
+		elemName <- names(x) # only one element in each sub-list of the main list
 		if (elemName == "diag") {
 			diagCnt <<- diagCnt + 1
 			elemName <- paste0(elemName, "_", diagCnt)
@@ -201,11 +204,8 @@
         DATA_INPUT_VARIABLES = translateIntoNamedList(dat$DATA_INPUT_VARIABLES), # as.list done within the function
         SOURCE = as.list(dat$SOURCE),
         # TODO: TBC - These need to be populated
-        RSCRIPT = list(),
-        HEADER = list(),
-        FILE = list(),
-        DESIGN = list(),
-        DATA_DERIVED_VARIABLES = list()
+        DATA_DERIVED_VARIABLES = list(),
+		TARGET_CODE = as.character(dat$TARGET_CODE)
     )
     
     # Unquote the file name so that the file name within the R object is more easily manipulated
@@ -220,20 +220,23 @@
 .createMdlObj <- function(dat){
 
     res <- new("mdlObj",
-        MODEL_INPUT_VARIABLES = translateIntoNamedList(dat$MODEL_INPUT_VARIABLES), # as.list done within the function
         STRUCTURAL_PARAMETERS = translateIntoNamedList(dat$STRUCTURAL_PARAMETERS), # as.list done within the function
         VARIABILITY_PARAMETERS = translateIntoNamedList(dat$VARIABILITY_PARAMETERS), # as.list done within the function
-        GROUP_VARIABLES = as.character(dat$GROUP_VARIABLES),
+        INDIVIDUAL_VARIABLES = translateIntoNamedList(dat$INDIVIDUAL_VARIABLES), # as.list done within the function
         RANDOM_VARIABLE_DEFINITION = translateIntoNamedList(dat$RANDOM_VARIABLE_DEFINITION),
-        INDIVIDUAL_VARIABLES = as.character(dat$INDIVIDUAL_VARIABLES),
+		MODEL_OUTPUT_VARIABLES = translateIntoNamedList(dat$MODEL_OUTPUT_VARIABLES), # as.list done within the function
+        MODEL_INPUT_VARIABLES = translateIntoNamedList(dat$MODEL_INPUT_VARIABLES), # as.list done within the function
+        OBSERVATION = translateIntoNamedList(dat$OBSERVATION), # as.list done within the function
         MODEL_PREDICTION = new("modPred",
             ODE = as.character(dat$MODEL_PREDICTION$ODE),
             LIBRARY = as.character(dat$MODEL_PREDICTION$LIBRARY),
             content = as.character(dat$MODEL_PREDICTION$content)
         ),
-        OBSERVATION = as.character(dat$OBSERVATION),
-		ESTIMATION = as.character(dat$ESTIMATION),
-		MODEL_OUTPUT_VARIABLES = translateIntoNamedList(dat$MODEL_OUTPUT_VARIABLES) # as.list done within the function
+		# TODO: TBC - These need to be populated
+        GROUP_VARIABLES = list(),
+		ESTIMATION = list(),
+		SIMULATION = list(),
+		TARGET_CODE = as.character(dat$TARGET_CODE)
     )
 
 }
@@ -241,7 +244,13 @@
 
 .createTaskObj <- function(dat){
 	res <- new("taskObj",
-		content = as.character(dat$content)
+		ESTIMATE = as.character(dat$ESTIMATE),
+		SIMULATE = as.character(dat$SIMULATE),
+		EVALUATE = as.character(dat$EVALUATE),
+		OPTIMISE = as.character(dat$OPTIMISE),
+		DATA = as.character(dat$DATA),
+		MODEL = as.character(dat$MODEL),
+		TARGET_CODE = as.character(dat$TARGET_CODE)
 	)  
 }
 
@@ -287,12 +296,14 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
     # (the transformation here is the reverse of that in .createParObj function)
     parObjAsList <- .removeNullEntries(list(
       STRUCTURAL = translateNamedListIntoList(m@parObj@STRUCTURAL),
-      PRIOR = m@parObj@PRIOR,
-      VARIABILITY = lapply(myMog@parObj@VARIABILITY, list),
+      VARIABILITY = lapply(m@parObj@VARIABILITY, list),
+	  # TODO: TBC - These two slots need to be populated
+      PRIOR_PARAMETERS = m@parObj@PRIOR_PARAMETERS,
+	  TARGET_CODE = m@parObj@TARGET_CODE,
       identifier = "parobj"
 	))
-	lapply(1:length(myMog@parObj@VARIABILITY), function(i) {
-		elemName <- names(myMog@parObj@VARIABILITY)[[i]]
+	lapply(1:length(m@parObj@VARIABILITY), function(i) {
+		elemName <- names(m@parObj@VARIABILITY)[[i]]
 		# Strip off the redundant count from the end of 'special' variability parameter elements
 		elemName <- gsub("^(same|diag|matrix)_.*$", "\\1", elemName, fixed=FALSE)
 		names(parObjAsList$VARIABILITY[[i]]) <<- elemName
@@ -302,11 +313,9 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
     dataObjAsList <- .removeNullEntries(list(
         DATA_INPUT_VARIABLES = translateNamedListIntoList(m@dataObj@DATA_INPUT_VARIABLES),
         SOURCE = .removeNullEntries(m@dataObj@SOURCE), # removeNullEntries() required since ignoreChar etc. might not be specified
-        RSCRIPT = m@dataObj@RSCRIPT,
-        HEADER = m@dataObj@HEADER,
-        FILE = m@dataObj@FILE,
-        DESIGN = m@dataObj@DESIGN,
+		# TODO: TBC - These two slots need to be populated
         DATA_DERIVED_VARIABLES = m@dataObj@DATA_DERIVED_VARIABLES,
+		TARGET_CODE = m@parObj@TARGET_CODE,
         identifier = "dataobj"
     ))
     
@@ -316,25 +325,35 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
     dataObjAsList$SOURCE$ignore <- add_quotes(dataObjAsList$SOURCE$ignore)
     
     mdlObjAsList <- .removeNullEntries(list(
-        MODEL_INPUT_VARIABLES = translateNamedListIntoList(m@mdlObj@MODEL_INPUT_VARIABLES),
         STRUCTURAL_PARAMETERS = translateNamedListIntoList(m@mdlObj@STRUCTURAL_PARAMETERS),
         VARIABILITY_PARAMETERS = translateNamedListIntoList(m@mdlObj@VARIABILITY_PARAMETERS),
-        GROUP_VARIABLES = m@mdlObj@GROUP_VARIABLES,
+        INDIVIDUAL_VARIABLES = translateNamedListIntoList(m@mdlObj@INDIVIDUAL_VARIABLES),
         RANDOM_VARIABLE_DEFINITION = translateNamedListIntoList(m@mdlObj@RANDOM_VARIABLE_DEFINITION),
-        INDIVIDUAL_VARIABLES = m@mdlObj@INDIVIDUAL_VARIABLES,
+		MODEL_OUTPUT_VARIABLES = translateNamedListIntoList(m@mdlObj@MODEL_OUTPUT_VARIABLES),
+        MODEL_INPUT_VARIABLES = translateNamedListIntoList(m@mdlObj@MODEL_INPUT_VARIABLES),
+        OBSERVATION = translateNamedListIntoList(m@mdlObj@OBSERVATION),
         MODEL_PREDICTION = .removeNullEntries(list(
             ODE = m@mdlObj@MODEL_PREDICTION@ODE,
             LIBRARY = m@mdlObj@MODEL_PREDICTION@LIBRARY,
             content = m@mdlObj@MODEL_PREDICTION@content
         )),
-        OBSERVATION = m@mdlObj@OBSERVATION,
+		# TODO: TBC - These four slots need to be populated
+        GROUP_VARIABLES = m@mdlObj@GROUP_VARIABLES,
 		ESTIMATION = m@mdlObj@ESTIMATION,
-		MODEL_OUTPUT_VARIABLES = translateNamedListIntoList(m@mdlObj@MODEL_OUTPUT_VARIABLES),
+		SIMULATION = m@mdlObj@SIMULATION,
+		TARGET_CODE = m@mdlObj@TARGET_CODE,
         identifier = "mdlobj"
     ))
     
     taskObjAsList <- .removeNullEntries(list(
-        content = m@taskObj@content,
+        ESTIMATE = m@taskObj@ESTIMATE,
+		# TODO: TBC - These six slots need to be populated
+		SIMULATE = m@taskObj@SIMULATE,
+		EVALUATE = m@taskObj@EVALUATE,
+		OPTIMISE = m@taskObj@OPTIMISE,
+		DATA = m@taskObj@DATA,
+		MODEL = m@taskObj@MODEL,
+		TARGET_CODE = m@taskObj@TARGET_CODE,
         identifier = "taskobj"
     ))
     

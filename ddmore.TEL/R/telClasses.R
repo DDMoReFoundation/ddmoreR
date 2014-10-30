@@ -7,34 +7,24 @@ validity.dataObj <- function(object)
 {
   stopifnot(is.list(object@DATA_INPUT_VARIABLES))
   stopifnot(is.list(object@SOURCE))
-  stopifnot(is.list(object@RSCRIPT))
-  stopifnot(is.list(object@HEADER))
-  stopifnot(is.list(object@FILE))
-  stopifnot(is.list(object@DESIGN))
   stopifnot(is.list(object@DATA_DERIVED_VARIABLES))
+  stopifnot(is.character(object@TARGET_CODE))
   return(TRUE)
 }
 
-#' @slot DATA_INPUT_VARIABLES A list
-#' @slot SOURCE A named list of parsed sections of the control file
-#' @slot RSCRIPT TBC 
-#' @slot HEADER TBC
-#' @slot FILE String containing name of the data file - TBC
-#' @slot DESIGN  Named list of lists describing the design of the experiment - TBC
-#' @slot DATA_DERIVED_VARIABLES TBC - vector of strings?
+#' @slot DATA_INPUT_VARIABLES A named list of variables keyed by their names
+#' @slot SOURCE A list of attribute values keyed by their attribute names
+#' @slot DATA_DERIVED_VARIABLES TODO TBC
+#' @slot TARGET_CODE TODO TBC
 #' @author khanley
 
 setClass("dataObj", package="DDMoRe.TEL", 
   slots=c(
     DATA_INPUT_VARIABLES="list",
-	# TODO: TBC - These need to be populated
     SOURCE = "list",
-    RSCRIPT = "list",
-    HEADER = "list",
-    FILE = "list",
-    DESIGN = "list",
-    DATA_DERIVED_VARIABLES = "list"
-    ), 
+    DATA_DERIVED_VARIABLES = "list",
+	TARGET_CODE = "character"
+  ), 
   validity = validity.dataObj
 )
 
@@ -57,15 +47,33 @@ is.dataObj <- function(obj){
 #### Task object class
 validity.taskObj <- function(object)
 {
-	stopifnot(is.character(object@content))
+	stopifnot(is.character(object@ESTIMATE))
+	stopifnot(is.character(object@SIMULATE))
+	stopifnot(is.character(object@EVALUATE))
+	stopifnot(is.character(object@OPTIMISE))
+	stopifnot(is.character(object@DATA))
+	stopifnot(is.character(object@MODEL))
+	stopifnot(is.character(object@TARGET_CODE))
 	return(TRUE)
 }
 
-#' @slot content A character vector containing the full content of the block "as-is"
+#' @slot ESTIMATE A character vector content of this sub-block "as-is"
+#' @slot SIMULATE A character vector content of this sub-block "as-is"
+#' @slot EVALUATE A character vector content of this sub-block "as-is"
+#' @slot OPTIMISE A character vector content of this sub-block "as-is"
+#' @slot DATA A character vector content of this sub-block "as-is"
+#' @slot MODEL A character vector content of this sub-block "as-is"
+#' @slot TARGET_CODE TODO TBC
 #' @author khanley
-setClass("taskObj", package="DDMoRe.TEL", 
-  slots= c(
-    content = "character"
+setClass("taskObj", package="DDMoRe.TEL",
+  slots = c(
+	ESTIMATE = "character",
+	SIMULATE = "character",
+	EVALUATE = "character",
+	OPTIMISE = "character",
+	DATA = "character",
+	MODEL = "character",
+	TARGET_CODE = "character"
   ),
   validity = validity.taskObj
 )
@@ -90,20 +98,23 @@ is.taskObj <- function(obj){
 validity.parObj <- function(object)
 {
   stopifnot(is.list(object@STRUCTURAL))
-  stopifnot(is.list(object@PRIOR))
   stopifnot(is.list(object@VARIABILITY))
+  stopifnot(is.list(object@PRIOR_PARAMETERS))
+  stopifnot(is.character(object@TARGET_CODE))
   return(TRUE)
 }
 
-#' @slot STRUCTURAL A list
-#' @slot PRIOR A named list
-#' @slot VARIABILITY A named list
+#' @slot STRUCTURAL A named list of variables keyed by their names
+#' @slot VARIABILITY A named list of variables keyed by their names
+#' @slot PRIOR_PARAMETERS TODO TBC
+#' @slot TARGET_CODE TODO TBC
 #' @author khanley
-setClass("parObj", package="DDMoRe.TEL", 
-  slots= c(
-  STRUCTURAL = "list",
-  PRIOR = "list",
-  VARIABILITY = "list"
+setClass("parObj", package="DDMoRe.TEL",
+  slots = c(
+  	STRUCTURAL = "list",
+  	VARIABILITY = "list",
+  	PRIOR_PARAMETERS = "list",
+	TARGET_CODE = "character"
   ),
   validity = validity.parObj
 )
@@ -137,12 +148,12 @@ validity.modPred <- function(object)
 
 # Create modPred class:
 
-#' @slot ODE A character vector
-#' @slot LIBRARY A character vector
-#' @slot content A character vector
+#' @slot ODE A character vector content of this sub-block "as-is"
+#' @slot LIBRARY A character vector content of this sub-block "as-is"
+#' @slot content A character vector of the remaining content of the Model Prediction block "as-is"
 #' @author khanley
-setClass("modPred", package="DDMoRe.TEL", 
-  slots= c(
+setClass("modPred", package="DDMoRe.TEL",
+  slots = c(
   ODE = "character",
   LIBRARY = "character",
   content = "character"
@@ -171,44 +182,50 @@ is.modPred <- function(obj){
 
 validity.mdlObj <- function(object)
 {
-	stopifnot(is.list(object@MODEL_INPUT_VARIABLES))
 	stopifnot(is.list(object@STRUCTURAL_PARAMETERS))
 	stopifnot(is.list(object@VARIABILITY_PARAMETERS))
-	stopifnot(is.character(object@GROUP_VARIABLES))
+	stopifnot(is.list(object@INDIVIDUAL_VARIABLES))
 	stopifnot(is.list(object@RANDOM_VARIABLE_DEFINITION))
-	stopifnot(is.character(object@INDIVIDUAL_VARIABLES))
-	stopifnot(is.modPred(object@MODEL_PREDICTION))
-    stopifnot(is.character(object@OBSERVATION))
-	stopifnot(is.character(object@ESTIMATION))
 	stopifnot(is.list(object@MODEL_OUTPUT_VARIABLES))
+	stopifnot(is.list(object@MODEL_INPUT_VARIABLES))
+    stopifnot(is.list(object@OBSERVATION))
+	stopifnot(is.modPred(object@MODEL_PREDICTION))
+	stopifnot(is.list(object@GROUP_VARIABLES))
+	stopifnot(is.list(object@ESTIMATION))
+	stopifnot(is.list(object@SIMULATION))
+	stopifnot(is.character(object@TARGET_CODE))
   return(TRUE)
 }
 
 ### Create mdlObj class:
 
-#' @slot MODEL_INPUT_VARIABLES A list
-#' @slot STRUCTURAL_PARAMETERS A list
-#' @slot VARIABILITY_PARAMETERS A list
-#' @slot GROUP_VARIABLES A character vector
-#' @slot RANDOM_VARIABLE_DEFINITION A list
-#' @slot INDIVIDUAL_VARIABLES A character vector
+#' @slot STRUCTURAL_PARAMETERS A named list of variables keyed by their names
+#' @slot VARIABILITY_PARAMETERS A named list of variables keyed by their names
+#' @slot INDIVIDUAL_VARIABLES A named list of variables keyed by their names
+#' @slot RANDOM_VARIABLE_DEFINITION A named list of random-distribution-type variables keyed by their names
+#' @slot MODEL_OUTPUT_VARIABLES A named list of variables keyed by their names
+#' @slot MODEL_INPUT_VARIABLES A named list of variables keyed by their names
+#' @slot OBSERVATION A named list of variables, a mixture of 'standard' and random-distribution-type, keyed by their names
 #' @slot MODEL_PREDICTION An object of class "modPred"
-#' @slot OBSERVATION  A character vector
-#' @slot ESTIMATION A character vector
-#' @slot MODEL_OUTPUT_VARIABLES A list
+#' @slot GROUP_VARIABLES TODO TBC
+#' @slot ESTIMATION TODO TBC
+#' @slot SIMULATION TODO TBC
+#' @slot TARGET_CODE TODO TBC
 #' @author khanley
-setClass("mdlObj", package="DDMoRe.TEL", 
-  slots= c(
-    MODEL_INPUT_VARIABLES = "list",
+setClass("mdlObj", package="DDMoRe.TEL",
+  slots = c(
     STRUCTURAL_PARAMETERS = "list",
     VARIABILITY_PARAMETERS = "list",
-    GROUP_VARIABLES = "character",
+    INDIVIDUAL_VARIABLES = "list",
     RANDOM_VARIABLE_DEFINITION ="list",
-    INDIVIDUAL_VARIABLES = "character",
+	MODEL_OUTPUT_VARIABLES = "list",
+    MODEL_INPUT_VARIABLES = "list",
+    OBSERVATION = "list",
     MODEL_PREDICTION = "modPred",
-    OBSERVATION = "character",
-	ESTIMATION = "character",
-	MODEL_OUTPUT_VARIABLES = "list"
+    GROUP_VARIABLES = "list",
+	ESTIMATION = "list",
+	SIMULATION = "list",
+	TARGET_CODE = "character"
   ),
   validity = validity.mdlObj
 )
@@ -231,7 +248,7 @@ is.mdlObj <- function(obj){
 #### MOG class
 
 
-validity.mogObj<- function(object)
+validity.mogObj <- function(object)
 {
 	stopifnot(validity.dataObj(object@dataObj))
 	stopifnot(validity.parObj(object@parObj))
@@ -248,8 +265,8 @@ validity.mogObj<- function(object)
 #' @slot mdlObj Object of class "mdlObj"
 #' @slot taskObj Object of class "taskObj"
 #' @author khanley
-setClass("mogObj", package="DDMoRe.TEL", 
-  slots= c(
+setClass("mogObj", 
+  slots = c(
   dataObj = "dataObj",
   parObj = "parObj",
   mdlObj = "mdlObj", 
