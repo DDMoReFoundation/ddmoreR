@@ -56,20 +56,21 @@
 #'
 #' @include telClasses.R
 
-setGeneric("getParameterObjects", function(x, name, HOST='localhost', PORT='9010') { 
-  # create object in R from parser:
-  res <-  .parseMDLFile(x, type="parobj", HOST=HOST, PORT=PORT)
-  return(res)
+setGeneric("getParameterObjects", function(file, object, name, HOST='localhost', PORT='9010') {
+	# create object in R from parser:
+	if (!missing(name)) {
+		res <- .parseMDLFile(file, name=name, type="parobj", HOST=HOST, PORT=PORT)
+	} else{
+		res <- .parseMDLFile(file, type="parobj", HOST=HOST, PORT=PORT)
+	}
+	return(res)
 })
 
 #' @rdname getDataObjects-methods
 #' @aliases getParameterObjects,mogObj,mogObj-method
-setMethod("getParameterObjects", signature=signature(x="mogObj"), function(x){
-   return(x@parObj)
+setMethod("getParameterObjects", signature=signature(object="mogObj"),
+  function(file, object, name, HOST="localhost", PORT="9010") {
+    return(x@parObj)
 })
-
-
-
-
 
 

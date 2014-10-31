@@ -9,7 +9,7 @@
 #'
 #' @usage getTaskPropertiesObjects(x, name)
 #'
-#' @param x File path, URL of the .mdl file containing the task object or a MOG (object of class "mogObj".
+#' @param file File path, URL of the .mdl file containing the task object or a MOG (object of class "mogObj".
 #'
 #' @param HOST hostname of the server running the FIS service, defaults to localhost
 #' @param PORT port of the server running the FIS service, defaults to 9010
@@ -39,21 +39,21 @@
 #' ## Add example of altering Task Object
 #'
 #' @include telClasses.R
-setGeneric("getTaskPropertiesObjects", function(x, name, HOST='localhost', PORT='9010') { 
+setGeneric("getTaskPropertiesObjects", function(file, object, name, HOST='localhost', PORT='9010') { 
   # create object in R from parser:
-  res <- .parseMDLFile(x, type="taskobj", HOST=HOST, PORT=PORT)
-  
+  if (!missing(name)) {
+	  res <- .parseMDLFile(file, name=name, type="taskobj", HOST=HOST, PORT=PORT)
+  } else{
+	  res <- .parseMDLFile(file, type="taskobj", HOST=HOST, PORT=PORT)
+  }
   return(res)
 })
 
 #' @rdname getTaskPropertiesObjects-methods
 #' @aliases getTaskPropertiesObjects,mogObj,mogObj-method
-setMethod("getTaskPropertiesObjects", signature=signature(x="mogObj"), function(x){
-   return(x@taskObj)
+setMethod("getTaskPropertiesObjects", signature=signature(object="mogObj"),
+  function(file, object, name, HOST="localhost", PORT="9010") {
+    return(x@taskObj)
 })
-
-
-
-
 
 

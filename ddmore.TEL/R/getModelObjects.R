@@ -21,7 +21,7 @@
 #'
 #' @usage getModelObject(file, name)
 #'
-#' @param x File path, URL of the .mdl file containing the task object or a MOG (object of class "mogObj").
+#' @param file File path, URL of the .mdl file containing the task object or a MOG (object of class "mogObj").
 #'
 #' @param HOST hostname of the server running the FIS service, defaults to localhost
 #' @param PORT port of the server running the FIS service, defaults to 9010
@@ -60,21 +60,21 @@
 #'
 #' @include telClasses.R
 
-setGeneric("getModelObjects", function(x, name, HOST='localhost', PORT='9010') { 
-  # create object in R from parser:
-  res <- .parseMDLFile(x, type="mdlobj", HOST=HOST, PORT=PORT)
-  
-  return(res)
+setGeneric("getModelObjects", function(file, object, name, HOST='localhost', PORT='9010') { 
+	# create object in R from parser:
+	if (!missing(name)) {
+		res <- .parseMDLFile(file, name=name, type="mdlobj", HOST=HOST, PORT=PORT)
+	} else{
+		res <- .parseMDLFile(file, type="mdlobj", HOST=HOST, PORT=PORT)
+	}
+	return(res)
 })
 
 #' @rdname getModelObjects-methods
 #' @aliases getModelObjects,mogObj,mogObj-method
-setMethod("getModelObjects", signature=signature(x="mogObj"), function(x){
-   return(x@mdlObj)
+setMethod("getModelObjects", signature=signature(object="mogObj"),
+  function(file, object, name, HOST="localhost", PORT="9010") {
+    return(x@mdlObj)
 })
-
-
-
-
 
 

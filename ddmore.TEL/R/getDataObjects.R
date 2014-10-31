@@ -9,7 +9,7 @@
 #' the relevant MCL Data Object blocks and, optionally, the \code{RAW} vector of 
 #' character strings corresponding to the lines of MCL code within the MCL Data Object.
 #'
-#' @usage getDataObjects(file, object, name, MCLcode=TRUE, HOST="localhost", PORT="9010")
+#' @usage getDataObjects(file, object, name, HOST="localhost", PORT="9010")
 #'
 #' @param file File path or URL of the .mdl file containing the task object
 #' @param object MOG (object of class \code{mogObj}. This argument should not be used
@@ -18,8 +18,6 @@
 #' @param name (Optional) Specifies the data object item, by name, to be 
 #' retrieved by getDataObjects. If multiple data objects exist in the .mdl file 
 #' then using the name argument helps users target a specific data object.
-#' @param MCLcode (logical) Should the unparsed MCL code be included as a character
-#' vector in the object
 #' @param HOST hostname of the server running the FIS service, defaults to "localhost"
 #' @param PORT port of the server running the FIS service, defaults to "9010"
 #'
@@ -53,28 +51,25 @@
 #'
 #' @include telClasses.R
 
-setGeneric("getDataObjects", function(file, object, name, MCLcode=TRUE, HOST="localhost", PORT="9010"){ 
-  # create object in R from parser:
-  if(!missing(name)){
-    res <- .parseMDLFile(file, name=name, type="dataobj", HOST=HOST, PORT=PORT)
-  } else{
-    res <- .parseMDLFile(file, type="dataobj", HOST=HOST, PORT=PORT)
-  }
-  return(res)
+setGeneric("getDataObjects", function(file, object, name, HOST="localhost", PORT="9010"){ 
+	# create object in R from parser:
+	if (!missing(name)) {
+		res <- .parseMDLFile(file, name=name, type="dataobj", HOST=HOST, PORT=PORT)
+	} else{
+		res <- .parseMDLFile(file, type="dataobj", HOST=HOST, PORT=PORT)
+	}
+  	return(res)
   standardGeneric("getDataObjects")
 })
 
 #' @rdname getDataObjects-methods
 #' @aliases getDataObjects,mogObj,mogObj-method
 setMethod("getDataObjects", signature=signature(object="mogObj"), 
-  function(file, object, name, MCLcode=TRUE, HOST="localhost", PORT="9010"){
-   if(!missing(file)){warning("You have specified the file argument in addition
-    to a mogObj. The file argument will be ignored.")  }
-   return(x@dataObj)
+  function(file, object, name, HOST="localhost", PORT="9010") {
+	if (!missing(file)) {
+		warning("You have specified the file argument in addition to a mogObj. The file argument will be ignored.")
+	}
+    return(x@dataObj)
 })
-
-
-
-
 
 

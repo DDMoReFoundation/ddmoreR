@@ -14,20 +14,20 @@
 #'
 #' @param f File path or URL of the .mdl file containing the objects.
 #' @param type String specifying the type of objects to extract. Possible values are
-#' \code{parobj}, \code{taskobj}, \code{dataobj} and \code{mdlobj}
-#' @param name (Optional) Specifies the data object item, by name, to be 
-#' retrieved by getDataObjects. If multiple data objects exist in the .mdl file 
+#' \code{dataobj}, \code{parobj}, \code{mdlobj}, \code{taskobj} and \code{mogobj}
+#' @param name (Optional) Specifies the dataobj/parobj/mdlobj/taskobj/mogobj object
+#' , by name, to be retrieved. If multiple data objects exist in the .mdl file 
 #' then using the name argument helps users target a specific data object.
 #' @param HOST hostname of the server running the FIS service, defaults to localhost
 #' @param PORT port of the server running the FIS service, defaults to 9010
 #'
-#' @return A list of objects which are contained in the MDL file or URL.
+#' @return A list of matching objects which are contained in the MDL file or URL.
 #' @include telClasses.R
 
 .parseMDLFile <- function(f, name, type, HOST='localhost', PORT='9010') {
 
-  if(!type%in%c("parobj", "taskobj", "dataobj", "mdlobj")){
-    stop("Type specified is not one of 'parobj', 'taskobj', 'dataobj' or 'mdlobj'")
+  if (!type%in%c("parobj", "taskobj", "dataobj", "mdlobj", "mogObj")) {
+    stop("Type specified is not one of 'parobj', 'taskobj', 'dataobj', 'mdlobj' or 'mogobj'")
   }
   
   # Call parser and read in the JSON data
@@ -36,12 +36,10 @@
   if (!missing(name)) {
   
     .extractNamedObject(raw, name)
-    return(res)
     
   } else {
-  
-    res <- .extractTypeObject(raw, type)
-    return(res)
+	  
+    .extractTypeObject(raw, type)
   
   }
   
@@ -57,98 +55,41 @@
 }
 
 
-.extractNamedObject <- function(dat, name){
+.extractNamedObject <- function(raw, name) {
+	
+  val <- raw[name] # Creates a list containing the single matching object
   
-  val <- dat[name]
-  
-  res <- .extractTypeObject(val, type=val$identifier)
-  
-  return(res)
-
+  .extractTypeObject(val, type=val[[1]]$identifier)
 }
 
 
-.extractTypeObject <- function(dat, type){
-
-  switch(type, 
-    parobj  = .extractParObj(dat), 
-    mdlobj  = .extractMdlObj(dat), 
-    dataobj = .extractDataObj(dat),
-    taskobj = .extractTaskObj(dat)
-  )
+.extractTypeObject <- function(raw, type) {
+	
+	switch (type,
+		dataobj  = .extractAnyObj(raw, "dataobj", .createDataObj),
+		parobj  = .extractAnyObj(raw, "parobj", .createParObj),
+		mdlobj  = .extractAnyObj(raw, "mdlobj", .createMdlObj),
+		taskobj  = .extractAnyObj(raw, "taskobj", .createTaskObj),
+	)
   
 }
 
-.extractParObj <- function(dat){
-  #Extract identifiers
-  logi <- sapply(dat, 
-    function(x){
-      x$identifier=="parobj"
-    }
-  )
-  
-  subList <- dat[logi]
-  
-  res <- lapply(subList, .createParObj)
 
-  names(res) <- names(subList)
-  
-  return(res)
-
-}
-
-.extractDataObj <- function(dat){
-  #Extract identifiers
-  logi <- sapply(dat, 
-    function(x){
-      x$identifier=="dataobj"
-    }
-  )
-  
-  subList <- dat[logi]
-  
-  res <- lapply(subList, .createDataObj)
-  
-  names(res) <- names(subList)
-  
-  return(res)
-
-}
-
-.extractMdlObj <- function(dat){
-  #Extract identifiers
-  logi <- sapply(dat, 
-    function(x){
-      x$identifier=="mdlobj"
-    }
-  )
-  
-  subList <- dat[logi]
-  
-  res <- lapply(subList, .createMdlObj)
-  
-  names(res) <- names(subList)
-  
-  return(res)
-
-}
-
-.extractTaskObj <- function(dat){
-  #Extract identifiers
-  logi <- sapply(dat, 
-    function(x){
-      x$identifier=="taskobj"
-    }
-  )
-  
-  subList <- dat[logi]
-  
-  res <- lapply(subList, .createTaskObj)
-  
-  names(res) <- names(subList)
-  
-  return(res)
-
+.extractAnyObj <- function(raw, identifier, createObjFn) {
+	# Extract identifiers
+	logi <- sapply(raw, 
+		function(x){
+			x$identifier==identifier
+		}
+	)
+	
+	subList <- raw[logi]
+	
+	res <- lapply(subList, createObjFn)
+	
+	names(res) <- names(subList)
+	
+	return(res)
 }
 
 
