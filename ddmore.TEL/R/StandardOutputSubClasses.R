@@ -13,7 +13,7 @@
 #' 
 #' @author cmusselle
 #' @exportClass RawResults
-setClass("RawResults", package="DDMoRe.TEL", 
+setClass("RawResults", 
   # Define the slots
   slots=c(
     Files="list"
@@ -50,7 +50,7 @@ setClass("RawResults", package="DDMoRe.TEL",
 #' @slot OutputMessages A list for now ...
 #' 
 #' @author cmusselle
-setClass("Estimation", package="DDMoRe.TEL", 
+setClass("Estimation", 
   # Define the slots
   slots=c(
     PopulationEstimate="list",
@@ -106,7 +106,7 @@ setClass("Estimation", package="DDMoRe.TEL",
 #' @slot ModelComparison A list for now ...
 #' 
 #' @author cmusselle
-setClass("ModelDiagnosticEvaluation", package="DDMoRe.TEL", 
+setClass("ModelDiagnosticEvaluation", 
   # Define the slots
   slots=c(
     ModelDiagnostic="list",
@@ -138,7 +138,7 @@ setClass("ModelDiagnosticEvaluation", package="DDMoRe.TEL",
 #' @slot Exploration A list for now ...
 #' 
 #' @author cmusselle
-setClass("SimulationExploration", package="DDMoRe.TEL", 
+setClass("SimulationExploration", 
   # Define the slots
   slots=c(
     Simulation="list",
@@ -169,7 +169,7 @@ setClass("SimulationExploration", package="DDMoRe.TEL",
 #' @slot AOD A list for now ... 
 #' 
 #' @author cmusselle
-setClass("OptimalDesign", package="DDMoRe.TEL", 
+setClass("OptimalDesign", 
   # Define the slots
   slots=c(
     ODEEvaluation="list",

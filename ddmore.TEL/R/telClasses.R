@@ -18,8 +18,8 @@ validity.dataObj <- function(object)
 #' @slot TARGET_CODE TODO TBC
 #' @author khanley
 
-setClass("dataObj", package="DDMoRe.TEL", 
-  slots=c(
+setClass("dataObj", 
+  slots =c(
     DATA_INPUT_VARIABLES="list",
     SOURCE = "list",
     DATA_DERIVED_VARIABLES = "list",
@@ -65,7 +65,7 @@ validity.taskObj <- function(object)
 #' @slot MODEL A character vector content of this sub-block "as-is"
 #' @slot TARGET_CODE TODO TBC
 #' @author khanley
-setClass("taskObj", package="DDMoRe.TEL",
+setClass("taskObj", 
   slots = c(
 	ESTIMATE = "character",
 	SIMULATE = "character",
@@ -109,7 +109,7 @@ validity.parObj <- function(object)
 #' @slot PRIOR_PARAMETERS TODO TBC
 #' @slot TARGET_CODE TODO TBC
 #' @author khanley
-setClass("parObj", package="DDMoRe.TEL",
+setClass("parObj", 
   slots = c(
   	STRUCTURAL = "list",
   	VARIABILITY = "list",
@@ -152,7 +152,7 @@ validity.modPred <- function(object)
 #' @slot LIBRARY A character vector content of this sub-block "as-is"
 #' @slot content A character vector of the remaining content of the Model Prediction block "as-is"
 #' @author khanley
-setClass("modPred", package="DDMoRe.TEL",
+setClass("modPred", 
   slots = c(
   ODE = "character",
   LIBRARY = "character",
@@ -212,7 +212,7 @@ validity.mdlObj <- function(object)
 #' @slot SIMULATION TODO TBC
 #' @slot TARGET_CODE TODO TBC
 #' @author khanley
-setClass("mdlObj", package="DDMoRe.TEL",
+setClass("mdlObj", 
   slots = c(
     STRUCTURAL_PARAMETERS = "list",
     VARIABILITY_PARAMETERS = "list",
@@ -248,7 +248,7 @@ is.mdlObj <- function(obj){
 #### MOG class
 
 
-validity.mogObj <- function(object)
+validity.mogObj<- function(object)
 {
 	stopifnot(validity.dataObj(object@dataObj))
 	stopifnot(validity.parObj(object@parObj))
