@@ -29,8 +29,6 @@ lapply(xmlChildren(doc), xmlName)
 # Pass in first Table 
 
 
-
-
 tempNode = xpathApply(Node, paste("/", xmlName(Node), "/PopulationEstimates/MLE/*"), namespaces=ns)
 
 

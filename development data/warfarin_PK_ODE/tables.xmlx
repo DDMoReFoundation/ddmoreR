@@ -1,0 +1,12 @@
+<monolix>
+	<graphics>
+	<version value="420"/>
+	<graphicsToPrint>
+	<obsTimes value="1"/>
+	<intTimes value="1"/>
+	<fullTimes value="1"/>
+	<indContTable value="1"/>
+	<covTable value="1"/>
+	</graphicsToPrint>
+	</graphics>
+</monolix>

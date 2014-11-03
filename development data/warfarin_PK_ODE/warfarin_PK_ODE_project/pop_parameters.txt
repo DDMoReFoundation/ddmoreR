@@ -1,0 +1,61 @@
+******************************************************************
+*      warfarin_PK_ODE_project.mlxtran
+*      October 21, 2014 at 10:45:28
+*      Monolix version: 4.3.2
+******************************************************************
+
+Estimation of the population parameters
+
+             parameter     s.e. (lin)   r.s.e.(%) 
+V_pop      :    8.03           0.34          4    
+KA_pop     :    1.73           0.41         24    
+CL_pop     :   0.131         0.0067          5    
+TLAG_pop   :   0.781          0.071          9    
+
+omega_V    :   0.214          0.033         15    
+omega_KA   :   0.831           0.19         23    
+omega_CL   :   0.278          0.037         13    
+omega_TLAG :   0.411          0.069         17    
+corr(V,CL) :   0.462           0.16         35    
+
+a          :   9e-06        3.2e-06         35    
+b          :   0.118         0.0068          6    
+
+correlation matrix (IIV)
+V         1          
+KA        0       1       
+CL     0.46      -0       1    
+TLAG     -0       0      -0       1 
+
+______________________________________________
+correlation matrix of the estimates(linearization)
+
+V_pop         1          
+KA_pop       -0       1       
+CL_pop      0.4   -0.02       1    
+TLAG_pop     -0    0.01    0.01       1 
+
+Eigenvalues (min, max, max/min): 0.6  1.4  2.3
+
+omega_V         1                
+omega_KA       -0       1             
+omega_CL     0.16   -0.01       1          
+omega_TLAG     -0   -0.03      -0       1       
+a               0      -0      -0      -0       1    
+b           -0.07   -0.05   -0.02   -0.03      -0       1 
+
+Eigenvalues (min, max, max/min): 0.83  1.2  1.4
+
+
+Population parameters and Fisher Information Matrix estimation...
+
+Elapsed time is 76.6 seconds. 
+CPU time is 139 seconds. 
+______________________________________________________________
+
+Log-likelihood Estimation by linearization
+
+-2 x log-likelihood:                   644.40 
+Akaike Information Criteria   (AIC):   666.40 
+Bayesian Information Criteria (BIC):   682.52 
+______________________________________________________________

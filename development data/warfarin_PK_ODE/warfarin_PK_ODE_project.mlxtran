@@ -1,0 +1,51 @@
+DATA:
+path = "%MLXPROJECT%/",
+file  ="warfarin_PK_ODE_data.txt",
+headers = {ID,TIME,COV,DOSE,YTYPE,Y,MDV,COV}
+columnDelimiter = ","
+
+
+VARIABLES:
+logtWT [use=cov],
+
+INDIVIDUAL:
+TLAG = { distribution=lognormal, iiv=yes },
+KA = { distribution=lognormal, iiv=yes },
+V = { distribution=lognormal, covariate={logtWT} , iiv=yes },
+CL = { distribution=lognormal, covariate={logtWT} , iiv=yes },
+
+CORRELATION:
+correlationIIV={{CL,V}}
+
+OBSERVATION:
+Y = { type=continuous, prediction=CC, error=combined1},
+
+STRUCTURAL_MODEL:
+	file="mlxt:warfarin_PK_ODE_model,
+	path="%MLXPROJECT%",
+	output={CC}
+
+TASKS:
+globalSettings={
+	settingsGraphics="%MLXPROJECT%/tables.xmlx",
+},
+; workflow
+	estimatePopulationParameters(
+		initialValues={
+			beta_{CL,logtWT} = 0.75 [mehod=FIXED],
+			beta_{V,logtWT} = 1 [mehod=FIXED],
+			omega2_{CL} = 1,
+			omega2_{KA} = 1,
+			omega2_{TLAG} = 1,
+			omega2_{V} = 1,
+			pop_{CL} = 5,
+			pop_{KA} = 5,
+			pop_{TLAG} = 5,
+			pop_{V} = 10,
+			a_{Y} = .5,
+			b_{Y} = 1,
+	                            })
+estimateFisherInformationMatrix( method={linearization} ),
+estimateIndividualParameters( method={conditionalDistribution} ),
+estimateLogLikelihood(method={linearization}),
+displayGraphics(),
