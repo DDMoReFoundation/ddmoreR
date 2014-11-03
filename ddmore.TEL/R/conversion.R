@@ -297,12 +297,18 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
 		TARGET_CODE = m@taskObj@TARGET_CODE,
         identifier = "taskobj"
     ))
+
+	defaultMogAsList <- list(
+		identifier = "mog",
+		blockNames = list("outputMog_dat", "outputMog_par", "outputMog_mdl", "outputMog_task")
+	)
     
     json <- toJSON(list(list(
-        outputMog_task = taskObjAsList,
+		outputMog_dat = dataObjAsList,
 		outputMog_par = parObjAsList,
 		outputMog_mdl = mdlObjAsList,
-		outputMog_dat = dataObjAsList
+        outputMog_task = taskObjAsList,
+		outputMog = defaultMogAsList
     )))
 
     .write.mclobj0(json, f, HOST, PORT)
