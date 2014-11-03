@@ -40,56 +40,51 @@ setClass("RawResults", package="DDMoRe.TEL",
 #' As the input data is not well defined at current, the slots for most of this class
 #' are currently defined as lists for flexibility
 #' 
-#' @slot PopulationEstimate A list for now ...
-#' @slot PopulationEstimatePrecision A list for now ...
-#' @slot IndividualEstimate A list for now ...
-#' @slot IndividualEstimatePrecision A list for now ...
+#' @slot PopulationEstimates A list for now ...
+#' @slot PrecisionPopulationEstimates A list for now ...
+#' @slot IndividualEstimates A list for now ...
+#' @slot PrecisionIndividualEstimates A list for now ...
 #' @slot ResidualsNPDE A list for now ...
 #' @slot Predictions A list for now ...
 #' @slot Liklihood A list for now ...
-#' @slot OutputMessages A list for now ...
+#' @slot SoftwareMessages A list for now ...
 #' 
 #' @author cmusselle
 setClass("Estimation", package="DDMoRe.TEL", 
   # Define the slots
   slots=c(
-    PopulationEstimate="list",
-    PopulationEstimatePrecision="list",
-    IndividualEstimate="list", 
-    IndividualEstimatePrecision="list", 
-    ResidualsNPDE="list",
+    PopulationEstimates="list",
+    PrecisionPopulationEstimates="list",
+    IndividualEstimates="list", 
+    PrecisionIndividualEstimates="list", 
+    Residuals="list",
     Predictions="list",
     Likelihood="list",
-    OutputMessages="list"
+    SoftwareMessages="list"
     ),
   # Set Default Values to blank lists with names in place
   prototype = list(
-  	PopulationEstimate = list(MLE=NULL, Bayesian=NULL),
-  	PopulationEstimatePrecision = list(FIM=NULL, InverseFIM=NULL, MLEStdErr=NULL, 
-  		MLERelStdErr=NULL, BEStdDev=NULL, BootstrapStdDev=NULL, BEPostDist=NULL, 
-  		BootstrapThetaHat=NULL, IntervalEstimates=NULL),
-  	IndividualEstimate = list(MLEConditional=NULL, BEPostMean=NULL, 
-  		BEPostMedian=NULL, BEPostMode=NULL, Shrinkage=NULL, MLE_ETAs=NULL, BE_ETAs=NULL,
-  		ETAPostMean=NULL, ETAPostMedian=NULL, ETAPostMode=NULL,
-  		RandomEffects=NULL),
-  	IndividualEstimatePrecision = list(PostDist=NULL),
-  	ResidualsNPDE = list(MLE_NPDE=NULL, BE_NPDE=NULL, PD=NULL, Population=NULL, 
+  	PopulationEstimates = list(MLE=NULL, Bayesian=NULL),
+  	PrecisionPopulationEstimates = list(MLE=NULL, Bayesian=NULL),
+  	IndividualEstimates = list(Estimates=NULL, EtaShrinkage=NULL, RandomEffects=NULL),
+  	PrecisionIndividualEstimates = list(PostDist=NULL),
+  	Residuals = list(MLE_NPDE=NULL, BE_NPDE=NULL, PD=NULL, Population=NULL, 
   		Individual=NULL, Conditional=NULL),
 	Predictions = list(Individual=NULL, Population=NULL), 
 	Likelihood = list(LogLikelihood=NULL, Deviance=NULL, AIC=NULL, BIC=NULL),
-	OutputMessages = list(TerminationMsg=NULL, Warnings=NULL, Errors=NULL, 
+	SoftwareMessages = list(TerminationMsg=NULL, Warnings=NULL, Errors=NULL, 
 		RunTime=NULL, PharmMLOutputPath=NULL, MCMCChains=NULL, Iterations=NULL)
   	),
   # Validity Checking Function 
   validity = function(object) {
-	stopifnot(class(object@PopulationEstimate)=="list")
-    stopifnot(class(object@PopulationEstimatePrecision)=="list")
-    stopifnot(class(object@IndividualEstimate)=="list") 
-    stopifnot(class(object@IndividualEstimatePrecision)=="list") 
-    stopifnot(class(object@ResidualsNPDE)=="list")
+	stopifnot(class(object@PopulationEstimates)=="list")
+    stopifnot(class(object@PrecisionPopulationEstimates)=="list")
+    stopifnot(class(object@IndividualEstimates)=="list") 
+    stopifnot(class(object@PrecisionIndividualEstimates)=="list") 
+    stopifnot(class(object@Residuals)=="list")
     stopifnot(class(object@Predictions)=="list")
     stopifnot(class(object@Likelihood)=="list")
-    stopifnot(class(object@OutputMessages)=="list")
+    stopifnot(class(object@SoftwareMessages)=="list")
 	return(TRUE)
 	}
 )
@@ -190,8 +185,10 @@ setClass("OptimalDesign", package="DDMoRe.TEL",
   	),
   # Validity Checking Function 
   validity = function(object) {
-	stopifnot(class(object@Simulation)=="list")
-    stopifnot(class(object@Exploration)=="list")
+	  stopifnot(class(object@ODEEvaluation)=="list")
+    stopifnot(class(object@ODEOptimisation)=="list")
+    stopifnot(class(object@AODEvaluation)=="list")
+    stopifnot(class(object@AODOptimisation)=="list")
 	return(TRUE)
 	}
 )

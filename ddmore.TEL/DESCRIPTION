@@ -15,13 +15,15 @@ Depends:
     rjson(>= 0.2.13),
     RNMImport(>= 0.3.6),
     tools(>= 3.0.2),
-    lattice(>= 0.20-14)
+    lattice(>= 0.20-14),
+    XML(>= 3.98-1.1)
 Collate:
     'DDMoRe.TEL-internal.R'
-    'StandardOutputMethods.R'
-    'StandardOutputSubClasses.R'
-    'StandardOutputObject.R'
     'telClasses.R'
+    'StandardOutputSubClasses.R'
+    'StandardOutputMethods.R'
+    'xmlParsers.R'
+    'StandardOutputObject.R'
     'conversion.R'
     'createMogObj.R'
     'execute.R'
@@ -33,7 +35,6 @@ Collate:
     'getParameterObjects.R'
     'getTaskPropertiesObjects.R'
     'mdlUtils.R'
-    'outputObject.R'
     'utils.R'
     'plot.R'
     'psnWrappers.R'
