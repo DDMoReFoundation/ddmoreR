@@ -329,7 +329,8 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
 	if (fromJSON(retStatus)$status != "Successful") {
 		stop("Failed to send write request. Details of the error: ", retStatus)
 	}
-	retStatus
+	# Don't print out the JSON-format return status
+	invisible(retStatus)
 }
 
 # Process a list removing any empty lists or strings (character vectors) entries from it.
