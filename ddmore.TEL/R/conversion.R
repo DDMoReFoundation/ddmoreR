@@ -66,16 +66,16 @@
 .extractTypeObject <- function(raw, type) {
 	
 	switch (type,
-		dataobj  = .extractAnyObj(raw, "dataobj", .createDataObj),
-		parobj  = .extractAnyObj(raw, "parobj", .createParObj),
-		mdlobj  = .extractAnyObj(raw, "mdlobj", .createMdlObj),
-		taskobj  = .extractAnyObj(raw, "taskobj", .createTaskObj),
+		dataobj  = .extractObj(raw, "dataobj", .createDataObj),
+		parobj  = .extractObj(raw, "parobj", .createParObj),
+		mdlobj  = .extractObj(raw, "mdlobj", .createMdlObj),
+		taskobj  = .extractObj(raw, "taskobj", .createTaskObj),
 	)
   
 }
 
 
-.extractAnyObj <- function(raw, identifier, createObjFn) {
+.extractObj <- function(raw, identifier, createObjFn) {
 	# Extract identifiers
 	logi <- sapply(raw, 
 		function(x){
