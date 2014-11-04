@@ -40,7 +40,7 @@ setGeneric("read", function(object, sourceDir=getwd(), deriveVariables=TRUE, cat
 
 #' @rdname read-methods
 #' @aliases read,dataObj,dataObj-method
-setMethod("read", "dataObj", function(object, sourceDir=getwd(), deriveVariables=TRUE, categoricalAsFactor=TRUE, recode=TRUE, asRaw=FALSE, ...){
+setMethod("read", "dataObj", function(object, sourceDir=getwd(), deriveVariables=TRUE, categoricalAsFactor=FALSE, recode=TRUE, asRaw=FALSE, ...){
   # if asRaw=TRUE, set the following arguments as FALSE
   if(asRaw){
     deriveVariables <- FALSE
