@@ -19,11 +19,12 @@ validity.dataObj <- function(object)
 #' @author khanley
 
 setClass("dataObj", 
-  slots =c(
+  slots = c(
     DATA_INPUT_VARIABLES="list",
     SOURCE = "list",
     DATA_DERIVED_VARIABLES = "list",
-	TARGET_CODE = "character"
+	TARGET_CODE = "character",
+	name = "character"
   ), 
   validity = validity.dataObj
 )
@@ -73,7 +74,8 @@ setClass("taskObj",
 	OPTIMISE = "character",
 	DATA = "character",
 	MODEL = "character",
-	TARGET_CODE = "character"
+	TARGET_CODE = "character",
+	name = "character"
   ),
   validity = validity.taskObj
 )
@@ -114,7 +116,8 @@ setClass("parObj",
   	STRUCTURAL = "list",
   	VARIABILITY = "list",
   	PRIOR_PARAMETERS = "list",
-	TARGET_CODE = "character"
+	TARGET_CODE = "character",
+	name = "character"
   ),
   validity = validity.parObj
 )
@@ -154,9 +157,9 @@ validity.modPred <- function(object)
 #' @author khanley
 setClass("modPred", 
   slots = c(
-  ODE = "character",
-  LIBRARY = "character",
-  content = "character"
+	ODE = "character",
+	LIBRARY = "character",
+	content = "character"
   ),
   validity = validity.modPred
 )
@@ -225,7 +228,8 @@ setClass("mdlObj",
     GROUP_VARIABLES = "list",
 	ESTIMATION = "list",
 	SIMULATION = "list",
-	TARGET_CODE = "character"
+	TARGET_CODE = "character",
+	name = "character"
   ),
   validity = validity.mdlObj
 )
@@ -267,10 +271,10 @@ validity.mogObj<- function(object)
 #' @author khanley
 setClass("mogObj", 
   slots = c(
-  dataObj = "dataObj",
-  parObj = "parObj",
-  mdlObj = "mdlObj", 
-  taskObj = "taskObj"
+	dataObj = "dataObj",
+	parObj = "parObj",
+	mdlObj = "mdlObj", 
+	taskObj = "taskObj"
   ),
   validity = validity.mogObj
 )
@@ -291,7 +295,7 @@ is.mogObj <- function(obj){
 
 #' as.mogObj
 #'
-#' Creates a mogObj from a list of dataObj, parObj, mdlObk and taskObj objects. Note
+#' Creates a mogObj from a list of dataObj, parObj, mdlObj and taskObj objects. Note
 #' that only one of each type may be included, and all types need to be present.
 #'
 #' @usage as.mogObj(list)
@@ -306,8 +310,9 @@ as.mogObj <- function(list){
   nMdl <- sum(classes=="mdlObj")
   nTask <- sum(classes=="taskObj")
   
-  if(nDat!=1 | nPar!=1 | nMdl!=1 | nTask!=1){stop("The list provided must contain exactly one
-    of each type of object: dataObj, parObj, mdlObj and taskObj")}
+  if (nDat!=1 | nPar!=1 | nMdl!=1 | nTask!=1) {
+	  stop("The list provided must contain exactly one of each type of object: dataObj, parObj, mdlObj and taskObj")
+  }
   
   dat <- list[classes=="dataObj"][[1]]
   par <- list[classes=="parObj"][[1]]

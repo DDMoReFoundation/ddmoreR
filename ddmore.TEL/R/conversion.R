@@ -1,4 +1,7 @@
 
+mog_object_types <- c("dataobj", "parobj", "mdlobj", "taskobj")
+
+
 ##############################################################
 #' .parseMDLFile
 #'
@@ -26,8 +29,8 @@
 
 .parseMDLFile <- function(f, name, type, HOST='localhost', PORT='9010') {
 
-  if (!type%in%c("parobj", "taskobj", "dataobj", "mdlobj", "mogObj")) {
-    stop("Type specified is not one of 'parobj', 'taskobj', 'dataobj', 'mdlobj' or 'mogobj'")
+  if (!type%in%c(mog_object_types, "mogObj")) {
+    stop(paste0("Type specified is not one of \"", paste(mog_object_types, collapse="\", \""), "\" or \"mogobj\""))
   }
   
   # Call parser and read in the JSON data
@@ -35,14 +38,21 @@
 
   if (!missing(name)) {
   
-    .extractNamedObject(raw, name)
+    res <- .extractNamedObject(raw, name, type)
+	if (length(res) == 0) {
+	  stop(paste0("No object named \"", name, "\" of type \"", type, "\" found in the parsed MDL file"))
+	}
     
   } else {
 	  
-    .extractTypeObject(raw, type)
+    res <- .extractTypeObject(raw, type)
+	if (length(res) == 0) {
+	  stop(paste0("No object of type \"", type, "\" found in the parsed MDL file"))
+	}
   
   }
   
+  return(res)
 }
 
 .parseMDLFile0 <- function(f, HOST='localhost', PORT='9010') {
@@ -55,11 +65,11 @@
 }
 
 
-.extractNamedObject <- function(raw, name) {
+.extractNamedObject <- function(raw, name, type) {
 	
   val <- raw[name] # Creates a list containing the single matching object
   
-  .extractTypeObject(val, type=val[[1]]$identifier)
+  .extractTypeObject(val, type)
 }
 
 
@@ -69,27 +79,39 @@
 		dataobj  = .extractObj(raw, "dataobj", .createDataObj),
 		parobj  = .extractObj(raw, "parobj", .createParObj),
 		mdlobj  = .extractObj(raw, "mdlobj", .createMdlObj),
-		taskobj  = .extractObj(raw, "taskobj", .createTaskObj),
+		taskobj  = .extractObj(raw, "taskobj", .createTaskObj)
 	)
   
 }
 
 
 .extractObj <- function(raw, identifier, createObjFn) {
+	
 	# Extract identifiers
 	logi <- sapply(raw, 
-		function(x){
+		function(x) {
 			x$identifier==identifier
 		}
 	)
 	
 	subList <- raw[logi]
 	
-	res <- lapply(subList, createObjFn)
+	# This is essentially
+	#  objList <- lapply(subList, createObjFn)
+	# but with the extra line of code that assigns the name
+	objList <- lapply(names(subList), function(n) { # 'n' is the name of the list element
+		obj <- createObjFn(subList[[n]])
+		obj@name <- n
+		obj
+	} )
 	
-	names(res) <- names(subList)
+	# Having the list of objects as a named list is not strictly necessary since the objects have a "name" attribute,
+	# but it is convenient to be able to do e.g.
+	#  parsed <- getMDLObjects("Warfarin-ODE-28Oct2014.mdl")
+	#  dataObj <- parsed$warfarin_PK_ODE_dat
+	names(objList) <- names(subList)
 	
-	return(res)
+	return(objList)
 }
 
 
@@ -298,18 +320,22 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
         identifier = "taskobj"
     ))
 
-	defaultMogAsList <- list(
-		identifier = "mog",
-		blockNames = list("outputMog_dat", "outputMog_par", "outputMog_mdl", "outputMog_task")
-	)
+	dataObjName <- m@dataObj@name
+	parObjName <- m@parObj@name
+	mdlObjName <- m@mdlObj@name
+	taskObjName <- m@taskObj@name
     
-    json <- toJSON(list(list(
-		outputMog_dat = dataObjAsList,
-		outputMog_par = parObjAsList,
-		outputMog_mdl = mdlObjAsList,
-        outputMog_task = taskObjAsList,
-		outputMog = defaultMogAsList
-    )))
+	allObjsAsList <- list(
+		dataObjAsList, parObjAsList, mdlObjAsList, taskObjAsList,
+		# The mog definition object
+		list(
+			identifier = "mog",
+			blockNames = list(dataObjName, parObjName, mdlObjName, taskObjName)
+		)
+	)
+	names(allObjsAsList) <- c(dataObjName, parObjName, mdlObjName, taskObjName, "outputMog")
+	
+    json <- toJSON(list(allObjsAsList))
 
     .write.mclobj0(json, f, HOST, PORT)
 })
