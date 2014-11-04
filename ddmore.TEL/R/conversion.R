@@ -324,6 +324,7 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
 	parObjName <- m@parObj@name
 	mdlObjName <- m@mdlObj@name
 	taskObjName <- m@taskObj@name
+	mogDefinitionName <- if (length(m@name) == 0 || m@name == '') "outputMog" else m@name
     
 	allObjsAsList <- list(
 		dataObjAsList, parObjAsList, mdlObjAsList, taskObjAsList,
@@ -333,7 +334,7 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
 			blockNames = list(dataObjName, parObjName, mdlObjName, taskObjName)
 		)
 	)
-	names(allObjsAsList) <- c(dataObjName, parObjName, mdlObjName, taskObjName, "outputMog")
+	names(allObjsAsList) <- c(dataObjName, parObjName, mdlObjName, taskObjName, mogDefinitionName)
 	
     json <- toJSON(list(allObjsAsList))
 

@@ -274,7 +274,8 @@ setClass("mogObj",
 	dataObj = "dataObj",
 	parObj = "parObj",
 	mdlObj = "mdlObj", 
-	taskObj = "taskObj"
+	taskObj = "taskObj",
+	name = "character"
   ),
   validity = validity.mogObj
 )
