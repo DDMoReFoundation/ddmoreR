@@ -8,16 +8,18 @@ setwd("C:/Users/cmusselle/Projects/DDmore/TEL-R")
 
 scripts.dir <- paste0(getwd(), "/ddmore.TEL/R/")
 
+# script.files = c(
+#     "telClasses", "createMogObj",
+#     "utils", "execute", "fileUtils", "mdlUtils", "conversion", "read", "update",
+#     "getDataObjects", "getParameterObjects", "getModelObjects", "getTaskPropertiesObjects", "getMDLObjects",
+#     "server","psnWrappers", "StandardOutputObject", "StandardOutputSubClasses", "StandardOutputMethods", "xmlParsers"
+# )
 
-script.files = c(
-    "telClasses", "createMogObj",
-    "utils", "execute", "fileUtils", "mdlUtils", "conversion", "read", "update",
-    "getDataObjects", "getParameterObjects", "getModelObjects", "getTaskPropertiesObjects", "getMDLObjects",
-    "server","psnWrappers", "StandardOutputObject", "StandardOutputSubClasses", "StandardOutputMethods"
-)
+script.files = list.files(scripts.dir, pattern = ".*\\.R")
+
 
 sapply(script.files, function(s) {
-    script.file <- paste0(scripts.dir, s, ".R");
+    script.file <- paste0(scripts.dir, s);
     cat(c("Loading in", script.file, "...\n"))
     source(script.file)
 })
