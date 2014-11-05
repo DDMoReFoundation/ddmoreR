@@ -3,19 +3,14 @@
 ## rather than having to re-build the DDMoRE.TEL package every time a change is made.
 ##
 
-# First need to set Current Working directory to 
-setwd("C:/Users/cmusselle/Projects/DDmore/TEL-R")
+scripts.dir <- paste0(dirname(sys.frame(1)$ofile), "/ddmore.TEL/R/")
 
-scripts.dir <- paste0(getwd(), "/ddmore.TEL/R/")
-
-# script.files = c(
-#     "telClasses", "createMogObj",
-#     "utils", "execute", "fileUtils", "mdlUtils", "conversion", "read", "update",
-#     "getDataObjects", "getParameterObjects", "getModelObjects", "getTaskPropertiesObjects", "getMDLObjects",
-#     "server","psnWrappers", "StandardOutputObject", "StandardOutputSubClasses", "StandardOutputMethods", "xmlParsers"
-# )
-
-script.files = list.files(scripts.dir, pattern = ".*\\.R")
+script.files = c(
+    "telClasses", "createMogObj",
+    "utils", "execute", "fileUtils", "mdlUtils", "conversion", "read", "update",
+    "getDataObjects", "getParameterObjects", "getModelObjects", "getTaskPropertiesObjects", "getMDLObjects",
+    "server","psnWrappers", "StandardOutputMethods", "StandardOutputSubClasses", "StandardOutputObject"
+)
 
 
 sapply(script.files, function(s) {

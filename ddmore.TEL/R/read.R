@@ -34,13 +34,13 @@
 #' @include telClasses.R
 #' @include utils.R
 
-setGeneric("read", function(object, sourceDir=getwd(), deriveVariables=TRUE, categoricalAsFactor=TRUE, recode=TRUE, asRaw=FALSE, ...) { 
+setGeneric("read", function(object, sourceDir=getwd(), deriveVariables=TRUE, categoricalAsFactor=FALSE, recode=TRUE, asRaw=FALSE, ...) { 
   standardGeneric("read")
 })
 
 #' @rdname read-methods
 #' @aliases read,dataObj,dataObj-method
-setMethod("read", "dataObj", function(object, sourceDir=getwd(), deriveVariables=TRUE, categoricalAsFactor=TRUE, recode=TRUE, asRaw=FALSE, ...){
+setMethod("read", "dataObj", function(object, sourceDir=getwd(), deriveVariables=TRUE, categoricalAsFactor=FALSE, recode=TRUE, asRaw=FALSE, ...){
   # if asRaw=TRUE, set the following arguments as FALSE
   if(asRaw){
     deriveVariables <- FALSE
@@ -50,7 +50,7 @@ setMethod("read", "dataObj", function(object, sourceDir=getwd(), deriveVariables
   
   res <- .importCSV(object, sourceDir=sourceDir, categoricalAsFactor, ...)
   
-  # Overwrite the names from the csv with names from DATA_DERIVED_VARIABLES
+  # Overwrite the names from the csv with names from DATA_INPUT_VARIABLES
   names(res) <- names(object@DATA_INPUT_VARIABLES)
   
   # Apply code from DATA_DERIVED_VARIABLES:
@@ -84,9 +84,13 @@ setMethod("read", "dataObj", function(object, sourceDir=getwd(), deriveVariables
     
     for(ii in vars){
       type <- input[[ii]]$type
-      if(type=="categorical"){try(res[, ii] <-as.factor(res[, ii]))}
-      if(type=="continuous"){try(res[, ii] <-as.numeric(res[, ii]))}
-            #TODO: add more options here 
+      if (type=="categorical") {
+		  try(res[, ii] <- as.factor(res[, ii]))
+	  }
+      if (type=="continuous") {
+		  try(res[, ii] <- as.numeric(res[, ii]))
+	  }
+	  #TODO: add more options here 
     }
   }
   

@@ -20,7 +20,7 @@
 #' @docType methods
 #' @rdname getMDLObjects-methods
 #' @examples
-## Retrieve from the DDMoRe Library
+#' Retrieve from the DDMoRe Library
 #' ThamDataObject <- getMDLObjects(file="http://ddmore.eu/model-repository/model/download/127.17?filename=2008ThamJCCR.mdl")
 #' ## Retrieve the all Objects from the .mdl file
 #' ThamDataObject <- getMDLObjects("2008ThamJCCR.mdl", type="All")
@@ -45,21 +45,33 @@ setGeneric("getMDLObjects", function(x, name, HOST='localhost', PORT='9010') {
     if(!is.vector(name)){stop("argument 'name' must be a vector of strings")}
   }
   
-  dataList <- getDataObjects(x, HOST=HOST, PORT=PORT)
-  modList <- getModelObjects(x, HOST=HOST, PORT=PORT)
-  paramList <- getParameterObjects(x, HOST=HOST, PORT=PORT)
-  taskList <- getTaskPropertiesObjects(x, HOST=HOST, PORT=PORT)
+  # Call parser and read in the JSON data
+  raw <- .parseMDLFile0(x, HOST, PORT);
   
-  # Combine all objects into one list
-  res <- c(dataList, modList, paramList, taskList)
-  
-  # Only return the object with given names if names is specified
-  if(!missing(name)){
-    stopifnot(all(name %in% names(res)))
-    res <- res[names(res)%in%name]
+  allObjs <- list()
+  sapply(mog_object_types, function(mog_object_type) {
+	allObjs <<- c(allObjs, .extractTypeObject(raw, mog_object_type))
+  })
+
+  # Only return the object with given name if name is specified
+  if (!missing(name)) {
+	
+	# Extract names
+	logi <- sapply(allObjs,
+	  function(x) {
+		x@name==name
+	  }
+	)
+	subList <- allObjs[logi]
+	
+	if (length(subList) == 0) {
+		stop(paste0("No object named \"", name, "\" found in the parsed MDL file"))
+	}
+	return(subList)
   }
   
-  return(res)
+  # Otherwise return a list of all the objects
+  return(allObjs)
   
 })
 

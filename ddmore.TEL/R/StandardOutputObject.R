@@ -32,7 +32,7 @@
 #' 
 #' @author cmusselle
 #' @include StandardOutputSubClasses.R 
-setClass("StandardOutputObject", package="DDMoRe.TEL", 
+setClass("StandardOutputObject", 
   # Define the slots
   slots=c(
     ToolSettings = "list", 

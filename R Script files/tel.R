@@ -1,11 +1,6 @@
-setwd("C:/Users/sdeshmukh/git/TEL.R/R/")
-source("workflowFunctions.R")
-source("execute.R")
-source("fileUtils.R")
-source("mdlUtils.R")
-source("server.R")
-source("outputObject.R")
-
+#
+# TODO: This script hasn't been kept up to date, can it be deleted, or are there bits we can re-use?
+#
 
 ## ----Initialise-------------------------------------------------------
 
@@ -16,6 +11,8 @@ library(RCurl)
 library(RNMImport)
 library(xpose4)
 library(MSToolkit)
+# Load the TEL.R library
+library(DDMoRe.TEL)
 
 ## ----loadData---------------------------------------------------------
 warfData<-readNmData("warfpk2.csv",records=0)
