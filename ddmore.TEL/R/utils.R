@@ -1,3 +1,65 @@
+#' ToFactor
+#'
+#' Takes in a data frame or a column of a data frame and converts the contents
+#' to a factor then returns it
+#'
+#' @param object a data frame or a column of a data frame. 
+#'
+ToFactor <- function(object) {
+
+    if (class(object) == "data.frame"){    
+      output = lapply(object, ToFactor)
+      object = data.frame(output)
+
+    } else if (class(object) == "numeric") {
+      object = as.factor(object)
+
+    } else if (class(object) == "integer") {
+      object = as.factor(object)
+
+    } else if (class(object) == "character") {
+      object = as.factor(object)
+    } else if (class(object) == "factor") {
+      object = object
+    } else {
+      warning("Object class not recognised. Skipping conversion ...")
+    }
+
+    return(object)
+}
+
+#' ToNumeric
+#'
+#' Takes in a data frame or a column of a data frame and converts the contents
+#' to numeric then returns it
+#'
+#' @param object a data frame or a column of a data frame. 
+#'
+ToNumeric <- function(object) {
+
+    if (class(object) == "data.frame"){
+      output = lapply(object, ToNumeric)
+      object = data.frame(output)
+
+    } else if (class(object) == "factor") {
+      object = as.numeric(as.character(object))
+
+    } else if (class(object) == "integer") {
+      object = as.numeric(object)
+
+    } else if (class(object) == "character") {
+      object = as.numeric(object)
+    } else if (class(object) == "numeric") {
+      object = object
+    } else {
+      warning("Object class not recognised. Skipping conversion ...")
+    }
+    return(object)    
+}
+
+
+
+
 
 ##############################################################
 #' URLencode

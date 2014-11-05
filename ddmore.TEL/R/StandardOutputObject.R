@@ -120,14 +120,53 @@ LoadSOObject <- function(file) {
   # Fetch all Components of the SO object that are defined
   SOChildren = xmlChildren(SOlist[[1]])
 
-  # Execute Parsers
-  SOObject = ParseToolSettings(SOObject, SOChildren[["ToolSettings"]])
-  SOObject = ParseRawResults(SOObject, SOChildren[["RawResults"]])
-  SOObject = ParsePopulationEstimates(SOObject, SOChildren[["Estimation"]][["PopulationEstimates"]])
-  SOObject = ParsePrecisionPopulationEstimates(SOObject, SOChildren[["Estimation"]][["PrecisionPopulationEstimates"]])
-  SOObject = ParseIndividualEstimates(SOObject, SOChildren[["Estimation"]][["IndividualEstimates"]])
-  SOObject = ParseResiduals(SOObject, SOChildren[["Estimation"]][["Residuals"]])
-  SOObject = ParsePredictions(SOObject, SOChildren[["Estimation"]][["Predictions"]])
+  # Error checking of expected XML structure + Parser Execution
+  if ("ToolSettings" %in% names(SOChildren)){
+    SOObject = ParseToolSettings(SOObject, SOChildren[["ToolSettings"]])
+  } else {
+    warning("ToolSettings element not detected in PharmML. Skipping...")
+  }
+
+  if ("RawResults" %in% names(SOChildren)){
+    SOObject = ParseRawResults(SOObject, SOChildren[["RawResults"]])
+  } else {
+    warning("RawResults element not detected in PharmML. Skipping...")
+  }
+
+  if ("Estimation" %in% names(SOChildren)){
+
+      if ("PopulationEstimates" %in% names(SOChildren[["Estimation"]])){
+        SOObject = ParsePopulationEstimates(SOObject, SOChildren[["Estimation"]][["PopulationEstimates"]])
+      } else {
+        warning("PopulationEstimates element not detected in PharmML. Skipping...")
+      }
+
+      if ("PrecisionPopulationEstimates" %in% names(SOChildren[["Estimation"]])){
+        SOObject = ParsePrecisionPopulationEstimates(SOObject, SOChildren[["Estimation"]][["PrecisionPopulationEstimates"]])
+      } else {
+        warning("PrecisionPopulationEstimates element not detected in PharmML. Skipping...")
+      }
+
+      if ("IndividualEstimates" %in% names(SOChildren[["Estimation"]])){
+        SOObject = ParseIndividualEstimates(SOObject, SOChildren[["Estimation"]][["IndividualEstimates"]])
+      } else {
+        warning("IndividualEstimates element not detected in PharmML. Skipping...")
+      }
+
+      if ("Residuals" %in% names(SOChildren[["Estimation"]])){
+        SOObject = ParseResiduals(SOObject, SOChildren[["Estimation"]][["Residuals"]])
+      } else {
+        warning("Residuals element not detected in PharmML. Skipping...")
+      }
+
+      if ("Predictions" %in% names(SOChildren[["Estimation"]])){
+        SOObject = ParsePredictions(SOObject, SOChildren[["Estimation"]][["Predictions"]])
+      } else {
+        warning("Predictions element not detected in PharmML. Skipping...")
+      }
+  } else {
+    warning("Estimation element not detected in PharmML. Skipping...")
+  }
 
   # Run validation functions on S4 Class and subclasses
   validObject(SOObject)
@@ -170,7 +209,7 @@ setMethod(f="getRawResults",
                       signature="StandardOutputObject",
                       definition=function(SOObject)
                       {                              
-                              return(SOObject@RawResults)
+                              return(SOObject@RawResults@Files)
                       }
                       )
 
@@ -294,119 +333,52 @@ setMethod(f="getSoftwareMessages",
                       }
                       )
 
-# =========================== #
-# Higher Level Getter Methods #
-# =========================== #
 
-#' getEstimationInfo
+
+# ========================== #
+# Reader for RawData files  #
+# ========================== #
+#' readRawData 
 #'
-#'  Print the liklihood and output messages from a StandardOutputObject.
+#'  
 #'
-#'  This function acts on an object of class StandardOutputObject, and is a wrapper to
-#'  getLikelihood and getSoftareMessages.    
 #'
-#' @export
-setGeneric(name="getEstimationInfo",
-                       def=function(SOObject)
-                       {
-                          standardGeneric("getEstimationInfo")
-                       }
-                       )
-setMethod(f="getEstimationInfo",
-                      signature="StandardOutputObject",
-                      definition=function(SOObject)
-                      {                      
-
-                        liklihood = getLikelihood(SOObject)
-                        messages = getSoftwareMessages(SOObject)
-
-                        # Filter out missing messages 
-                        msgsToPrint = messages[!sapply(messages, is.null)]
-                        
-                        print(liklihood)
-                        print(msgsToPrint)
-                        
-                        return(list(liklihood=liklihood, msgs=msgsToPrint))
-                      }
-                      )
-
-#' getParameterEstimates
 #'
-#'  This function acts on an object of class StandardOutputObject and is 
-#'  a wrapper to getPopulationEstimates and getPrecisionPopulationEstimates 
-#'  presenting estimates of the STRUCTURAL and RANDOM_VARIABILITY parameters along 
-#'  with any associated measures of uncertainty (Std Dev) and interval estimates if 
-#'  these are available.  Fetch estimation information from parameters.
-#'
-#' @param type character string determining which parameters to return. Choice of 
-#' "structural", "variability" or "all"
-#'
-#' @param what character string determining what values to return: 
-#'    \itemize{
-#'        \item “estimates” – returns point estimates for the parameters.
-#'        \item “precision” – returns variability / uncertainty estimates for the parameters.
-#'        \item “intervalEstimates” - returns interval estimates for the parameters. 
-#'        \item “all” – returns all of the above in a table.
-#'    } 
-#'
-#' The values available for return from the StandardOutputObject depend on the 
-#' estimation method used and how these are populated – either directly from the 
-#' estimation task output or subsequently via other methods e.g. bootstrapping. 
-#' The function will provide suitable names for the columns depending on the 
-#' methods used. So for example, although the argument for “what” accepts 
-#' “precision” this may mean SE assuming Normality, Bootstrap SE, SD from MCMC or
-#' SAEM estimation methods.
-#'
-#' @value If only returning “estimates” or “precision” then a named vector of 
-#' real values. If returning “intervalEstimates” or “all” then a data frame 
-#' containing one row for each parameter. Columns are “Estimate”, “Precision”, 
-#' “Lower”, “Upper”, “Shrinkage".
-#'
-#' @export
-setGeneric(name="getParameterEstimates",
-                       def=function(SOObject, type="all", what="all")
-                       {
-                          standardGeneric("getParameterEstimates")
-                       }
-                       )
-setMethod(f="getParameterEstimates",
-                      signature="StandardOutputObject",
-                      definition=function(SOObject, type="all", what="all")
-                      {
-                        
-                        # TODO: Finish writiing 
+setGeneric(name="readRawData",
+           def=function(SOObject, fileIndex)
+          {
+             standardGeneric("readRawData")
+          }
+          )
+setMethod(f="readRawData",
+          signature="StandardOutputObject",
+          definition=function(SOObject, fileIndex)
+          {
 
-                        switch{type, 
-                          "structural" = {
+          # Mappers from id to file description
+          id2FileType = lapply(SOObject@RawResults@Files, function(x) x[["Description"]])
+          names(id2FileType)<- tolower(names(id2FileType))
 
-                          },
-                          "variability" = {
+          fileType2Id = as.list(names(id2FileType))
+          names(fileType2Id) <- tolower(id2FileType)
 
-                          },
-                          "all" = {
+          fileIndex = tolower(fileIndex)
 
-                          }
-                        }
+          # fileIndex can be file id or file description
+          if (fileIndex %in% names(id2FileType)){
+            fileElement = SOObject@RawResults@Files[[fileIndex]]
+          } else if (fileIndex %in% names(fileType2Id)){           
+            fileElement = SOObject@RawResults@Files[[fileType2Id[[fileIndex]]]]
+          } else {
+            stop(paste0("File Reference: ",
+              fileIndex," not found for either file id or file description"))
+          }
 
-
-                        switch{what, 
-                          "estimates" = {
-
-                          },
-                          "precision" = {
-
-                          },
-                          "individualEstimates" = {
-
-                          },
-                          "all" = {
-
-                          }
-                        }
-
-                      }
-                      )
-
+          # TODO: Possibly need to add custom NA handelling here 
+          rawData = read.csv(rawFile$path, na.strings=".")
+          return (rawData)
+}
+)
 
 # ============================= #
 # Convert to single Data Frame  #
@@ -418,48 +390,47 @@ setMethod(f="getParameterEstimates",
 #' 
 #' @export
 setGeneric(name="as.data",
-           def=function(SOObject, ...)
+           def=function(SOObject, inputDataPath)
           {
              standardGeneric("as.data")
           }
           )
 setMethod(f="as.data",
-          signature="StandardOutputObject",
-          definition=function(SOObject, ...)
-                   {
-            ####################################
-            # Read in Raw Data
-            # TODO: Replace Hard coded parts in this section. They should be gleamed from full PharmML 
+          signature=signature(SOObject="StandardOutputObject", inputDataPath="character"),
+          definition=function(SOObject, inputDataPath)
+          {
 
-            # Define a file type to id mapping 
-            id2FileType = list("r1" = "estimates", "r2" = "predictions", "r3"="rawData")
-            fileType2Id = as.list(names(id2FileType))
-            names(fileType2Id) <- id2FileType
-
-            setwd("C:/Users/cmusselle/Projects/DDmore/TEL-R/development data/warfarin_PK_ODE/warfarin_PK_ODE_project/")
-            rawFile = SOObject@RawResults@Files[[fileType2Id[["rawData"]]]]
-            rawData = read.csv(rawFile$path, na.strings=".")
-            setwd("C:/Users/cmusselle/Projects/DDmore/TEL-R/development data")
-
-            names(rawData)<-c("ID","TIME","WT","AMT","DVID","DV","MDV","logtWT") 
-            ####################################
+            if (missing(inputDataPath)){
+              stop("Path to input data must be specified")
+            } else {
+              rawData = read.csv(inputDataPath, na.strings=".")
+              names(rawData)<-c("ID","TIME","WT","AMT","DVID","DV","MDV","logtWT") 
+            }
 
             # Fetch and merge Predictions 
             predictions = SOObject@Estimation@Predictions$data
+            predictions[["TIME"]] = ToNumeric(predictions[["TIME"]])
             mergedDataFrame <- merge(rawData, predictions)
 
             # Fetch and merge Residuals 
+            # residuals = SOObject@Estimation@Residuals
+            # for (name in c("WRES", "IWRES")){
+            #   mergedDataFrame <- merge(mergedDataFrame, residuals[[name]][["data"]])
+            # }
+
+            # Fetch and merge Residuals 
             residuals = SOObject@Estimation@Residuals
-            for (name in c("WRES", "IWRES")){
-              mergedDataFrame <- merge(mergedDataFrame, residuals[[name]][["data"]])
+            for (name in c("Population", "Individual")){
+              mergedDataFrame <- merge(mergedDataFrame, residuals[[name]])
             }
 
             # IndividualEstimates, Estimates
-            mergedDataFrame <- merge(mergedDataFrame, 
-              SOObject@Estimation@IndividualEstimates$Estimates$Mean$data)
+            dat = SOObject@Estimation@IndividualEstimates$Estimates$Mean$data
+            mergedDataFrame <- merge(mergedDataFrame, dat)
+
             # IndividualEstimates, RandomEffects
-            mergedDataFrame <- merge(mergedDataFrame, 
-              SOObject@Estimation@IndividualEstimates$RandomEffects$EffectMean$data)
+            dat = SOObject@Estimation@IndividualEstimates$RandomEffects$EffectMean$data
+            mergedDataFrame <- merge(mergedDataFrame, dat)
 
             return(mergedDataFrame)
           }
@@ -472,29 +443,29 @@ setMethod(f="as.data",
 #'
 #'  Method to Fetch all relevant data and convert to Xpose database object.
 #' 
-#' 
+#' @export
 setGeneric(name="as.xpdb",
-           def=function(SOObject)
+           def=function(SOObject, inputDataPath)
           {
              standardGeneric("as.xpdb")
           }
           )
 setMethod(f="as.xpdb",
-          signature="StandardOutputObject",
-          definition=function(SOObject)
+          signature=signature(SOObject="StandardOutputObject", inputDataPath="character"),
+          definition=function(SOObject, inputDataPath)
           {
 
             # create Merged data frame
-            xpose4_dataFrame = as.data(SOObject)
+            xpose4_dataFrame = as.data(SOObject, inputDataPath)
 
             library('xpose4')
             # CREATE new Xpose database
             myXpdb<-new("xpose.data",Runno=0,Doc=NULL)
             
-            # Possibly need to check data types here
-            #
-            #
-            #
+            # TODO: Possibly need to check data types here
+            
+            # TODO: Remove i in ID columns for now.
+            xpose4_dataFrame$ID <- as.numeric(sub("i", "", xpose4_dataFrame$ID ))
 
             ## Map data.out to xpdb@Data
             Data(myXpdb)<-xpose4_dataFrame

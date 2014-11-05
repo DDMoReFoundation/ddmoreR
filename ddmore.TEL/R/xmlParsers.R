@@ -28,13 +28,28 @@ ParseDataSet <- function(parentNode) {
   parentNodeChildList = xmlChildren(parentNode)
 
   # Error checking
-  # Strip comments
+  # Strip comments first
   parentNodeChildNames = names(parentNodeChildList)[names(parentNodeChildList) != "comment"]
-  stopifnot("Definition" %in% parentNodeChildNames & "Table" %in% parentNodeChildNames)
+  stopifnot(("Definition" %in% parentNodeChildNames & "Table" %in% parentNodeChildNames) | 
+   ("ds:Definition" %in% parentNodeChildNames & "ds:Table" %in% parentNodeChildNames))
 
-  definition = parentNodeChildList[["Definition"]]
-  table = parentNodeChildList[["Table"]]
-  
+  # Namespaces are not delt with correctly in the R xml library, so two hardcoded 
+  # versions of this function are necessary unitl a workaround is found.  
+  if (xmlName(parentNode[[1]]) == "Definition" & xmlName(parentNode[[2]]) == "Table") {
+    descriptionRef = "Definition"
+    tableRef = "Table"
+    rowRef = "Row"
+    columnRef = "Column"
+  } else if (xmlName(parentNode[[1]]) == "ds:Definition" & xmlName(parentNode[[2]]) == "ds:Table") {
+    descriptionRef = "ds:Definition"
+    tableRef = "ds:Table"
+    rowRef = "ds:Row"
+    columnRef = "ds:Column"
+  }
+
+  definition = parentNodeChildList[[descriptionRef]]
+  table = parentNodeChildList[[tableRef]]
+      
   # Extract all column Information and store in a data frame
   columnInfo = as.data.frame(xmlSApply(definition, FUN = function(x) list(
   		xmlGetAttr(x, name="columnNum"), 
@@ -43,9 +58,9 @@ ParseDataSet <- function(parentNode) {
     	xmlGetAttr(x, name="columnId")
     	)
   ))
-  
+      
   # Filter out non Columns tags  
-  columnInfo = columnInfo[, names(columnInfo) == "Column"]
+  columnInfo = columnInfo[, names(columnInfo) == columnRef]
   
   # Rename column headers to column ID
   names(columnInfo) <- unlist(columnInfo[4,])
@@ -56,7 +71,7 @@ ParseDataSet <- function(parentNode) {
   # Get all Table Row elements
   # Supress namespace undefined messages 
   sink("NUL")
-  rowList = xpathApply(table, "//*[local-name() = 'Row']")
+  rowList = xpathApply(table, paste0("//*[local-name() = '", rowRef, "']"))
   sink()
 
   # List of values
@@ -68,18 +83,19 @@ ParseDataSet <- function(parentNode) {
   # Convert to data frame 
   temp = Reduce(rbind, rowData)
   if (length(rowData) == 1) {
-    # reduced list is a character vector      
-    df = unname(t(data.frame(temp)))
+    # reduced list is a character vector
+    df = t(data.frame(temp))
     rownames(df) <- NULL
     colnames(df) <- names(columnInfo)
   } else {
-    # reduced list is a character matrix 
-    df = unname(data.frame(temp))
-    rownames(df) <- NULL
+    dimnames(temp) <- NULL
+    # reduced list is a character matrix
+    df = data.frame(temp)
     colnames(df) <- names(columnInfo)
   }
   return(list(description=columnInfo, data=df))
 }
+
 
 #' ParseMatrix
 #' 
@@ -127,6 +143,20 @@ ParseMatrix <- function(matrixNode) {
   return(df)
 }
 
+#' ParseImportData
+#'
+#' Utility function to parse and load in an external file to the PharmML, defined in the 
+#' ImportData node passed in. 
+#'
+#' @param ImportDataNode The parent xmlNode object that contains three decendant tags:
+#'   path, format and delimiter.  
+#'
+#' @value Returns a list with two named elements: \code{description}, which holds all 
+#' the meta data about the columns in a data frame; \code{data}, which holds the
+#' actual values in a dataframe.
+#'
+ParseImportData <- function(ImportDataNode) {
+}
 
 # =============== #
 # Section Parsers #
