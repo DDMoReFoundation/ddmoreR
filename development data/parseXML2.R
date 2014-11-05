@@ -54,7 +54,10 @@ SOObject = ParsePredictions(SOObject, SOChildren$Estimation[["Predictions"]])
 
 
 
-SOObject
+
+MLEDataSet = root[[2]][["Estimation"]][["PopulationEstimates"]][["MLE"]]
+
+ParseDataSet(MLEDataSet)
 
 
 #Node = xpathApply(root, "/d:SO/d:SOBlock/d:Estimation/d:PrecisionPopulationEstimates", namespaces=ns)
