@@ -183,18 +183,18 @@ mog_object_types <- c("dataobj", "parobj", "mdlobj", "taskobj")
 .createMdlObj <- function(dat){
 
     res <- new("mdlObj",
+        MODEL_INPUT_VARIABLES = translateIntoNamedList(dat$MODEL_INPUT_VARIABLES), # as.list done within the function
         STRUCTURAL_PARAMETERS = translateIntoNamedList(dat$STRUCTURAL_PARAMETERS), # as.list done within the function
         VARIABILITY_PARAMETERS = translateIntoNamedList(dat$VARIABILITY_PARAMETERS), # as.list done within the function
-        INDIVIDUAL_VARIABLES = translateIntoNamedList(dat$INDIVIDUAL_VARIABLES), # as.list done within the function
         RANDOM_VARIABLE_DEFINITION = translateIntoNamedList(dat$RANDOM_VARIABLE_DEFINITION),
-		MODEL_OUTPUT_VARIABLES = translateIntoNamedList(dat$MODEL_OUTPUT_VARIABLES), # as.list done within the function
-        MODEL_INPUT_VARIABLES = translateIntoNamedList(dat$MODEL_INPUT_VARIABLES), # as.list done within the function
-        OBSERVATION = translateIntoNamedList(dat$OBSERVATION), # as.list done within the function
+        INDIVIDUAL_VARIABLES = translateIntoNamedList(dat$INDIVIDUAL_VARIABLES), # as.list done within the function
         MODEL_PREDICTION = new("modPred",
             ODE = as.character(dat$MODEL_PREDICTION$ODE),
             LIBRARY = as.character(dat$MODEL_PREDICTION$LIBRARY),
             content = as.character(dat$MODEL_PREDICTION$content)
         ),
+        OBSERVATION = translateIntoNamedList(dat$OBSERVATION), # as.list done within the function
+		MODEL_OUTPUT_VARIABLES = translateIntoNamedList(dat$MODEL_OUTPUT_VARIABLES), # as.list done within the function
 		# TODO: TBC - These need to be populated
         GROUP_VARIABLES = list(),
 		ESTIMATION = list(),

@@ -1,6 +1,6 @@
 # 
 # Author: khanley, mwise
-###############################################################################
+################################################################################
 
 #### Data object class
 validity.dataObj <- function(object)
@@ -12,12 +12,22 @@ validity.dataObj <- function(object)
   return(TRUE)
 }
 
-#' @slot DATA_INPUT_VARIABLES A named list of variables keyed by their names
-#' @slot SOURCE A list of attribute values keyed by their attribute names
+################################################################################
+#' Data Object S4 Class Definition.
+#' 
+#' Objects of this class map to occurrences of the \code{dataobj} top-level block
+#' in an MDL file. They are created by parsing an MDL file using
+#' \link{getDataObjects} or \link{getMDLObjects}.
+#' 
+#' @slot SOURCE Named list of parameter values keyed by their parameter names.
+#'       Example parameter names are \code{file}, \code{inputformat}, \code{ignore}.
+#' @slot DATA_INPUT_VARIABLES Named list of variable names mapping to lists
+#'       of attribute values keyed by their names, for each variable.
 #' @slot DATA_DERIVED_VARIABLES TODO TBC
 #' @slot TARGET_CODE TODO TBC
-#' @author khanley
-
+#' @slot name The name assigned to the \code{dataobj} in the MDL file.
+#' 
+#' @author khanley, mwise
 setClass("dataObj", 
   slots = c(
     DATA_INPUT_VARIABLES="list",
@@ -58,14 +68,23 @@ validity.taskObj <- function(object)
 	return(TRUE)
 }
 
-#' @slot ESTIMATE A character vector content of this sub-block "as-is"
-#' @slot SIMULATE A character vector content of this sub-block "as-is"
-#' @slot EVALUATE A character vector content of this sub-block "as-is"
-#' @slot OPTIMISE A character vector content of this sub-block "as-is"
-#' @slot DATA A character vector content of this sub-block "as-is"
-#' @slot MODEL A character vector content of this sub-block "as-is"
+################################################################################
+#' Task Object S4 Class Definition.
+#' 
+#' Objects of this class map to occurrences of the \code{taskobj} top-level block
+#' in an MDL file. They are created by parsing an MDL file using
+#' \link{getTaskPropertiesObjects} or \link{getMDLObjects}.
+#' 
+#' @slot ESTIMATE Character vector content of this sub-block "as-is".
+#' @slot SIMULATE Character vector content of this sub-block "as-is".
+#' @slot EVALUATE Character vector content of this sub-block "as-is".
+#' @slot OPTIMISE Character vector content of this sub-block "as-is".
+#' @slot DATA Character vector content of this sub-block "as-is".
+#' @slot MODEL Character vector content of this sub-block "as-is".
 #' @slot TARGET_CODE TODO TBC
-#' @author khanley
+#' @slot name The name assigned to the \code{taskobj} in the MDL file.
+#' 
+#' @author khanley, mwise
 setClass("taskObj", 
   slots = c(
 	ESTIMATE = "character",
@@ -106,11 +125,33 @@ validity.parObj <- function(object)
   return(TRUE)
 }
 
-#' @slot STRUCTURAL A named list of variables keyed by their names
-#' @slot VARIABILITY A named list of variables keyed by their names
+################################################################################
+#' Parameter Object S4 Class Definition.
+#' 
+#' Objects of this class map to occurrences of the \code{parobj} top-level block
+#' in an MDL file. They are created by parsing an MDL file using
+#' \link{getParameterObjects} or \link{getMDLObjects}.
+#' 
+#' @slot STRUCTURAL Named list of variable names mapping to lists
+#'       of attribute values keyed by their names, for each variable.
+#' @slot VARIABILITY A named list, comprising a mixture of zero or more occurrences
+#'       of any, some or all of the following 'types' of Variability element:
+#'       \itemize{
+#'         \item{Variable name mapping to a list of attribute values keyed by their names}
+#'         \item{Matrix block, keyed as \code{matrix_X} where X is an incrementing number,
+#'               that maps to a list comprising elements with names \code{name},
+#'               \code{type} and \code{content}}
+#'         \item{Same block, keyed as \code{same_Y} where Y is an incrementing number, that
+#'               maps to a list comprising elements with names \code{name} and \code{content}}
+#'         \item{Diag block, keyed as \code{diag_Z} where Z is an incrementing number, that
+#'               maps to a list comprising elements with names \code{name}, \code{type}
+#'               and \code{content}}
+#'       }
 #' @slot PRIOR_PARAMETERS TODO TBC
 #' @slot TARGET_CODE TODO TBC
-#' @author khanley
+#' @slot name The name assigned to the \code{parobj} in the MDL file.
+#' 
+#' @author khanley, mwise
 setClass("parObj", 
   slots = c(
   	STRUCTURAL = "list",
@@ -137,7 +178,7 @@ is.parObj <- function(obj){
 
 
 
-#### Model prediction object class
+#### Model Prediction object class
 
 
 validity.modPred <- function(object)
@@ -151,9 +192,19 @@ validity.modPred <- function(object)
 
 # Create modPred class:
 
-#' @slot ODE A character vector content of this sub-block "as-is"
-#' @slot LIBRARY A character vector content of this sub-block "as-is"
-#' @slot content A character vector of the remaining content of the Model Prediction block "as-is"
+################################################################################
+#' Model Prediction S4 Class Definition.
+#' 
+#' Objects of this class map to the \code{MODEL_PREDICTION} sub-block within
+#' occurrences of the \code{mdlobj} top-level block in an MDL file. They are
+#' not created directly but are created as part of parsing an MDL file using
+#' \link{getModelObjects} or \link{getMDLObjects}.
+#' 
+#' @slot ODE Character vector content of this sub-block "as-is".
+#' @slot LIBRARY Character vector content of this sub-block "as-is".
+#' @slot content Character vector of the remaining content of the Model
+#'       Prediction block "as-is".
+#' 
 #' @author khanley
 setClass("modPred", 
   slots = c(
@@ -185,14 +236,14 @@ is.modPred <- function(obj){
 
 validity.mdlObj <- function(object)
 {
+	stopifnot(is.list(object@MODEL_INPUT_VARIABLES))
 	stopifnot(is.list(object@STRUCTURAL_PARAMETERS))
 	stopifnot(is.list(object@VARIABILITY_PARAMETERS))
-	stopifnot(is.list(object@INDIVIDUAL_VARIABLES))
 	stopifnot(is.list(object@RANDOM_VARIABLE_DEFINITION))
-	stopifnot(is.list(object@MODEL_OUTPUT_VARIABLES))
-	stopifnot(is.list(object@MODEL_INPUT_VARIABLES))
-    stopifnot(is.list(object@OBSERVATION))
+	stopifnot(is.list(object@INDIVIDUAL_VARIABLES))
 	stopifnot(is.modPred(object@MODEL_PREDICTION))
+    stopifnot(is.list(object@OBSERVATION))
+	stopifnot(is.list(object@MODEL_OUTPUT_VARIABLES))
 	stopifnot(is.list(object@GROUP_VARIABLES))
 	stopifnot(is.list(object@ESTIMATION))
 	stopifnot(is.list(object@SIMULATION))
@@ -202,29 +253,64 @@ validity.mdlObj <- function(object)
 
 ### Create mdlObj class:
 
-#' @slot STRUCTURAL_PARAMETERS A named list of variables keyed by their names
-#' @slot VARIABILITY_PARAMETERS A named list of variables keyed by their names
-#' @slot INDIVIDUAL_VARIABLES A named list of variables keyed by their names
-#' @slot RANDOM_VARIABLE_DEFINITION A named list of random-distribution-type variables keyed by their names
-#' @slot MODEL_OUTPUT_VARIABLES A named list of variables keyed by their names
-#' @slot MODEL_INPUT_VARIABLES A named list of variables keyed by their names
-#' @slot OBSERVATION A named list of variables, a mixture of 'standard' and random-distribution-type, keyed by their names
-#' @slot MODEL_PREDICTION An object of class "modPred"
+################################################################################
+#' Model Object S4 Class Definition.
+#' 
+#' Objects of this class map to occurrences of the \code{mdlobj} top-level block
+#' in an MDL file. They are created by parsing an MDL file using
+#' \link{getModelObjects} or \link{getMDLObjects}.
+#' 
+#' @slot MODEL_INPUT_VARIABLES Named list of variable names mapping to lists
+#'       of attribute values keyed by their names, for each variable.
+#' @slot STRUCTURAL_PARAMETERS Named list of variables where the names are
+#'       the variable names but there are no attributes of these variables
+#'       to map to.
+#' @slot VARIABILITY_PARAMETERS Named list of variables where the names are
+#'       the variable names but there are no attributes of these variables
+#'       to map to.
+#' @slot RANDOM_VARIABLE_DEFINITION A named list, keyed by variable name, mapping
+#'       to either of the following two 'types' of Random Variable element:
+#'       \itemize{
+#'         \item{Distribution parameter - a list comprising a single element having
+#'               name "complexAttrs", mapping to a list of attribute values keyed
+#'               by their names}
+#'         \item{'Standard' variable - a list comprising a single element having
+#'               name "attrs", mapping to a list of attribute values keyed
+#'               by their names}
+#'       }
+#' @slot INDIVIDUAL_VARIABLES Named list of variable names mapping to lists
+#'       of attribute values keyed by their names, for each variable.
+#' @slot MODEL_PREDICTION Object of class \linkS4class{modPred}.
+#' @slot OBSERVATION A named list, keyed by variable name, mapping
+#'       to either of the following two 'types' of Random Variable element:
+#'       \itemize{
+#'         \item{Distribution parameter - a list comprising a single element having
+#'               name "complexAttrs", mapping to a list of attribute values keyed
+#'               by their names}
+#'         \item{'Standard' variable - a list comprising a single element having
+#'               name "attrs", mapping to a list of attribute values keyed
+#'               by their names}
+#'       }
+#' @slot MODEL_OUTPUT_VARIABLES Named list of variables where the names are
+#'       the variable names but there are no attributes of these variables
+#'       to map to.
 #' @slot GROUP_VARIABLES TODO TBC
 #' @slot ESTIMATION TODO TBC
 #' @slot SIMULATION TODO TBC
 #' @slot TARGET_CODE TODO TBC
-#' @author khanley
+#' @slot name The name assigned to the \code{mdlobj} in the MDL file.
+#' 
+#' @author khanley, mwise
 setClass("mdlObj", 
   slots = c(
+    MODEL_INPUT_VARIABLES = "list",
     STRUCTURAL_PARAMETERS = "list",
     VARIABILITY_PARAMETERS = "list",
-    INDIVIDUAL_VARIABLES = "list",
     RANDOM_VARIABLE_DEFINITION ="list",
-	MODEL_OUTPUT_VARIABLES = "list",
-    MODEL_INPUT_VARIABLES = "list",
-    OBSERVATION = "list",
+    INDIVIDUAL_VARIABLES = "list",
     MODEL_PREDICTION = "modPred",
+    OBSERVATION = "list",
+	MODEL_OUTPUT_VARIABLES = "list",
     GROUP_VARIABLES = "list",
 	ESTIMATION = "list",
 	SIMULATION = "list",
@@ -264,10 +350,24 @@ validity.mogObj<- function(object)
 
 ### Create mogObj class:
 
-#' @slot dataObj Object of class "dataObj"
-#' @slot parObj Object of class "parObj"
-#' @slot mdlObj Object of class "mdlObj"
-#' @slot taskObj Object of class "taskObj"
+################################################################################
+#' MOG (Model Object Group) S4 Class Definition.
+#'
+#' 'Aggregator' class comprising exactly one occurrence of each of the following
+#' types of object as parsed from an MDL file:
+#' \itemize{
+#'   \item{\link{dataObj}}
+#'   \item{\link{parObj}}
+#'   \item{\link{mdlObj}}
+#'   \item{\link{taskObj}}
+#' }
+#' 
+#' @slot dataObj Object of class \code{dataObj}.
+#' @slot parObj Object of class \code{parObj}.
+#' @slot mdlObj Object of class \link{mdlOb}.
+#' @slot taskObj Object of class \link{taskObj}.
+#' @slot name A name to be assigned to the MOG; used when writing back out to MDL.
+#' 
 #' @author khanley
 setClass("mogObj", 
   slots = c(
