@@ -1,4 +1,6 @@
 
+#detach("package:DDMoRe.TEL", unload=TRUE)
+
 rm(list=ls())
 
 # Paths setup 
@@ -74,7 +76,6 @@ ranpar.qq(myXpdb)
 ranpar.vs.cov(myXpdb)
 
 
-
 # Testing Low Level Getter Functions 
 tools = DDMoRe.TEL:::getToolSettings(SOObject)
 raw_results = DDMoRe.TEL:::getRawResults(SOObject)
@@ -87,4 +88,8 @@ predictions = DDMoRe.TEL:::getPredictions(SOObject)
 likelihood = DDMoRe.TEL:::getLikelihood(SOObject)
 msgs = DDMoRe.TEL:::getSoftwareMessages(SOObject)
 
+# Test Higher Level getter functions 
 
+param = getParameterEstimates(SOObject)
+
+est_info = getEstimationInfo2(SOObject)
