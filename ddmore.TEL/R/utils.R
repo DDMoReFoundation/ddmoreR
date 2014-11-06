@@ -1,3 +1,18 @@
+#' Pretty print a list object
+#'
+#'
+#'
+pprintList <- function(listObject, listName) {
+
+                cat("\n", listName, ":\n", sep = "")
+                for (name in names(listObject)) {
+                  cat("--- ", name, " ---\n")
+                  print(listObject[[name]])
+                }
+
+                invisible(listObject)
+}
+
 #' ToFactor
 #'
 #' Takes in a data frame or a column of a data frame and converts the contents
@@ -56,8 +71,6 @@ ToNumeric <- function(object) {
     }
     return(object)    
 }
-
-
 
 
 

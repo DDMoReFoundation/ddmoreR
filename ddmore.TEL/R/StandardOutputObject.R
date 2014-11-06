@@ -185,138 +185,147 @@ LoadSOObject <- function(file) {
 
 #' Create a method to fetch the value of ToolSetting Slot
 setGeneric(name="getToolSettings",
-                       def=function(SOObject)
-                       {
-                               standardGeneric("getToolSettings")
-                       }
-                       )
+           def=function(SOObject)
+           {
+                   standardGeneric("getToolSettings")
+           }
+)
 setMethod(f="getToolSettings",
-                      signature="StandardOutputObject",
-                      definition=function(SOObject)
-                      {                              
-                              return(SOObject@ToolSettings)
-                      }
-                      )
+          signature="StandardOutputObject",
+          definition=function(SOObject)
+          {                              
+            ToolSettings = SOObject@ToolSettings
+            pprintList(ToolSettings, "Tool Settings")
+          }
+)
 
 #' Create a method to fetch the value of RawResults Slot
 setGeneric(name="getRawResults",
-                       def=function(SOObject)
-                       {
-                               standardGeneric("getRawResults")
-                       }
-                       )
+           def=function(SOObject)
+           {
+                   standardGeneric("getRawResults")
+           }
+)
 setMethod(f="getRawResults",
-                      signature="StandardOutputObject",
-                      definition=function(SOObject)
-                      {                              
-                              return(SOObject@RawResults@Files)
-                      }
-                      )
+          signature="StandardOutputObject",
+          definition=function(SOObject)
+          {                              
+            RawResults = SOObject@RawResults
+            pprintList(RawResults, "Raw Results")  
+          }
+)
 
 #' Create a method to fetch the value of PopulationEstimates Slot
 setGeneric(name="getPopulationEstimates",
-                       def=function(SOObject)
-                       {
-                          standardGeneric("getPopulationEstimates")
-                       }
-                       )
+           def=function(SOObject)
+           {
+              standardGeneric("getPopulationEstimates")
+           }
+)
 setMethod(f="getPopulationEstimates",
-                      signature="StandardOutputObject",
-                      definition=function(SOObject)
-                      {                              
-                        return(SOObject@Estimation@PopulationEstimates)
-                      }
-                      )
+          signature="StandardOutputObject",
+          definition=function(SOObject)
+          {     
+            PopulationEstimates = SOObject@Estimation@PopulationEstimates
+            pprintList(PopulationEstimates, "Population Estimates")
+          }
+)
 
 #' Create a method to fetch the value of PrecisionPopulationEstimates Slot
 setGeneric(name="getPrecisionPopulationEstimates",
-                       def=function(SOObject)
-                       {
-                          standardGeneric("getPrecisionPopulationEstimates")
-                       }
-                       )
+           def=function(SOObject)
+           {
+              standardGeneric("getPrecisionPopulationEstimates")
+           }
+)
 setMethod(f="getPrecisionPopulationEstimates",
-                      signature="StandardOutputObject",
-                      definition=function(SOObject)
-                      {                              
-                        return(SOObject@Estimation@PrecisionPopulationEstimates)
-                      }
-                      )
+          signature="StandardOutputObject",
+          definition=function(SOObject)
+          {                              
+          PrecisionPopulationEstimates = SOObject@Estimation@PrecisionPopulationEstimates
+          pprintList(PrecisionPopulationEstimates, "Precision Population Estimates")
+          }
+)
 
 #' Create a method to fetch the value of IndividualEstimates Slot
 setGeneric(name="getIndividualEstimates",
-                       def=function(SOObject)
-                       {
-                          standardGeneric("getIndividualEstimates")
-                       }
-                       )
+           def=function(SOObject)
+           {
+              standardGeneric("getIndividualEstimates")
+           }
+)
 setMethod(f="getIndividualEstimates",
-                      signature="StandardOutputObject",
-                      definition=function(SOObject)
-                      {                              
-                              return(SOObject@Estimation@IndividualEstimates)
-                      }
-                      )
+          signature="StandardOutputObject",
+          definition=function(SOObject)
+      {  
+        IndividualEstimates = SOObject@Estimation@IndividualEstimates
+        pprintList(IndividualEstimates, "Individual Estimates")                           
+      }                              
+)
 
 #' Create a method to fetch the value of PrecisionIndividualEstimates Slot
 setGeneric(name="getPrecisionIndividualEstimates",
-                       def=function(SOObject)
-                       {
-                          standardGeneric("getPrecisionIndividualEstimates")
-                       }
-                       )
+           def=function(SOObject)
+           {
+              standardGeneric("getPrecisionIndividualEstimates")
+           }
+)
 setMethod(f="getPrecisionIndividualEstimates",
                       signature="StandardOutputObject",
                       definition=function(SOObject)
-                      {                              
-                              return(SOObject@Estimation@PrecisionIndividualEstimates)
-                      }
-                      )
+   {                              
+      PrecisionIndividualEstimates = SOObject@Estimation@PrecisionIndividualEstimates
+      pprintList(PrecisionIndividualEstimates, "Precision Individual Estimates")
+   }                                                     
+)
 
 #' Create a method to fetch the value of Residuals Slot
 setGeneric(name="getResiduals",
-                       def=function(SOObject)
-                       {
-                          standardGeneric("getResiduals")
-                       }
-                       )
+           def=function(SOObject)
+           {
+              standardGeneric("getResiduals")
+           }
+)
 setMethod(f="getResiduals",
                       signature="StandardOutputObject",
                       definition=function(SOObject)
-                      {                              
-                              return(SOObject@Estimation@Residuals)
-                      }
-                      )
+    {
+      Residuals = SOObject@Estimation@Residuals
+      pprintList(Residuals, "Residuals")
+    }
+)
 
 #' Create a method to fetch the value of Predictions Slot
 setGeneric(name="getPredictions",
-                       def=function(SOObject)
-                       {
-                          standardGeneric("getPredictions")
-                       }
-                       )
+           def=function(SOObject)
+           {
+              standardGeneric("getPredictions")
+           }
+)
 setMethod(f="getPredictions",
-                      signature="StandardOutputObject",
-                      definition=function(SOObject)
-                      {                              
-                              return(SOObject@Estimation@Predictions)
-                      }
-                      )
+          signature="StandardOutputObject",
+          definition=function(SOObject)
+         {
+           Predictions = SOObject@Estimation@Predictions
+           pprintList(Predictions, "Predictions")
+         }                              
+)
 
 #' Create a method to fetch the value of Likelihood Slot
 setGeneric(name="getLikelihood",
-                       def=function(SOObject)
-                       {
-                          standardGeneric("getLikelihood")
-                       }
-                       )
+           def=function(SOObject)
+           {
+              standardGeneric("getLikelihood")
+           }
+)
 setMethod(f="getLikelihood",
-                      signature="StandardOutputObject",
-                      definition=function(SOObject)
-                      {                              
-                              return(SOObject@Estimation@Likelihood)
-                      }
-                      )
+          signature="StandardOutputObject",
+          definition=function(SOObject)
+          { 
+           Likelihood = SOObject@Estimation@Likelihood
+           pprintList(Likelihood, "Likelihood")
+          }
+)
 
 #' Create a method to fetch the value of SoftwareMessages Slot
 setGeneric(name="getSoftwareMessages",
@@ -326,17 +335,106 @@ setGeneric(name="getSoftwareMessages",
                        }
                        )
 setMethod(f="getSoftwareMessages",
-                      signature="StandardOutputObject",
-                      definition=function(SOObject)
-                      {                              
-                              return(SOObject@Estimation@SoftwareMessages)
-                      }
-                      )
+          signature="StandardOutputObject",
+          definition=function(SOObject)
+          {                              
+           SoftwareMessages = SOObject@Estimation@SoftwareMessages
+           pprintList(SoftwareMessages, "Software Messages")
+          }
+)
 
+# ============================= #
+# Higher Level Getter Functions #
+# ============================= #
+#' getEstimationInfo2 
+#'
+#' This function acts on an object of class StandardOutputObject 
+#' and is a wrapper to getLikelihood and getSoftwareMessages presenting information
+#' to the user about the estimation process including any warnings, errors from 
+#' the log and, depending on the target software and estimation method, values 
+#' such as Objective Function Value (OFV), -2*log-likelihood, Information criteria
+#' such as AIC, DIC, BIC. 
+#'
+#' @param object an object of class StandardOutputObject, the output from an 
+#' estimation task.
+#'
+#' @return A named list.
+#'
+#' @examples getEstimationInfo(object)
+#'
+#' @seealso getLikelihood, getSoftwareMessages
+#'
+#' @export 
+getEstimationInfo2 <- function(SOObject){
+  
+  likelihood = getLikelihood(SOObject)
+  messages = getSoftwareMessages(SOObject)
+
+  invisible(list(likelihood=likelihood, messages=messages))
+}
+
+#' getParameterEstimates
+#' 
+#' This function acts on an object of class StandardOutputObject and is a wrapper 
+#' to getPopulationEstimates and getPrecisionPopulationEstimates presenting 
+#' estimates of the STRUCTURAL and RANDOM_VARIABILITY parameters along with any 
+#' associated measures of uncertainty (Std Dev) and interval estimates if these 
+#' are available.
+#' Usage
+#' 
+#' @param SOObject an object of class StandardOutputObject, the output from an 
+#'    estimation task.
+#' @param type character string determining which parameters to return. 
+#'    Options are “structural”, “variability”, “all” (default).
+#' @param what character vector determining what values to return:
+#'  \itemize{
+#'    \item “estimates” – returns point estimates for the parameters.
+#'    \item “precision” – returns variability / uncertainty estimates for the 
+#'        parameters.
+#'    \item “intervalEstimates” - returns interval estimates for the parameters. 
+#'    \item “all” – returns all of the above in a table.}
+#' 
+#' The values available for return from the StandardOutputObject depend on the 
+#' estimation method used and how these are populated – either directly from the
+#' estimation task output or subsequently via other methods e.g. bootstrapping. 
+#' The function will provide suitable names for the columns depending on the 
+#' methods used. So for example, although the argument for “what” accepts 
+#' “precision” this may mean SE assuming Normality, Bootstrap SE, SD from MCMC 
+#' or SAEM estimation methods.
+#' 
+#' @return If only returning “estimates” or “precision” then a named vector of 
+#' real values. If returning “intervalEstimates” or “All” then a data frame 
+#' containing one row for each parameter. Columns are “Estimate”, “Precision”, 
+#' “Lower”, “Upper”, “Shrinkage”
+#' 
+#' @examples getParameterEstimates(object, type=”all”, what=”all”)
+#'
+#' @seealso getPopulationEstimates, getPrecisionPopulationEstimates
+#'
+#' @export
+getParameterEstimates <- function(SOObject, type="all", what="all"){
+  
+  output = list()
+
+  if (type== "estimates" | type == "all") {
+
+    PopulationEstimates = getPopulationEstimates(SOObject)
+    output = c(output, list(PopulationEstimates=PopulationEstimates))
+
+  } else if (type== "precision" | type == "all") {
+    PrecisionPopulationEstimates = getPrecisionPopulationEstimates(SOObject)
+    output = c(output, list(PrecisionPopulationEstimates=PrecisionPopulationEstimates))
+  
+  } else if (type== "intervalEstimates" | type == "all") {
+
+  }
+
+  invisible(output)
+}
 
 
 # ========================== #
-# Reader for RawData files  #
+# Reader for RawData files   #
 # ========================== #
 #' readRawData 
 #'
@@ -404,7 +502,9 @@ setMethod(f="as.data",
               stop("Path to input data must be specified")
             } else {
               rawData = read.csv(inputDataPath, na.strings=".")
-              names(rawData)<-c("ID","TIME","WT","AMT","DVID","DV","MDV","logtWT") 
+              names(rawData)<-c("ID","TIME","WT","AMT","DVID","DV","MDV","logtWT")
+              rawData$ID <- sub("^", "i", rawData$ID )
+              rawData[["ID"]] <- ToFactor(rawData[["ID"]]) 
             }
 
             # Fetch and merge Predictions 
@@ -418,19 +518,35 @@ setMethod(f="as.data",
             #   mergedDataFrame <- merge(mergedDataFrame, residuals[[name]][["data"]])
             # }
 
+            if (nrow(mergedDataFrame) == 0) {
+              stop("Merging of input data with predictions has failed. Check format of ID and TIME columns")
+            }
+
             # Fetch and merge Residuals 
             residuals = SOObject@Estimation@Residuals
             for (name in c("Population", "Individual")){
               mergedDataFrame <- merge(mergedDataFrame, residuals[[name]])
             }
 
+            if (nrow(mergedDataFrame) == 0) {
+              stop("Merging of residuals has failed. Check format of ID and TIME columns")
+            }
+
             # IndividualEstimates, Estimates
             dat = SOObject@Estimation@IndividualEstimates$Estimates$Mean$data
             mergedDataFrame <- merge(mergedDataFrame, dat)
-
+            
+            if (nrow(mergedDataFrame) == 0) {
+              stop("Merging of IndividualEstimates-Estimates has failed. Check format of ID and TIME columns")
+            }
+            
             # IndividualEstimates, RandomEffects
             dat = SOObject@Estimation@IndividualEstimates$RandomEffects$EffectMean$data
             mergedDataFrame <- merge(mergedDataFrame, dat)
+
+            if (nrow(mergedDataFrame) == 0) {
+              stop("Merging of IndividualEstimates-RandomEffects has failed. Check format of ID and TIME columns")
+            }
 
             return(mergedDataFrame)
           }
