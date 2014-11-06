@@ -47,7 +47,7 @@ mog_object_types <- c("dataobj", "parobj", "mdlobj", "taskobj")
 	  
     res <- .extractTypeObject(raw, type)
 	if (length(res) == 0) {
-	  stop(paste0("No object of type \"", type, "\" found in the parsed MDL file"))
+	  warning(paste0("No objects of type \"", type, "\" found in the parsed MDL file"))
 	}
   
   }
