@@ -9,12 +9,12 @@ script.files = c(
     "telClasses", "createMogObj",
     "utils", "execute", "fileUtils", "mdlUtils", "conversion", "read", "update",
     "getDataObjects", "getParameterObjects", "getModelObjects", "getTaskPropertiesObjects", "getMDLObjects",
-    "server","psnWrappers", "StandardOutputMethods", "StandardOutputSubClasses", "StandardOutputObject"
+    "server","psnWrappers", "xmlParsers", "StandardOutputMethods", "StandardOutputSubClasses", "StandardOutputObject"
 )
 
 
 sapply(script.files, function(s) {
-    script.file <- paste0(scripts.dir, s);
+    script.file <- paste0(scripts.dir, s, ".R");
     cat(c("Loading in", script.file, "...\n"))
     source(script.file)
 })
@@ -23,3 +23,4 @@ sapply(script.files, function(s) {
 library(rjson)
 library(RCurl)
 library(RNMImport)
+library(XML)
