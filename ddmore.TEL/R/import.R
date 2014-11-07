@@ -1,5 +1,5 @@
 
-TEL.import <- function(submission, target=file.path(submission$sourceDirectory, format(Sys.time(), "%Y%b%d%H%M%S")), clearUp=FALSE) {
+TEL.importFiles <- function(submission, target=file.path(submission$sourceDirectory, format(Sys.time(), "%Y%b%d%H%M%S")), clearUp=FALSE) {
 	
 	submission$resultsDir <- target
 	
@@ -79,3 +79,32 @@ TEL.import <- function(submission, target=file.path(submission$sourceDirectory, 
 		submission
 	}
 }
+
+
+
+TEL.importSO <- function(submission) {
+	
+	soXMLFilename <- paste0(file_path_sans_ext(submission$modelFile), "_SO.xml")
+	
+	SOObject = LoadSOObject(file.path(submission$resultsDir, soXMLFilename))
+	
+	# Begin Workaround Hack: To load in required part of Residuals into SO
+	
+	indwres = read.csv(file.path(submission$resultsDir,"ddmore_indwres.csv"), header=T) # TODO: Filename and 'sep'arator need to be taken from the S.O.
+	names(indwres) <- c("ID", "TIME", "IWRES")
+	# Add an 'i' to the begining of the ID column: may not be needed in future  
+	indwres$ID <- sub("^", "i", indwres$ID )
+	
+	popwres = read.csv(file.path(submission$resultsDir,"ddmore_popwres.csv"), header=T) # TODO: Filename and 'sep'arator need to be taken from the S.O.
+	names(popwres) <- c("ID", "TIME", "WRES")
+	# Add an 'i' to the begining of the ID column: may not be needed in future  
+	popwres$ID <- sub("^", "i", popwres$ID )
+	
+	SOObject@Estimation@Residuals$Population = popwres
+	SOObject@Estimation@Residuals$Individual = indwres
+	
+	# End Workaround Hack
+	
+	SOObject
+}
+
