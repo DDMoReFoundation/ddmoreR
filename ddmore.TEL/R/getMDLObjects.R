@@ -1,5 +1,4 @@
-##############################################################
-##############################################################
+################################################################################
 #' getMDLObjects
 #'
 #' Retrieves all MCL Objects from a locally stored MDL file or from a URL and 
@@ -52,6 +51,10 @@ setGeneric("getMDLObjects", function(x, name, HOST='localhost', PORT='9010') {
   sapply(mog_object_types, function(mog_object_type) {
 	allObjs <<- c(allObjs, .extractTypeObject(raw, mog_object_type))
   })
+
+  if (length(allObjs) == 0) {
+	stop("No objects found in the parsed MDL file")
+  }
 
   # Only return the object with given name if name is specified
   if (!missing(name)) {
