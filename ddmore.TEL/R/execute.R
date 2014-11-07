@@ -47,8 +47,12 @@ setGeneric("estimate", function(x, target=NULL,
 				ctlFile <- file.path(submission$resultsDir, ctlFile)
 				lstFile <- file.path(submission$resultsDir, lstFile)
 		      
-				# Successful execution -> return the RNMImport-imported NONMEM data
-				importNm(conFile = ctlFile, reportFile = lstFile)
+				# Successful execution, and doing a NONMEM run -> return the RNMImport-imported NONMEM data
+				if (file.exists(ctlFile)) {
+					importNm(conFile = ctlFile, reportFile = lstFile)
+				} else {
+					submission
+				}
 				
 			} else { # Not collecting the results
 				submission
