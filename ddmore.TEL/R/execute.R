@@ -1,10 +1,10 @@
 ################################################################################
 #' Estimate
 #'
-#' Submits a MDL file or MOG object (class mogObj) to the target software for
-#' execution and processes the results.
+#' Submits a MDL file or MOG object (class \linkS4class{mogObj}) to the target
+#' software for execution and processes the results.
 #'
-#' @param x An object of class mogObj or an MDL file.
+#' @param x An object of class \linkS4class{mogObj} or an MDL file.
 #' @param target String specifying the target software. Currently, possible 
 #'        targets are "NONMEM", "PsN", "MONOLIX".
 #' @param subfolder (Optional) Specify the name of a subfolder, within the directory

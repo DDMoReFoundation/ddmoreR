@@ -1,21 +1,26 @@
 
 ################################################################################
+#' Import result files.
+#' 
 #' Retrieve the result files generated from an execution of an MDL file and copy
 #' them into a suitable results subdirectory alongside the original MDL file.
 #' 
 #' @param submission Named list containing information relating to the
 #'        submission of an execution request:
 #'        \itemize{
-#'          \item{executionType} - Identifying the target software to use for
-#'                                 the execution.
-#'          \item{modelFile} - MDL file that was executed.
-#'          \item{sourceDirectory} - The directory in which the MDL file lives.
-#'          \item{workingDirectory} - The location used for the execution of the
-#'                                    job, within the system temporary directory.
-#'          \item{status} - The status of the execution of the model file.
-#'                          If not "COMPLETED" then this import into Standard
-#'                          Output object will not work.
-#'          \item{requestId} - Unique identifier for the submission request.
+#'          \item{\code{executionType}}
+#'            - Identifying the target software to use for the execution.
+#'          \item{\code{modelFile}}
+#'            - MDL file that was executed.
+#'          \item{\code{sourceDirectory}}
+#'            - The directory in which the MDL file lives.
+#'          \item{\code{workingDirectory}}
+#'            - The location used for the execution of the job, within the
+#'              system temporary directory.
+#'          \item{\code{status}}
+#'            - The status of the execution of the model file. If not "COMPLETED"
+#'              then this import into Standard Output object will not work.
+#'          \item{\code{requestId}} - Unique identifier for the submission request.
 #'        }
 #' @param target (Optional) Specify the name of a subfolder, within the directory
 #'        containing the model file, into which to copy the results. Default
@@ -117,24 +122,30 @@ TEL.importFiles <- function(submission, target=file.path(submission$sourceDirect
 
 
 ################################################################################
+#' Import results as Standard Output object.
+#' 
 #' Import the results retrieved from an execution of an MDL file, into an object
 #' of class \linkS4class{StandardOutputObject}.
 #' 
 #' @param submission Named list containing information relating to the
 #'        submission of an execution request:
 #'        \itemize{
-#'          \item{executionType} - Identifying the target software to use for
-#'                                 the execution.
-#'          \item{modelFile} - MDL file that was executed.
-#'          \item{sourceDirectory} - The directory in which the MDL file lives.
-#'          \item{resultsDir} - The directory into which the result files from the
-#'                              execution were copied.
-#'          \item{workingDirectory} - The location used for the execution of the
-#'                                    job, within the system temporary directory.
-#'          \item{status} - The status of the execution of the model file.
-#'                          If not "COMPLETED" then this import into Standard
-#'                          Output object will not work.
-#'          \item{requestId} - Unique identifier for the submission request.
+#'          \item{\code{executionType}}
+#'            - Identifying the target software to use for the execution.
+#'          \item{\code{modelFile}}
+#'            - MDL file that was executed.
+#'          \item{\code{sourceDirectory}}
+#'            - The directory in which the MDL file lives.
+#'          \item{\code{resultsDir}}
+#'            - The directory into which the result files from the execution
+#'              were copied.
+#'          \item{\code{workingDirectory}}
+#'            - The location used for the execution of the job, within the
+#'              system temporary directory.
+#'          \item{\code{status}}
+#'            - The status of the execution of the model file. If not "COMPLETED"
+#'              then this import into Standard Output object will not work.
+#'          \item{\code{requestId}} - Unique identifier for the submission request.
 #'        }
 #' @return Object of class \linkS4class{StandardOutputObject}.
 #'
