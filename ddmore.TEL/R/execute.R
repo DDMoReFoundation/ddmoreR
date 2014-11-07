@@ -1,24 +1,44 @@
-#' Estimate  
+################################################################################
+#' Estimate
 #'
-#' Passes a MDL file or MOG object (class mogObj) to the target software for execution.
+#' Submits a MDL file or MOG object (class mogObj) to the target software for
+#' execution and processes the results.
 #'
-#' @author Jonathan Chard
 #' @param x An object of class mogObj or an MDL file.
 #' @param target String specifying the target software. Currently, possible 
-#'        targets are "NONMEM", "PsN", "monolix" and "BUGS".
-#' @param subfolder Specify the name of a subfolder within the current working 
-#'        directory in which to store the results, defaults to a timestamped folder
-#' @param collect Logical dictating if the results should be collected.
-#' @param clearUp Logical dictating if the working directory should be deleted 
-#'        on successful job completion
-#' @param HOST hostname of the server running the FIS service, defaults to localhost
-#' @param PORT port of the server running the FIS service, defaults to 9010
-#' @param addargs String specifying additional arguments to be passed to the target software.
-#' @return An object of class NMRun.
+#'        targets are "NONMEM", "PsN", "MONOLIX".
+#' @param subfolder (Optional) Specify the name of a subfolder, within the directory
+#'        containing the model file, in which to store the results. Default
+#'        is a timestamped folder.
+#' @param wait (Optional) Logical dictating if the function should continuously
+#'        poll for results until the job either finishes successfully or fails,
+#'        or whether to 'fire and forget' the submission request and manually
+#'        collect the results later on. Default is true.
+#' @param collect (Optional) Logical dictating if the results should be collected.
+#'        Default is true.
+#' @param clearUp (Optional) Logical dictating if the job working directory should
+#'        be deleted upon successful job completion. Default is false, since this
+#'        directory may contain useful information in the event that a job failed
+#'        to execute successfully.
+#' @param HOST (Optional) Hostname of the server running the FIS service. Default
+#'        is localhost.
+#' @param PORT (Optional) Port of the server running the FIS service. Default is 9010.
+#' @param addargs (Optional) String specifying additional arguments to be passed to the
+#'        target software.
+#' @return The results from executing the MDL file, in the form of an object of
+#'         class \linkS4class{StandardOutputObject}.
+#' 
+#' @author Jonathan Chard, Matthew Wise
+#' 
 #' @export
 #' @docType methods
 #' @rdname estimate-methods
+#' 
+#' @include server.R
+#' @include prepare.R
+#' @include import.R
 #' @include telClasses.R
+#' @include StandardOutputObject.R
 setGeneric("estimate", function(x, target=NULL,
 	subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), wait=TRUE, collect=TRUE, clearUp=FALSE, HOST='localhost', PORT='9010', addargs="") {
   
@@ -96,6 +116,5 @@ setMethod("estimate", signature=signature(x="mogObj"),
     return(res)
 
   })
-
 
 
