@@ -31,7 +31,7 @@ script.files = c(
 
 sapply(script.files, function(s) {
     script.file <- paste0(scripts.dir, s, ".R");
-    message(c("Loading in", script.file, "...\n"))
+    message(paste("Loading in", script.file, "..."))
     source(script.file)
 })
 
