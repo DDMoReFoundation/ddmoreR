@@ -1,4 +1,39 @@
 
+################################################################################
+#' Retrieve the result files generated from an execution of an MDL file and copy
+#' them into a suitable results subdirectory alongside the original MDL file.
+#' 
+#' @param submission Named list containing information relating to the
+#'        submission of an execution request:
+#'        \itemize{
+#'          \item{executionType} - Identifying the target software to use for
+#'                                 the execution.
+#'          \item{modelFile} - MDL file that was executed.
+#'          \item{sourceDirectory} - The directory in which the MDL file lives.
+#'          \item{workingDirectory} - The location used for the execution of the
+#'                                    job, within the system temporary directory.
+#'          \item{status} - The status of the execution of the model file.
+#'                          If not "COMPLETED" then this import into Standard
+#'                          Output object will not work.
+#'          \item{requestId} - Unique identifier for the submission request.
+#'        }
+#' @param target (Optional) Specify the name of a subfolder, within the directory
+#'        containing the model file, into which to copy the results. Default
+#'        is a timestamped folder.
+#' @param clearUp (Optional) Logical dictating if the job working directory should
+#'        be deleted upon successful job completion. Default is false, since this
+#'        directory may contain useful information in the event that a job failed
+#'        to execute successfully.
+#' @return The 'submission' named list, augmented with a \code{resultsDir} element
+#'         specifying the directory into which the result files from the execution
+#'         were copied, as specified by the \code{target} input argument.
+#'
+#' @author mwise
+#' 
+#' @export
+#' 
+#' @include StandardOutputObject.R
+
 TEL.importFiles <- function(submission, target=file.path(submission$sourceDirectory, format(Sys.time(), "%Y%b%d%H%M%S")), clearUp=FALSE) {
 	
 	submission$resultsDir <- target
@@ -17,18 +52,18 @@ TEL.importFiles <- function(submission, target=file.path(submission$sourceDirect
 	workingFolder = file.path(jobDirectory) # should be FIS working directory not MIF working directory
 	
 	if (file.exists(workingFolder) == FALSE) {
-		cat("Working directory", workingFolder, "does not exist; Job", jobID, "may have already been imported.\n")
+		warning('Working directory ', workingFolder, ' does not exist; Job ', jobID, ' may have already been imported.\n')
 	} else {
 		# import the data
-		cat(sprintf('Copying the result data back to the local machine for job ID: %s ...\n', jobID))
-		cat(sprintf('From: %s to %s\n', workingFolder, target))
+		message('Copying the result data back to the local machine for job ID ', jobID, '...')
+		message('From ', workingFolder, ' to ', target)
 		
-		if (file.exists(target)==FALSE) {
+		if (file.exists(target) == FALSE) {
 			dir.create(target)
 		}
 		
 		all.regular.files <- list.files(workingFolder, pattern="^[^.].*")
-		files.to.copy <- all.regular.files[-which(all.regular.files==jobID)] # Exclude the job directory (i.e. MIF working directory)
+		files.to.copy <- all.regular.files[-which(all.regular.files==jobID)] # Exclude the job directory (i.e. TES working directory)
 		files.to.copy <- paste0(workingFolder, "/", files.to.copy) # Turn the filenames into full paths
 		
 		file.copy(files.to.copy, target, recursive=TRUE)
@@ -74,7 +109,7 @@ TEL.importFiles <- function(submission, target=file.path(submission$sourceDirect
 		if (clearUp==TRUE) {
 			unlink(workingFolder, recursive=TRUE)
 		}		
-		cat('Done.\n\n')
+		message('Done.\n')
 		
 		submission
 	}
@@ -92,6 +127,8 @@ TEL.importFiles <- function(submission, target=file.path(submission$sourceDirect
 #'                                 the execution.
 #'          \item{modelFile} - MDL file that was executed.
 #'          \item{sourceDirectory} - The directory in which the MDL file lives.
+#'          \item{resultsDir} - The directory into which the result files from the
+#'                              execution were copied.
 #'          \item{workingDirectory} - The location used for the execution of the
 #'                                    job, within the system temporary directory.
 #'          \item{status} - The status of the execution of the model file.
