@@ -210,7 +210,7 @@ setMethod(f="getRawResults",
           signature="StandardOutputObject",
           definition=function(SOObject)
           {                              
-            RawResults = SOObject@RawResults
+            RawResults = SOObject@RawResults@Files
             pprintList(RawResults, "Raw Results")  
           }
 )
