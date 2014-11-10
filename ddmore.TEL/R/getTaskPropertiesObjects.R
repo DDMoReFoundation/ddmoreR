@@ -1,44 +1,36 @@
-##############################################################
+################################################################################
 #' getTaskPropertiesObjects
 #'
-#' Retrieves TaskProperties Object(s) (MCL object of type "taskObj") from a 
-#' locally stored MDL file , URL r object of class "mogObj" and returns an S4 object of class 
-#' "taskObj". 
-#' The user should be able to specify a named parameter object from the MDL file 
-#' as an argument, so that the nominated parameter objects can be returned.
+#' Parses the specified MDL file, extracting the \code{taskobj} MCL Task Properties
+#' Object top-level blocks and converting them to S4 objects of class
+#' \code{\linkS4class{taskObj}}.
+#' 
+#' Slots within this object contain the parsed information from the corresponding
+#' MCL Task Properties Object sub-blocks; see \linkS4class{taskObj}.
 #'
-#' @usage getTaskPropertiesObjects(x, name)
-#'
-#' @param file File path, URL of the .mdl file containing the task object or a MOG (object of class "mogObj".
-#'
-#' @param HOST hostname of the server running the FIS service, defaults to localhost
-#' @param PORT port of the server running the FIS service, defaults to 9010
-#'
-#' @return An S4 Object of class "taskObj".
+#' @param file File path to the .mdl file containing the task properties object(s).
+#' @param object TODO Not currently used.
+#' @param name (Optional) Specifies the task properties object item, by name, to be
+#'        retrieved by getTaskPropertiesObjects. If multiple task properties objects
+#'        exist in the .mdl file then using the name argument allows the user to target
+#'        a specific task properties object.
+#' @param HOST (Optional) Hostname of the server running the FIS service; defaults
+#'        to "localhost".
+#' @param PORT (Optional) Port of the server running the FIS service, defaults to 9010.
+#' @return List of S4 Objects of class \code{taskObj}.
+#' 
+#' @examples
+#' # Retrieve all task properties objects
+#' taskPropsList <- getTaskPropertiesObjects('Warfarin-ODE-latest.mdl')
+#' # Retrieve a known task properties object by name
+#' warfTaskProps <- getTaskPropertiesObjects('Warfarin-ODE-latest.mdl', name='warfarin_PK_ODE_task')[[1]]
 #'
 #' @export
 #' @docType methods
 #' @rdname getTaskPropertiesObjects-methods
 #'
-#' @examples
-## Retrieve from DDMoRe repository
-#' getTaskPropertiesObjects(file="http://ddmore.eu/model-repository/model/download/127.17?filename=2008ThamJCCR.mdl")
-#' 
-#' ## Retrieve from local .mdl file
-#' ThamTaskObject<- getTaskPropertiesObjects ("2008ThamJCCR.mdl") 
-#' 
-#' ## Retrieve named object from local .mdl file
-#' tumourSizeTaskObject<- getTaskPropertiesObjects ("2008ThamJCCR.mdl",
-#'   				name=" tumour_size_task")
-#' 
-#' ThamTaskObject[[1]] ## first task object within ThamTaskObject
-#' 
-## Using task properties object name from MCL code
-#' tumourSizeTaskObject<-ThamTaskObject$tumour_size_task
-#' ## TODO
-#' ## Add example of altering Task Object
-#'
 #' @include telClasses.R
+
 setGeneric("getTaskPropertiesObjects", function(file, object, name, HOST='localhost', PORT='9010') { 
   # create object in R from parser:
   if (!missing(name)) {
