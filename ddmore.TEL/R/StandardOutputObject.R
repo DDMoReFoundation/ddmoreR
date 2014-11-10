@@ -164,6 +164,13 @@ LoadSOObject <- function(file) {
       } else {
         warning("Predictions element not detected in PharmML. Skipping...")
       }
+
+      if ("Likelihood" %in% names(SOChildren[["Estimation"]])){
+        SOObject = ParseLikelihood(SOObject, SOChildren[["Estimation"]][["Likelihood"]])
+      } else {
+        warning("Predictions element not detected in PharmML. Skipping...")
+      }
+
   } else {
     warning("Estimation element not detected in PharmML. Skipping...")
   }
@@ -210,7 +217,7 @@ setMethod(f="getRawResults",
           signature="StandardOutputObject",
           definition=function(SOObject)
           {                              
-            RawResults = SOObject@RawResults
+            RawResults = SOObject@RawResults@Files
             pprintList(RawResults, "Raw Results")  
           }
 )
@@ -365,7 +372,7 @@ setMethod(f="getSoftwareMessages",
 #' @seealso getLikelihood, getSoftwareMessages
 #'
 #' @export 
-getEstimationInfo2 <- function(SOObject){
+getEstimationInfo <- function(SOObject){
   
   likelihood = getLikelihood(SOObject)
   messages = getSoftwareMessages(SOObject)
@@ -421,11 +428,13 @@ getParameterEstimates <- function(SOObject, type="all", what="all"){
     PopulationEstimates = getPopulationEstimates(SOObject)
     output = c(output, list(PopulationEstimates=PopulationEstimates))
 
-  } else if (type== "precision" | type == "all") {
+  } 
+  if (type== "precision" | type == "all") {
     PrecisionPopulationEstimates = getPrecisionPopulationEstimates(SOObject)
     output = c(output, list(PrecisionPopulationEstimates=PrecisionPopulationEstimates))
   
-  } else if (type== "intervalEstimates" | type == "all") {
+  }
+  if (type== "intervalEstimates" | type == "all") {
 
   }
 

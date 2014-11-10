@@ -92,4 +92,4 @@ msgs = DDMoRe.TEL:::getSoftwareMessages(SOObject)
 
 param = getParameterEstimates(SOObject)
 
-est_info = getEstimationInfo2(SOObject)
+est_info = getEstimationInfo(SOObject)

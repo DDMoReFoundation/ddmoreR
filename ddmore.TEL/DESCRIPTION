@@ -30,7 +30,6 @@ Collate:
     'execute.R'
     'import.R'
     'getDataObjects.R'
-    'getEstimationInfo.R'
     'getMDLObjects.R'
     'getModelObjects.R'
     'getParameterObjects.R'
