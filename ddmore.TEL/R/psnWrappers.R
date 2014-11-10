@@ -28,7 +28,7 @@
 			
 			if (outputObject$status == "COMPLETED") {
 				
-				outputObject <- TEL.import(outputObject, target=outputObject$resultsDir, clearUp=clearUp)
+				outputObject <- TEL.importFiles(outputObject, target=outputObject$resultsDir, clearUp=clearUp)
 	
 			} else { # outputObject$status != "COMPLETED"
 				stop(paste(c("Execution of model ", outputObject$modelFile, " failed.\n  The contents of the working directory ", outputObject$workingDirectory, " may be useful for tracking down the cause of the failure."), sep=""))
