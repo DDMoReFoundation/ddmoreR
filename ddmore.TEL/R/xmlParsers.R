@@ -448,3 +448,19 @@ ParsePredictions <- function(SOObject, PredictionsNode) {
 
   return(SOObject)
 }
+
+ParseLikelihood <- function(SOObject, LikelihoodNode) {
+
+  # Extract Likelihood
+  SOObject@Estimation@Likelihood$LogLikelihood = as.numeric(xmlValue(LikelihoodNode[["LogLikelihood"]]))
+
+  # Extract IndividualContribToLL
+  L = ParseDataSet(LikelihoodNode[["IndividualContribToLL"]])
+  
+  # Update SO Object Slot
+  SOObject@Estimation@Likelihood$IndividualContribToLL = list(
+                      description=L$description, 
+                      data=L$data)
+
+  return(SOObject)
+}
