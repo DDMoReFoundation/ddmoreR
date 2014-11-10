@@ -353,7 +353,7 @@ setMethod(f="getSoftwareMessages",
 # ============================= #
 # Higher Level Getter Functions #
 # ============================= #
-#' getEstimationInfo2 
+#' getEstimationInfo
 #'
 #' This function acts on an object of class StandardOutputObject 
 #' and is a wrapper to getLikelihood and getSoftwareMessages presenting information
