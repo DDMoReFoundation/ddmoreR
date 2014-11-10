@@ -365,7 +365,7 @@ setMethod(f="getSoftwareMessages",
 #' @seealso getLikelihood, getSoftwareMessages
 #'
 #' @export 
-getEstimationInfo2 <- function(SOObject){
+getEstimationInfo <- function(SOObject){
   
   likelihood = getLikelihood(SOObject)
   messages = getSoftwareMessages(SOObject)
