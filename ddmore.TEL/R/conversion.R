@@ -2,31 +2,38 @@
 mog_object_types <- c("dataobj", "parobj", "mdlobj", "taskobj")
 
 
-##############################################################
+################################################################################
 #' .parseMDLFile
 #'
-#' Calls the MDL parser, providing either a file path or URL, and returns
-#' a list of all objects in the MDL file. For data objects, parameter objects and
-#' model objects, R objects of class \code{dataObj}, \code{parObj} and \code{mdlObj} 
-#' are returned. This function is not intended for use by the user. It is recommended that 
-#' the functions \code{getDataObjects}, \code{getMOG}, \code{getParameterObjects} 
-#' and/or \code{getModelObjects}
-#' are used instead.
+#' Calls the MDL parser, providing a specified path to an MDL file, and returns a list of
+#' all objects from that MDL file of a specified type. Optionally a name can be specified
+#' too to target a specific object. The recognised types are:
+#' \itemize{
+#'   \item{\code{dataobj} -> Returns S4 object(s) of Data Object class \code{\linkS4class{dataObj}}.
+#'   \item{\code{parobj} -> Returns S4 object(s) of Parameter Object class \code{\linkS4class{parObj}}.
+#'   \item{\code{mdlobj} -> Returns S4 object(s) of Model Object class \code{\linkS4class{mdlObj}}.
+#'   \item{\code{taskobj} -> Returns S4 object(s) of Task Properties Object class \code{\linkS4class{taskObj}}.
+#' }
+#' 
+#' This function is not intended for use by the user. The functions
+#' \link{getDataObjects}, \link{getParameterObjects}, \link{getModelObjects} and
+#' \link{getTaskPropertiesObjects}, or \link{getMDLObjects} to obtain all objects from an
+#' MDL file in a unified list, should be used instead.
 #'
-#' @usage .parseMDLFile("myMDLFile")
-#'
-#' @param f File path or URL of the .mdl file containing the objects.
-#' @param type String specifying the type of objects to extract. Possible values are
-#' \code{dataobj}, \code{parobj}, \code{mdlobj}, \code{taskobj} and \code{mogobj}
-#' @param name (Optional) Specifies the dataobj/parobj/mdlobj/taskobj/mogobj object
-#' , by name, to be retrieved. If multiple data objects exist in the .mdl file 
-#' then using the name argument helps users target a specific data object.
-#' @param HOST hostname of the server running the FIS service, defaults to localhost
-#' @param PORT port of the server running the FIS service, defaults to 9010
-#'
-#' @return A list of matching objects which are contained in the MDL file or URL.
+#' @param f Path to the .mdl file containing the objects.
+#' @param name (Optional) Specifies the dataobj/parobj/mdlobj/taskobj/mogobj object,
+#'        by name, to be retrieved. If multiple objects of a particular type exist in the
+#'        .mdl file then using the name argument allows the user to target a specific object.
+#' @param type String specifying the type of object(s) to extract. Possible values are
+#'        \code{dataobj}, \code{parobj}, \code{mdlobj}, \code{taskobj} and \code{mogobj}.
+#' @param HOST Hostname of the server running the FIS service. Defaults to localhost.
+#' @param PORT Port of the server running the FIS service. Defaults to 9010.
+#' @return A list of parsed objects which are contained in the MDL file, that match
+#'         the specified criteria.
+#' 
+#' @usage .parseMDLFile('Warfarin-ODE-latest.mdl', type='dataobj')
+#' 
 #' @include telClasses.R
-
 .parseMDLFile <- function(f, name, type, HOST='localhost', PORT='9010') {
 
   if (!type%in%c(mog_object_types, "mogObj")) {
@@ -54,6 +61,7 @@ mog_object_types <- c("dataobj", "parobj", "mdlobj", "taskobj")
   
   return(res)
 }
+
 
 .parseMDLFile0 <- function(f, HOST='localhost', PORT='9010') {
 
@@ -115,7 +123,7 @@ mog_object_types <- c("dataobj", "parobj", "mdlobj", "taskobj")
 }
 
 
-.createParObj <- function(dat){
+.createParObj <- function(dat) {
 
 	# Weren't sure what to do about the VARIABILITY block since you can have a mixture
 	# of named parameters, "matrix" blocks, "diag" blocks and "same" blocks.
@@ -161,7 +169,7 @@ mog_object_types <- c("dataobj", "parobj", "mdlobj", "taskobj")
 } 
 
 
-.createDataObj <- function(dat){
+.createDataObj <- function(dat) {
 
     res <- new("dataObj",
         DATA_INPUT_VARIABLES = translateIntoNamedList(dat$DATA_INPUT_VARIABLES), # as.list done within the function
@@ -180,7 +188,7 @@ mog_object_types <- c("dataobj", "parobj", "mdlobj", "taskobj")
 }
 
 
-.createMdlObj <- function(dat){
+.createMdlObj <- function(dat) {
 
     res <- new("mdlObj",
         MODEL_INPUT_VARIABLES = translateIntoNamedList(dat$MODEL_INPUT_VARIABLES), # as.list done within the function
@@ -222,25 +230,29 @@ mog_object_types <- c("dataobj", "parobj", "mdlobj", "taskobj")
 ##############################################################
 #' write
 #'
-#' Takes in an instance of R class mogObj comprising a single instance of each of:
-#'  - dataObj class
-#'  - parObj class
-#'  - mdlObj class
-#'  - taskObj class
-#' and a specified file, and writes out the content of the MOG Object to that file as MDL.
+#' Takes in an instance of R class \link{\code{mogObj}} comprising a single instance of each of:
+#' \itemize{
+#'   \item{\linkS4class{\code{dataObj}} class}
+#'   \item{\linkS4class{\code{parObj}} class}
+#'   \item{\linkS4class{\code{mdlObj}} class}
+#'   \item{\linkS4class{\code{taskObj}} class}
+#' }
+#' and a specified file path, and writes out the content of the MOG Object to that file as MDL.
+#' 
 #' It is recommended that the file not have an extension, whereby the .mdl extension will be appended.
 #' 
-#' @usage write(myMogObj, 'C:/Users/username/mymodel')
+#' @usage write(myMogObj, 'C:/Users/fred/mymodel')
 #'
-#' @param m instance of R class mogObj
-#' @param f file path to the .mdl file (optionally without the .mdl extension) that will be created
-#' @param HOST hostname of the server running the FIS service, defaults to localhost
-#' @param PORT port of the server running the FIS service, defaults to 9010
+#' @param object Instance of R class \link{\code{mogObj}}.
+#' @param f File path to the .mdl file (optionally without the .mdl extension) that will be created.
+#' @param HOST Hostname of the server running the FIS service. Defaults to localhost.
+#' @param PORT Port of the server running the FIS service. Defaults to 9010.
 #'
-#' @include telClasses.R
 #' @export
+#' 
 #' @docType methods
 #' @rdname write-methods
+#' @include telClasses.R
 
 setGeneric("write", function(object, f, HOST='localhost', PORT='9010') { 
   standardGeneric("write")
