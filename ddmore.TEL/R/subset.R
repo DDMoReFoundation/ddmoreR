@@ -1,4 +1,7 @@
+################################################################################
 #' subset
+#' 
+#' TODO: This function needs reviewing and updating!
 #'
 #' A subset method for objects of class \code{dataObj}. The filter method is 
 #' applied to an object of class\code{dataObj} and is used to accept or omit rows of a 
@@ -43,7 +46,7 @@
 #' @rdname subset-methods
 setGeneric("subset", 
   function(dataObject, by, sourceDir=getwd(), deriveVariables=TRUE, 
-    categoricalAsFactor=TRUE, recode=TRUE, asRaw=FALSE, ...){
+    categoricalAsFactor=TRUE, recode=TRUE, asRaw=FALSE, ...) {
       standardGeneric("subset")
 })
 #' @rdname subset-methods
@@ -51,7 +54,7 @@ setGeneric("subset",
 
 setMethod("subset", signature=signature(dataObject="dataObj"), 
   function(dataObject, by, sourceDir=getwd(), deriveVariables=TRUE, 
-    categoricalAsFactor=TRUE, recode=TRUE, asRaw=FALSE, ...){
+    categoricalAsFactor=TRUE, recode=TRUE, asRaw=FALSE, ...) {
     
   temp <- read(object=dataObject, sourceDir, deriveVariables, categoricalAsFactor, recode, asRaw)
  
@@ -61,7 +64,6 @@ setMethod("subset", signature=signature(dataObject="dataObj"),
   res <- base:::subset(temp, subset=x, ...)
 
   return(res)
-  
 
 })
 

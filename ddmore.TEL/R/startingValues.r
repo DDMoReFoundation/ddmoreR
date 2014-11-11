@@ -1,4 +1,7 @@
+################################################################################
 #' startingValues
+#' 
+#' TODO: This function needs reviewing and updating!
 #'
 #' Creates parameter values from an object of class parObj or mogObj by sampling 
 #' from a user-specified distribution. Default is to use a Uniform distribution 

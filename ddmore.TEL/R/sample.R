@@ -1,4 +1,7 @@
+################################################################################
 #' sample
+#' 
+#' TODO: This function needs reviewing and updating!
 #'
 #' A sample method for objects of class \code{dataObj}. Returns an object of class 
 #' \code{dataObj} with number of records / individuals defined by 

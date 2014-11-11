@@ -1,5 +1,7 @@
 ##############################################################
 #' plot
+#' 
+#' TODO: This function needs reviewing and updating!
 #'
 #' Plots the data within the object of class \code{mogObj}. Uses data specified 
 #' in the \code{dataobj} object, information within the \code{mdlobj} INPUT_VARIABLES 
