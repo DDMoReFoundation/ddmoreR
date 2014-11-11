@@ -13,27 +13,26 @@ TEL.startServer <-
   
     see.home <- TEL.checkConfiguration()
     
-    cat("Starting FIS and MIF servers...\n")
+    message("Starting FIS and MIF servers...")
     
 	startupScript <- file.path(see.home, "startup.bat")
     
     if (!TEL.serverRunning()) {
-      cat("Server not running; starting server...\n")
+      message("Server not running; starting server...")
       system(paste(shQuote(startupScript), '/B'), wait=F)  # /B argument suppresses the display of the command windows
       count = 0
-      cat("Retries: ")
+      message("Retries: ", appendLF=FALSE)
       while ( count < 60 && !TEL.serverRunning() ) {
         Sys.sleep(1)
         count <- count+1
-        cat(count)
-        cat(" ")
+        message(count, " ", appendLF=FALSE)
       }
-      cat("\n")
+      message() # Append a newline
       if (!TEL.serverRunning()) {
         stop("Server was unable to start")
       }
     }
-    cat("Server is running!")
+    message("Server is running!")
   }
 
 ################################################################################
@@ -70,13 +69,13 @@ TEL.serverRunning <-
 #'
 TEL.stopServer <-
   function(HOST='localhost', PORT='9010') {
-    cat("Stopping server...\n")
+    message("Stopping server...")
 	shutdownURL = sprintf('http://%s:%s/shutdown', HOST, PORT)
 	ret = RCurl:::postForm(shutdownURL, style="HTTPPOST", shutdown="yes")
 	if (ret[1]=="OK") {
-		cat("Server is now stopped.")
+		message("Server is now stopped.")
 	} else {
-		cat("Server could not be stopped.")
+		warning("Server could not be stopped.")
 	}
   }
 
