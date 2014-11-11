@@ -1,6 +1,12 @@
-#'TEL.startServer 
+################################################################################
+#' TEL.startServer
 #'
-#' Starts TEL sever
+#' Starts the TEL server, by launching the startup.bat script within the root
+#' of the SEE.
+#' 
+#' This is automatically called as part of launching the TEL.R console within
+#' the MDL IDE within SEE; if the R console is not running within SEE in that
+#' setup then this function is a no-op.
 #'
 TEL.startServer <- 
   function() {
@@ -30,10 +36,15 @@ TEL.startServer <-
     cat("Server is running!")
   }
 
-#' TEL.serverRunning 
+################################################################################
+#' TEL.serverRunning
 #'
-#' Checks if TEL server is running
+#' Checks if the TEL server is running.
 #'
+#' @param HOST Hostname of the server running the FIS service. Defaults to localhost.
+#' @param PORT Port of the server running the FIS service. Defaults to 9010.
+#' @return True if the server is running, false if the server is not running.
+#' 
 TEL.serverRunning <- 
   function(HOST='localhost', PORT='9010') {
 
@@ -49,9 +60,13 @@ TEL.serverRunning <-
     )
   }
   
-#' TEL.stopServer 
+################################################################################
+#' TEL.stopServer
 #'
-#' Stops TEL server
+#' Stops the TEL server.
+#' 
+#' @param HOST Hostname of the server running the FIS service. Defaults to localhost.
+#' @param PORT Port of the server running the FIS service. Defaults to 9010.
 #'
 TEL.stopServer <-
   function(HOST='localhost', PORT='9010') {
@@ -64,17 +79,32 @@ TEL.stopServer <-
 		cat("Server could not be stopped.")
 	}
   }
-  
-#' Override the default quit function to try to stop the server before quitting normally.
+
+################################################################################
+#' Quit
+#' 
+#' Override the default R quit function to try to stop the server before
+#' quitting normally.
+#' 
+#' This is automatically called when the TEL.R console is terminated.
+#' 
+#' @param HOST Hostname of the server running the FIS service. Defaults to localhost.
+#' @param PORT Port of the server running the FIS service. Defaults to 9010.
+#' 
 #' @export
-q <- function() {
-	TEL.safeStop();
+#'
+q <- function(HOST='localhost', PORT='9010') {
+	TEL.safeStop(HOST, PORT);
 	base:::q()
 }
 
+################################################################################
 #' TEL.safeStop
 #'
-#' Safely stops TEL server
+#' Checks that the TEL server is running and if so, stops it.
+#' 
+#' @param HOST Hostname of the server running the FIS service. Defaults to localhost.
+#' @param PORT Port of the server running the FIS service. Defaults to 9010.
 #'
 TEL.safeStop <-
   function(HOST='localhost', PORT='9010') {
@@ -83,9 +113,15 @@ TEL.safeStop <-
     }
   }
 
+################################################################################
 #' TEL.checkConfiguration
 #'
-#' Checks TEL Configuration
+#' Checks if this DDMoRe.TEL package is actually loaded (the R scripts may have
+#' been \code{source}d instead). If so, then determine the path to the package
+#' and navigate up the directory tree from this location to obtain the SEE home
+#' directory, returning this directory. Therefore this assumes that the TEL.R
+#' console has been launched from within the MDL IDE within SEE; otherwise
+#' the function will raise an error.
 #'
 TEL.checkConfiguration <-
   function() {
@@ -119,14 +155,44 @@ TEL.checkConfiguration <-
     
 }
 
-#' submit.job
+################################################################################
+#' TEL.submitJob
 #'
-#' Submits a job to the TEL server
+#' Submits a job to the TEL server.
+#' 
+#' @param executionType Identifies the target software to use to execute this job.
+#'        E.g. NONMEM, MONOLIX.
+#' @param workingDirectory Directory, normally within the system temporary directory,
+#'        into which the model file and any data files are expected to have been
+#'        copied, and within which the target software will execute the job.
+#' @param modelfile Path-less filename, or absolute path, to the MDL file to be
+#'        executed. Note that relative paths are currently not supported.
+#' @param HOST Hostname of the server running the FIS service. Defaults to localhost.
+#' @param PORT Port of the server running the FIS service. Defaults to 9010.
+#' @param addargs Additional arguments to be passed to the target software.
+#' 
+#' @return \code{submission} named list containing information relating to the
+#'         submission of the execution request:
+#'         \itemize{
+#'           \item{\code{executionType}}
+#'             - Identifying the target software to use for the execution.
+#'           \item{\code{modelFile}}
+#'             - MDL file that was executed, without any leading path.
+#'           \item{\code{sourceDirectory}}
+#'             - The absolute path to the directory in which the MDL file lives.
+#'           \item{\code{workingDirectory}}
+#'             - The location used for the execution of the job, normally within
+#'               the system temporary directory.
+#'           \item{\code{status}}
+#'             - The status of the execution of the model file, i.e. 'NEW'.
+#'           \item{\code{requestId}} - Unique identifier for the submission request.
+#'         }
+#' 
+#' @export
 #' 
 TEL.submitJob <- function( executionType=NULL, workingDirectory, modelfile, HOST='localhost', PORT='9010', addargs="", ... ) {
-    submission <- list()
 	
-    #attributes(submission) <- list(class="outputObject")
+    submission <- list()
     
     # Strip off the path to the model file leaving just the file name itself
     # TODO: Cater for relative paths of model files too? (currently just path-less files and absolute-path files are supported)
@@ -169,12 +235,27 @@ TEL.submitJob <- function( executionType=NULL, workingDirectory, modelfile, HOST
 
     submission
 }
- 
+
+################################################################################
 #' TEL.poll
 #'
-#' Polls TEL
-#
-TEL.poll <- function(submission = NULL, HOST='localhost', PORT='9010') {
+#' Continously polls the TEL server (at roughly 20 second intervals) for a
+#' specified execution request jobID, until the TEL server either reports the
+#' job as having completed successfully or as having failed.
+#' 
+#' @param submission Named list containing information relating to the
+#'        submission of the execution request. The only items required by
+#'        this function are:
+#'        \itemize{
+#'          \item{\code{requestID}} - Unique identifier of the submission request.
+#'        }
+#' @param HOST Hostname of the server running the FIS service. Defaults to localhost.
+#' @param PORT Port of the server running the FIS service. Defaults to 9010.
+#' 
+#' @return Updated \code{submission} named list augmented with the \code{status}
+#'         of the job.
+#'
+TEL.poll <- function(submission, HOST='localhost', PORT='9010') {
     
     jobID <- submission$requestID
     
@@ -183,12 +264,12 @@ TEL.poll <- function(submission = NULL, HOST='localhost', PORT='9010') {
     submission$status = fromJSON(httpGET(statusURL))$status
     
     while (submission$status != 'COMPLETED' && submission$status != 'FAILED' ) {
-        cat(sprintf('Job %s still executing ... (status %s)\n', jobID, submission$status))
+        message('Job ', jobID, ' still executing ... (status ', submission$status, ')')
         Sys.sleep(20)
         submission$status <- fromJSON(httpGET(statusURL))$status
     }
     
-    cat(sprintf('\nJob %s finished with status %s.\n\n', jobID, submission$status))
+    message('Job ', jobID, ' finished with status ', submission$status, "\n")
     
     submission
 }
