@@ -168,7 +168,7 @@ LoadSOObject <- function(file) {
       if ("Likelihood" %in% names(SOChildren[["Estimation"]])){
         SOObject = ParseLikelihood(SOObject, SOChildren[["Estimation"]][["Likelihood"]])
       } else {
-        warning("Predictions element not detected in PharmML. Skipping...")
+        warning("Likelihood element not detected in PharmML. Skipping...")
       }
 
   } else {
