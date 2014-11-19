@@ -450,17 +450,39 @@ ParsePredictions <- function(SOObject, PredictionsNode) {
 }
 
 ParseLikelihood <- function(SOObject, LikelihoodNode) {
-
-  # Extract Likelihood
-  SOObject@Estimation@Likelihood$LogLikelihood = as.numeric(xmlValue(LikelihoodNode[["LogLikelihood"]]))
-
-  # Extract IndividualContribToLL
-  L = ParseDataSet(LikelihoodNode[["IndividualContribToLL"]])
-  
-  # Update SO Object Slot
-  SOObject@Estimation@Likelihood$IndividualContribToLL = list(
-                      description=L$description, 
-                      data=L$data)
+	
+  # Get list of Child Nodes
+  LikelihoodChildren = xmlChildren(LikelihoodNode)
+  # Iterate over Child nodes, updating SO if appropriate element is present 
+  for (child in LikelihoodChildren) {
+    
+    if (xmlName(child) == "Deviance") {
+      
+      # Extract Deviance
+      SOObject@Estimation@Likelihood$Deviance <- as.numeric(xmlValue(child))
+	  
+	}
+	
+    if (xmlName(child) == "LogLikelihood") {
+      
+      # Extract Likelihood
+      SOObject@Estimation@Likelihood$LogLikelihood = as.numeric(xmlValue(child))
+	  
+    }
+	
+	if (xmlName(child) == "IndividualContribToLL") {
+		
+      # Extract IndividualContribToLL
+      L = ParseDataSet(child)
+	  
+	  # Update SO Object Slot
+	  SOObject@Estimation@Likelihood$IndividualContribToLL = list(
+			  description=L$description, 
+			  data=L$data)
+	  
+	}
+	
+  }
 
   return(SOObject)
 }
