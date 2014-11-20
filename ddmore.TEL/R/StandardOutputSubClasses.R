@@ -70,7 +70,7 @@ setClass("Estimation",
   	PrecisionIndividualEstimates = list(PostDist=NULL),
   	Residuals = list(MLE_NPDE=NULL, BE_NPDE=NULL, PD=NULL, Population=NULL, 
   		Individual=NULL, Conditional=NULL),
-	Predictions = list(Individual=NULL, Population=NULL), 
+	Predictions = list(),
 	Likelihood = list(LogLikelihood=NULL, Deviance=NULL, AIC=NULL, BIC=NULL),
 	SoftwareMessages = list(TerminationMsg=NULL, Warnings=NULL, Errors=NULL, 
 		RunTime=NULL, PharmMLOutputPath=NULL, MCMCChains=NULL, Iterations=NULL)
