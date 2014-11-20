@@ -59,22 +59,8 @@ setGeneric("estimate", function(x, target=NULL,
 	    
 				submission <- TEL.importFiles(submission, target=file.path(submission$sourceDirectory, subfolder), clearUp=clearUp)
 		
-				# Create file names:
-				ctlFile <- paste0(file_path_sans_ext(submission$modelFile), ".ctl")
-				lstFile <- paste0(file_path_sans_ext(submission$modelFile), ".lst")
-		      
-				# Paste in file location:
-				ctlFile <- file.path(submission$resultsDir, ctlFile)
-				lstFile <- file.path(submission$resultsDir, lstFile)
-		      
-				# Successful execution, and doing a NONMEM run -> return the RNMImport-imported NONMEM data
-				# TODO: Remove this, always use TEL.importSO and ditch RNMImport
-				if (file.exists(ctlFile)) {
-					importNm(conFile = ctlFile, reportFile = lstFile)
-				} else {
-					# Create and return the Standard Output object
-					TEL.importSO(submission)
-				}
+				# Create and return the Standard Output object
+				TEL.importSO(submission)
 				
 			} else { # Not collecting the results
 				submission
