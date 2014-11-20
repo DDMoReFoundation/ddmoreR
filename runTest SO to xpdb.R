@@ -1,43 +1,28 @@
 
 #detach("package:DDMoRe.TEL", unload=TRUE)
 
-rm(list=ls())
+#rm(list=ls())
 
 # Paths setup 
-TEL.zip.path = "C:/Users/cmusselle/Projects/DDmore/TEL-R/.__artefacts/DDMoRe.TEL_0.0.1.tar.gz"
+#TEL.zip.path = "C:/Users/cmusselle/Projects/DDmore/TEL-R/.__artefacts/DDMoRe.TEL_0.0.1.tar.gz"
 
-SO.output.path = "C:/Users/cmusselle/Projects/DDmore/TEL-R/development data/warfarin_PK_ODE/eric/"
+SO.output.path = "development data/warfarin_PK_ODE/eric/"
 
 # Installation
 
-install.packages(TEL.zip.path, repos = NULL, type = "source")
-require("DDMoRe.TEL")
+#install.packages(TEL.zip.path, repos = NULL, type = "source")
+#require("DDMoRe.TEL")
 setwd(SO.output.path)
 
 # Load in SO
-SOObject = LoadSOObject("warfarin_PK_ODE_SO.xml")
+SOObject = LoadSOObject("warfarin_PK_ODE.SO.xml")
 
-# Hack to load in required part of Residuals into SO #################################
-indwres = read.csv("ddmore_indwres.csv",header=T, sep = ';')
-names(indwres) <- c("ID", "TIME", "IWRES")
-# Add an 'i' to the begining of the ID column: may not be needed in future  
-indwres$ID <- sub("^", "i", indwres$ID )
-
-popwres = read.csv("ddmore_popwres.csv",header=T, sep = ';')
-names(popwres) <- c("ID", "TIME", "WRES")
-# Add an 'i' to the begining of the ID column: may not be needed in future  
-popwres$ID <- sub("^", "i", popwres$ID )
-
-SOObject@Estimation@Residuals$Population = popwres
-SOObject@Estimation@Residuals$Individual = indwres
-
-# Finished workaround Hacking ######################################################
 
 # Test for fetching Raw Data from a file 
-MyDataFrame = as.data(SOObject, inputDataPath="../../warfarin_conc.csv") 
+MyDataFrame = as.data(SOObject, inputDataPath="warfarin_conc.csv") 
 
 # Convert to xpose data base. 
-myXpdb = as.xpdb(SOObject, inputDataPath="../../warfarin_conc.csv") 
+myXpdb = as.xpdb(SOObject, inputDataPath="warfarin_conc.csv") 
 
 # Plotting tests 
 require('xpose4')
