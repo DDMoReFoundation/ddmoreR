@@ -394,24 +394,36 @@
 					<InitialEstimate fixed="false">
 						<ct:Real>0.1</ct:Real>
 					</InitialEstimate>
+					<LowerBound>
+						<ct:Real>0.001</ct:Real>
+					</LowerBound>
 				</ParameterEstimation>
 				<ParameterEstimation>
 					<ct:SymbRef blkIdRef="pm" symbIdRef="POP_V"/>
 					<InitialEstimate fixed="false">
 						<ct:Real>8</ct:Real>
 					</InitialEstimate>
+					<LowerBound>
+						<ct:Real>0.001</ct:Real>
+					</LowerBound>
 				</ParameterEstimation>
 				<ParameterEstimation>
 					<ct:SymbRef blkIdRef="pm" symbIdRef="POP_KA"/>
 					<InitialEstimate fixed="false">
 						<ct:Real>0.362</ct:Real>
 					</InitialEstimate>
+					<LowerBound>
+						<ct:Real>0.001</ct:Real>
+					</LowerBound>
 				</ParameterEstimation>
 				<ParameterEstimation>
 					<ct:SymbRef blkIdRef="pm" symbIdRef="POP_TLAG"/>
 					<InitialEstimate fixed="false">
 						<ct:Real>1</ct:Real>
 					</InitialEstimate>
+					<LowerBound>
+						<ct:Real>0.001</ct:Real>
+					</LowerBound>
 				</ParameterEstimation>
 				<ParameterEstimation>
 					<ct:SymbRef blkIdRef="pm" symbIdRef="BETA_CL_WT"/>
@@ -466,6 +478,12 @@
 					<InitialEstimate fixed="false">
 						<ct:Real>0.01</ct:Real>
 					</InitialEstimate>
+					<LowerBound>
+						<ct:Real>-1.0</ct:Real>
+					</LowerBound>
+					<UpperBound>
+						<ct:Real>1.0</ct:Real>
+					</UpperBound>
 				</ParameterEstimation>
 			</ParametersToEstimate>
 			<Operation order="1" opType="estPop">
