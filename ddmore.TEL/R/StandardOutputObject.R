@@ -94,22 +94,28 @@ LoadSOObject <- function(file) {
   # Error Checking
   stopifnot(class(file) == "character" & file.exists(file))
 
+  # Set working directory to that specified in file 
+  old.wd <- getwd()
+  dir <- dirname(file)
+  f.name <- basename(file)
+  setwd(dir)
+
   # Generate Blank SO object 
-  SOObject = createSOObject()
+  SOObject <- createSOObject()
 
   # Get a reference to the root node in the xml doc
-  root = xmlRoot(xmlTreeParse(file))
+  root <- xmlRoot(xmlTreeParse(f.name))
 
   # Update the namespace to use 'd' as the defualt. 
   # Must be done to use Xpath expressions with namespaces
-  ns = xmlNamespaceDefinitions(root, simplify = TRUE)
-  defaultNS = 'd'
+  ns <- xmlNamespaceDefinitions(root, simplify = TRUE)
+  defaultNS <- 'd'
   names(ns)[1] <- defaultNS
   
   # Fetch List of SOBlock elements
   # Supress namespace undefined messages
   sink("NUL")
-  SOlist = xpathApply(root, "//d:SOBlock", namespaces=ns)
+  SOlist <- xpathApply(root, "//d:SOBlock", namespaces=ns)
   sink()
 
   # Assumes only one SOBlock for now!
@@ -118,17 +124,17 @@ LoadSOObject <- function(file) {
   ### Future for loop to start here i multiple SO blocks
 
   # Fetch all Components of the SO object that are defined
-  SOChildren = xmlChildren(SOlist[[1]])
+  SOChildren <- xmlChildren(SOlist[[1]])
 
   # Error checking of expected XML structure + Parser Execution
   if ("ToolSettings" %in% names(SOChildren)){
-    SOObject = ParseToolSettings(SOObject, SOChildren[["ToolSettings"]])
+    SOObject <- ParseToolSettings(SOObject, SOChildren[["ToolSettings"]])
   } else {
     warning("ToolSettings element not detected in PharmML. Skipping...")
   }
 
   if ("RawResults" %in% names(SOChildren)){
-    SOObject = ParseRawResults(SOObject, SOChildren[["RawResults"]])
+    SOObject <- ParseRawResults(SOObject, SOChildren[["RawResults"]])
   } else {
     warning("RawResults element not detected in PharmML. Skipping...")
   }
@@ -136,37 +142,37 @@ LoadSOObject <- function(file) {
   if ("Estimation" %in% names(SOChildren)){
 
       if ("PopulationEstimates" %in% names(SOChildren[["Estimation"]])){
-        SOObject = ParsePopulationEstimates(SOObject, SOChildren[["Estimation"]][["PopulationEstimates"]])
+        SOObject <- ParsePopulationEstimates(SOObject, SOChildren[["Estimation"]][["PopulationEstimates"]])
       } else {
         warning("PopulationEstimates element not detected in PharmML. Skipping...")
       }
 
       if ("PrecisionPopulationEstimates" %in% names(SOChildren[["Estimation"]])){
-        SOObject = ParsePrecisionPopulationEstimates(SOObject, SOChildren[["Estimation"]][["PrecisionPopulationEstimates"]])
+        SOObject <- ParsePrecisionPopulationEstimates(SOObject, SOChildren[["Estimation"]][["PrecisionPopulationEstimates"]])
       } else {
         warning("PrecisionPopulationEstimates element not detected in PharmML. Skipping...")
       }
 
       if ("IndividualEstimates" %in% names(SOChildren[["Estimation"]])){
-        SOObject = ParseIndividualEstimates(SOObject, SOChildren[["Estimation"]][["IndividualEstimates"]])
+        SOObject <- ParseIndividualEstimates(SOObject, SOChildren[["Estimation"]][["IndividualEstimates"]])
       } else {
         warning("IndividualEstimates element not detected in PharmML. Skipping...")
       }
 
       if ("Residuals" %in% names(SOChildren[["Estimation"]])){
-        SOObject = ParseResiduals(SOObject, SOChildren[["Estimation"]][["Residuals"]])
+        SOObject <- ParseResiduals(SOObject, SOChildren[["Estimation"]][["Residuals"]])
       } else {
         warning("Residuals element not detected in PharmML. Skipping...")
       }
 
       if ("Predictions" %in% names(SOChildren[["Estimation"]])){
-        SOObject = ParsePredictions(SOObject, SOChildren[["Estimation"]][["Predictions"]])
+        SOObject <- ParsePredictions(SOObject, SOChildren[["Estimation"]][["Predictions"]])
       } else {
         warning("Predictions element not detected in PharmML. Skipping...")
       }
 
       if ("Likelihood" %in% names(SOChildren[["Estimation"]])){
-        SOObject = ParseLikelihood(SOObject, SOChildren[["Estimation"]][["Likelihood"]])
+        SOObject <- ParseLikelihood(SOObject, SOChildren[["Estimation"]][["Likelihood"]])
       } else {
         warning("Likelihood element not detected in PharmML. Skipping...")
       }
@@ -182,6 +188,9 @@ LoadSOObject <- function(file) {
   validObject(SOObject@SimulationExploration)
   validObject(SOObject@SimulationExploration)
   validObject(SOObject@OptimalDesign)
+
+  # Reset Working directory 
+  setwd(old.wd)
 
   return(SOObject)
 }
@@ -201,7 +210,7 @@ setMethod(f="getToolSettings",
           signature="StandardOutputObject",
           definition=function(SOObject)
           {                              
-            ToolSettings = SOObject@ToolSettings
+            ToolSettings <- SOObject@ToolSettings
             pprintList(ToolSettings, "Tool Settings")
           }
 )
@@ -217,7 +226,7 @@ setMethod(f="getRawResults",
           signature="StandardOutputObject",
           definition=function(SOObject)
           {                              
-            RawResults = SOObject@RawResults@Files
+            RawResults <- SOObject@RawResults@Files
             pprintList(RawResults, "Raw Results")  
           }
 )
@@ -233,7 +242,7 @@ setMethod(f="getPopulationEstimates",
           signature="StandardOutputObject",
           definition=function(SOObject)
           {     
-            PopulationEstimates = SOObject@Estimation@PopulationEstimates
+            PopulationEstimates <- SOObject@Estimation@PopulationEstimates
             pprintList(PopulationEstimates, "Population Estimates")
           }
 )
@@ -249,7 +258,7 @@ setMethod(f="getPrecisionPopulationEstimates",
           signature="StandardOutputObject",
           definition=function(SOObject)
           {                              
-          PrecisionPopulationEstimates = SOObject@Estimation@PrecisionPopulationEstimates
+          PrecisionPopulationEstimates <- SOObject@Estimation@PrecisionPopulationEstimates
           pprintList(PrecisionPopulationEstimates, "Precision Population Estimates")
           }
 )
@@ -265,7 +274,7 @@ setMethod(f="getIndividualEstimates",
           signature="StandardOutputObject",
           definition=function(SOObject)
       {  
-        IndividualEstimates = SOObject@Estimation@IndividualEstimates
+        IndividualEstimates <- SOObject@Estimation@IndividualEstimates
         pprintList(IndividualEstimates, "Individual Estimates")                           
       }                              
 )
@@ -281,7 +290,7 @@ setMethod(f="getPrecisionIndividualEstimates",
                       signature="StandardOutputObject",
                       definition=function(SOObject)
    {                              
-      PrecisionIndividualEstimates = SOObject@Estimation@PrecisionIndividualEstimates
+      PrecisionIndividualEstimates <- SOObject@Estimation@PrecisionIndividualEstimates
       pprintList(PrecisionIndividualEstimates, "Precision Individual Estimates")
    }                                                     
 )
@@ -297,7 +306,7 @@ setMethod(f="getResiduals",
                       signature="StandardOutputObject",
                       definition=function(SOObject)
     {
-      Residuals = SOObject@Estimation@Residuals
+      Residuals <- SOObject@Estimation@Residuals
       pprintList(Residuals, "Residuals")
     }
 )
@@ -313,7 +322,7 @@ setMethod(f="getPredictions",
           signature="StandardOutputObject",
           definition=function(SOObject)
          {
-           Predictions = SOObject@Estimation@Predictions
+           Predictions <- SOObject@Estimation@Predictions
            pprintList(Predictions, "Predictions")
          }                              
 )
@@ -329,7 +338,7 @@ setMethod(f="getLikelihood",
           signature="StandardOutputObject",
           definition=function(SOObject)
           { 
-           Likelihood = SOObject@Estimation@Likelihood
+           Likelihood <- SOObject@Estimation@Likelihood
            pprintList(Likelihood, "Likelihood")
           }
 )
@@ -345,7 +354,7 @@ setMethod(f="getSoftwareMessages",
           signature="StandardOutputObject",
           definition=function(SOObject)
           {                              
-           SoftwareMessages = SOObject@Estimation@SoftwareMessages
+           SoftwareMessages <- SOObject@Estimation@SoftwareMessages
            pprintList(SoftwareMessages, "Software Messages")
           }
 )
@@ -374,8 +383,8 @@ setMethod(f="getSoftwareMessages",
 #' @export 
 getEstimationInfo <- function(SOObject){
   
-  likelihood = getLikelihood(SOObject)
-  messages = getSoftwareMessages(SOObject)
+  likelihood <- getLikelihood(SOObject)
+  messages <- getSoftwareMessages(SOObject)
 
   invisible(list(likelihood=likelihood, messages=messages))
 }
@@ -421,17 +430,17 @@ getEstimationInfo <- function(SOObject){
 #' @export
 getParameterEstimates <- function(SOObject, type="all", what="all"){
   
-  output = list()
+  output <- list()
 
   if (type== "estimates" | type == "all") {
 
-    PopulationEstimates = getPopulationEstimates(SOObject)
-    output = c(output, list(PopulationEstimates=PopulationEstimates))
+    PopulationEstimates <- getPopulationEstimates(SOObject)
+    output <- c(output, list(PopulationEstimates=PopulationEstimates))
 
   } 
   if (type== "precision" | type == "all") {
-    PrecisionPopulationEstimates = getPrecisionPopulationEstimates(SOObject)
-    output = c(output, list(PrecisionPopulationEstimates=PrecisionPopulationEstimates))
+    PrecisionPopulationEstimates <- getPrecisionPopulationEstimates(SOObject)
+    output <- c(output, list(PrecisionPopulationEstimates=PrecisionPopulationEstimates))
   
   }
   if (type== "intervalEstimates" | type == "all") {
@@ -463,38 +472,92 @@ setMethod(f="readRawData",
           {
 
           # Mappers from id to file description
-          id2FileType = lapply(SOObject@RawResults@Files, function(x) x[["Description"]])
+          id2FileType <- lapply(SOObject@RawResults@Files, function(x) x[["Description"]])
           names(id2FileType)<- tolower(names(id2FileType))
 
-          fileType2Id = as.list(names(id2FileType))
+          fileType2Id <- as.list(names(id2FileType))
           names(fileType2Id) <- tolower(id2FileType)
 
-          fileIndex = tolower(fileIndex)
+          fileIndex <- tolower(fileIndex)
 
           # fileIndex can be file id or file description
           if (fileIndex %in% names(id2FileType)){
-            fileElement = SOObject@RawResults@Files[[fileIndex]]
+            fileElement <- SOObject@RawResults@Files[[fileIndex]]
           } else if (fileIndex %in% names(fileType2Id)){           
-            fileElement = SOObject@RawResults@Files[[fileType2Id[[fileIndex]]]]
+            fileElement <- SOObject@RawResults@Files[[fileType2Id[[fileIndex]]]]
           } else {
             stop(paste0("File Reference: ",
               fileIndex," not found for either file id or file description"))
           }
 
           # TODO: Possibly need to add custom NA handelling here 
-          rawData = read.csv(rawFile$path, na.strings=".")
+          rawData <- read.csv(rawFile$path, na.strings=".")
           return (rawData)
 }
 )
 
+
+
+
+#' mergeByPosition
+#'
+#'  Utility used bt as.data to check column types and then merge by possition
+#'
+#' @export
+mergeByPosition <- function(df1, df2, msg='') {
+
+  # Type conversion Checks fro column 1
+  if (class(df2[, 1]) == "factor") {
+      df2[, 1] = as.numeric(as.character(df2[, 1]))
+  } else if (class(df2[, 1]) == "integer") {
+      df2[, 1] = as.numeric(df2[, 1])
+  } else if (class(df2[, 1]) == "character") {
+    df2[, 1] = as.numeric(df2[, 1])
+  } else if (class(df2[, 1]) == "numeric") {
+    df2[, 1] = df2[, 1]
+  }
+
+  # Type conversion Checks fro column 2
+  if (class(df2[, 2]) == "factor") {
+      df2[, 2] = as.numeric(as.character(df2[, 2]))
+  } else if (class(df2[, 2]) == "integer") {
+      df2[, 2] = as.numeric(df2[, 2])
+  } else if (class(df2[, 2]) == "character") {
+    df2[, 2] = as.numeric(df2[, 2])
+  } else if (class(df2[, 2]) == "numeric") {
+    df2[, 2] = df2[, 2]
+  }
+
+  # Check ID column is the same on df1 and two
+  if (all(df1[, 1] != df2[, 1])) {
+    stop(paste("ID column order of df1 and df2 does not match when merging", msg))
+  }
+
+  # Check TIME column is the same on df1 and df2 
+  if (all(df1[, 2] != df2[, 2])) {
+    stop(paste("TIME column order of df1 and df2 does not match when merging", msg))
+  }
+
+  names.df1 = names(df1)
+  names.df2 = names(df2)
+
+  new.col.names = c(names.df1, names.df2[3:ncol(df2)])
+
+  mergedDf = cbind(df1, df2[, 3:ncol(df2)], deparse.level = 0)
+
+  names(mergedDf) <- new.col.names
+
+  return(mergedDf)
+}
+
+
 # ============================= #
 # Convert to single Data Frame  #
 # ============================= #
-#' as.data
+#' as.data.old
 #'
 #'  Method to Fetch all relevant data and return a merged data.frame onject.
 #'
-#' 
 #' @export
 setGeneric(name="as.data",
            def=function(SOObject, inputDataPath)
@@ -506,57 +569,182 @@ setMethod(f="as.data",
           signature=signature(SOObject="StandardOutputObject", inputDataPath="character"),
           definition=function(SOObject, inputDataPath)
           {
-
             if (missing(inputDataPath)){
               stop("Path to input data must be specified")
             } else {
-              rawData = read.csv(inputDataPath, na.strings=".")
+              rawData <- read.csv(inputDataPath, na.strings=".")
+
+              # Just to make certain column names are as expected 
               names(rawData)<-c("ID","TIME","WT","AMT","DVID","DV","MDV","logtWT")
-              rawData$ID <- sub("^", "i", rawData$ID )
-              rawData[["ID"]] <- ToFactor(rawData[["ID"]]) 
+              rawData[["ID"]] <- as.numeric(rawData[["ID"]]) 
+              rawData[["TIME"]] <- as.numeric(rawData[["TIME"]]) 
+            }
+
+            # Test to see if data rows are the same, if not remove dose rows from the 
+            # input data and recompare.
+            if (nrow(rawData) > nrow(SOObject@Estimation@Predictions$data)) {
+              rawData <- rawData[!is.na(rawData[['DV']]), ]
+            }
+            if (nrow(rawData) != nrow(SOObject@Estimation@Predictions$data)) {
+              print(paste("Number of Rows in Raw Data: ", nrow(rawData)))
+              print(paste("Number of Rows in Predictions: ", nrow(SOObject@Estimation@Predictions$data)))
+              stop("Number of non-dose rows in raw data is different to those in SO Predictions")
             }
 
             # Fetch and merge Predictions 
-            predictions = SOObject@Estimation@Predictions$data
-            predictions[["TIME"]] = ToNumeric(predictions[["TIME"]])
-            mergedDataFrame <- merge(rawData, predictions)
+            df1 <- rawData
+            df2 <- SOObject@Estimation@Predictions$data
+            mergedDataFrame <- mergeByPosition(df1, df2, 'predictions')
 
             # Fetch and merge Residuals 
-            # residuals = SOObject@Estimation@Residuals
-            # for (name in c("WRES", "IWRES")){
-            #   mergedDataFrame <- merge(mergedDataFrame, residuals[[name]][["data"]])
-            # }
+            residuals <- SOObject@Estimation@Residuals
+            residualTagNames <- c("WRES", "IWRES", "RES", "IRES")
+            for (name in residualTagNames){
+              if (name %in% names(residuals)) {
+                df1 <- mergedDataFrame
+                df2 <- residuals[[name]][["data"]]
+                mergedDataFrame <- mergeByPosition(df1, df2, paste("Residual", name))
+                }
+              } 
 
-            if (nrow(mergedDataFrame) == 0) {
-              stop("Merging of input data with predictions has failed. Check format of ID and TIME columns")
+            # IndividualEstimates, Estimates
+            df1 <- mergedDataFrame
+            df2 <- SOObject@Estimation@IndividualEstimates$Estimates$Mean$data
+            df2[, 1] <- as.numeric(as.character(df2[, 1]))
+            mergedDataFrame <- merge(df1, df2)
+            
+            # IndividualEstimates, RandomEffects
+            df1 <- mergedDataFrame
+            df2 <- SOObject@Estimation@IndividualEstimates$RandomEffects$EffectMean$data
+            df2[, 1] <- as.numeric(as.character(df2[, 1]))
+            mergedDataFrame <- merge(df1, df2)
+
+            return(mergedDataFrame)
+          }
+          )
+# ============================= #
+# Convert to single Data Frame  #
+# ============================= #
+#' as.data.merge
+#'
+#'  An old implimentation of the as.data method which aims to merge 
+#' data frames by matching ID and TIME columns. This approach is problematic 
+#' when ID and TIME columns are duplicated, which turns out to happen quite often.  
+#'
+#'  Method to Fetch all relevant data and return a merged data.frame onject.
+#'
+#' 
+#' @export
+setGeneric(name="as.data.merge",
+           def=function(SOObject, inputDataPath)
+          {
+             standardGeneric("as.data.merge")
+          }
+          )
+setMethod(f="as.data.merge",
+          signature=signature(SOObject="StandardOutputObject", inputDataPath="character"),
+          definition=function(SOObject, inputDataPath)
+          {
+            if (missing(inputDataPath)){
+              stop("Path to input data must be specified")
+            } else {
+              rawData <- read.csv(inputDataPath, na.strings=".")
+              names(rawData)<-c("ID","TIME","WT","AMT","DVID","DV","MDV","logtWT")
+              #rawData$ID <- sub("^", "i", rawData$ID )
+              rawData <- rawData[with(rawData, order(TIME, ID)), ]
+              rawData[["ID"]] <- as.numeric(rawData[["ID"]]) 
+              rawData[["TIME"]] <- as.numeric(rawData[["TIME"]]) 
             }
 
-            # Fetch and merge Residuals 
-            residuals = SOObject@Estimation@Residuals
-            for (name in c("Population", "Individual")){
-              mergedDataFrame <- merge(mergedDataFrame, residuals[[name]])
-            }
+            # Test to see if data rows are the same, if not remove dose rows from the 
+            # input data and recompare.
+			if (nrow(rawData) > nrow(SOObject@Estimation@Predictions$data)) {
+				rawData <- rawData[!is.na(rawData[['DV']]), ]
+			}
+			if (nrow(rawData) != nrow(SOObject@Estimation@Predictions$data)) {
+        print(paste("Number of Rows in Raw Data: ", nrow(rawData)))
+        print(paste("Number of Rows in Predictions: ", nrow(SOObject@Estimation@Predictions$data)))
+				stop("Number of non-dose rows in raw data is different to those in SO Predictions")
+			}
+
+            # Fetch and merge Predictions 
+            predictions <- SOObject@Estimation@Predictions$data
+
+            predictions <- predictions[with(predictions, order(TIME, ID)), ]
+            predictions[["ID"]] = as.numeric(as.character(predictions[["ID"]]))
+            predictions[["TIME"]] = as.numeric(as.character(predictions[["TIME"]]))
+
+            df1 <- rawData
+            df2 <- predictions
+
+            # Remove any duplicated rows before the merge
+            df2 <- df2[!duplicated(df2), ]
+
+            mergedDataFrame <- merge(df1, df2)
 
             if (nrow(mergedDataFrame) == 0) {
-              stop("Merging of residuals has failed. Check format of ID and TIME columns")
+
+              print(paste("Number of Rows in Raw Data: ", nrow(df1), 
+                " - ID col class:", class(df1[, 1]), " - TIME col class:", class(df1[, 2])))
+              print(paste("Number of Rows in Predictions: ", nrow(df2), 
+                " - ID col class:", class(df2[, 1]), " - TIME col class:", class(df2[, 2])))
+              stop("Merging of predictions has failed. Check format of ID and TIME columns")
+            }
+
+            # Fetch and merge Residuals method 1
+            residuals <- SOObject@Estimation@Residuals
+            residualTagNames <- c("WRES", "IWRES", "RES", "IRES")
+            for (name in residualTagNames){
+              if (name %in% names(residuals)) {
+                df1 <- mergedDataFrame
+                df2 <- residuals[[name]][["data"]]
+                df2[["ID"]] <- as.numeric(as.character(df2[["ID"]]))
+                df2[["TIME"]] <- as.numeric(as.character(df2[["TIME"]]))
+                df2 <- df2[!duplicated(df2), ]
+                mergedDataFrame <- merge(mergedDataFrame, df2)
+              
+                if (nrow(mergedDataFrame) == 0) {
+                  df2 <- SOObject@Estimation@Residuals[[name]][["data"]]
+                  print(paste("Number of Rows in df1: ", nrow(df1), 
+                    " - ID col class:", class(df1[, 1]), " - TIME col class:", class(df1[, 2])))
+                  print(paste("Number of Rows in df2: ", nrow(df2),
+                    " - ID col class:", class(df2[, 1]), " - TIME col class:", class(df2[, 2])))
+                  stop("Merging of residuals has failed. Check format of ID and TIME columns")
+                }
+              } 
             }
 
             # IndividualEstimates, Estimates
-            dat = SOObject@Estimation@IndividualEstimates$Estimates$Mean$data
-            mergedDataFrame <- merge(mergedDataFrame, dat)
+            df1 <- mergedDataFrame
+            df2 <- SOObject@Estimation@IndividualEstimates$Estimates$Mean$data
+            df2[["ID"]] <- as.numeric(as.character(df2[["ID"]]))
+            df2[["TIME"]] <- as.numeric(as.character(df2[["TIME"]]))  
+            df2 <- df2[!duplicated(df2), ]
+            mergedDataFrame <- merge(df1, df2)
             
             if (nrow(mergedDataFrame) == 0) {
+              print(paste("Number of Rows in df1: ", nrow(df1), 
+                    " - ID col class:", class(df1[, 1]), " - TIME col class:", class(df1[, 2])))
+              print(paste("Number of Rows in df2: ", nrow(df2),
+                    " - ID col class:", class(df2[, 1]), " - TIME col class:", class(df2[, 2])))
               stop("Merging of IndividualEstimates-Estimates has failed. Check format of ID and TIME columns")
             }
             
             # IndividualEstimates, RandomEffects
-            dat = SOObject@Estimation@IndividualEstimates$RandomEffects$EffectMean$data
-            mergedDataFrame <- merge(mergedDataFrame, dat)
+            df1 <- mergedDataFrame
+            df2 <- SOObject@Estimation@IndividualEstimates$RandomEffects$EffectMean$data
+            df2[["ID"]] <- as.numeric(as.character(df2[["ID"]]))
+            df2[["TIME"]] <- as.numeric(as.character(df2[["TIME"]]))
+            df2 <- df2[!duplicated(df2), ]
+            mergedDataFrame <- merge(df1, df2)
 
             if (nrow(mergedDataFrame) == 0) {
+              print(paste("Number of Rows in df1: ", nrow(df1), 
+                    " - ID col class:", class(df1[, 1]), " - TIME col class:", class(df1[, 2])))
+              print(paste("Number of Rows in df2: ", nrow(df2),
+                    " - ID col class:", class(df2[, 1]), " - TIME col class:", class(df2[, 2])))
               stop("Merging of IndividualEstimates-RandomEffects has failed. Check format of ID and TIME columns")
             }
-
             return(mergedDataFrame)
           }
           )
@@ -581,7 +769,7 @@ setMethod(f="as.xpdb",
           {
 
             # create Merged data frame
-            xpose4_dataFrame = as.data(SOObject, inputDataPath)
+            xpose4_dataFrame <- as.data(SOObject, inputDataPath)
 
             library('xpose4')
             # CREATE new Xpose database

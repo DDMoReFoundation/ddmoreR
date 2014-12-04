@@ -12,7 +12,49 @@
 # Data Block Parsers #
 # ================== #
 
-#' ParseDataSet
+#' ParseElement
+#'
+#' Investigates the name of the elements Children and runs the appropriate parser  
+#'
+ParseElement <- function(Node) {
+
+  # Check format of xml element 
+  ChildNames = names(xmlChildren(Node))
+
+  OUT = FALSE
+
+  if (length(ChildNames) == 1){
+      if ("ct:Matrix" %in% ChildNames) {
+        # Parse Node as a matrix 
+        OUT = ParseMatrix(Node[["ct:Matrix"]])
+
+      } else if ("ds:ImportData" %in% ChildNames) {
+        # Load data from external file
+        OUT = ParseImportData(Node[["ds:ImportData"]])
+
+      }
+  } else if (length(ChildNames) == 2) {
+      if ("Definition" %in% ChildNames & "ds:ImportData" %in% ChildNames) {
+        # Load data from external file
+        OUT = ParseDataSetExternal(Node)
+
+      } else if ("ds:Definition" %in% ChildNames & "ds:Table" %in% ChildNames) {
+        # Load data from external file
+        OUT = ParseDataSetInline(Node)
+
+      } else if ("Definition" %in% ChildNames & "Table" %in% ChildNames) {
+        # Load data from external file
+        OUT = ParseDataSetInline(Node)
+      }
+  }
+   
+  if (class(OUT) == "logical") {
+    stop("Element Children names not recognised as passable objects in SO")
+  }
+  OUT
+}
+
+#' ParseDataSetInline
 #'
 #' Utility function to parse a DataSet xml structure as it appears in PharmML. 
 #'
@@ -23,7 +65,7 @@
 #' the meta data about the columns in a data frame; \code{data}, which holds the
 #' actual values in a dataframe.
 #'
-ParseDataSet <- function(parentNode) {
+ParseDataSetInline <- function(parentNode) {
   
   parentNodeChildList = xmlChildren(parentNode)
 
@@ -52,11 +94,11 @@ ParseDataSet <- function(parentNode) {
       
   # Extract all column Information and store in a data frame
   columnInfo = as.data.frame(xmlSApply(definition, FUN = function(x) list(
-  		xmlGetAttr(x, name="columnNum"), 
-    	xmlGetAttr(x, name="columnType"),
-    	xmlGetAttr(x, name="valueType"),
-    	xmlGetAttr(x, name="columnId")
-    	)
+      xmlGetAttr(x, name="columnNum"), 
+      xmlGetAttr(x, name="columnType"),
+      xmlGetAttr(x, name="valueType"),
+      xmlGetAttr(x, name="columnId")
+      )
   ))
       
   # Filter out non Columns tags  
@@ -96,6 +138,66 @@ ParseDataSet <- function(parentNode) {
   return(list(description=columnInfo, data=df))
 }
 
+
+#' ParseDataSetExternal
+#'
+#' Utility function to parse a DataSet xml structure as it appears in PharmML. 
+#'
+#' @param parentNode The parent xmlNode object that contains two decendant tags:
+#'   Definition and Table 
+#'
+#' @value Returns a list with two named elements: \code{description}, which holds all 
+#' the meta data about the columns in a data frame; \code{data}, which holds the
+#' actual values in a dataframe.
+#'
+ParseDataSetExternal <- function(parentNode) {
+  
+  parentNodeChildList = xmlChildren(parentNode)
+
+  # Error checking
+  # Strip comments first
+  parentNodeChildNames = names(parentNodeChildList)[names(parentNodeChildList) != "comment"]
+  stopifnot(("Definition" %in% parentNodeChildNames & "ImportData" %in% parentNodeChildNames) | 
+   ("Definition" %in% parentNodeChildNames & "ds:ImportData" %in% parentNodeChildNames))
+
+  # Namespaces are not delt with correctly in the R xml library, so two hardcoded 
+  # versions of this function are necessary unitl a workaround is found.  
+  if (xmlName(parentNode[[1]]) == "Definition" & xmlName(parentNode[[2]]) == "ImportData") {
+    descriptionRef = "Definition"
+    importDataRef = "ImportData"
+  } else if (xmlName(parentNode[[1]]) == "Definition" & xmlName(parentNode[[2]]) == "ds:ImportData") {
+    descriptionRef = "Definition"
+    importDataRef = "ds:ImportData"
+  }
+
+  definition = parentNodeChildList[[descriptionRef]]
+  importData = parentNodeChildList[[importDataRef]]
+      
+  # Extract all column Information and store in a data frame
+  columnInfo = as.data.frame(xmlSApply(definition, FUN = function(x) list(
+  		xmlGetAttr(x, name="columnNum"), 
+    	xmlGetAttr(x, name="columnType"),
+    	xmlGetAttr(x, name="valueType"),
+    	xmlGetAttr(x, name="columnId")
+    	)
+  ))
+      
+  # Filter out non Columns tags  
+  # columnInfo = columnInfo[, names(columnInfo) == columnRef]
+  
+  # Rename column headers to column ID
+  names(columnInfo) <- unlist(columnInfo[4,])
+  columnInfo = columnInfo[-4, ]
+  # Rename rows to lable column info
+  rownames(columnInfo) <- c("columnNum", "columnType", "valueType")
+  
+  # Get all importData elements
+  df = ParseImportData(importData)
+
+  colnames(df) <- names(columnInfo)
+
+  return(list(description=columnInfo, data=df))
+}
 
 #' ParseMatrix
 #' 
@@ -143,6 +245,7 @@ ParseMatrix <- function(matrixNode) {
   return(df)
 }
 
+
 #' ParseImportData
 #'
 #' Utility function to parse and load in an external file to the PharmML, defined in the 
@@ -156,7 +259,29 @@ ParseMatrix <- function(matrixNode) {
 #' actual values in a dataframe.
 #'
 ParseImportData <- function(ImportDataNode) {
+
+  # Get rownames of matrix 
+  ImportDataChildern = xmlSApply(ImportDataNode, xmlValue)
+  
+  metaData = names(ImportDataChildern)
+
+  stopifnot(("ds:path" %in% metaData) & ("ds:format" %in% metaData) 
+    & ("ds:delimiter" %in% metaData) )
+
+  path = ImportDataChildern[["ds:path"]]
+  format = ImportDataChildern[["ds:format"]]
+  delimiter = ImportDataChildern[["ds:delimiter"]]
+
+  if (delimiter != "COMMA") {
+    stop("Comma is the only delimiter currently supported by importData parsers.")
+  }
+
+  df  = read.csv(path, sep=",", na.strings=".", header=T) 
+  
+  return(df)
 }
+
+
 
 # =============== #
 # Section Parsers #
@@ -223,13 +348,12 @@ ParsePopulationEstimates <- function(SOObject, PopulationEstimatesNode) {
   # Get list and reference to Child Nodes
   PopulationEstimatesChildren = xmlChildren(PopulationEstimatesNode)
 
- 
   for (PEChild in PopulationEstimatesChildren){
     
     if (xmlName(PEChild) == "MLE") {
       
       # Parse XMl DataSet Structure	  
-      L = ParseDataSet(PEChild)
+      L = ParseElement(PEChild)
       # Update SO Object Slot
       SOObject@Estimation@PopulationEstimates[["MLE"]] = list(
       										description=L$description, 
@@ -240,7 +364,7 @@ ParsePopulationEstimates <- function(SOObject, PopulationEstimatesNode) {
       BayesianChildren = xmlChildren(PEChild)
       # Parse XMl DataSet Structure	and update SO	
   	  for (BChild in c("PosteriorMean", "PosteriorMedian", "PosteriorMode")) {
-  	 	  L = ParseDataSet(BayesianChildren[[BChild]])
+  	 	  L = ParseElement(BayesianChildren[[BChild]])
   	  	SOObject@Estimation@PopulationEstimates[["Bayesian"]][[BChild]] = list(
     									    	description=L$description, 
         										data=L$data)
@@ -249,6 +373,7 @@ ParsePopulationEstimates <- function(SOObject, PopulationEstimatesNode) {
    }
   return(SOObject)
 }
+
 
 ParsePrecisionPopulationEstimates <- function(SOObject, PrecisionPopulationEstimatesNode) {
   
@@ -262,30 +387,30 @@ ParsePrecisionPopulationEstimates <- function(SOObject, PrecisionPopulationEstim
       for (MLEChild in MLEChildren){
         
         if (xmlName(MLEChild) == "FIM"){
-          # if FIM is present, parse matrix as data frame to SO 
-          DF = ParseMatrix(MLEChild[["ct:Matrix"]])
-          SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["FIM"]] = DF
+          # if FIM is present, parse matrix as data frame to SO {
+            DF = ParseElement(MLEChild)
+            SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["FIM"]] = DF 
         
         } else if(xmlName(MLEChild) == "CovarianceMatrix") {
           # if CovarianceMatrix is present, parse matrix as data frame to SO 
-          DF = ParseMatrix(MLEChild[["ct:Matrix"]])
+          DF = ParseElement(MLEChild)
           SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["CovarianceMatrix"]] = DF
         
         } else if(xmlName(MLEChild) == "CorrelationMatrix") {
           # if CorrelationMatrix is present, parse matrix as data frame to SO 
-          DF = ParseMatrix(MLEChild[["ct:Matrix"]])
+          DF = ParseElement(MLEChild)
           SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["CorrelationMatrix"]] = DF
         
         } else if(xmlName(MLEChild) == "StandardError") {
           # if StandardError is present, parse DataSet as data frame to SO 
-          L = ParseDataSet(MLEChild)
+          L = ParseElement(MLEChild)
           # Update SO Object Slot
           SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["StandardError"]] = list(
                           description=L$description, 
                           data=L$data)
         } else if(xmlName(MLEChild) == "RelativeStandardError") {
           # if RelativeStandardError is present, parse DataSet as data frame to SO 
-          L = ParseDataSet(MLEChild)
+          L = ParseElement(MLEChild)
           # Update SO Object Slot
           SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["RelativeStandardError"]] = list(
                           description=L$description, 
@@ -293,7 +418,7 @@ ParsePrecisionPopulationEstimates <- function(SOObject, PrecisionPopulationEstim
 
         } else if(xmlName(MLEChild) == "AsymptoticCI") {
           # if AsymptoticCI is present, parse DataSet as data frame to SO 
-          L = ParseDataSet(MLEChild)
+          L = ParseElement(MLEChild)
           # Update SO Object Slot
           SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["AsymptoticCI"]] = list(
                           description=L$description, 
@@ -308,14 +433,14 @@ ParsePrecisionPopulationEstimates <- function(SOObject, PrecisionPopulationEstim
       for (BayesianChild in BayesianChildren) {
 
         if (xmlName(BayesianChild) == "StandardDeviationPosterior"){
-          L = ParseDataSet(BayesianChild)
+          L = ParseElement(BayesianChild)
           SOObject@Estimation@PrecisionPopulationEstimates[["Bayesian"]][["StandardDeviationPosterior"]] = list(
                               description=L$description, 
                               data=L$data)
         } else if (xmlName(BayesianChild) == "PosteriorDistribution"){
           # TODO ========================== Deal with Probability distributions
         } else if (xmlName(BayesianChild) == "PercentilesCI"){
-          L = ParseDataSet(BayesianChild)
+          L = ParseElement(BayesianChild)
           SOObject@Estimation@PrecisionPopulationEstimates[["Bayesian"]][["PercentilesCI"]] = list(
                               description=L$description, 
                               data=L$data)
@@ -338,28 +463,28 @@ ParseIndividualEstimates <- function(SOObject, IndividualEstimatesNode) {
       for (subChild in subChildren){
         
         if (xmlName(subChild) == "Mean"){
-          L = ParseDataSet(subChild)
+          L = ParseElement(subChild)
           # Update SO Object Slot
           SOObject@Estimation@IndividualEstimates[["Estimates"]][["Mean"]] = list(
                           description=L$description, 
                           data=L$data)
         
         } else if(xmlName(subChild) == "Median") {
-          L = ParseDataSet(subChild)
+          L = ParseElement(subChild)
           # Update SO Object Slot
           SOObject@Estimation@IndividualEstimates[["Estimates"]][["Median"]] = list(
                           description=L$description, 
                           data=L$data)        
 
         } else if(xmlName(subChild) == "Mode") {
-          L = ParseDataSet(subChild)
+          L = ParseElement(subChild)
           # Update SO Object Slot
           SOObject@Estimation@IndividualEstimates[["Estimates"]][["Mode"]] = list(
                           description=L$description, 
                           data=L$data)        
 
         } else if(xmlName(subChild) == "Samples") {
-          L = ParseDataSet(subChild)
+          L = ParseElement(subChild)
           # Update SO Object Slot
           SOObject@Estimation@IndividualEstimates[["Estimates"]][["Samples"]] = list(
                           description=L$description, 
@@ -374,28 +499,28 @@ ParseIndividualEstimates <- function(SOObject, IndividualEstimatesNode) {
       for (subChild in subChildren) {
 
         if (xmlName(subChild) == "EffectMean"){
-          L = ParseDataSet(subChild)
+          L = ParseElement(subChild)
           # Update SO Object Slot
           SOObject@Estimation@IndividualEstimates[["RandomEffects"]][["EffectMean"]] = list(
                           description=L$description, 
                           data=L$data)
 
         } else if (xmlName(subChild) == "EffectMedian"){
-          L = ParseDataSet(subChild)
+          L = ParseElement(subChild)
           # Update SO Object Slot
           SOObject@Estimation@IndividualEstimates[["RandomEffects"]][["EffectMedian"]] = list(
                           description=L$description, 
                           data=L$data)
 
         } else if (xmlName(subChild) == "EffectMode"){
-          L = ParseDataSet(subChild)
+          L = ParseElement(subChild)
           # Update SO Object Slot
           SOObject@Estimation@IndividualEstimates[["RandomEffects"]][["EffectMode"]] = list(
                           description=L$description, 
                           data=L$data)
 
         } else if (xmlName(subChild) == "Samples"){
-          L = ParseDataSet(subChild)
+          L = ParseElement(subChild)
           # Update SO Object Slot
           SOObject@Estimation@IndividualEstimates[["RandomEffects"]][["Samples"]] = list(
                           description=L$description, 
@@ -403,7 +528,7 @@ ParseIndividualEstimates <- function(SOObject, IndividualEstimatesNode) {
         }
       }
     } else if (xmlName(child) == "EtaShrinkage") {
-      L = ParseDataSet(child)
+      L = ParseElement(child)
       # Update SO Object Slot
       SOObject@Estimation@IndividualEstimates[["EtaShrinkage"]] = list(
                           description=L$description, 
@@ -427,7 +552,7 @@ ParseResiduals <- function(SOObject, ResidualsNode) {
     for (target in c("RES", "IRES", "WRES", "CWRES", "IWRES", "PD", "NPDE")){
       if (xmlName(child) == target) {
         # Parse as a 
-        L = ParseDataSet(child)
+        L = ParseElement(child)
         # Update SO Object Slot
         SOObject@Estimation@Residuals[[target]] = list(
                       description=L$description, 
@@ -440,7 +565,7 @@ ParseResiduals <- function(SOObject, ResidualsNode) {
 
 ParsePredictions <- function(SOObject, PredictionsNode) {
 
-  L = ParseDataSet(PredictionsNode)
+  L = ParseElement(PredictionsNode)
   # Update SO Object Slot
   SOObject@Estimation@Predictions <- list(
                       description=L$description, 
@@ -473,7 +598,7 @@ ParseLikelihood <- function(SOObject, LikelihoodNode) {
 	if (xmlName(child) == "IndividualContribToLL") {
 		
       # Extract IndividualContribToLL
-      L = ParseDataSet(child)
+      L = ParseElement(child)
 	  
 	  # Update SO Object Slot
 	  SOObject@Estimation@Likelihood$IndividualContribToLL = list(

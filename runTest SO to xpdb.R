@@ -1,35 +1,47 @@
 
-#detach("package:DDMoRe.TEL", unload=TRUE)
+# Clear workspace. 
+rm(list=ls())
 
-#rm(list=ls())
+# Paths setup. Set this to TEL repo location
+# root = "C:\\Users\\cmusselle\\Projects\\DDmore\\TEL-R"
 
-# Paths setup 
-#TEL.zip.path = "C:/Users/cmusselle/Projects/DDmore/TEL-R/.__artefacts/DDMoRe.TEL_0.0.1.tar.gz"
+TEL.zip.path = paste(root, ".__artefacts/DDMoRe.TEL_0.0.1.tar.gz", sep="\\")
+Monolix.SO.path = paste(root, "development data\\MONOLIX_SO", sep="\\")
+Nonmem.SO.path = paste(root, "development data\\NONMEM_SO", sep="\\")
 
-SO.output.path = "development data/warfarin_PK_ODE/eric/"
+# Detach, install and reload Tell package 
+if ("DDMoRe.TEL" %in% .packages()) {
+  detach("package:DDMoRe.TEL", unload=TRUE)
+} 
 
-# Installation
+install.packages(TEL.zip.path, repos = NULL, type = "source")
+require("DDMoRe.TEL")
 
-#install.packages(TEL.zip.path, repos = NULL, type = "source")
-#require("DDMoRe.TEL")
-setwd(SO.output.path)
+setwd(root)
+
+data.path = Monolix.SO.path
+
+# -------------------
+# MonoLix Test 
+# -------------------
+for (i in c(Monolix.SO.path, Nonmem.SO.path)){
+
+data.path = i
 
 # Load in SO
-SOObject = LoadSOObject("warfarin_PK_ODE.SO.xml")
-
+SOObject = LoadSOObject(paste(data.path, "Warfarin-ODE-latest.SO.xml", sep="\\"))
 
 # Test for fetching Raw Data from a file 
-MyDataFrame = as.data(SOObject, inputDataPath="warfarin_conc.csv") 
+MyDataFrame = as.data(SOObject, inputDataPath=paste(data.path, "warfarin_conc.csv",  sep="\\"))
 
 # Convert to xpose data base. 
-myXpdb = as.xpdb(SOObject, inputDataPath="warfarin_conc.csv") 
+myXpdb = as.xpdb(SOObject, inputDataPath=paste(data.path, "warfarin_conc.csv",  sep="\\")) 
 
 # Plotting tests 
 require('xpose4')
 
 ##  Now create the diagnostic plots using Xpose!
 basic.gof(myXpdb)
-
 
 ## PRED and IPRED vs DV
 dv.vs.pred(myXpdb)
@@ -76,5 +88,4 @@ msgs = DDMoRe.TEL:::getSoftwareMessages(SOObject)
 # Test Higher Level getter functions 
 
 param = getParameterEstimates(SOObject)
-
 est_info = getEstimationInfo(SOObject)

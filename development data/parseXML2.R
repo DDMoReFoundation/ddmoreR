@@ -15,7 +15,7 @@ source("../ddmore.TEL/R/xmlParsers.R")
 SOObject = createSOObject()
 
 # Get a reference to the root node in the xml doc
-root = xmlRoot(xmlTreeParse("warfarin_PK_ODE_SO_FULL.xml"))
+root = xmlRoot(xmlTreeParse("development data\\MONOLIX_SO\\Warfarin-ODE-latest.SO.xml"))
 
 # Update the namespace to use 'd' as the defualt. Must be done to use Xpath expressions with namespaces
 ns = xmlNamespaceDefinitions(root, simplify = TRUE)

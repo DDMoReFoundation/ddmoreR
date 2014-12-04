@@ -29,7 +29,6 @@ setClass("RawResults",
   }
 )
 
-
 ##############################################################################
 #' The Estimation Object Class (S4) 
 #'
@@ -64,17 +63,27 @@ setClass("Estimation",
     ),
   # Set Default Values to blank lists with names in place
   prototype = list(
-  	PopulationEstimates = list(MLE=NULL, Bayesian=NULL),
-  	PrecisionPopulationEstimates = list(MLE=NULL, Bayesian=NULL),
-  	IndividualEstimates = list(Estimates=NULL, EtaShrinkage=NULL, RandomEffects=NULL),
-  	PrecisionIndividualEstimates = list(PostDist=NULL),
-  	Residuals = list(MLE_NPDE=NULL, BE_NPDE=NULL, PD=NULL, Population=NULL, 
-  		Individual=NULL, Conditional=NULL),
-	Predictions = list(),
-	Likelihood = list(LogLikelihood=NULL, Deviance=NULL, AIC=NULL, BIC=NULL),
-	SoftwareMessages = list(TerminationMsg=NULL, Warnings=NULL, Errors=NULL, 
-		RunTime=NULL, PharmMLOutputPath=NULL, MCMCChains=NULL, Iterations=NULL)
-  	),
+   PopulationEstimates = list(),
+   PrecisionPopulationEstimates = list(),
+   IndividualEstimates = list(),
+   PrecisionIndividualEstimates = list(),
+   Residuals = list(),
+   Predictions = list(),
+   Likelihood = list(),
+   SoftwareMessages = list()
+   ),
+#  prototype = list(
+#  	PopulationEstimates = list(MLE=NULL, Bayesian=NULL),
+#  	PrecisionPopulationEstimates = list(MLE=NULL, Bayesian=NULL),
+#  	IndividualEstimates = list(Estimates=NULL, EtaShrinkage=NULL, RandomEffects=NULL),
+#  	PrecisionIndividualEstimates = list(PostDist=NULL),
+#  	Residuals = list(MLE_NPDE=NULL, BE_NPDE=NULL, PD=NULL, Population=NULL, 
+#  		Individual=NULL, Conditional=NULL),
+#	Predictions = list(),
+#	Likelihood = list(LogLikelihood=NULL, Deviance=NULL, AIC=NULL, BIC=NULL),
+#	SoftwareMessages = list(TerminationMsg=NULL, Warnings=NULL, Errors=NULL, 
+#		RunTime=NULL, PharmMLOutputPath=NULL, MCMCChains=NULL, Iterations=NULL)
+#  	),
   # Validity Checking Function 
   validity = function(object) {
 	stopifnot(class(object@PopulationEstimates)=="list")
@@ -107,11 +116,15 @@ setClass("ModelDiagnosticEvaluation",
     ModelDiagnostic="list",
     ModelComparison="list"
     ),
-  # Set Default Values to blank lists with names in place
+ # Set Default Values to blank lists with names in place
   prototype = list(
-  	ModelDiagnostic = list(Plots=NULL, Tests=NULL),
-  	ModelComparison = list(Parentage=NULL, Comparisons=NULL, Tests=NULL)
+  	ModelDiagnostic = list(),
+  	ModelComparison = list()
   	),
+#  prototype = list(
+#    ModelDiagnostic = list(Plots=NULL, Tests=NULL),
+#    ModelComparison = list(Parentage=NULL, Comparisons=NULL, Tests=NULL)
+#    ),
   # Validity Checking Function 
   validity = function(object) {
 	stopifnot(class(object@ModelDiagnostic)=="list")
@@ -141,9 +154,13 @@ setClass("SimulationExploration",
     ),
   # Set Default Values to blank lists with names in place
   prototype = list(
-  	Simulation = list(Population=NULL, Individual=NULL, Samples=NULL),
-  	Exploration = list(Plots=NULL, Tables=NULL)
+  	Simulation = list(),
+  	Exploration = list()
   	),
+ # prototype = list(
+ #   Simulation = list(Population=NULL, Individual=NULL, Samples=NULL),
+ #   Exploration = list(Plots=NULL, Tables=NULL)
+ #   ),
   # Validity Checking Function 
   validity = function(object) {
 	stopifnot(class(object@Simulation)=="list")
@@ -174,15 +191,21 @@ setClass("OptimalDesign",
     ),
   # Set Default Values to blank lists with names in place
   prototype = list(
-  	ODEEvaluation = list(FIM=NULL, SE=NULL, RSE=NULL, Shrinkage=NULL, 
-  		Criteria=NULL, Plots=NULL, Tables=NULL, Power=NULL, CI=NULL, Comparisons=NULL,
-  		Window=NULL, RunTime=NULL, SimulatedData=NULL),
-  	ODEOptimisation = list(FIM=NULL, OptimisedDesign=NULL, Improvement=NULL, 
-  		Parameters=NULL, Shrinkage=NULL, Criteria=NULL, Plots=NULL, RunTime=NULL, 
-  		Power=NULL, CI=NULL, Comparisons=NULL, Window=NULL, SimulatedData=NULL), 
+  	ODEEvaluation = list(),
+  	ODEOptimisation = list(), 
   	AODEvaluation = list(), 
   	AODOptimisation = list()
   	),
+# prototype = list(
+#    ODEEvaluation = list(FIM=NULL, SE=NULL, RSE=NULL, Shrinkage=NULL, 
+#        Criteria=NULL, Plots=NULL, Tables=NULL, Power=NULL, CI=NULL, Comparisons=NULL,
+#        Window=NULL, RunTime=NULL, SimulatedData=NULL),
+#    ODEOptimisation = list(FIM=NULL, OptimisedDesign=NULL, Improvement=NULL, 
+#        Parameters=NULL, Shrinkage=NULL, Criteria=NULL, Plots=NULL, RunTime=NULL, 
+#        Power=NULL, CI=NULL, Comparisons=NULL, Window=NULL, SimulatedData=NULL), 
+#    AODEvaluation = list(), 
+#    AODOptimisation = list()
+#    ),
   # Validity Checking Function 
   validity = function(object) {
 	  stopifnot(class(object@ODEEvaluation)=="list")
