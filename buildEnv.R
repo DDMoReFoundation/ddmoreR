@@ -7,7 +7,7 @@ localLib <- Sys.getenv("R_LIBS")
 .libPaths(localLib)
 
 
-cat("Checking for and installing dependencies\n")
+message("Checking for and installing dependencies...")
 if (!require(bitops, lib.loc=localLib)){
   install.packages("./dependencies/bitops_1.0-6.zip", repos=NULL, 
   lib=localLib, INSTALL_opts = "--no-lock")
@@ -85,4 +85,4 @@ if (!require(testthat, lib.loc=localLib)){
   stop("testthat does not seem to be installed")
 }
 
-cat("done\n")
+message("done")
