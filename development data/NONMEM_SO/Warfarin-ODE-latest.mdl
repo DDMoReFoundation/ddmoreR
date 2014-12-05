@@ -1,0 +1,115 @@
+warfarin_PK_ODE_dat = dataobj {
+
+	DATA_INPUT_VARIABLES {
+		ID : { type = categorical }
+		TIME : { type = continuous }
+		WT : { type = continuous }
+		AMT : { type = continuous } 
+		DVID : { type = categorical }
+		DV : { type = continuous }
+		MDV : { type = categorical } 
+		logtWT:{ type = continuous }  
+	} # end DATA_INPUT_VARIABLES
+	
+	SOURCE { file = "warfarin_conc.csv" 
+			 inputformat = nonmemFormat 
+			 ignore = "#" 
+			 } # end SOURCE
+} # end data object
+
+warfarin_PK_ODE_par = parobj { 
+ 	STRUCTURAL {
+		POP_CL : { value = 0.1, lo = 0.001 }
+		POP_V : { value = 8, lo = 0.001 } 
+		POP_KA : { value = 0.362, lo = 0.001 } 
+		POP_TLAG : { value = 1, lo = 0.001 }
+		BETA_CL_WT : { value = 0.75, fix = true }
+		BETA_V_WT : { value = 1, fix = true } 
+		} # end STRUCTURAL
+	VARIABILITY {
+		PPV_CL : { value = 0.1, type = SD }
+		PPV_V : { value = 0.1, type = SD }
+		PPV_KA : { value = 0.1, type = SD }
+		PPV_TLAG : { value = 0.1, type = SD } # Parameters to the error model  
+		RUV_PROP : { value = 0.1, type = SD }
+		RUV_ADD : { value = 0.1, type = SD } # Parameter correlation
+		CORR_PPV_CL_V : { value = 0.01, type = CORR, lo = - 1.0, hi = 1.0 } 
+		} # end VARIABILITY
+} # end of parameter object 
+
+warfarin_PK_ODE_mdl = mdlobj {
+	MODEL_INPUT_VARIABLES {
+		ID : { use = id, level = 2 }
+		TIME : { use = idv } 
+		AMT : {use=amt, administration = GUT}
+ 		DV : { use = dv, level=1, prediction = Y} 
+		MDV : { use = mdv }
+		logtWT : { use = covariate, type = continuous }
+		} # end MODEL_INPUT_VARIABLES
+	
+	STRUCTURAL_PARAMETERS {
+		POP_CL
+		POP_V
+		POP_KA
+		POP_TLAG
+		BETA_CL_WT
+		BETA_V_WT } # end STRUCTURAL_PARAMETERS
+	VARIABILITY_PARAMETERS {
+		PPV_CL
+		PPV_V
+		PPV_KA
+		PPV_TLAG
+		RUV_PROP
+		RUV_ADD } # end VARIABILITY_PARAMETERS 
+	
+	RANDOM_VARIABLE_DEFINITION {
+		ETA_CL ~ { type = normal, mean = 0, sd = PPV_CL, level = ID }
+		ETA_V ~ { type = normal, mean = 0, sd = PPV_V, level = ID }
+		ETA_KA ~ { type = normal, mean = 0, sd = PPV_KA, level = ID }
+		ETA_TLAG ~ { type = normal, mean = 0, sd = PPV_TLAG, level = ID } # We define correlation here
+		CORR_PPV_CL_V : { type = CORR, rv1 = ETA_CL, rv2 = ETA_V, level = ID } 
+		} # end RANDOM_VARIABLE_DEFINITION 
+	
+	INDIVIDUAL_VARIABLES { # This maps to the "Type 3" individual parameter definition in PharmML
+		CL : { type = linear, trans = log, pop = POP_CL, fixEff = [ BETA_CL_WT ], cov = [ logtWT ], ranEff = ETA_CL }
+		V : { type = linear, trans = log, pop = POP_V, fixEff = [ BETA_V_WT ], cov = [ logtWT ], ranEff = ETA_V }
+		KA : { type = linear, trans = log, pop = POP_KA, ranEff = ETA_KA }
+		TLAG : { type = linear, trans = log, pop = POP_TLAG, ranEff = ETA_TLAG } 
+		} # end INDIVIDUAL_VARIABLES
+	
+	MODEL_PREDICTION {
+		ODE {  
+			RATEIN = GUT * KA when T >= TLAG otherwise 0
+			GUT : { deriv =(- RATEIN), init = 0, x0 = 0 }
+			CENTRAL : { deriv =(RATEIN - CL * CENTRAL / V), init = 0, x0 = 0 } 
+			} # end DEQ block
+		CC = CENTRAL / V 
+		} # end MODEL_PREDICTION
+	
+	OBSERVATION {
+		EPS_Y ~ { type = normal, mean = 0, var = 1, level = DV } # This maps the standard error model in PharmML. The error model is predefined. 
+		Y : { type = continuous, error = combinedError1(additive = RUV_ADD, proportional = RUV_PROP, f = CC), eps = EPS_Y,
+			prediction = CC } 
+			} # end OBSERVATION
+	
+	MODEL_OUTPUT_VARIABLES { # The OUTPUT block specifies the model variables that may be exported from the model object.
+		ID
+		TIME
+		logtWT
+		CL
+		V
+		KA
+		TLAG
+		Y } # end MODEL_OUTPUT_VARIABLES
+} # end of model object
+
+warfarin_PK_ODE_task = taskobj {
+
+	ESTIMATE { # We need the definition of algorithms and algorithm
+	# properties before we can put anything meaningful here
+		target = MLXTRAN_CODE version = "4.3.2" algo = [ "SAEM" ] } #end ESTIMATE sub block
+} # end of task object
+	warf_mog = mog { warfarin_PK_ODE_mdl 
+					 warfarin_PK_ODE_par 
+					 warfarin_PK_ODE_dat 
+					 warfarin_PK_ODE_task }
