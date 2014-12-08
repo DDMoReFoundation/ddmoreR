@@ -66,13 +66,21 @@ TEL.serverRunning <-
 #' 
 #' @param HOST Hostname of the server running the FIS service. Defaults to localhost.
 #' @param PORT Port of the server running the FIS service. Defaults to 9010.
+#' @param dontWait (Internal usage only) Defaults to FALSE; only the R console
+#' 				   termination should call this with TRUE
 #'
 TEL.stopServer <-
-  function(HOST='localhost', PORT='9010') {
+  function(HOST='localhost', PORT='9010', dontWait = FALSE) {
     message("Stopping server...")
 	shutdownURL = sprintf('http://%s:%s/shutdown', HOST, PORT)
 	ret = RCurl:::postForm(shutdownURL, style="HTTPPOST", shutdown="yes")
 	if (ret[1]=="OK") {
+		# The servers might report themselves as not running immediately but they still
+		# take a few seconds to actually shut down; put in a pause to avoid the user
+		# attempting to restart the servers while they haven't fully shut down
+		if (!dontWait) {
+			Sys.sleep(10)
+		}
 		message("Server is now stopped.")
 	} else {
 		warning("Server could not be stopped.")
@@ -93,7 +101,7 @@ TEL.stopServer <-
 #' @export
 #'
 q <- function(HOST='localhost', PORT='9010') {
-	TEL.safeStop(HOST, PORT);
+	TEL.safeStop(HOST, PORT, dontWait=TRUE);
 	base:::q()
 }
 
@@ -104,11 +112,13 @@ q <- function(HOST='localhost', PORT='9010') {
 #' 
 #' @param HOST Hostname of the server running the FIS service. Defaults to localhost.
 #' @param PORT Port of the server running the FIS service. Defaults to 9010.
+#' @param dontWait (Internal usage only) Defaults to FALSE; only the R console
+#' 				   termination should call this with TRUE
 #'
 TEL.safeStop <-
-  function(HOST='localhost', PORT='9010') {
+  function(HOST='localhost', PORT='9010', dontWait = FALSE) {
     if (TEL.serverRunning(HOST, PORT)) {
-      TEL.stopServer(HOST, PORT)
+      TEL.stopServer(HOST, PORT, dontWait)
     }
   }
 
