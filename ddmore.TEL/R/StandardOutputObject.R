@@ -573,9 +573,6 @@ setMethod(f="as.data",
               stop("Path to input data must be specified")
             } else {
               rawData <- read.csv(inputDataPath, na.strings=".")
-
-              # Just to make certain column names are as expected 
-              names(rawData)<-c("ID","TIME","WT","AMT","DVID","DV","MDV","logtWT")
               rawData[["ID"]] <- as.numeric(rawData[["ID"]]) 
               rawData[["TIME"]] <- as.numeric(rawData[["TIME"]]) 
             }
@@ -649,8 +646,6 @@ setMethod(f="as.data.merge",
               stop("Path to input data must be specified")
             } else {
               rawData <- read.csv(inputDataPath, na.strings=".")
-              names(rawData)<-c("ID","TIME","WT","AMT","DVID","DV","MDV","logtWT")
-              #rawData$ID <- sub("^", "i", rawData$ID )
               rawData <- rawData[with(rawData, order(TIME, ID)), ]
               rawData[["ID"]] <- as.numeric(rawData[["ID"]]) 
               rawData[["TIME"]] <- as.numeric(rawData[["TIME"]]) 
