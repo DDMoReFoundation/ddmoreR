@@ -68,7 +68,8 @@ TEL.importFiles <- function(submission, target=file.path(submission$sourceDirect
 		}
 		
 		all.regular.files <- list.files(workingFolder, pattern="^[^.].*")
-		files.to.copy <- all.regular.files[-which(all.regular.files==jobID)] # Exclude the job directory (i.e. TES working directory)
+		# TODO: Remove the line below which is redundant from FIS version >= 0.0.5 introducing the execution.host.fileshare property (done under DDMORE-859)
+		files.to.copy <- all.regular.files[which(all.regular.files!=jobID)] # Exclude the job directory (i.e. TES working directory)
 		files.to.copy <- paste0(workingFolder, "/", files.to.copy) # Turn the filenames into full paths
 		
 		file.copy(files.to.copy, target, recursive=TRUE)
