@@ -33,7 +33,6 @@
     <property file="${basedir}/${user.property.file}" />
     <property file="${basedir}/default.properties" />
     
-    <property name="major.version" value="0.0"/>
     <property name="package.version" value="${major.version}.${minor.version}"/>
     <property name="build.number" value="${env.BUILD_NUMBER}"/>
 
