@@ -16,15 +16,18 @@
 setClass("RawResults", 
   # Define the slots
   slots=c(
-    Files="list"
+    DataFiles="list", 
+    GraphicsFiles="list"
     ),
   # Set Default Values to blank lists with names in place
   prototype = list(
-    Files = list()
+    DataFiles = list(), 
+    GraphicsFiles = list()
     ),
   # Validity Checking Function 
   validity = function(object) {
-  stopifnot(class(object@Files)=="list")
+  stopifnot(class(object@DataFiles)=="list")
+  stopifnot(class(object@GraphicsFiles)=="list")
   return(TRUE)
   }
 )
