@@ -21,6 +21,9 @@ ParseElement <- function(Node) {
   # Check format of xml element 
   ChildNames = names(xmlChildren(Node))
 
+  # Filter out comments 
+  ChildNames = ChildNames[ChildNames != 'comment']
+  
   OUT = FALSE
 
   if (length(ChildNames) == 1){
@@ -49,7 +52,7 @@ ParseElement <- function(Node) {
   }
    
   if (class(OUT) == "logical") {
-    stop("Element Children names not recognised as passable objects in SO")
+    stop("Elements Children names not recognised as passable objects in SO")
   }
   OUT
 }
@@ -111,15 +114,12 @@ ParseDataSetInline <- function(parentNode) {
   rownames(columnInfo) <- c("columnNum", "columnType", "valueType")
   
   # Get all Table Row elements
-  # Supress namespace undefined messages 
-  sink("NUL")
-  rowList = xpathApply(table, paste0("//*[local-name() = '", rowRef, "']"))
-  sink()
-
+  rowList = xmlChildren(table)
+    
   # List of values
   rowData = lapply(rowList, FUN = function(x) xmlSApply(x, xmlValue))
   
-  # Filter out and Commnet lines 
+  # Filter out any Commnet lines 
   rowData = lapply(rowData, function(x) {x[names(x) != "comment"]})
   
   # Convert to data frame 
@@ -281,13 +281,13 @@ ParseImportData <- function(ImportDataNode) {
   return(df)
 }
 
-
-
 # =============== #
 # Section Parsers #
 # =============== #
 #
-# Low level parsers specific to certain sections of the xml 
+# Low level parsers specific to certain sections of the xml
+# 
+# Functions named after the section of pharmML they parse.
 #
 
 ParseToolSettings <- function(SOObject, ToolSettingsNode) {  
@@ -307,35 +307,41 @@ ParseToolSettings <- function(SOObject, ToolSettingsNode) {
 
 ParseRawResults <- function(SOObject, RawResultsNode) {
   
-  # Get List of Raw Results Files
-  # Supress namespace undefined messages
-  sink("NUL")
-  RawFileList = xpathApply(RawResultsNode, "//*[local-name() = 'RawFile']")
-  sink()
+  objectIdNames = xmlSApply(RawResultsNode, xmlAttrs) 
+  
+  DataFileTempList = list()
+  GraphicsFileTempList = list()
+  
+  for (i in seq(along=RawResultsNode)) {
+    
+    fileType = names(RawResultsNode[i])
 
-  objectIdNames = sapply(RawFileList, xmlAttrs) 
-  
-  outerTempList = list()
-  
-  for (i in seq(along=objectIdNames)) {
+    node = RawResultsNode[[i]]
     
-    # Extract child tags and values as 
-    # a list with names = tag names and elements = tag values
-    innerTempList = xmlApply(RawFileList[[i]], 
-    						 FUN = function(x) xmlName(x) = xmlValue(x)) 
+    if (!('XMLCommentNode' %in% class(node))) {
     
-    # Strip namespace parts in child element
-    newNames = strsplit(names(innerTempList), ":")
-    newNames = sapply(newNames, FUN = function(x)  x[[2]] )
-    names(innerTempList) <- newNames
+      # Extract child tags and values as 
+      # a list with names = tag names and elements = tag values
+      childTags = xmlSApply(RawResultsNode[[i]], xmlValue) 
+      
+      # Strip namespace parts in child element
+      newNames = strsplit(names(childTags), ":")
+      newNames = sapply(newNames, FUN = function(x)  x[[2]] )
+      names(childTags) <- newNames
     
-    # Add this as an element to the Final Files List 
-    outerTempList[objectIdNames[[i]]] = list(innerTempList)
-  
+      # Add this as an element to the Final Files List 
+      if (fileType == 'DataFile') {
+        DataFileTempList[objectIdNames[[i]]] = list(childTags)
+      } else if (fileType == 'GraphicsFile') {
+        GraphicsFileTempList[objectIdNames[[i]]] = list(childTags)
+      }
+    }
   }
   
   # Assign Result to Files slot of RawResults
-  SOObject@RawResults@Files = outerTempList
+  SOObject@RawResults@DataFiles = DataFileTempList
+  SOObject@RawResults@GraphicsFiles = GraphicsFileTempList
+  
   return(SOObject)
 }
 
@@ -346,22 +352,22 @@ ParseRawResults <- function(SOObject, RawResultsNode) {
 ParsePopulationEstimates <- function(SOObject, PopulationEstimatesNode) {
   
   # Get list and reference to Child Nodes
-  PopulationEstimatesChildren = xmlChildren(PopulationEstimatesNode)
+  children = xmlChildren(PopulationEstimatesNode)
 
-  for (PEChild in PopulationEstimatesChildren){
+  for (child in children){
     
-    if (xmlName(PEChild) == "MLE") {
+    if (xmlName(child) == "MLE") {
       
       # Parse XMl DataSet Structure	  
-      L = ParseElement(PEChild)
+      L = ParseElement(child)
       # Update SO Object Slot
       SOObject@Estimation@PopulationEstimates[["MLE"]] = list(
       										description=L$description, 
       										data=L$data)
       
-    } else if (xmlName(PEChild) == "Bayesian") {
+    } else if (xmlName(child) == "Bayesian") {
   	  # Fetch Children of Node
-      BayesianChildren = xmlChildren(PEChild)
+      BayesianChildren = xmlChildren(child)
       # Parse XMl DataSet Structure	and update SO	
   	  for (BChild in c("PosteriorMean", "PosteriorMedian", "PosteriorMode")) {
   	 	  L = ParseElement(BayesianChildren[[BChild]])
@@ -378,12 +384,13 @@ ParsePopulationEstimates <- function(SOObject, PopulationEstimatesNode) {
 ParsePrecisionPopulationEstimates <- function(SOObject, PrecisionPopulationEstimatesNode) {
   
   # Get list of Child Nodes
-  PrecisionPopulationEstimatesChildren = xmlChildren(PrecisionPopulationEstimatesNode)
+  children = xmlChildren(PrecisionPopulationEstimatesNode)
   # Iterate over Child nodes, updating SO if appropriate element is present 
-  for (PPEChild in PrecisionPopulationEstimatesChildren){
+  for (child in PrecisionPopulationEstimatesChildren){
     
-    if (xmlName(PPEChild) == "MLE") {
-      MLEChildren = xmlChildren(PPEChild)
+    if (xmlName(child) == "MLE") {
+      
+      MLEChildren = xmlChildren(child)
       for (MLEChild in MLEChildren){
         
         if (xmlName(MLEChild) == "FIM"){
@@ -425,10 +432,10 @@ ParsePrecisionPopulationEstimates <- function(SOObject, PrecisionPopulationEstim
                           data=L$data)
         }
       }
-    } else if (xmlName(PPEChild) == "Bayesian") {
+    } else if (xmlName(child) == "Bayesian") {
 
       # Fetch Children of Node
-      BayesianChildren = xmlChildren(PPEChild)
+      BayesianChildren = xmlChildren(child)
       # Parse XMl DataSet Structure and update SO 
       for (BayesianChild in BayesianChildren) {
 
@@ -542,26 +549,19 @@ ParsePrecisionIndividualEstimates <- function() {
   # TODO ======================
 }
 
-
 ParseResiduals <- function(SOObject, ResidualsNode) {
 
-  # Get list of Child Nodes
-  ResidualsChildren = xmlChildren(ResidualsNode)
-  # Iterate over Child nodes, updating SO if appropriate element is present 
-  for (child in ResidualsChildren){
-    for (target in c("RES", "IRES", "WRES", "CWRES", "IWRES", "PD", "NPDE")){
-      if (xmlName(child) == target) {
-        # Parse as a 
-        L = ParseElement(child)
-        # Update SO Object Slot
-        SOObject@Estimation@Residuals[[target]] = list(
-                      description=L$description, 
-                      data=L$data)
-      }
-    }
-  }
+  # Since SO 0.1 all residuals are in a single Dataset Table Structure
+  
+  L = ParseElement(ResidualsNode)
+  # Update SO Object Slot
+  SOObject@Estimation@Residuals = list(
+    description=L$description, 
+    data=L$data)
+    
   return(SOObject)
 }
+
 
 ParsePredictions <- function(SOObject, PredictionsNode) {
 
@@ -586,7 +586,7 @@ ParseLikelihood <- function(SOObject, LikelihoodNode) {
       # Extract Deviance
       SOObject@Estimation@Likelihood$Deviance <- as.numeric(xmlValue(child))
 	  
-	}
+	  }
 	
     if (xmlName(child) == "LogLikelihood") {
       
@@ -607,6 +607,86 @@ ParseLikelihood <- function(SOObject, LikelihoodNode) {
 	  
 	}
 	
+  }
+
+  return(SOObject)
+}
+
+
+ParseTaskInformation <- function(SOObject, TaskInformationNode){
+
+  # Get list of Child Nodes
+  children = xmlChildren(TaskInformationNode)
+
+  # Iterate over Child nodes, updating SO if appropriate element is present 
+  
+  # Initialise counters
+  err.msg.count = 1
+  warn.msg.count = 1
+  term.msg.count = 1
+  info.msg.count = 1
+
+  for (child in children) {
+    
+    if (xmlName(child) == "Message" ) {
+      
+      # Record all message types in a nested list structure
+
+      # Get "type" Attribute
+      message.type <- xmlGetAttr(child, "type")
+
+      # Pull out message content
+      msg.content <- list( 
+        "Toolname" = xmlValue(child[["Toolname"]][["String"]]), 
+        "Name" = xmlValue(child[["Name"]][["String"]]),
+        "Content" = xmlValue(child[["Content"]][["String"]]),  
+        "Severity" = as.numeric(xmlValue(child[["Severity"]][["Int"]]))
+        )
+
+      # Assign message content to appropriate list 
+      
+      # TODO: Error in current assignment opperation
+      
+      if (message.type == "ERROR"){
+        SOObject@TaskInformation$Messages$Errors[[err.msg.count]] <- msg.content
+        err.msg.count = err.msg.count + 1
+      } else if (message.type == "WARNING") {
+        SOObject@TaskInformation$Messages$Warnings[[warn.msg.count]]  <- msg.content
+        warn.msg.count = warn.msg.count + 1
+      } else if (message.type == "TERMINATION") {
+        SOObject@TaskInformation$Messages$Terminations[[term.msg.count]] <- msg.content
+        term.msg.count = term.msg.count + 1
+      } else if (message.type == "INFORMATION") {
+        SOObject@TaskInformation$Messages$Info[[info.msg.count]] <- msg.content
+        info.msg.count = info.msg.count + 1
+      }
+
+    } else if (xmlName(child) == "OutputFilePath") {
+      
+      # Extract OutputFilePath
+      SOObject@TaskInformation$OutputFilePath = as.character(xmlValue(child[['path']]))
+    
+    } else if (xmlName(child) == "RunTime") {
+      
+      # Extract RunTime
+      SOObject@TaskInformation$RunTime = list(
+        description=as.character(xmlValue(child[['Description']])), 
+        value=as.numeric(xmlValue(child[['Real']]))
+        )
+    } else if (xmlName(child) == "NumberChains") {
+      
+      # Extract NumberChains
+      SOObject@TaskInformation$NumberChains = list(
+        description=as.character(xmlValue(child[['Description']])), 
+        value=as.numeric(xmlValue(child[['Real']]))
+        )
+
+    } else if (xmlName(child) == "NumberIterations") {
+      
+      # Extract NumberIterations
+      SOObject@TaskInformation$NumberIterations = as.numeric(xmlValue(child[["Real"]]))
+
+    } 
   }
 
   return(SOObject)
