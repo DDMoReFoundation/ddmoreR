@@ -23,6 +23,8 @@
 #' with population and individual estimates, precision, rediduals, predictions, 
 #' liklihoods and output messages (and error messages) from individual modeling 
 #' software. 
+#' @slot TaskInformation list (nested) containing all standard output messages from 
+#' the task executed.
 #' @slot ModelDiagnosticEvaluation An object of S4 class "ModelDiagnosticEvaluation" 
 #' to house all data associated with model diagnostics and model comparisons.
 #' @slot SimulationExploration An object of S4 class "SimulationExploration" 
@@ -37,6 +39,7 @@ setClass("StandardOutputObject",
   slots=c(
     ToolSettings = "list", 
     RawResults = "RawResults",
+    TaskInformation = "list",
     Estimation = "Estimation",
  #   ModelDiagnosticEvaluation = "ModelDiagnosticEvaluation",
     SimulationExploration = "SimulationExploration",
@@ -46,6 +49,8 @@ setClass("StandardOutputObject",
   prototype = list(
     ToolSettings = list(),
     RawResults = new("RawResults"),
+    TaskInformation = list( Messages = list("Errors"=NULL, 
+      "Warnings"=NULL, "Termination"=NULL, "Info"=NULL) ),
   	Estimation = new("Estimation"),
   #	ModelDiagnosticEvaluation = new("ModelDiagnosticEvaluation"),
   	SimulationExploration = new("SimulationExploration"),
@@ -55,6 +60,7 @@ setClass("StandardOutputObject",
   validity = function(object) {
     stopifnot(class(object@ToolSettings)=="list")
     stopifnot(class(object@RawResults)=="RawResults")
+    stopifnot(class(object@TaskInformation)=="list")
 	  stopifnot(class(object@Estimation)=="Estimation")
 	 # stopifnot(class(object@ModelDiagnosticEvaluation)=="ModelDiagnosticEvaluation")
 	  stopifnot(class(object@SimulationExploration)=="SimulationExploration")
@@ -126,6 +132,15 @@ LoadSOObject <- function(file) {
   # Fetch all Components of the SO object that are defined
   SOChildren <- xmlChildren(SOlist[[1]])
 
+  # Error Checking of unexpected elements
+  expectedTags = c("ToolSettings", "RawResults", "TaskInformation", "Estimation", 
+                  "Simulation")
+  unexpected = setdiff(names(SOChildren), expectedTags)
+  if (length(unexpected) != 0) {
+    warning(paste("The following unexpected elements were detected in the PharmML SO.", 
+              paste(unexpected, collapse="\n      "), sep="\n      "))
+  }
+
   # Error checking of expected XML structure + Parser Execution
   if ("ToolSettings" %in% names(SOChildren)){
     SOObject <- ParseToolSettings(SOObject, SOChildren[["ToolSettings"]])
@@ -139,7 +154,22 @@ LoadSOObject <- function(file) {
     warning("RawResults element not detected in PharmML. Skipping...")
   }
 
+  if ("TaskInformation" %in% names(SOChildren)){
+    SOObject <- ParseTaskInformation(SOObject, SOChildren[["TaskInformation"]])
+  } else {
+    warning("TaskInformation element not detected in PharmML. Skipping...")
+  }
+
   if ("Estimation" %in% names(SOChildren)){
+
+      # Error Checking of unexpected elements in Estmation Block
+      expectedTags = c("PopulationEstimates", "PrecisionPopulationEstimates", 
+        "IndividualEstimates", "Residuals", "Predictions", "Likelihood")
+      unexpected = setdiff(names(SOChildren[["Estimation"]]), expectedTags)
+      if (length(unexpected) != 0) {
+        warning(paste("The following unexpected elements were detected in the Estimation block of the PharmML SO.", 
+              paste(unexpected, collapse="\n      "), sep="\n      "))
+      }
 
       if ("PopulationEstimates" %in% names(SOChildren[["Estimation"]])){
         SOObject <- ParsePopulationEstimates(SOObject, SOChildren[["Estimation"]][["PopulationEstimates"]])
