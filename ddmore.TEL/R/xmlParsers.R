@@ -386,7 +386,7 @@ ParsePrecisionPopulationEstimates <- function(SOObject, PrecisionPopulationEstim
   # Get list of Child Nodes
   children = xmlChildren(PrecisionPopulationEstimatesNode)
   # Iterate over Child nodes, updating SO if appropriate element is present 
-  for (child in PrecisionPopulationEstimatesChildren){
+  for (child in children){
     
     if (xmlName(child) == "MLE") {
       
@@ -461,9 +461,9 @@ ParsePrecisionPopulationEstimates <- function(SOObject, PrecisionPopulationEstim
 ParseIndividualEstimates <- function(SOObject, IndividualEstimatesNode) {
   
   # Get list of Child Nodes
-  IndividualEstimatesChildren = xmlChildren(IndividualEstimatesNode)
+  children = xmlChildren(IndividualEstimatesNode)
   # Iterate over Child nodes, updating SO if appropriate element is present 
-  for (child in IndividualEstimatesChildren){
+  for (child in children){
     
     if (xmlName(child) == "Estimates") {
       subChildren = xmlChildren(child)
@@ -545,8 +545,39 @@ ParseIndividualEstimates <- function(SOObject, IndividualEstimatesNode) {
   return(SOObject)
 }
 
-ParsePrecisionIndividualEstimates <- function() {
-  # TODO ======================
+ParsePrecisionIndividualEstimates <- function(SOObject, PrecisionIndividualEstimatesNode) {
+  
+  # Get list of Child Nodes
+  children = xmlChildren(PrecisionIndividualEstimatesNode)
+  # Iterate over Child nodes, updating SO if appropriate element is present 
+  for (child in children){
+    
+    if (xmlName(child) == "PosteriorDistributionIndividualEstimates") {
+      
+      subChildren = xmlChildren(child)
+      
+      for (subChild in subChildren){
+          
+        if (grepl("distribution", tolower(xmlName(subChild)))) {
+        
+          # Parse the distribution 
+          distributionName = xmlName(subChild)
+          parameterList = xmlApply(subChild, xmlValue)
+        
+        }
+      }
+    }
+  }
+  
+  distList = list(name = distributionName, parameters = parameterList )
+  # Update SO Object Slot
+
+  SOObject@Estimation@PrecisionIndividualEstimates = list(
+                          PosteriorDistribution = distList
+                          )
+                       
+  return(SOObject)                                 
+
 }
 
 ParseResiduals <- function(SOObject, ResidualsNode) {

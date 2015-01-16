@@ -164,7 +164,8 @@ LoadSOObject <- function(file) {
 
       # Error Checking of unexpected elements in Estmation Block
       expectedTags = c("PopulationEstimates", "PrecisionPopulationEstimates", 
-        "IndividualEstimates", "Residuals", "Predictions", "Likelihood")
+        "IndividualEstimates", "PrecisionIndividualEstimates", "Residuals", 
+        "Predictions", "Likelihood")
       unexpected = setdiff(names(SOChildren[["Estimation"]]), expectedTags)
       if (length(unexpected) != 0) {
         warning(paste("The following unexpected elements were detected in the Estimation block of the PharmML SO.", 
@@ -187,6 +188,12 @@ LoadSOObject <- function(file) {
         SOObject <- ParseIndividualEstimates(SOObject, SOChildren[["Estimation"]][["IndividualEstimates"]])
       } else {
         warning("IndividualEstimates element not detected in PharmML. Skipping...")
+      }
+
+      if ("PrecisionIndividualEstimates" %in% names(SOChildren[["Estimation"]])){
+        SOObject <- ParsePrecisionIndividualEstimates(SOObject, SOChildren[["Estimation"]][["PrecisionIndividualEstimates"]])
+      } else {
+        warning("PrecisionIndividualEstimates element not detected in PharmML. Skipping...")
       }
 
       if ("Residuals" %in% names(SOChildren[["Estimation"]])){
