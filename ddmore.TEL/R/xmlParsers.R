@@ -297,9 +297,11 @@ ParseToolSettings <- function(SOObject, ToolSettingsNode) {
   					  FUN = function(x) xmlName(x) = xmlValue(x)) 
   
   # Strip namespace parts in child element
-  newNames = strsplit(names(tempList), ":")
-  newNames = sapply(newNames, FUN = function(x)  x[[2]] )
-  names(tempList) <- newNames
+  # DEPRICATED: Used to adress namespace issue with Xpath. 
+  # Xpath expressions no londer used. Can be removed following testing. 
+  #newNames = strsplit(names(tempList), ":")
+  #newNames = sapply(newNames, FUN = function(x)  x[[2]] )
+  #names(tempList) <- newNames
   
   SOObject@ToolSettings = tempList
   return(SOObject)
@@ -325,9 +327,11 @@ ParseRawResults <- function(SOObject, RawResultsNode) {
       childTags = xmlSApply(RawResultsNode[[i]], xmlValue) 
       
       # Strip namespace parts in child element
-      newNames = strsplit(names(childTags), ":")
-      newNames = sapply(newNames, FUN = function(x)  x[[2]] )
-      names(childTags) <- newNames
+      # DEPRICATED: Used to adress namespace issue with Xpath. 
+      # Xpath expressions no londer used. Can be removed following testing. 
+      # newNames = strsplit(names(childTags), ":")
+      # newNames = sapply(newNames, FUN = function(x)  x[[2]] )
+      # names(childTags) <- newNames
     
       # Add this as an element to the Final Files List 
       if (fileType == 'DataFile') {
