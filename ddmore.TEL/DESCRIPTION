@@ -19,16 +19,18 @@ Depends:
     XML(>= 3.98-1.1)
 Collate:
     'DDMoRe.TEL-internal.R'
-    'telClasses.R'
-    'StandardOutputSubClasses.R'
-    'StandardOutputMethods.R'
     'xmlParsers.R'
+    'StandardOutputSubClasses.R'
     'StandardOutputObject.R'
+    'LoadSOObject.R'
+    'StandardOutputMethods.R'
+    'telClasses.R'
     'conversion.R'
     'createMogObj.R'
+    'server.R'
     'prepare.R'
-    'execute.R'
     'import.R'
+    'execute.R'
     'getDataObjects.R'
     'getMDLObjects.R'
     'getModelObjects.R'
@@ -40,7 +42,8 @@ Collate:
     'psnWrappers.R'
     'read.R'
     'sample.R'
-    'server.R'
     'startingValues.r'
     'subset.R'
     'update.r'
+Suggests:
+    testthat
