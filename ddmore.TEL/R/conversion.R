@@ -9,10 +9,10 @@ mog_object_types <- c("dataobj", "parobj", "mdlobj", "taskobj")
 #' all objects from that MDL file of a specified type. Optionally a name can be specified
 #' too to target a specific object. The recognised types are:
 #' \itemize{
-#'   \item{\code{dataobj} -> Returns S4 object(s) of Data Object class \code{\linkS4class{dataObj}}.
-#'   \item{\code{parobj} -> Returns S4 object(s) of Parameter Object class \code{\linkS4class{parObj}}.
-#'   \item{\code{mdlobj} -> Returns S4 object(s) of Model Object class \code{\linkS4class{mdlObj}}.
-#'   \item{\code{taskobj} -> Returns S4 object(s) of Task Properties Object class \code{\linkS4class{taskObj}}.
+#'   \item \code{dataobj} -> Returns S4 object(s) of Data Object class \code{\linkS4class{dataObj}}.
+#'   \item \code{parobj} -> Returns S4 object(s) of Parameter Object class \code{\linkS4class{parObj}}.
+#'   \item \code{mdlobj} -> Returns S4 object(s) of Model Object class \code{\linkS4class{mdlObj}}.
+#'   \item \code{taskobj} -> Returns S4 object(s) of Task Properties Object class \code{\linkS4class{taskObj}}.
 #' }
 #' 
 #' This function is not intended for use by the user. The functions
