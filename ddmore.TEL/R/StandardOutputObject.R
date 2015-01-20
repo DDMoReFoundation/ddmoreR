@@ -77,7 +77,7 @@ setClass("StandardOutputObject",
 #'
 #' @export
 #' @docType methods
-#' @rdname createMogObj
+#' @rdname createSOObject
 createSOObject <- function(...) {
 
   SO <- new("StandardOutputObject")

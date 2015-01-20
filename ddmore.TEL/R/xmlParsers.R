@@ -281,6 +281,36 @@ ParseImportData <- function(ImportDataNode) {
   return(df)
 }
 
+#' ParseDistribution
+#'
+#'  Parse a distribution element in the PharmML SO strucutre
+#'  
+#'  Return a list of two elements: name - the name of the distribution, parameters - 
+#' a list of the parameter values. 
+#' 
+ParseDistribution <- function(Node) {
+
+  subChildren = xmlChildren(Node)
+      
+  for (subChild in subChildren){
+      
+    if (grepl("distribution", tolower(xmlName(subChild)))) {
+    
+      # Parse the distribution Tag
+      distributionName = xmlName(subChild)
+      parameterList = xmlApply(subChild, xmlValue)
+    
+    }
+  }
+
+  distList = list(name = distributionName, parameters = parameterList)
+
+  return(distList)
+
+}
+
+
+
 # =============== #
 # Section Parsers #
 # =============== #
@@ -449,7 +479,10 @@ ParsePrecisionPopulationEstimates <- function(SOObject, PrecisionPopulationEstim
                               description=L$description, 
                               data=L$data)
         } else if (xmlName(BayesianChild) == "PosteriorDistribution"){
-          # TODO ========================== Deal with Probability distributions
+          distList = ParseDistribution(BayesianChild)
+          SOObject@Estimation@PrecisionIndividualEstimates = list(
+                                  PosteriorDistribution = distList
+                                  )
         } else if (xmlName(BayesianChild) == "PercentilesCI"){
           L = ParseElement(BayesianChild)
           SOObject@Estimation@PrecisionPopulationEstimates[["Bayesian"]][["PercentilesCI"]] = list(
@@ -457,6 +490,94 @@ ParsePrecisionPopulationEstimates <- function(SOObject, PrecisionPopulationEstim
                               data=L$data)
         }
       }
+    } else if (xmlName(child) == "Bootstrap") {
+
+      # Fetch Children of Node
+      BootstrapChildren = xmlChildren(child)
+      # Parse XMl DataSet Structure and update SO 
+      for (BootstrapChild in BootstrapChildren) {
+
+        if (xmlName(BootstrapChild) == "PrecisionEstimates"){
+          L = ParseElement(BootstrapChild)
+          SOObject@Estimation@PrecisionPopulationEstimates[["Bootstrap"]][["PrecisionEstimates"]] = list(
+                              description=L$description, 
+                              data=L$data)
+        } else if (xmlName(BootstrapChild) == "Percentiles"){
+          L = ParseElement(BootstrapChild)
+          SOObject@Estimation@PrecisionPopulationEstimates[["Bootstrap"]][["Percentiles"]] = list(
+                              description=L$description, 
+                              data=L$data)
+        }
+      }
+    } else if (xmlName(child) == "LLP") {
+
+      # Fetch Children of Node
+      LLPChildren = xmlChildren(child)
+      # Parse XMl DataSet Structure and update SO 
+      for (LLPChild in LLPChildren) {
+
+        if (xmlName(LLPChild) == "PrecisionEstimates"){
+          L = ParseElement(LLPChild)
+          SOObject@Estimation@PrecisionPopulationEstimates[["LLP"]][["PrecisionEstimates"]] = list(
+                              description=L$description, 
+                              data=L$data)
+        } else if (xmlName(LLPChild) == "Percentiles"){
+          L = ParseElement(LLPChild)
+          SOObject@Estimation@PrecisionPopulationEstimates[["LLP"]][["Percentiles"]] = list(
+                              description=L$description, 
+                              data=L$data)
+        }
+      }
+    } else if (xmlName(child) == "SIR") {
+
+      # Fetch Children of Node
+      SIRChildren = xmlChildren(child)
+      # Parse XMl DataSet Structure and update SO 
+      for (SIRChild in SIRChildren) {
+
+        if (xmlName(SIRChild) == "PrecisionEstimates"){
+          L = ParseElement(SIRChild)
+          SOObject@Estimation@PrecisionPopulationEstimates[["SIR"]][["PrecisionEstimates"]] = list(
+                              description=L$description, 
+                              data=L$data)
+        } else if (xmlName(SIRChild) == "Percentiles"){
+          L = ParseElement(SIRChild)
+          SOObject@Estimation@PrecisionPopulationEstimates[["SIR"]][["Percentiles"]] = list(
+                              description=L$description, 
+                              data=L$data)
+        }
+      }
+    } else if (xmlName(child) == "MultiDimLLP") {
+
+      # Fetch Children of Node
+      MultiDimLLPChildren = xmlChildren(child)
+      # Parse XMl DataSet Structure and update SO 
+      for (MultiDimLLPChild in MultiDimLLPChildren) {
+
+        if (xmlName(MultiDimLLPChild) == "PrecisionEstimates"){
+          L = ParseElement(MultiDimLLPChild)
+          SOObject@Estimation@PrecisionPopulationEstimates[["MultiDimLLP"]][["PrecisionEstimates"]] = list(
+                              description=L$description, 
+                              data=L$data)
+        } else if (xmlName(MultiDimLLPChild) == "Percentiles"){
+          L = ParseElement(MultiDimLLPChild)
+          SOObject@Estimation@PrecisionPopulationEstimates[["MultiDimLLP"]][["Percentiles"]] = list(
+                              description=L$description, 
+                              data=L$data)
+        }
+      }
+    } else if (xmlName(child) == "EtaShrinkage") {
+
+        L = ParseElement(child)
+        SOObject@Estimation@PrecisionPopulationEstimates[["EtaShrinkage"]] = list(
+                              description=L$description, 
+                              data=L$data)
+    } else if (xmlName(child) == "EpsShrinkage") {
+
+        L = ParseElement(child)
+        SOObject@Estimation@PrecisionPopulationEstimates[["EpsShrinkage"]] = list(
+                              description=L$description, 
+                              data=L$data)
     }
   }
   return(SOObject)
@@ -549,39 +670,29 @@ ParseIndividualEstimates <- function(SOObject, IndividualEstimatesNode) {
   return(SOObject)
 }
 
+
 ParsePrecisionIndividualEstimates <- function(SOObject, PrecisionIndividualEstimatesNode) {
   
   # Get list of Child Nodes
   children = xmlChildren(PrecisionIndividualEstimatesNode)
+
   # Iterate over Child nodes, updating SO if appropriate element is present 
+  distList = list()
   for (child in children){
     
     if (xmlName(child) == "PosteriorDistributionIndividualEstimates") {
       
-      subChildren = xmlChildren(child)
-      
-      for (subChild in subChildren){
-          
-        if (grepl("distribution", tolower(xmlName(subChild)))) {
-        
-          # Parse the distribution 
-          distributionName = xmlName(subChild)
-          parameterList = xmlApply(subChild, xmlValue)
-        
-        }
-      }
+      distList = ParseDistribution(child)
+
     }
   }
   
-  distList = list(name = distributionName, parameters = parameterList )
   # Update SO Object Slot
-
   SOObject@Estimation@PrecisionIndividualEstimates = list(
                           PosteriorDistribution = distList
                           )
                        
   return(SOObject)                                 
-
 }
 
 ParseResiduals <- function(SOObject, ResidualsNode) {

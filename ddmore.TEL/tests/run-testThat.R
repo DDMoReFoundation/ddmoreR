@@ -1,4 +1,4 @@
-library(testthat)
-library(DDMoRe.TEL)
+library("testthat")
+library("DDMoRe.TEL")
 
-test_check("DDMoRe.TEL")
+test_package("DDMoRe.TEL")
