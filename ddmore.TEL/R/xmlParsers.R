@@ -27,23 +27,19 @@ ParseElement <- function(Node) {
   OUT = FALSE
 
   if (length(ChildNames) == 1){
-      if ("ct:Matrix" %in% ChildNames) {
+      if ("Matrix" %in% ChildNames) {
         # Parse Node as a matrix 
-        OUT = ParseMatrix(Node[["ct:Matrix"]])
+        OUT = ParseMatrix(Node[["Matrix"]])
 
-      } else if ("ds:ImportData" %in% ChildNames) {
+      } else if ("ImportData" %in% ChildNames) {
         # Load data from external file
-        OUT = ParseImportData(Node[["ds:ImportData"]])
+        OUT = ParseImportData(Node[["ImportData"]])
 
       }
   } else if (length(ChildNames) == 2) {
-      if ("Definition" %in% ChildNames & "ds:ImportData" %in% ChildNames) {
+      if ("Definition" %in% ChildNames & "ImportData" %in% ChildNames) {
         # Load data from external file
         OUT = ParseDataSetExternal(Node)
-
-      } else if ("ds:Definition" %in% ChildNames & "ds:Table" %in% ChildNames) {
-        # Load data from external file
-        OUT = ParseDataSetInline(Node)
 
       } else if ("Definition" %in% ChildNames & "Table" %in% ChildNames) {
         # Load data from external file
@@ -54,7 +50,7 @@ ParseElement <- function(Node) {
   if (class(OUT) == "logical") {
     stop("Elements Children names not recognised as passable objects in SO")
   }
-  OUT
+  return(OUT)
 }
 
 #' ParseDataSetInline
@@ -212,16 +208,13 @@ ParseDataSetExternal <- function(parentNode) {
 ParseMatrix <- function(matrixNode) {
   
   # Get rownames of matrix 
-  matrixRowNames = xmlSApply(matrixNode[["ct:RowNames"]], xmlValue)
+  matrixRowNames = xmlSApply(matrixNode[["RowNames"]], xmlValue)
   
   # Get colnames of matrix 
-  matrixColumnNames = xmlSApply(matrixNode[["ct:ColumnNames"]], xmlValue)
+  matrixColumnNames = xmlSApply(matrixNode[["ColumnNames"]], xmlValue)
   
   # Get all Matrix Rows that contain data
-  # Supress namespace undefined messages
-  sink("NUL")
-  matrixDataRows = xpathApply(matrixNode, "//*[local-name() = 'ct:MatrixRow']")
-  sink()
+  matrixDataRows = matrixNode[names(matrixNode) == "MatrixRow"]
 
   # Extract the value element of each element
   output.matrix.transposed = sapply(matrixDataRows, FUN=function(x) xmlApply(x, xmlValue))
@@ -233,11 +226,13 @@ ParseMatrix <- function(matrixNode) {
   # Update row and column names
   if (nrow(df) != length(matrixRowNames)) {
     warning("Number of row names given does not match matrix dimensions. Row names ignored")
+    rownames(df) <- NULL
   } else {
     rownames(df) <- matrixRowNames
   }
   if (ncol(df) != length(matrixColumnNames)) {
     warning("Number of column names given does not match matrix dimensions. Column names ignored")
+    colnames(df) <- NULL
   } else {
     colnames(df) <- matrixColumnNames
   }
