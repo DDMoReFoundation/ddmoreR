@@ -72,8 +72,7 @@ setClass("Estimation",
    PrecisionIndividualEstimates = list(),
    Residuals = list(),
    Predictions = list(),
-   Likelihood = list(),
-   SoftwareMessages = list()
+   Likelihood = list()
    ),
 #  prototype = list(
 #  	PopulationEstimates = list(MLE=NULL, Bayesian=NULL),
@@ -96,7 +95,6 @@ setClass("Estimation",
     stopifnot(class(object@Residuals)=="list")
     stopifnot(class(object@Predictions)=="list")
     stopifnot(class(object@Likelihood)=="list")
-    stopifnot(class(object@SoftwareMessages)=="list")
 	return(TRUE)
 	}
 )
