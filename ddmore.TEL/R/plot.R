@@ -1,13 +1,43 @@
 ##############################################################
-#' plot
+#' plot.mogObj
 #' 
 #' TODO: This function needs reviewing and updating!
-#'
+#' 
 #' Plots the data within the object of class \code{mogObj}. Uses data specified 
 #' in the \code{dataobj} object, information within the \code{mdlobj} INPUT_VARIABLES 
-#' to define the dependent and independent variables. Most of the options take 
-#' their default values from xpose.data object but may be overridden by supplying 
-#' them as arguments.
+#' to define the dependent and independent variables. Delegates to \link{plot.dataObj}.
+#' 
+#' @seealso \code{plot.dataObj}
+#' 
+#' @include telClasses.R
+#' @include utils.R
+#' @method plot mogObj
+#' @export
+#' @rdname plot.mogObj
+#' @aliases plot,mogObj,mogObj-method
+
+plot.mogObj <-
+  function(object, by, group, IDVVar="IDV", sourceDir=getwd(), deriveVariables=FALSE, 
+    categoricalAsFactor=FALSE, recode=FALSE, ...) {
+
+  # Extract out dataObj:
+  obj <- object@dataObj
+  
+  # Then call the dataObj method
+  #print(sourceDir)
+  plot(obj, by, group, IDVVar, sourceDir, deriveVariables, categoricalAsFactor, recode, ... )
+
+}
+
+##############################################################
+#' plot.dataObj
+#' 
+#' TODO: This function needs reviewing and updating!
+#' 
+#' Plots the data specified in the \code{dataObj} object.
+#' 
+#' Most of the options take their default values from xpose.data object but may be overridden
+#' by supplying them as arguments.
 #'
 #' @usage plot(object, by, group, sourceDir=getwd(), deriveVariables=TRUE, categoricalAsFactor=TRUE, recode=TRUE, ...)
 #'
@@ -21,14 +51,10 @@
 #' @param ... other arguments to be passed through to the plotting function 
 #' lattice graphics options).
 #'
+#' @return Returns an xyplot of DV vs IDV (as defined in the \code{mdlobj}).
+#' 
 #' @details A wide array of extra options controlling \code{xyplot} are available. See 
 #' \code{xpose.plot.default} and \code{xpose.panel.default} for details.
-#'
-#' @return Returns an xyplot of DV vs IDV (as defined in the \code{mdlobj}).
-#'
-#' @export
-#' @docType methods
-#' @rdname plot-methods
 #'
 #' @examples
 #' ## Create an S4 object of class mclobj.
@@ -41,32 +67,15 @@
 #' 
 #' @include telClasses.R
 #' @include utils.R
-
-setGeneric("plot", function(object, by, group, IDVVar="IDV", sourceDir=getwd(), deriveVariables=FALSE, 
-  categoricalAsFactor=FALSE, recode=FALSE, ...) { 
-    standardGeneric("plot")
- })
-
-#' @rdname plot-methods
-#' @aliases plot,mogObj,mogObj-method
-setMethod("plot", signature=signature(object="mogObj"), 
-  function(object, by, group, IDVVar="IDV", sourceDir=getwd(), deriveVariables=FALSE, 
-    categoricalAsFactor=FALSE, recode=FALSE, ...){
-  
-  # Extract out dataObj:
-  obj <- object@dataObj
-  
-  # Then call the dataObj method
-  #print(sourceDir)
-  plot(obj, by, group, IDVVar, sourceDir, deriveVariables, categoricalAsFactor, recode, ... )
-
-})
-
-#' @rdname plot-methods
+#' @method plot dataObj
+#' @export
+#' @rdname plot.dataObj
 #' @aliases plot,dataObj,dataObj-method
-setMethod("plot", signature=signature(object="dataObj"), 
+
+plot.dataObj <-
   function(object, by, group, IDVVar="IDV", sourceDir=getwd(), deriveVariables=FALSE, 
-    categoricalAsFactor=FALSE, recode=FALSE, ...){
+    categoricalAsFactor=FALSE, recode=FALSE, ...) {
+
   # First, read in the data:
   dat <- read(object, sourceDir, deriveVariables, categoricalAsFactor,  recode)
 
@@ -99,17 +108,6 @@ setMethod("plot", signature=signature(object="dataObj"),
     xyplot(formula(cmd), data=dat, ...)
   }
   
-})
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
+}
+
+
