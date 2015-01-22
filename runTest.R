@@ -27,7 +27,7 @@ try( test_package(packageName,
   paste("testReport", packageName, ".xml", sep = "")    )))
 )
 
-cat("Saving test report to", getwd())
+message("Saving test report to", getwd())
 
 
 
