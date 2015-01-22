@@ -42,7 +42,7 @@ setClass("StandardOutputObject",
     TaskInformation = "list",
     Estimation = "Estimation",
  #   ModelDiagnosticEvaluation = "ModelDiagnosticEvaluation",
-    SimulationExploration = "SimulationExploration",
+    Simulation = "Simulation",
     OptimalDesign = "OptimalDesign"
     ), 
   # Set Default Values to blank instances of the subclases
@@ -53,7 +53,7 @@ setClass("StandardOutputObject",
       "Warnings"=NULL, "Termination"=NULL, "Info"=NULL) ),
   	Estimation = new("Estimation"),
   #	ModelDiagnosticEvaluation = new("ModelDiagnosticEvaluation"),
-  	SimulationExploration = new("SimulationExploration"),
+  	Simulation = new("Simulation"),
 	OptimalDesign = new("OptimalDesign")
   	),
   # Validity Checking Function 
@@ -63,7 +63,7 @@ setClass("StandardOutputObject",
     stopifnot(class(object@TaskInformation)=="list")
 	  stopifnot(class(object@Estimation)=="Estimation")
 	 # stopifnot(class(object@ModelDiagnosticEvaluation)=="ModelDiagnosticEvaluation")
-	  stopifnot(class(object@SimulationExploration)=="SimulationExploration")
+	  stopifnot(class(object@Simulation)=="Simulation")
 	  stopifnot(class(object@OptimalDesign)=="OptimalDesign")
 	  return(TRUE)
 	}

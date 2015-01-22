@@ -832,3 +832,64 @@ ParseTaskInformation <- function(SOObject, TaskInformationNode){
 
   return(SOObject)
 }
+
+# ======================= #
+# Simulation Slot Parsers #
+# ======================= #
+
+ParseSimulation <- function(SOObject, SimulationNode) {
+
+  # Get list of Child Nodes
+  children = xmlChildren(SimulationNode)
+
+  # Iterate over Child nodes, updating SO if appropriate element is present 
+  for (child in children) {
+    
+    if (xmlName(child) == "Description" ) {
+      SOObject@Simulation@Description = xmlValue(child)
+    } else if (xmlName(child) == "OriginalDataset" ) {
+
+      tempList = xmlApply(child, 
+              FUN = function(x) xmlName(x) = xmlValue(x)) 
+      SOObject@Simulation@OriginalDataset = tempList
+    }
+  }
+
+  # Process all simulation Blocks
+  ReplicateBlockList = SimulationNode[names(SimulationNode) == "SimulationBlock"]
+  SOObject@Simulation@Replicates = lapply(ReplicateBlockList, ParseSimulationReplicates)
+
+  return(SOObject)
+
+}
+
+ParseSimulationReplicates <- function(ReplicateNode) {
+
+  ReplicateBlock = new("ReplicateBlock")
+
+  for (child in xmlChildren(ReplicateNode)) {
+
+    if (xmlName(child) == "SimulatedProfiles" ) {
+      ReplicateBlock@SimulatedProfiles = ParseElement(child)
+
+    } else if (xmlName(child) == "IndivParameters" ) {
+      ReplicateBlock@IndivParameters = ParseElement(child)
+
+    } else if (xmlName(child) == "Covariates" ) {
+      ReplicateBlock@Covariates = ParseElement(child)
+
+    } else if (xmlName(child) == "PopulationParameters" ) {
+      ReplicateBlock@PopulationParameters = ParseElement(child)
+
+    } else if (xmlName(child) == "Dosing" ) {
+      ReplicateBlock@Dosing = ParseElement(child)
+
+    } else if (xmlName(child) == "RawResultsFile" ) {
+      tempList = xmlApply(child, 
+              FUN = function(x) xmlName(x) = xmlValue(x)) 
+      ReplicateBlock@RawResultsFile = tempList
+    } 
+
+  }
+  return(ReplicateBlock)
+}

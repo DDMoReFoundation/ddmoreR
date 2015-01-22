@@ -122,12 +122,46 @@ LoadSOObject <- function(file) {
     warning("Estimation element not detected in PharmML. Skipping...")
   }
 
+  if ("Simulation" %in% names(SOChildren)){
+
+    # Error Checking of unexpected elements in Estmation Block
+    expectedTags = c("SimulatedProfiles", "IndivParameters", 
+      "Covariates", "PopulationParameters", "Dosing", 
+      "RawResultsFile")
+    unexpected = setdiff(names(SOChildren[["Simulation"]]), expectedTags)
+    if (length(unexpected) != 0) {
+      warning(paste("The following unexpected elements were detected in the Simulation block of the PharmML SO.", 
+            paste(unexpected, collapse="\n      "), sep="\n      "))
+    }
+
+    # Parse the Simulation Block
+    SOObject <- ParseSimulation(SOObject, SOChildren[["Simulation"]])
+
+  } else {
+    warning("Simulation element not detected in PharmML. Skipping...")
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   # Run validation functions on S4 Class and subclasses
   validObject(SOObject)
   validObject(SOObject@RawResults)
   validObject(SOObject@Estimation)
-  validObject(SOObject@SimulationExploration)
-  validObject(SOObject@SimulationExploration)
+  validObject(SOObject@Simulation)
   validObject(SOObject@OptimalDesign)
 
   # Reset Working directory 
