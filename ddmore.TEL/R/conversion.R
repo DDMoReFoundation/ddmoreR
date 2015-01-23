@@ -410,3 +410,40 @@ translateNamedListIntoList <- function(l) {
 	names(l) <- NULL
 	l
 }
+
+
+################################################################################
+#' as.PharmML
+#' 
+#' Converts an MDL file into a PharmML file.
+#' 
+#' @param f Path to the .mdl file to be converted.
+#' @param HOST Hostname of the server running the FIS service. Defaults to localhost.
+#' @param PORT Port of the server running the FIS service. Defaults to 9010.
+#' @return Path to the generated .xml PharmML file.
+#' 
+#' @export
+as.PharmML <- function(f, HOST='localhost', PORT='9010') {
+	
+	cmd <- URLencode(paste0("http://", HOST, ":", PORT, "/convertmdl"))
+	
+	if (!file.exists(f)) {
+		stop("Error, MDL file \"", f, "\" does not exist.");
+	}
+	
+	postfield <- URLencode(paste0(
+		"fileName=", normalizePath(f, winslash="/"),
+		"&outputDir=", normalizePath(tempdir())
+	))
+	
+	h = basicTextGatherer()
+	RCurl:::curlPerform(url = cmd, postfields = postfield, writefunction = h$update)
+	retVal <- h$value()
+
+	if (is.null(retVal) || nchar(retVal) <= 1) {
+		stop("Failed to convert MDL to PharmML; no PharmML file path was returned from the conversion service.")
+	} else if (!file.exists(retVal)) {
+		stop("Failed to convert MDL to PharmML; PharmML file path returned from the conversion service was \"", retVal, "\" but this file does not exist.");
+	}
+	retVal
+}
