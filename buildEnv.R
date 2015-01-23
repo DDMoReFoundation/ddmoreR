@@ -16,7 +16,7 @@ if (!require(bitops, lib.loc=localLib)){
   stop("bitops does not seem to be installed")
 }
 if (!require(RCurl, lib.loc=localLib)){
-  install.packages("./dependencies/RCurl_1.95-4.5.zip", repos=NULL, 
+  install.packages("./dependencies/RCurl_1.95-4.1.zip", repos=NULL, 
   lib=localLib, INSTALL_opts = "--no-lock")
 }
 if (!require(RCurl, lib.loc=localLib)){

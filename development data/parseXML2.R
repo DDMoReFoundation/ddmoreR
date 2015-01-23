@@ -9,9 +9,7 @@ require("XML")
 
 setwd("C:/Users/cmusselle/Projects/DDmore/TEL-R/ddmore.TEL")
 
-source("ddmore.TEL/R/xmlParsers.R")
-
-C:\Users\cmusselle\Projects\DDmore\TEL-R\ddmore.TEL\inst\tests\data\PharmMLSO\HandCoded
+source("R/xmlParsers.R")
 
 # Generate Blank SO object 
 SOObject = createSOObject()
@@ -56,7 +54,24 @@ SOChildren = xmlChildren(root[["SOBlock"]])
 
 PIE = root[["SOBlock"]][["Estimation"]][["PrecisionIndividualEstimates"]]
 
-LogNormalDistribution 
+
+
+
+# Simulation Block 
+root = xmlRoot(xmlTreeParse("inst\\tests\\data\\PharmMLSO\\HandCoded\\warfarin_PK_ODE_SO_FULL.xml"))
+
+SimulationNode = root[['SOBlock']][['Simulation']]
+
+SOObject = createSOObject()
+
+SOObject = ParseSimulation(SOObject, SimulationNode)
+
+ReplicateBlockList = SimulationNode[names(SimulationNode) == "SimulationBlock"]
+
+
+
+SimulationBlocks = SimulationNode[names(SimulationNode) == "SimulationBlock"]
+
 
 
 
