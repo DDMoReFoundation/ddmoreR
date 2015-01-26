@@ -142,8 +142,8 @@ setClass("ModelDiagnosticEvaluation",
 #'  
 #' @slot Description A character vector describing the simulation experiment
 #' @slot OriginalData Details and reference to the original data file.
-#' @slot Replicates A list of ReplicateBlock S4 classes that contain details of 
-#'   each individual simulation run.
+#' @slot SimulationBlock A list of SimulationBlock S4 classes that contain
+#'       details of each individual simulation run.
 #' 
 #' @author cmusselle
 setClass("Simulation", 
@@ -151,13 +151,13 @@ setClass("Simulation",
   slots=c(
     Description="character",
     OriginalDataset="list", 
-    Replicates = "list"
+    SimulationBlock = "list"
     ),
   # Set Default Values to blank lists with names in place
   prototype = list(
     Description=vector(mode="character"),
     OriginalDataset=list(), 
-    Replicates = list()
+    SimulationBlock = list()
 ),
  # prototype = list(
  #   Simulation = list(Population=NULL, Individual=NULL, Samples=NULL),
@@ -166,14 +166,14 @@ setClass("Simulation",
   # Validity Checking Function 
   validity = function(object) {
 	  stopifnot(class(object@Description) == "character")
-    stopifnot(class(object@OriginalDataset) == "list")
-    stopifnot(class(object@Replicates) == "list")
-	return(TRUE)
+      stopifnot(class(object@OriginalDataset) == "list")
+      stopifnot(class(object@SimulationBlock) == "list")
+	  return(TRUE)
 	}
 )
 
 ##############################################################################
-#' The ReplicateBlock Object Class (S4) 
+#' The SimulationBlock Object Class (S4) 
 #' 
 #' An object to house all data associated with a single simulation run
 #' 
@@ -182,10 +182,10 @@ setClass("Simulation",
 #' @slot Covariates A list containing the data as a dataframe and a description header
 #' @slot PopulationParameters A list containing the data as a dataframe and a description header
 #' @slot Dosing A list containing the data as a dataframe and a description header
-#' @slot RawResultsFile A list containing the data as a dataframe and a description header
+#' @slot RawResultsFile containing the path to the file containing the raw results
 #' 
 #' @author cmusselle
-setClass("ReplicateBlock", 
+setClass("SimulationBlock", 
   # Define the slots
   slots=c(
     SimulatedProfiles="list",
@@ -216,7 +216,7 @@ setClass("ReplicateBlock",
     stopifnot(class(object@PopulationParameters) == "list")
     stopifnot(class(object@Dosing) == "list")
     stopifnot(class(object@RawResultsFile) == "list")
-  return(TRUE)
+    return(TRUE)
   }
 )
 

@@ -66,7 +66,7 @@ LoadSOObject <- function(file) {
 
   if ("Estimation" %in% names(SOChildren)){
 
-      # Error Checking of unexpected elements in Estmation Block
+      # Error Checking of unexpected elements in Estimation Block
       expectedTags = c("PopulationEstimates", "PrecisionPopulationEstimates", 
         "IndividualEstimates", "PrecisionIndividualEstimates", "Residuals", 
         "Predictions", "Likelihood")
@@ -124,17 +124,15 @@ LoadSOObject <- function(file) {
 
   if ("Simulation" %in% names(SOChildren)){
 
-    # Error Checking of unexpected elements in Estmation Block
-    expectedTags = c("SimulatedProfiles", "IndivParameters", 
-      "Covariates", "PopulationParameters", "Dosing", 
-      "RawResultsFile")
+    # Error Checking of unexpected elements of Simulation node
+    expectedTags = c("Description", "OriginalDataset", "SimulationBlock")
     unexpected = setdiff(names(SOChildren[["Simulation"]]), expectedTags)
     if (length(unexpected) != 0) {
       warning(paste("The following unexpected elements were detected in the Simulation block of the PharmML SO.", 
             paste(unexpected, collapse="\n      "), sep="\n      "))
     }
 
-    # Parse the Simulation Block
+    # Parse the Simulation node
     SOObject <- ParseSimulation(SOObject, SOChildren[["Simulation"]])
 
   } else {

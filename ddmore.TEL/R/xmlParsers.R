@@ -844,52 +844,66 @@ ParseSimulation <- function(SOObject, SimulationNode) {
 
   # Iterate over Child nodes, updating SO if appropriate element is present 
   for (child in children) {
-    
+	  
     if (xmlName(child) == "Description" ) {
+		
       SOObject@Simulation@Description = xmlValue(child)
+	  
     } else if (xmlName(child) == "OriginalDataset" ) {
-
+		
       tempList = xmlApply(child, 
               FUN = function(x) xmlName(x) = xmlValue(x)) 
       SOObject@Simulation@OriginalDataset = tempList
+	  
     }
+	
   }
 
-  # Process all simulation Blocks
-  ReplicateBlockList = SimulationNode[names(SimulationNode) == "SimulationBlock"]
-  SOObject@Simulation@Replicates = lapply(ReplicateBlockList, ParseSimulationReplicates)
+  # Process all Simulation Blocks
+  SimulationBlockNodeList = SimulationNode[names(SimulationNode) == "SimulationBlock"]
+  SOObject@Simulation@SimulationBlock = lapply(SimulationBlockNodeList, ParseSimulationBlocks)
 
   return(SOObject)
-
 }
 
-ParseSimulationReplicates <- function(ReplicateNode) {
+ParseSimulationBlocks <- function(SimulationBlockNode) {
+	
+	# Error Checking of unexpected elements in each SimulationBlock block
+	expectedTags = c("SimulatedProfiles", "IndivParameters", 
+			"Covariates", "PopulationParameters", "Dosing", 
+			"RawResultsFile")
+	unexpected = setdiff(names(SimulationBlockNode), expectedTags)
+	if (length(unexpected) != 0) {
+		warning(paste("The following unexpected elements were detected in the SimulationBlock block of the PharmML SO.", 
+						paste(unexpected, collapse="\n      "), sep="\n      "))
+	}
+	
+  SimulationBlock = new("SimulationBlock")
 
-  ReplicateBlock = new("ReplicateBlock")
-
-  for (child in xmlChildren(ReplicateNode)) {
+  for (child in xmlChildren(SimulationBlockNode)) {
 
     if (xmlName(child) == "SimulatedProfiles" ) {
-      ReplicateBlock@SimulatedProfiles = ParseElement(child)
+      SimulationBlock@SimulatedProfiles = ParseElement(child)
 
     } else if (xmlName(child) == "IndivParameters" ) {
-      ReplicateBlock@IndivParameters = ParseElement(child)
+      SimulationBlock@IndivParameters = ParseElement(child)
 
     } else if (xmlName(child) == "Covariates" ) {
-      ReplicateBlock@Covariates = ParseElement(child)
+      SimulationBlock@Covariates = ParseElement(child)
 
     } else if (xmlName(child) == "PopulationParameters" ) {
-      ReplicateBlock@PopulationParameters = ParseElement(child)
+      SimulationBlock@PopulationParameters = ParseElement(child)
 
     } else if (xmlName(child) == "Dosing" ) {
-      ReplicateBlock@Dosing = ParseElement(child)
+      SimulationBlock@Dosing = ParseElement(child)
 
     } else if (xmlName(child) == "RawResultsFile" ) {
       tempList = xmlApply(child, 
               FUN = function(x) xmlName(x) = xmlValue(x)) 
-      ReplicateBlock@RawResultsFile = tempList
+      SimulationBlock@RawResultsFile = tempList
     } 
 
   }
-  return(ReplicateBlock)
+  
+  return(SimulationBlock)
 }
