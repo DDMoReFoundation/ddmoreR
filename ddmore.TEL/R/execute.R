@@ -42,6 +42,10 @@
 setGeneric("estimate", function(x, target=NULL,
 	subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), wait=TRUE, collect=TRUE, clearUp=FALSE, HOST='localhost', PORT='9010', addargs="") {
   
+	if (is.null(target)) {
+		stop('Parameter \"target\" not specified. Possible target tool specifiers include \"NONMEM\", \"PsN\", \"MONOLIX\".');
+	}
+
   workingDirectory <- TEL.prepareWorkingFolder(modelfile=x)
 
   submission <- TEL.submitJob(executionType=target, workingDirectory=workingDirectory, 
