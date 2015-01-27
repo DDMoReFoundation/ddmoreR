@@ -617,6 +617,8 @@
                         <Table xmlns="http://www.pharmml.org/pharmml/0.6/Dataset">
                             <Row>
                                 <ct:Id>i1</ct:Id><ct:Real>0.79602</ct:Real><ct:Real>0.02201</ct:Real><ct:Real>-1.4809</ct:Real><ct:Real>-3.913e-01</ct:Real> 
+                            </Row>
+                            <Row>
                                 <ct:Id>i2</ct:Id><ct:Real>-0.1446</ct:Real><ct:Real>-0.00652</ct:Real><ct:Real>-0.012555</ct:Real><ct:Real>2.961e-03</ct:Real> 
                                 <!-- omitted other subjects -->
                             </Row>
@@ -633,7 +635,9 @@
                         </Definition>
                         <Table xmlns="http://www.pharmml.org/pharmml/0.6/Dataset">
                             <Row>
-                                <ct:Id>i1</ct:Id><ct:Real>0.79602</ct:Real><ct:Real>0.02201</ct:Real><ct:Real>-1.4809</ct:Real><ct:Real>-3.913e-01</ct:Real> 
+                                <ct:Id>i1</ct:Id><ct:Real>0.79602</ct:Real><ct:Real>0.02201</ct:Real><ct:Real>-1.4809</ct:Real><ct:Real>-3.913e-01</ct:Real>
+                            </Row>
+                            <Row> 
                                 <ct:Id>i2</ct:Id><ct:Real>-0.1446</ct:Real><ct:Real>-0.00652</ct:Real><ct:Real>-0.012555</ct:Real><ct:Real>2.961e-03</ct:Real> 
                                 <!-- omitted other subjects -->
                             </Row>
@@ -650,7 +654,9 @@
                         </Definition>
                         <Table xmlns="http://www.pharmml.org/pharmml/0.6/Dataset">
                             <Row>
-                                <ct:Id>i1</ct:Id><ct:Real>0.79602</ct:Real><ct:Real>0.02201</ct:Real><ct:Real>-1.4809</ct:Real><ct:Real>-3.913e-01</ct:Real> 
+                                <ct:Id>i1</ct:Id><ct:Real>0.79602</ct:Real><ct:Real>0.02201</ct:Real><ct:Real>-1.4809</ct:Real><ct:Real>-3.913e-01</ct:Real>
+                            </Row>
+                            <Row>
                                 <ct:Id>i2</ct:Id><ct:Real>-0.1446</ct:Real><ct:Real>-0.00652</ct:Real><ct:Real>-0.012555</ct:Real><ct:Real>2.961e-03</ct:Real> 
                                 <!-- omitted other subjects -->
                             </Row>
