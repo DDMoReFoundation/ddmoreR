@@ -48,7 +48,8 @@ ParseElement <- function(Node) {
   }
    
   if (class(OUT) == "logical") {
-    stop("Elements Children names not recognised as passable objects in SO")
+    stop(paste("Names of child element not recognised as a passable object in SO. Element child names are ", 
+      paste(ChildNames, collapse="\n      "), sep="\n     "))
   }
   return(OUT)
 }
