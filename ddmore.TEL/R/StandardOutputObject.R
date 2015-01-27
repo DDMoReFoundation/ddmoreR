@@ -251,6 +251,105 @@ setMethod(f="getSoftwareMessages",
           }
 )
 
+
+#' Create a method to fetch the value of Simulation : SimulationBlock(s) : SimulatedProfiles slot
+setGeneric(name="getSimulatedProfiles",
+		def=function(SOObject)
+		{
+			standardGeneric("getSimulatedProfiles")
+		}
+)
+setMethod(f="getSimulatedProfiles",
+		signature="StandardOutputObject",
+		definition=function(SOObject)
+		{
+			simulationBlocks <- SOObject@Simulation@SimulationBlock
+			
+			SimulatedProfiles <- lapply(simulationBlocks, function(n) { n@SimulatedProfiles })
+			names(SimulatedProfiles) <- rep("SimulatedProfiles", length(SimulatedProfiles))  # the names of the elements in the named list are incorrect after the lapply()
+			
+			pprintList(SimulatedProfiles, "Simulation : Simulation Block(s) : Simulated Profiles")
+		}                                                     
+)
+
+#' Create a method to fetch the value of Simulation : SimulationBlock(s) : IndivParameters slot
+setGeneric(name="getIndividualParametersCovariates",
+		def=function(SOObject)
+		{
+			standardGeneric("getIndividualParametersCovariates")
+		}
+)
+setMethod(f="getIndividualParametersCovariates",
+		signature="StandardOutputObject",
+		definition=function(SOObject)
+		{
+			simulationBlocks <- SOObject@Simulation@SimulationBlock
+			
+			IndivParameters <- lapply(simulationBlocks, function(n) { n@IndivParameters })
+			names(IndivParameters) <- rep("IndivParameters", length(IndivParameters))  # the names of the elements in the named list are incorrect after the lapply()
+			
+			pprintList(IndivParameters, "Simulation : Simulation Block(s) : Individual Parameters")
+		}
+)
+
+#' Create a method to fetch the value of Simulation : SimulationBlock(s) : PopulationParameters slot
+setGeneric(name="getPopulationParametersCovariates",
+		def=function(SOObject)
+		{
+			standardGeneric("getPopulationParametersCovariates")
+		}
+)
+setMethod(f="getPopulationParametersCovariates",
+		signature="StandardOutputObject",
+		definition=function(SOObject)
+		{
+			simulationBlocks <- SOObject@Simulation@SimulationBlock
+			
+			PopulationParameters <- lapply(simulationBlocks, function(n) { n@PopulationParameters })
+			names(PopulationParameters) <- rep("PopulationParameters", length(PopulationParameters))  # the names of the elements in the named list are incorrect after the lapply()
+			
+			pprintList(PopulationParameters, "Simulation : Simulation Block(s) : Population Parameters")
+		}
+)
+
+#' Create a method to fetch the value of Simulation : SimulationBlock(s) : RawResultsFile slot
+setGeneric(name="getRawResultsFiles",
+		def=function(SOObject)
+		{
+			standardGeneric("getRawResultsFiles")
+		}
+)
+setMethod(f="getRawResultsFiles",
+		signature="StandardOutputObject",
+		definition=function(SOObject)
+		{
+			simulationBlocks <- SOObject@Simulation@SimulationBlock
+			
+			RawResultsFiles <- lapply(simulationBlocks, function(n) { n@RawResultsFile })
+			names(RawResultsFiles) <- rep('RawResultsFile', length(RawResultsFiles))  # the names of the elements in the named list are incorrect after the lapply()
+			
+			pprintList(RawResultsFiles, "Simulation : Simulation Block(s) : Raw Results File")
+		}
+)
+
+#' Create a method to fetch the value of Simulation : OriginalDataSet slot
+setGeneric(name="getOriginalDataset",
+		def=function(SOObject)
+		{
+			standardGeneric("getOriginalDataset")
+		}
+)
+setMethod(f="getOriginalDataset",
+		signature="StandardOutputObject",
+		definition=function(SOObject)
+		{
+			OriginalDataset <- SOObject@Simulation@OriginalDataset
+			
+			pprintList(OriginalDataset, "Simulation : Original Data Set")
+		}
+)
+
+
 # ============================= #
 # Higher Level Getter Functions #
 # ============================= #
