@@ -29,11 +29,12 @@ VPC.PsN <- function(model, command="vpc", samples, seed, vpcOptions="", plot=TRU
 	#2015-01-14 importSO does not yet parse SimulatedProfiles
 
 	outputObject <- estimate(model, target="PsNgeneric", subfolder=subfolder, addargs=vpccommand, ...)
+    resultsDir <- .resolveResultsDirectory(model, subfolder);
 
-	vpctab <- grep('^vpctab[[:digit:]]*$',dir(subfolder),fixed=FALSE,invert=FALSE,value=TRUE)
+	vpctab <- grep('^vpctab[[:digit:]]*$',dir(resultsDir),fixed=FALSE,invert=FALSE,value=TRUE)
 
 	if (length(vpctab)==1){
-	   results <- list(SO=outputObject,vpc.info=file_path_as_absolute(file.path(subfolder,"vpc_results.csv")),vpctab=file_path_as_absolute(file.path(subfolder,vpctab[1])),folder=file_path_as_absolute(subfolder))
+	   results <- list(SO=outputObject,vpc.info=file_path_as_absolute(file.path(resultsDir,"vpc_results.csv")),vpctab=file_path_as_absolute(file.path(resultsDir,vpctab[1])),folder=file_path_as_absolute(resultsDir))
 	   if (plot) {
 	   	  #TODO special types of VPC
 	   	  library("xpose4")
@@ -42,15 +43,15 @@ VPC.PsN <- function(model, command="vpc", samples, seed, vpcOptions="", plot=TRU
 		}
 	} else {
 	  #we can only get here if psngeneric connector sets exit 0 even if return status of vpc command was non-zero
-	  logfile <- grep('.psn.log$',dir(subfolder),fixed=FALSE,invert=FALSE,value=TRUE)
+	  logfile <- grep('.psn.log$',dir(resultsDir),fixed=FALSE,invert=FALSE,value=TRUE)
 	  if (length(logfile)==1){
-	  	 results <- list(SO=outputObject,folder=file_path_as_absolute(subfolder),logFile=file_path_as_absolute(file.path(subfolder,logfile[1])))
+	  	 results <- list(SO=outputObject,folder=file_path_as_absolute(resultsDir),logFile=file_path_as_absolute(file.path(resultsDir,logfile[1])))
 	  	 warning('vpc failed, could not find vpctab file. Check error messages in ',results$logFile)
 	  } else {
 	  	 results <- list(SO=outputObject)
-	  	 warning('vpc failed, could not find vpctab file in ',subfolder)
+	  	 warning('vpc failed, could not find vpctab file in ',resultsDir)
 	  }
-	}	   		   
+	}
 	results
 }
 
@@ -69,7 +70,7 @@ VPC.PsN <- function(model, command="vpc", samples, seed, vpcOptions="", plot=TRU
 #'        containing the model file, in which to store the results. Default
 #'        is a timestamped folder with prefix bootstrap_ .
 #' @param ...
-#' @return An object of class \linkS4class{StandardOutputObject}.
+#' @return A list with an object of class \linkS4class{StandardOutputObject}.
 #' 
 #' @author Kajsa Harling
 #' @param ...
@@ -80,30 +81,32 @@ bootstrap.PsN <- function(model, command="bootstrap", samples, seed, bootstrapOp
 	#2015-01-14 importSO does not yet parse Bootstrap PercentilesCI
 	outputObject <- estimate(model, target="PsNgeneric", addargs=bootstrapcommand, subfolder=subfolder, ...)
 
+    resultsDir <- .resolveResultsDirectory(model, subfolder);
+    
 	if (plot) {
 	   library("xpose4")
 	   if(packageVersion("xpose4")<"4.5.0") { 
 			cat("xpose4 version must be 4.5.0 or later for bootstrap plot")
 		} else {
-		  rawresults <- grep('^raw_results_[[:alnum:]]+.csv$',dir(subfolder),fixed=FALSE,invert=FALSE,value=TRUE)
-		  bootresults <- grep('bootstrap_results.csv',dir(subfolder),fixed=TRUE,invert=FALSE,value=TRUE)
+		  rawresults <- grep('^raw_results_[[:alnum:]]+.csv$',dir(resultsDir),fixed=FALSE,invert=FALSE,value=TRUE)
+		  bootresults <- grep('bootstrap_results.csv',dir(resultsDir),fixed=TRUE,invert=FALSE,value=TRUE)
 		  #TODO check output object errors before doing things here
 		  if (length(rawresults)==1 && length(bootresults)==1 ){
-	   	  	 plots<-boot.hist(results.file=file.path(subfolder,rawresults[1]),incl.ids.file=file.path(subfolder,"included_individuals1.csv"))
+	   	  	 plots<-boot.hist(results.file=file.path(resultsDir,rawresults[1]),incl.ids.file=file.path(resultsDir,"included_individuals1.csv"))
        	  	 print(plots)
 			} else {
 	  		  #we can only get here if psngeneric connector sets exit 0 even if return status of bootstrap command was non-zero
-	  		  logfile <- grep('.psn.log$',dir(subfolder),fixed=FALSE,invert=FALSE,value=TRUE)
+	  		  logfile <- grep('.psn.log$',dir(resultsDir),fixed=FALSE,invert=FALSE,value=TRUE)
 	  		  if (length(logfile)==1) {	
-	  	 	  	 warning('could not find bootstrap results in ',subfolder,'. Check error messages in ',file.path(subfolder,logfile[1]))
+	  	 	  	 warning('could not find bootstrap results in ',resultsDir,'. Check error messages in ',file.path(resultsDir,logfile[1]))
 	  			} else {
-	  	 	  	 warning('could not find bootstrap results in ',subfolder)
+	  	 	  	 warning('could not find bootstrap results in ',resultsDir)
 	  			}
 
 			}
 	    }
 	}
-	outputObject	   		   
+	list(SO=outputObject)
 }
 
 #' SSE.PsN
@@ -134,30 +137,31 @@ SSE.PsN <- function(model, command="sse", samples, seed, sseOptions="", subfolde
 
 	outputObject <- estimate(model, target="PsNgeneric", subfolder=subfolder, addargs=ssecommand, ...)
 
-	sseresultsfile <- grep('sse_results.csv',dir(subfolder),fixed=TRUE,invert=FALSE,value=TRUE)
+    resultsDir <- .resolveResultsDirectory(model, subfolder);
+
+	sseresultsfile <- grep('sse_results.csv',dir(resultsDir),fixed=TRUE,invert=FALSE,value=TRUE)
 
 	#this will not exist if only doing simulation
-	rawresultsfile <- grep('^raw_results_[[:alnum:]]+.csv$',dir(subfolder),fixed=FALSE,invert=FALSE,value=TRUE)
+	rawresultsfile <- grep('^raw_results_[[:alnum:]]+.csv$',dir(resultsDir),fixed=FALSE,invert=FALSE,value=TRUE)
 
 	if (length(sseresultsfile)==1){
 		if (length(rawresultsfile)==1){
-	   	   results <- list(SO=outputObject,sseresults=file_path_as_absolute(file.path(subfolder,"sse_results.csv")),
-		   		   rawresults=file_path_as_absolute(file.path(subfolder,rawresultsfile[1])),folder=file_path_as_absolute(subfolder))
+	   	   results <- list(SO=outputObject,sseresults=file_path_as_absolute(file.path(resultsDir,"sse_results.csv")),
+		   		   rawresults=file_path_as_absolute(file.path(resultsDir,rawresultsfile[1])),folder=file_path_as_absolute(resultsDir))
 		} else {
-	   	   results <- list(SO=outputObject,sseresults=file_path_as_absolute(file.path(subfolder,"sse_results.csv")),folder=file_path_as_absolute(subfolder))
+	   	   results <- list(SO=outputObject,sseresults=file_path_as_absolute(file.path(resultsDir,"sse_results.csv")),folder=file_path_as_absolute(resultsDir))
 		}
 	} else {
 	  #we can only get here if psngeneric connector sets exit 0 even if return status of sse command was non-zero
 	  logfile <- grep('.psn.log$',dir(subfolder),fixed=FALSE,invert=FALSE,value=TRUE)
 	  if (length(logfile)==1){
-	  	 resuls <- list(SO=outputObject,folder=file_path_as_absolute(subfolder),logFile=file_path_as_absolute(file.path(subfolder,logfile[1])))
+	  	 resuls <- list(SO=outputObject,folder=file_path_as_absolute(resultsDir),logFile=file_path_as_absolute(file.path(resultsDir,logfile[1])))
 	  	 warning('sse failed, could not find sse_results file. Check error messages in ',results$logFile)
 	  } else {
 	  	 results <- list(SO=outputObject)
-	  	 warning('sse failed, could not find sse_results file in ',subfolder)
+	  	 warning('sse failed, could not find sse_results file in ',resultsDir)
 	  }
-	}	   		   
+	}
 	results
-
 }
 
