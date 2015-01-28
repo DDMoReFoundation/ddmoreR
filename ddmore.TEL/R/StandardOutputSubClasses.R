@@ -113,16 +113,16 @@ setClass("Estimation",
 #' @slot ModelComparison A list for now ...
 #' 
 #' @author cmusselle
-setClass("ModelDiagnosticEvaluation", 
+setClass("ModelDiagnostic", 
   # Define the slots
   slots=c(
-    ModelDiagnostic="list",
-    ModelComparison="list"
+    DiagnosticPlotsStructuralModel="list",
+    DiagnosticPlotsIndividualParams="list"
     ),
  # Set Default Values to blank lists with names in place
   prototype = list(
-  	ModelDiagnostic = list(),
-  	ModelComparison = list()
+  	DiagnosticPlotsStructuralModel = list(),
+  	DiagnosticPlotsIndividualParams = list()
   	),
 #  prototype = list(
 #    ModelDiagnostic = list(Plots=NULL, Tests=NULL),
@@ -130,8 +130,8 @@ setClass("ModelDiagnosticEvaluation",
 #    ),
   # Validity Checking Function 
   validity = function(object) {
-	stopifnot(class(object@ModelDiagnostic)=="list")
-    stopifnot(class(object@ModelComparison)=="list")
+	stopifnot(class(object@DiagnosticPlotsStructuralModel)=="list")
+    stopifnot(class(object@DiagnosticPlotsIndividualParams)=="list")
 	return(TRUE)
 	}
 )

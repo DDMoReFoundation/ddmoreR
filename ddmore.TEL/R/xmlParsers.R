@@ -27,23 +27,19 @@ ParseElement <- function(Node) {
   OUT = FALSE
 
   if (length(ChildNames) == 1){
-      if ("ct:Matrix" %in% ChildNames) {
+      if ("Matrix" %in% ChildNames) {
         # Parse Node as a matrix 
-        OUT = ParseMatrix(Node[["ct:Matrix"]])
+        OUT = ParseMatrix(Node[["Matrix"]])
 
-      } else if ("ds:ImportData" %in% ChildNames) {
+      } else if ("ImportData" %in% ChildNames) {
         # Load data from external file
-        OUT = ParseImportData(Node[["ds:ImportData"]])
+        OUT = ParseImportData(Node[["ImportData"]])
 
       }
   } else if (length(ChildNames) == 2) {
-      if ("Definition" %in% ChildNames & "ds:ImportData" %in% ChildNames) {
+      if ("Definition" %in% ChildNames & "ImportData" %in% ChildNames) {
         # Load data from external file
         OUT = ParseDataSetExternal(Node)
-
-      } else if ("ds:Definition" %in% ChildNames & "ds:Table" %in% ChildNames) {
-        # Load data from external file
-        OUT = ParseDataSetInline(Node)
 
       } else if ("Definition" %in% ChildNames & "Table" %in% ChildNames) {
         # Load data from external file
@@ -52,9 +48,10 @@ ParseElement <- function(Node) {
   }
    
   if (class(OUT) == "logical") {
-    stop("Elements Children names not recognised as passable objects in SO")
+    stop(paste("Names of child element not recognised as a passable object in SO. Element child names are ", 
+      paste(ChildNames, collapse="\n      "), sep="\n     "))
   }
-  OUT
+  return(OUT)
 }
 
 #' ParseDataSetInline
@@ -212,16 +209,13 @@ ParseDataSetExternal <- function(parentNode) {
 ParseMatrix <- function(matrixNode) {
   
   # Get rownames of matrix 
-  matrixRowNames = xmlSApply(matrixNode[["ct:RowNames"]], xmlValue)
+  matrixRowNames = xmlSApply(matrixNode[["RowNames"]], xmlValue)
   
   # Get colnames of matrix 
-  matrixColumnNames = xmlSApply(matrixNode[["ct:ColumnNames"]], xmlValue)
+  matrixColumnNames = xmlSApply(matrixNode[["ColumnNames"]], xmlValue)
   
   # Get all Matrix Rows that contain data
-  # Supress namespace undefined messages
-  sink("NUL")
-  matrixDataRows = xpathApply(matrixNode, "//*[local-name() = 'ct:MatrixRow']")
-  sink()
+  matrixDataRows = matrixNode[names(matrixNode) == "MatrixRow"]
 
   # Extract the value element of each element
   output.matrix.transposed = sapply(matrixDataRows, FUN=function(x) xmlApply(x, xmlValue))
@@ -233,11 +227,13 @@ ParseMatrix <- function(matrixNode) {
   # Update row and column names
   if (nrow(df) != length(matrixRowNames)) {
     warning("Number of row names given does not match matrix dimensions. Row names ignored")
+    rownames(df) <- NULL
   } else {
     rownames(df) <- matrixRowNames
   }
   if (ncol(df) != length(matrixColumnNames)) {
     warning("Number of column names given does not match matrix dimensions. Column names ignored")
+    colnames(df) <- NULL
   } else {
     colnames(df) <- matrixColumnNames
   }
@@ -837,3 +833,107 @@ ParseTaskInformation <- function(SOObject, TaskInformationNode){
 
   return(SOObject)
 }
+
+# ======================= #
+# Simulation Slot Parsers #
+# ======================= #
+
+ParseSimulation <- function(SOObject, SimulationNode) {
+
+  # Get list of Child Nodes
+  children = xmlChildren(SimulationNode)
+
+  # Iterate over Child nodes, updating SO if appropriate element is present 
+  for (child in children) {
+	  
+    if (xmlName(child) == "Description" ) {
+		
+      SOObject@Simulation@Description = xmlValue(child)
+	  
+    } else if (xmlName(child) == "OriginalDataset" ) {
+		
+      tempList = xmlApply(child, 
+              FUN = function(x) xmlName(x) = xmlValue(x)) 
+      SOObject@Simulation@OriginalDataset = tempList
+	  
+    }
+	
+  }
+
+  # Process all Simulation Blocks
+  SimulationBlockNodeList = SimulationNode[names(SimulationNode) == "SimulationBlock"]
+  SOObject@Simulation@SimulationBlock = lapply(SimulationBlockNodeList, ParseSimulationBlocks)
+
+  return(SOObject)
+}
+
+ParseSimulationBlocks <- function(SimulationBlockNode) {
+	
+	# Error Checking of unexpected elements in each SimulationBlock block
+	expectedTags = c("SimulatedProfiles", "IndivParameters", 
+			"Covariates", "PopulationParameters", "Dosing", 
+			"RawResultsFile")
+	unexpected = setdiff(names(SimulationBlockNode), expectedTags)
+	if (length(unexpected) != 0) {
+		warning(paste("The following unexpected elements were detected in the SimulationBlock block of the PharmML SO.", 
+						paste(unexpected, collapse="\n      "), sep="\n      "))
+	}
+	
+  SimulationBlock = new("SimulationBlock")
+
+  for (child in xmlChildren(SimulationBlockNode)) {
+
+    if (xmlName(child) == "SimulatedProfiles" ) {
+      SimulationBlock@SimulatedProfiles = ParseElement(child)
+
+    } else if (xmlName(child) == "IndivParameters" ) {
+      SimulationBlock@IndivParameters = ParseElement(child)
+
+    } else if (xmlName(child) == "Covariates" ) {
+      SimulationBlock@Covariates = ParseElement(child)
+
+    } else if (xmlName(child) == "PopulationParameters" ) {
+      SimulationBlock@PopulationParameters = ParseElement(child)
+
+    } else if (xmlName(child) == "Dosing" ) {
+      SimulationBlock@Dosing = ParseElement(child)
+
+    } else if (xmlName(child) == "RawResultsFile" ) {
+      tempList = xmlApply(child, 
+              FUN = function(x) xmlName(x) = xmlValue(x)) 
+      SimulationBlock@RawResultsFile = tempList
+    } 
+
+  }
+  
+  return(SimulationBlock)
+}
+
+
+ParseModelDiagnostic <- function(ModelDiagnosticNode) {
+  
+  # Error Checking of unexpected elements in each SimulationBlock block
+  expectedTags = c("DiagnosticPlotsStructuralModel", 
+    "DiagnosticPlotsIndividualParams")
+  unexpected = setdiff(names(ModelDiagnosticNode), expectedTags)
+
+  if (length(unexpected) != 0) {
+    warning(paste("The following unexpected elements were detected in the ModelDiagnosticNode block of the PharmML SO.", 
+            paste(unexpected, collapse="\n      "), sep="\n      "))
+  }
+
+  ModelDiagnosticSlot = new("ModelDiagnostic")
+
+  for (child in xmlChildren(ModelDiagnosticNode)) {
+
+    if (xmlName(child) == "DiagnosticPlotsStructuralModel" ) {
+
+      ModelDiagnosticSlot@DiagnosticPlotsStructuralModel = ParseDiagnosticPlotsStructuralModel(child)
+
+    } else if (xmlName(child) == "DiagnosticPlotsIndividualParams" ) {
+
+      ModelDiagnosticSlot@DiagnosticPlotsIndividualParams = ParseDiagnosticPlotsIndividualParams(child)
+
+
+
+ParseDiagnosticPlotsStructuralModel <- function() {}
