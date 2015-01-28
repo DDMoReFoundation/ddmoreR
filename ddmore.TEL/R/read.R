@@ -2,7 +2,7 @@
 #' read
 #'
 #' A "read" method for Data Objects and MOG objects  (S4 objects of class 
-#' \code{dataObj} and \code{mogObj). This uses information within the dataObj
+#' \code{dataObj} and \code{mogObj}. This uses information within the dataObj
 #' object to define where and how to retrieve the data, attributes of dataset
 #' columns (naming, type, units where applicable) and, if specified, how to
 #' derive additional dataset columns.
