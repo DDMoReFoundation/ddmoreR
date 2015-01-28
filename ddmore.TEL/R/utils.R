@@ -37,13 +37,13 @@ message <- function (..., domain = NULL, appendLF = TRUE)
 #'
 pprintList <- function(listObject, listName) {
 
-                cat("\n", listName, ":\n", sep = "")
-                for (name in names(listObject)) {
-                  cat("--- ", name, " ---\n")
-                  print(listObject[[name]])
-                }
-
-                invisible(listObject)
+	cat("\n", listName, ":\n\n", sep = "")
+	for (i in 1:length(listObject)) {
+	  cat("--- ", names(listObject)[[i]], paste0("(#", i, ")"), " ---\n")
+	  print(listObject[[i]])
+	}
+	
+	invisible(listObject)
 }
 
 #' ToFactor

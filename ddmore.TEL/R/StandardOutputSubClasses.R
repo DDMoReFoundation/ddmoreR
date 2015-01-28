@@ -72,8 +72,7 @@ setClass("Estimation",
    PrecisionIndividualEstimates = list(),
    Residuals = list(),
    Predictions = list(),
-   Likelihood = list(),
-   SoftwareMessages = list()
+   Likelihood = list()
    ),
 #  prototype = list(
 #  	PopulationEstimates = list(MLE=NULL, Bayesian=NULL),
@@ -96,7 +95,6 @@ setClass("Estimation",
     stopifnot(class(object@Residuals)=="list")
     stopifnot(class(object@Predictions)=="list")
     stopifnot(class(object@Likelihood)=="list")
-    stopifnot(class(object@SoftwareMessages)=="list")
 	return(TRUE)
 	}
 )
@@ -138,39 +136,91 @@ setClass("ModelDiagnostic",
 
 
 ##############################################################################
-#' The SimulationExploration Object Class (S4) 
+#' The Simulation Object Class (S4) 
 #' 
-#' An object to house all data associated with model simulation and exploration
-#' 
-#' As the input data is not well defined at current, the slots for most of this class
-#' are currently defined as lists for flexibility
-#' 
-#' @slot Simulation A list for now ...
-#' @slot Exploration A list for now ...
+#' An object to house all data associated with model simulation runs.
+#'  
+#' @slot Description A character vector describing the simulation experiment
+#' @slot OriginalData Details and reference to the original data file.
+#' @slot SimulationBlock A list of SimulationBlock S4 classes that contain
+#'       details of each individual simulation run.
 #' 
 #' @author cmusselle
-setClass("SimulationExploration", 
+setClass("Simulation", 
   # Define the slots
   slots=c(
-    Simulation="list",
-    Exploration="list"
+    Description="character",
+    OriginalDataset="list", 
+    SimulationBlock = "list"
     ),
   # Set Default Values to blank lists with names in place
   prototype = list(
-  	Simulation = list(),
-  	Exploration = list()
-  	),
+    Description=vector(mode="character"),
+    OriginalDataset=list(), 
+    SimulationBlock = list()
+),
  # prototype = list(
  #   Simulation = list(Population=NULL, Individual=NULL, Samples=NULL),
  #   Exploration = list(Plots=NULL, Tables=NULL)
  #   ),
   # Validity Checking Function 
   validity = function(object) {
-	stopifnot(class(object@Simulation)=="list")
-    stopifnot(class(object@Exploration)=="list")
-	return(TRUE)
+	  stopifnot(class(object@Description) == "character")
+      stopifnot(class(object@OriginalDataset) == "list")
+      stopifnot(class(object@SimulationBlock) == "list")
+	  return(TRUE)
 	}
 )
+
+##############################################################################
+#' The SimulationBlock Object Class (S4) 
+#' 
+#' An object to house all data associated with a single simulation run
+#' 
+#' @slot SimulatedProfiles A list containing the data as a dataframe and a description header 
+#' @slot IndivParameters A list containing the data as a dataframe and a description header
+#' @slot Covariates A list containing the data as a dataframe and a description header
+#' @slot PopulationParameters A list containing the data as a dataframe and a description header
+#' @slot Dosing A list containing the data as a dataframe and a description header
+#' @slot RawResultsFile containing the path to the file containing the raw results
+#' 
+#' @author cmusselle
+setClass("SimulationBlock", 
+  # Define the slots
+  slots=c(
+    SimulatedProfiles="list",
+    IndivParameters="list", 
+    Covariates = "list",
+    PopulationParameters = "list",
+    Dosing = "list",
+    RawResultsFile = "list"
+    ),
+  # Set Default Values to blank lists with names in place
+  prototype = list(
+    SimulatedProfiles = list(),
+    IndivParameters = list(), 
+    Covariates = list(),
+    PopulationParameters = list(),
+    Dosing = list(),
+    RawResultsFile = list()
+),
+ # prototype = list(
+ #   Simulation = list(Population=NULL, Individual=NULL, Samples=NULL),
+ #   Exploration = list(Plots=NULL, Tables=NULL)
+ #   ),
+  # Validity Checking Function 
+  validity = function(object) {
+    stopifnot(class(object@SimulatedProfiles) == "list")
+    stopifnot(class(object@IndivParameters) == "list")
+    stopifnot(class(object@Covariates) == "list")
+    stopifnot(class(object@PopulationParameters) == "list")
+    stopifnot(class(object@Dosing) == "list")
+    stopifnot(class(object@RawResultsFile) == "list")
+    return(TRUE)
+  }
+)
+
+
 
 ##############################################################################
 #' The OptimalDesign Object Class (S4) 

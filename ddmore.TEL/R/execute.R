@@ -42,6 +42,10 @@
 setGeneric("estimate", function(x, target=NULL,
 	subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), wait=TRUE, collect=TRUE, clearUp=FALSE, HOST='localhost', PORT='9010', addargs="") {
   
+	if (is.null(target)) {
+		stop('Parameter \"target\" not specified. Possible target tool specifiers include \"NONMEM\", \"PsN\", \"MONOLIX\".');
+	}
+
   workingDirectory <- TEL.prepareWorkingFolder(modelfile=x)
 
   submission <- TEL.submitJob(executionType=target, workingDirectory=workingDirectory, 
@@ -93,6 +97,7 @@ setMethod("estimate", signature=signature(x="mogObj"),
     print("mogMethod")
     # First write out MOG to MDL:
     # TODO: This will write out to the current directory - probably not what is desired!
+    # Should it maybe use MOG object's name?
     write(x, f="output.mdl")
     
     # Now call the generic method using the mdl file:
@@ -103,4 +108,33 @@ setMethod("estimate", signature=signature(x="mogObj"),
 
   })
 
+################################################################################
+#' Resolve Results Directory
+#'
+#' Resolves a directory where the results of the execution would be placed if the MDL file was executed.
+#' 
+#' @return absolute path to the directory holding result files from given MDL file exectution
+#'
+#' @param x a model file path
+#' @param subFolderName name of the directory holding the result files 
+setGeneric(".resolveResultsDirectory", function(x, subFolderName=NULL) {
+        if(is.null(x)) {
+            stop("Tried to resolve results directory for null model file.");
+        }
+        if(is.null(subFolderName)) {
+            stop("Tried to resolve results directory for null sub folder name.");
+        }
+        if(!file.exists(x)) {
+            stop("Model file does not exist");
+        }
+        
+        return(file.path(parent.folder(x), subFolderName))
+    })
 
+
+#' @param x a model file path
+#' @param subFolderName name of the directory holding the result files 
+setMethod(".resolveResultsDirectory", signature=signature(x="mogObj"), function(x, subFolderName=NULL) {
+        # TODO: based on the 'estimate' method implementation
+        return(file.path(getwd(), subFolderName))
+    })
