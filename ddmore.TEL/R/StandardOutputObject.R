@@ -616,19 +616,19 @@ setMethod(f="as.data",
             return(mergedDataFrame)
           }
           )
-# ============================= #
-# Convert to single Data Frame  #
-# ============================= #
-#' as.data.merge
-#'
-#'  An old implimentation of the as.data method which aims to merge 
-#' data frames by matching ID and TIME columns. This approach is problematic 
-#' when ID and TIME columns are duplicated, which turns out to happen quite often.  
-#'
-#'  Method to Fetch all relevant data and return a merged data.frame onject.
-#'
-#' 
-#' @export
+## ============================= #
+## Convert to single Data Frame  #
+## ============================= #
+## ' as.data.merge
+## '
+## '  An old implimentation of the as.data method which aims to merge 
+## ' data frames by matching ID and TIME columns. This approach is problematic 
+## ' when ID and TIME columns are duplicated, which turns out to happen quite often.  
+## '
+## '  Method to Fetch all relevant data and return a merged data.frame onject.
+## '
+## ' 
+## ' @export
 # setGeneric(name="as.data.merge",
 #            def=function(SOObject, inputDataPath)
 #           {
