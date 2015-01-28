@@ -497,7 +497,7 @@ setMethod(f="readRawData",
 #' @export
 mergeByPosition <- function(df1, df2, msg='') {
 
-  # Type conversion Checks fro column 1
+  # Type conversion Checks for column 1
   if (class(df2[, 1]) == "factor") {
       df2[, 1] = as.numeric(as.character(df2[, 1]))
   } else if (class(df2[, 1]) == "integer") {
@@ -508,7 +508,7 @@ mergeByPosition <- function(df1, df2, msg='') {
     df2[, 1] = df2[, 1]
   }
 
-  # Type conversion Checks fro column 2
+  # Type conversion Checks for column 2
   if (class(df2[, 2]) == "factor") {
       df2[, 2] = as.numeric(as.character(df2[, 2]))
   } else if (class(df2[, 2]) == "integer") {
@@ -584,16 +584,22 @@ setMethod(f="as.data",
             df2 <- SOObject@Estimation@Predictions$data
             mergedDataFrame <- mergeByPosition(df1, df2, 'predictions')
 
-            # Fetch and merge Residuals 
-            residuals <- SOObject@Estimation@Residuals
-            residualTagNames <- c("WRES", "IWRES", "RES", "IRES")
-            for (name in residualTagNames){
-              if (name %in% names(residuals)) {
-                df1 <- mergedDataFrame
-                df2 <- residuals[[name]][["data"]]
-                mergedDataFrame <- mergeByPosition(df1, df2, paste("Residual", name))
-                }
-              } 
+            # Fetch and merge Residuals
+
+            df1 <- mergedDataFrame
+            df2 <- SOObject@Estimation@Residuals$data
+            mergedDataFrame <- mergeByPosition(df1, df2, 'residuals')
+
+            # FIX ME: Older implimentation of Residuals structure used by Nonmem 
+            # residuals <- SOObject@Estimation@Residuals
+            # residualTagNames <- c("WRES", "IWRES", "RES", "IRES")
+            # for (name in residualTagNames){
+            #   if (name %in% names(residuals)) {
+            #     df1 <- mergedDataFrame
+            #     df2 <- residuals[[name]][["data"]]
+            #     mergedDataFrame <- mergeByPosition(df1, df2, paste("Residual", name))
+            #     }
+            #   } 
 
             # IndividualEstimates, Estimates
             df1 <- mergedDataFrame
@@ -623,117 +629,117 @@ setMethod(f="as.data",
 #'
 #' 
 #' @export
-setGeneric(name="as.data.merge",
-           def=function(SOObject, inputDataPath)
-          {
-             standardGeneric("as.data.merge")
-          }
-          )
-setMethod(f="as.data.merge",
-          signature=signature(SOObject="StandardOutputObject", inputDataPath="character"),
-          definition=function(SOObject, inputDataPath)
-          {
-            if (missing(inputDataPath)){
-              stop("Path to input data must be specified")
-            } else {
-              rawData <- read.csv(inputDataPath, na.strings=".")
-              rawData <- rawData[with(rawData, order(TIME, ID)), ]
-              rawData[["ID"]] <- as.numeric(rawData[["ID"]]) 
-              rawData[["TIME"]] <- as.numeric(rawData[["TIME"]]) 
-            }
+# setGeneric(name="as.data.merge",
+#            def=function(SOObject, inputDataPath)
+#           {
+#              standardGeneric("as.data.merge")
+#           }
+#           )
+# setMethod(f="as.data.merge",
+#           signature=signature(SOObject="StandardOutputObject", inputDataPath="character"),
+#           definition=function(SOObject, inputDataPath)
+#           {
+#             if (missing(inputDataPath)){
+#               stop("Path to input data must be specified")
+#             } else {
+#               rawData <- read.csv(inputDataPath, na.strings=".")
+#               rawData <- rawData[with(rawData, order(TIME, ID)), ]
+#               rawData[["ID"]] <- as.numeric(rawData[["ID"]]) 
+#               rawData[["TIME"]] <- as.numeric(rawData[["TIME"]]) 
+#             }
 
-            # Test to see if data rows are the same, if not remove dose rows from the 
-            # input data and recompare.
-			if (nrow(rawData) > nrow(SOObject@Estimation@Predictions$data)) {
-				rawData <- rawData[!is.na(rawData[['DV']]), ]
-			}
-			if (nrow(rawData) != nrow(SOObject@Estimation@Predictions$data)) {
-        print(paste("Number of Rows in Raw Data: ", nrow(rawData)))
-        print(paste("Number of Rows in Predictions: ", nrow(SOObject@Estimation@Predictions$data)))
-				stop("Number of non-dose rows in raw data is different to those in SO Predictions")
-			}
+#             # Test to see if data rows are the same, if not remove dose rows from the 
+#             # input data and recompare.
+# 			if (nrow(rawData) > nrow(SOObject@Estimation@Predictions$data)) {
+# 				rawData <- rawData[!is.na(rawData[['DV']]), ]
+# 			}
+# 			if (nrow(rawData) != nrow(SOObject@Estimation@Predictions$data)) {
+#         print(paste("Number of Rows in Raw Data: ", nrow(rawData)))
+#         print(paste("Number of Rows in Predictions: ", nrow(SOObject@Estimation@Predictions$data)))
+# 				stop("Number of non-dose rows in raw data is different to those in SO Predictions")
+# 			}
 
-            # Fetch and merge Predictions 
-            predictions <- SOObject@Estimation@Predictions$data
+#             # Fetch and merge Predictions 
+#             predictions <- SOObject@Estimation@Predictions$data
 
-            predictions <- predictions[with(predictions, order(TIME, ID)), ]
-            predictions[["ID"]] = as.numeric(as.character(predictions[["ID"]]))
-            predictions[["TIME"]] = as.numeric(as.character(predictions[["TIME"]]))
+#             predictions <- predictions[with(predictions, order(TIME, ID)), ]
+#             predictions[["ID"]] = as.numeric(as.character(predictions[["ID"]]))
+#             predictions[["TIME"]] = as.numeric(as.character(predictions[["TIME"]]))
 
-            df1 <- rawData
-            df2 <- predictions
+#             df1 <- rawData
+#             df2 <- predictions
 
-            # Remove any duplicated rows before the merge
-            df2 <- df2[!duplicated(df2), ]
+#             # Remove any duplicated rows before the merge
+#             df2 <- df2[!duplicated(df2), ]
 
-            mergedDataFrame <- merge(df1, df2)
+#             mergedDataFrame <- merge(df1, df2)
 
-            if (nrow(mergedDataFrame) == 0) {
+#             if (nrow(mergedDataFrame) == 0) {
 
-              print(paste("Number of Rows in Raw Data: ", nrow(df1), 
-                " - ID col class:", class(df1[, 1]), " - TIME col class:", class(df1[, 2])))
-              print(paste("Number of Rows in Predictions: ", nrow(df2), 
-                " - ID col class:", class(df2[, 1]), " - TIME col class:", class(df2[, 2])))
-              stop("Merging of predictions has failed. Check format of ID and TIME columns")
-            }
+#               print(paste("Number of Rows in Raw Data: ", nrow(df1), 
+#                 " - ID col class:", class(df1[, 1]), " - TIME col class:", class(df1[, 2])))
+#               print(paste("Number of Rows in Predictions: ", nrow(df2), 
+#                 " - ID col class:", class(df2[, 1]), " - TIME col class:", class(df2[, 2])))
+#               stop("Merging of predictions has failed. Check format of ID and TIME columns")
+#             }
 
-            # Fetch and merge Residuals method 1
-            residuals <- SOObject@Estimation@Residuals
-            residualTagNames <- c("WRES", "IWRES", "RES", "IRES")
-            for (name in residualTagNames){
-              if (name %in% names(residuals)) {
-                df1 <- mergedDataFrame
-                df2 <- residuals[[name]][["data"]]
-                df2[["ID"]] <- as.numeric(as.character(df2[["ID"]]))
-                df2[["TIME"]] <- as.numeric(as.character(df2[["TIME"]]))
-                df2 <- df2[!duplicated(df2), ]
-                mergedDataFrame <- merge(mergedDataFrame, df2)
+#             # Fetch and merge Residuals method 1
+#             residuals <- SOObject@Estimation@Residuals
+#             residualTagNames <- c("WRES", "IWRES", "RES", "IRES")
+#             for (name in residualTagNames){
+#               if (name %in% names(residuals)) {
+#                 df1 <- mergedDataFrame
+#                 df2 <- residuals[[name]][["data"]]
+#                 df2[["ID"]] <- as.numeric(as.character(df2[["ID"]]))
+#                 df2[["TIME"]] <- as.numeric(as.character(df2[["TIME"]]))
+#                 df2 <- df2[!duplicated(df2), ]
+#                 mergedDataFrame <- merge(mergedDataFrame, df2)
               
-                if (nrow(mergedDataFrame) == 0) {
-                  df2 <- SOObject@Estimation@Residuals[[name]][["data"]]
-                  print(paste("Number of Rows in df1: ", nrow(df1), 
-                    " - ID col class:", class(df1[, 1]), " - TIME col class:", class(df1[, 2])))
-                  print(paste("Number of Rows in df2: ", nrow(df2),
-                    " - ID col class:", class(df2[, 1]), " - TIME col class:", class(df2[, 2])))
-                  stop("Merging of residuals has failed. Check format of ID and TIME columns")
-                }
-              } 
-            }
+#                 if (nrow(mergedDataFrame) == 0) {
+#                   df2 <- SOObject@Estimation@Residuals[[name]][["data"]]
+#                   print(paste("Number of Rows in df1: ", nrow(df1), 
+#                     " - ID col class:", class(df1[, 1]), " - TIME col class:", class(df1[, 2])))
+#                   print(paste("Number of Rows in df2: ", nrow(df2),
+#                     " - ID col class:", class(df2[, 1]), " - TIME col class:", class(df2[, 2])))
+#                   stop("Merging of residuals has failed. Check format of ID and TIME columns")
+#                 }
+#               } 
+#             }
 
-            # IndividualEstimates, Estimates
-            df1 <- mergedDataFrame
-            df2 <- SOObject@Estimation@IndividualEstimates$Estimates$Mean$data
-            df2[["ID"]] <- as.numeric(as.character(df2[["ID"]]))
-            df2[["TIME"]] <- as.numeric(as.character(df2[["TIME"]]))  
-            df2 <- df2[!duplicated(df2), ]
-            mergedDataFrame <- merge(df1, df2)
+#             # IndividualEstimates, Estimates
+#             df1 <- mergedDataFrame
+#             df2 <- SOObject@Estimation@IndividualEstimates$Estimates$Mean$data
+#             df2[["ID"]] <- as.numeric(as.character(df2[["ID"]]))
+#             df2[["TIME"]] <- as.numeric(as.character(df2[["TIME"]]))  
+#             df2 <- df2[!duplicated(df2), ]
+#             mergedDataFrame <- merge(df1, df2)
             
-            if (nrow(mergedDataFrame) == 0) {
-              print(paste("Number of Rows in df1: ", nrow(df1), 
-                    " - ID col class:", class(df1[, 1]), " - TIME col class:", class(df1[, 2])))
-              print(paste("Number of Rows in df2: ", nrow(df2),
-                    " - ID col class:", class(df2[, 1]), " - TIME col class:", class(df2[, 2])))
-              stop("Merging of IndividualEstimates-Estimates has failed. Check format of ID and TIME columns")
-            }
+#             if (nrow(mergedDataFrame) == 0) {
+#               print(paste("Number of Rows in df1: ", nrow(df1), 
+#                     " - ID col class:", class(df1[, 1]), " - TIME col class:", class(df1[, 2])))
+#               print(paste("Number of Rows in df2: ", nrow(df2),
+#                     " - ID col class:", class(df2[, 1]), " - TIME col class:", class(df2[, 2])))
+#               stop("Merging of IndividualEstimates-Estimates has failed. Check format of ID and TIME columns")
+#             }
             
-            # IndividualEstimates, RandomEffects
-            df1 <- mergedDataFrame
-            df2 <- SOObject@Estimation@IndividualEstimates$RandomEffects$EffectMean$data
-            df2[["ID"]] <- as.numeric(as.character(df2[["ID"]]))
-            df2[["TIME"]] <- as.numeric(as.character(df2[["TIME"]]))
-            df2 <- df2[!duplicated(df2), ]
-            mergedDataFrame <- merge(df1, df2)
+#             # IndividualEstimates, RandomEffects
+#             df1 <- mergedDataFrame
+#             df2 <- SOObject@Estimation@IndividualEstimates$RandomEffects$EffectMean$data
+#             df2[["ID"]] <- as.numeric(as.character(df2[["ID"]]))
+#             df2[["TIME"]] <- as.numeric(as.character(df2[["TIME"]]))
+#             df2 <- df2[!duplicated(df2), ]
+#             mergedDataFrame <- merge(df1, df2)
 
-            if (nrow(mergedDataFrame) == 0) {
-              print(paste("Number of Rows in df1: ", nrow(df1), 
-                    " - ID col class:", class(df1[, 1]), " - TIME col class:", class(df1[, 2])))
-              print(paste("Number of Rows in df2: ", nrow(df2),
-                    " - ID col class:", class(df2[, 1]), " - TIME col class:", class(df2[, 2])))
-              stop("Merging of IndividualEstimates-RandomEffects has failed. Check format of ID and TIME columns")
-            }
-            return(mergedDataFrame)
-          }
-          )
+#             if (nrow(mergedDataFrame) == 0) {
+#               print(paste("Number of Rows in df1: ", nrow(df1), 
+#                     " - ID col class:", class(df1[, 1]), " - TIME col class:", class(df1[, 2])))
+#               print(paste("Number of Rows in df2: ", nrow(df2),
+#                     " - ID col class:", class(df2[, 1]), " - TIME col class:", class(df2[, 2])))
+#               stop("Merging of IndividualEstimates-RandomEffects has failed. Check format of ID and TIME columns")
+#             }
+#             return(mergedDataFrame)
+#           }
+#           )
 
 # ========================= #
 # Convert to Xpose Database #
@@ -764,7 +770,7 @@ setMethod(f="as.xpdb",
             # TODO: Possibly need to check data types here
             
             # TODO: Remove i in ID columns for now.
-            xpose4_dataFrame$ID <- as.numeric(sub("i", "", xpose4_dataFrame$ID ))
+            # xpose4_dataFrame$ID <- as.numeric(sub("i", "", xpose4_dataFrame$ID ))
 
             ## Map data.out to xpdb@Data
             Data(myXpdb)<-xpose4_dataFrame
@@ -774,19 +780,19 @@ setMethod(f="as.xpdb",
             ## TODO: Infer these values from the full PharmML
             
             ## Fill in / Confirm information from PharmML
-            myXpdb@Prefs@Xvardef$id<-"ID"
-            myXpdb@Prefs@Xvardef$idv<-"TIME"
-            myXpdb@Prefs@Xvardef$occ<-NA
-            myXpdb@Prefs@Xvardef$dv<-"DV"
+            # myXpdb@Prefs@Xvardef$id<-"ID"
+            # myXpdb@Prefs@Xvardef$idv<-"TIME"
+            # myXpdb@Prefs@Xvardef$occ<-NA
+            # myXpdb@Prefs@Xvardef$dv<-"DV"
             
-            ## Fill in / Confirm information from SO
-            myXpdb@Prefs@Xvardef$pred<-"PRED"
-            myXpdb@Prefs@Xvardef$ipred<-"IPRED"
-            myXpdb@Prefs@Xvardef$wres <- "WRES"
-            myXpdb@Prefs@Xvardef$iwres <- "IWRES"
-            myXpdb@Prefs@Xvardef$parms <- c("V","CL","KA","TLAG")
-            myXpdb@Prefs@Xvardef$covariates <- "logtWT"
-            myXpdb@Prefs@Xvardef$ranpar <- c("ETA_V","ETA_CL","ETA_KA","ETA_TLAG")
+            # ## Fill in / Confirm information from SO
+            # myXpdb@Prefs@Xvardef$pred<-"PRED"
+            # myXpdb@Prefs@Xvardef$ipred<-"IPRED"
+            # myXpdb@Prefs@Xvardef$wres <- "WRES"
+            # myXpdb@Prefs@Xvardef$iwres <- "IWRES"
+            # myXpdb@Prefs@Xvardef$parms <- c("V","CL","KA","TLAG")
+            # myXpdb@Prefs@Xvardef$covariates <- "logtWT"
+            # myXpdb@Prefs@Xvardef$ranpar <- c("ETA_V","ETA_CL","ETA_KA","ETA_TLAG")
             
             ## Ideally would also update xpdb@Prefs@Labels (variable labels for plots)
             myXpdb@Prefs@Labels

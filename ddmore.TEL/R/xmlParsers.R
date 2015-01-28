@@ -933,7 +933,9 @@ ParseModelDiagnostic <- function(ModelDiagnosticNode) {
     } else if (xmlName(child) == "DiagnosticPlotsIndividualParams" ) {
 
       ModelDiagnosticSlot@DiagnosticPlotsIndividualParams = ParseDiagnosticPlotsIndividualParams(child)
-
+    }
+  }
+}
 
 
 ParseDiagnosticPlotsStructuralModel <- function() {}
