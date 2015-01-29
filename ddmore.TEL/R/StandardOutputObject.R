@@ -579,22 +579,18 @@ setMethod(f="as.data",
               print(paste("Number of Rows in Predictions: ", nrow(SOObject@Estimation@Predictions$data)))
               stop("Number of non-dose rows in raw data is different to those in SO Predictions")
             }
+			
+			mergedDataFrame <- rawData
 
             # Fetch and merge Predictions 
-            df1 <- rawData
+            df1 <- mergedDataFrame
             df2 <- SOObject@Estimation@Predictions$data
             mergedDataFrame <- mergeByPosition(df1, df2, 'predictions')
 
             # Fetch and merge Residuals 
-            residuals <- SOObject@Estimation@Residuals
-            residualTagNames <- c("WRES", "IWRES", "RES", "IRES")
-            for (name in residualTagNames){
-              if (name %in% names(residuals)) {
-                df1 <- mergedDataFrame
-                df2 <- residuals[[name]][["data"]]
-                mergedDataFrame <- mergeByPosition(df1, df2, paste("Residual", name))
-                }
-              } 
+			df1 <- mergedDataFrame
+			df2 <- SOObject@Estimation@Residuals$data
+			mergedDataFrame <- mergeByPosition(df1, df2, 'residuals')
 
             # IndividualEstimates, Estimates
             df1 <- mergedDataFrame
@@ -774,23 +770,32 @@ setMethod(f="as.xpdb",
             ###################################################
             ## TODO: Infer these values from the full PharmML
             
-            ## Fill in / Confirm information from PharmML
-            myXpdb@Prefs@Xvardef$id<-"ID"
-            myXpdb@Prefs@Xvardef$idv<-"TIME"
+#            ## Fill in / Confirm information from PharmML
+#            myXpdb@Prefs@Xvardef$id<-"ID"
+#            myXpdb@Prefs@Xvardef$idv<-"TIME"
             myXpdb@Prefs@Xvardef$occ<-NA
-            myXpdb@Prefs@Xvardef$dv<-"DV"
-            
-            ## Fill in / Confirm information from SO
+#            myXpdb@Prefs@Xvardef$dv<-"DV"
+#            
+#            ## Fill in / Confirm information from SO
             myXpdb@Prefs@Xvardef$pred<-"PRED"
             myXpdb@Prefs@Xvardef$ipred<-"IPRED"
             myXpdb@Prefs@Xvardef$wres <- "WRES"
             myXpdb@Prefs@Xvardef$iwres <- "IWRES"
-            myXpdb@Prefs@Xvardef$parms <- c("V","CL","KA","TLAG")
-            myXpdb@Prefs@Xvardef$covariates <- "logtWT"
-            myXpdb@Prefs@Xvardef$ranpar <- c("ETA_V","ETA_CL","ETA_KA","ETA_TLAG")
+
+			# Below are the hard-coded column definitions for the Warfarin-latest-ODE model.
+			# These are slightly different to the default ones that are assigned; so this
+			# may give rise to errors such as "ETAs are not properly set in the database"
+			# for certain plots.
+			# TODO: Need to determine if we do need to override the column names here (in
+			# some generic manner), or whether we leave it up to the user to set them in
+			# the Xpose object as and when required.
+#            myXpdb@Prefs@Xvardef$parms <- c("V","CL","KA","TLAG")
+#            myXpdb@Prefs@Xvardef$covariates <- "logtWT"
+#            myXpdb@Prefs@Xvardef$ranpar <- c("ETA_V","ETA_CL","ETA_KA","ETA_TLAG")
             
             ## Ideally would also update xpdb@Prefs@Labels (variable labels for plots)
-            myXpdb@Prefs@Labels
+            #myXpdb@Prefs@Labels
+			myXpdb@Prefs@Labels$OCC <- NA
             
             #####################################################
 
