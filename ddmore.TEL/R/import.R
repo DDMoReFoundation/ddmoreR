@@ -158,9 +158,19 @@ TEL.importFiles <- function(submission, target=file.path(submission$sourceDirect
 
 TEL.importSO <- function(submission) {
 	
-	soXMLFilename <- paste0(file_path_sans_ext(submission$modelFile), ".SO.xml")
-	
-	LoadSOObject(file.path(submission$resultsDir, soXMLFilename))
+	soXMLFileName <- paste0(file_path_sans_ext(submission$modelFile), ".SO.xml")
+	soXMLFilePath <- file.path(submission$resultsDir, soXMLFileName)
+
+	if (class(soXMLFilePath) == "character" && file.exists(soXMLFilePath)) {
+		LoadSOObject(soXMLFilePath)
+	}
+	else {
+		stop(
+			"No Standard Output results file produced from execution of model ", submission$modelFile,
+			".\n  The contents of the working directory ", submission$workingDirectory,
+			" may be useful for tracking down the cause of the failure."
+		)
+	}
 
 }
 

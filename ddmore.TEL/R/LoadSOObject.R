@@ -11,7 +11,9 @@
 LoadSOObject <- function(file) {
 
   # Error Checking
-  stopifnot(class(file) == "character" & file.exists(file))
+  if (!(class(file) == "character" && file.exists(file))) {
+	  stop("Standard Output results file ", file, " does not exist.")
+  }
 
   # Set working directory to that specified in file 
   old.wd <- getwd()

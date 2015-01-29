@@ -71,11 +71,8 @@ setGeneric("estimate", function(x, target=NULL,
 			}
 			
 		} else { # submission$status != "COMPLETED"
-
-			stop(paste(c("Execution of model ", submission$modelFile, 
-        	" failed.\n  The contents of the working directory ",
-        	submission$workingDirectory, 
-        	" may be useful for tracking down the cause of the failure."), sep=""))
+			stop("Execution of model ", submission$modelFile, " failed.\n  The contents of the working directory ",
+				submission$workingDirectory, " may be useful for tracking down the cause of the failure.")
 		}
 		
 	} else { # Don't wait for the job to complete
