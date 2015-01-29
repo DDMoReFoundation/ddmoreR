@@ -545,10 +545,11 @@ mergeByPosition <- function(df1, df2, msg='') {
 # ============================= #
 # Convert to single Data Frame  #
 # ============================= #
-#' as.data.old
+#' as.data
 #'
 #'  Method to Fetch all relevant data and return a merged data.frame onject.
 #'
+#' @include read.R
 #' @export
 setGeneric(name="as.data",
            def=function(SOObject, inputDataPath)
@@ -563,7 +564,7 @@ setMethod(f="as.data",
             if (missing(inputDataPath)){
               stop("Path to input data must be specified")
             } else {
-              rawData <- read.csv(inputDataPath, na.strings=".")
+              rawData <- read.NONMEMDataSet(inputDataPath)
               rawData[["ID"]] <- as.numeric(rawData[["ID"]]) 
               rawData[["TIME"]] <- as.numeric(rawData[["TIME"]]) 
             }
