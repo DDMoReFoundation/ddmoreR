@@ -38,9 +38,13 @@ message <- function (..., domain = NULL, appendLF = TRUE)
 pprintList <- function(listObject, listName) {
 
 	cat("\n", listName, ":\n\n", sep = "")
-	for (i in 1:length(listObject)) {
-	  cat("--- ", names(listObject)[[i]], paste0("(#", i, ")"), " ---\n")
-	  print(listObject[[i]])
+	if (length(listObject) > 0) {
+		for (i in 1:length(listObject)) {
+	  		cat("--- ", names(listObject)[[i]], paste0("(#", i, ")"), " ---\n")
+	  		print(listObject[[i]])
+		}
+	} else {
+		cat("(empty)\n")
 	}
 	
 	invisible(listObject)
