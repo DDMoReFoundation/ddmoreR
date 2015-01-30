@@ -759,9 +759,6 @@ setMethod(f="as.xpdb",
             myXpdb<-new("xpose.data",Runno=0,Doc=NULL)
             
             # TODO: Possibly need to check data types here
-            
-            # TODO: Remove i in ID columns for now.
-            xpose4_dataFrame$ID <- as.numeric(sub("i", "", xpose4_dataFrame$ID ))
 
             ## Map data.out to xpdb@Data
             Data(myXpdb)<-xpose4_dataFrame
