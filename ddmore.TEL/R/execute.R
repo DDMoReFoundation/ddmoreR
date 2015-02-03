@@ -20,6 +20,10 @@
 #'        be deleted upon successful job completion. Default is false, since this
 #'        directory may contain useful information in the event that a job failed
 #'        to execute successfully.
+#' @param extraInputFileExts (Optional) A vector of file extensions (excluding the
+#'                           dot) that will be used in identifying additional files
+#'                           to copy from the source directory (the directory
+#'                           containing the MDL file) into the job working directory.
 #' @param HOST (Optional) Hostname of the server running the FIS service. Default
 #'        is localhost.
 #' @param PORT (Optional) Port of the server running the FIS service. Default is 9010.
@@ -29,6 +33,11 @@
 #'         class \linkS4class{StandardOutputObject}.
 #' 
 #' @author Jonathan Chard, Matthew Wise
+#' 
+#' @seealso \code{TEL.prepareWorkingFolder}
+#' @seealso \code{TEL.submitJob}
+#' @seealso \code{TEL.poll}
+#' @seealso \code{TEL.importFiles}
 #' 
 #' @export
 #' @docType methods
@@ -40,13 +49,15 @@
 #' @include telClasses.R
 #' @include StandardOutputObject.R
 setGeneric("estimate", function(x, target=NULL,
-	subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), wait=TRUE, collect=TRUE, clearUp=FALSE, HOST='localhost', PORT='9010', addargs="") {
+	subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), wait=TRUE, collect=TRUE, clearUp=FALSE, extraInputFileExts=NULL,
+	HOST='localhost', PORT='9010',
+	addargs="") {
   
 	if (is.null(target)) {
 		stop('Parameter \"target\" not specified. Possible target tool specifiers include \"NONMEM\", \"PsN\", \"MONOLIX\".');
 	}
 
-  workingDirectory <- TEL.prepareWorkingFolder(modelfile=x)
+  workingDirectory <- TEL.prepareWorkingFolder(modelfile=x, extraInputFileExts=extraInputFileExts)
 
   submission <- TEL.submitJob(executionType=target, workingDirectory=workingDirectory, 
       modelfile=x, HOST=HOST, PORT=PORT, addargs=addargs)
