@@ -257,16 +257,16 @@ ParseMatrix <- function(matrixNode) {
 ParseImportData <- function(ImportDataNode) {
 
   # Get rownames of matrix 
-  ImportDataChildern = xmlSApply(ImportDataNode, xmlValue)
+  ImportDataChildren = xmlSApply(ImportDataNode, xmlValue)
   
-  metaData = names(ImportDataChildern)
+  metaData = names(ImportDataChildren)
 
   stopifnot(("ds:path" %in% metaData) & ("ds:format" %in% metaData) 
     & ("ds:delimiter" %in% metaData) )
 
-  path = ImportDataChildern[["ds:path"]]
-  format = ImportDataChildern[["ds:format"]]
-  delimiter = ImportDataChildern[["ds:delimiter"]]
+  path = ImportDataChildren[["ds:path"]]
+  format = ImportDataChildren[["ds:format"]]
+  delimiter = ImportDataChildren[["ds:delimiter"]]
 
   if (delimiter != "COMMA") {
     stop("Comma is the only delimiter currently supported by importData parsers.")
