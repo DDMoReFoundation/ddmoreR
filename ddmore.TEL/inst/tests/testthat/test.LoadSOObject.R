@@ -243,3 +243,61 @@ test_that("Loading SOObject from PharmML SO fills expected slots in Simulation",
 #     info = "Slot is not empty", )
 #   
 # })
+
+
+context("Loading multiple SOBlocks contained within a PsN SSE PharmML SO returns all the SOObjects")
+
+# Clear workspace. 
+rm(list=ls())
+
+soXmlFilePath = system.file("tests/data/PharmMLSO/MachineGenerated/PsN/Warfarin-ODE-latest-sse.SO.xml", package = "DDMoRe.TEL")
+
+# Load in SO
+SOObjects = LoadSOObjects(soXmlFilePath)
+
+test_that("Expected list of 20 objects to be returned from LoadSOObjects", {
+		
+	expect_true(is.list(SOObjects), info="LoadSOObjects should return a List")
+	expect_equal(length(SOObjects), 20, info="Expected 20 objects in list returned from LoadSOObjects")
+	
+})
+
+test_that("Checking some of the slots in one of the SOObjects", {
+			
+	expect_true(isS4(SOObjects[[1]]), info="SOObject is S4 class")
+	
+	expect_equal(length(SOObjects[[1]]@RawResults), 1, info="RawResults slot should not be empty")
+	expect_equal(length(SOObjects[[1]]@RawResults@DataFiles), 2, info="RawResults@DataFiles slot should have two entries")
+
+})
+
+test_that("Checking that distinct SOObjects have been returned in the list", {
+
+	df1a = SOObjects[[1]]@RawResults@DataFiles[[1]][["path"]]
+	df1b = SOObjects[[1]]@RawResults@DataFiles[[2]][["path"]]
+	df2a = SOObjects[[2]]@RawResults@DataFiles[[1]][["path"]]
+	df2b = SOObjects[[2]]@RawResults@DataFiles[[2]][["path"]]
+	
+	expect_false(df1a == df2a, info="First data files of SOObjects 1 and 2 should be different")
+	expect_false(df1b == df2b, info="Second data files of SOObjects 1 and 2 should be different")
+	
+})
+
+
+context("Loading an empty, i.e. no SOBlocks, PharmML SO returns an empty list")
+
+# Clear workspace. 
+rm(list=ls())
+
+soXmlFilePath = system.file("tests/data/PharmMLSO/HandCoded/empty.SO.xml", package = "DDMoRe.TEL")
+
+# Load in SO
+SOObjects = LoadSOObjects(soXmlFilePath)
+
+test_that("Expected empty list to be returned from LoadSOObjects", {
+			
+	expect_true(is.list(SOObjects), info="LoadSOObjects should return a List")
+	expect_equal(length(SOObjects), 0, info="Expected empty list returned from LoadSOObjects")
+	
+})
+
