@@ -26,7 +26,7 @@ ParseElement <- function(Node) {
   
   OUT = FALSE
 
-  if (length(ChildNames) == 1){
+  if (length(ChildNames) == 1) {
       if ("Matrix" %in% ChildNames) {
         # Parse Node as a matrix 
         OUT = ParseMatrix(Node[["Matrix"]])
@@ -209,30 +209,35 @@ ParseDataSetExternal <- function(parentNode) {
 ParseMatrix <- function(matrixNode) {
   
   # Get rownames of matrix 
-  matrixRowNames = xmlSApply(matrixNode[["RowNames"]], xmlValue)
+  matrixRowNames <- xmlSApply(matrixNode[["RowNames"]], xmlValue)
   
   # Get colnames of matrix 
-  matrixColumnNames = xmlSApply(matrixNode[["ColumnNames"]], xmlValue)
+  matrixColumnNames <- xmlSApply(matrixNode[["ColumnNames"]], xmlValue)
   
   # Get all Matrix Rows that contain data
-  matrixDataRows = matrixNode[names(matrixNode) == "MatrixRow"]
+  matrixDataRows <- matrixNode[names(matrixNode) == "MatrixRow"]
 
+  if (length(matrixDataRows) == 0) {
+	  warning("No MatrixRows found for Matrix element. Skipping...")
+	  return(NULL)
+  }
+  
   # Extract the value element of each element
-  output.matrix.transposed = sapply(matrixDataRows, FUN=function(x) xmlApply(x, xmlValue))
-  output.matrix = t(output.matrix.transposed)
+  output.matrix.transposed <- sapply(matrixDataRows, FUN=function(x) xmlApply(x, xmlValue))
+  output.matrix <- t(output.matrix.transposed)
   
   # Convert to Data Frame
   df = as.data.frame(output.matrix)
   
   # Update row and column names
   if (nrow(df) != length(matrixRowNames)) {
-    warning("Number of row names given does not match matrix dimensions. Row names ignored")
+    warning("Number of row names given does not match matrix dimensions. Row names ignored.")
     rownames(df) <- NULL
   } else {
     rownames(df) <- matrixRowNames
   }
   if (ncol(df) != length(matrixColumnNames)) {
-    warning("Number of column names given does not match matrix dimensions. Column names ignored")
+    warning("Number of column names given does not match matrix dimensions. Column names ignored.")
     colnames(df) <- NULL
   } else {
     colnames(df) <- matrixColumnNames
