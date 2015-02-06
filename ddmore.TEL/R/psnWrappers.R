@@ -2,7 +2,7 @@
 #' VPC.PsN
 #' Performs a VPC (Visual Predictive Check) of a given model using PsN.
 #' @param model An object of class \linkS4class{mogObj} or an MDL file. Will be
-#' 		  passed on directly to estimate()
+#' 		  passed on directly to execute()
 #' @param command A string with the vpc command. Default is vpc. 
 #' @param samples An integer indicating the number of samples to run. Must be at least 20.
 #' @param seed An integer with a random seed to pass to vpc.
@@ -25,9 +25,9 @@ VPC.PsN <- function(model, command="vpc", samples, seed, vpcOptions="", plot=TRU
 	vpccommand <- paste0(command," --samples=", samples," --seed=", seed, " ", vpcOptions)
 
 	#TODO cannot handle collect=FALSE
-	#TODO loading SO can take a long time, boolean option importSO to estimate would be nice
+	#TODO loading SO can take a long time, boolean option importSO to execute() would be nice
 
-	outputObject <- estimate(model, target="PsNgeneric", subfolder=subfolder, addargs=vpccommand, ...)
+	outputObject <- execute(model, target="PsNgeneric", addargs=vpccommand, subfolder=subfolder, ...)
 
     resultsDir <- .resolveResultsDirectory(model, subfolder);
 
@@ -57,7 +57,7 @@ VPC.PsN <- function(model, command="vpc", samples, seed, vpcOptions="", plot=TRU
 #' bootstrap.PsN
 #' Runs a PsN bootstrap of a given model.
 #' @param model An object of class \linkS4class{mogObj} or an MDL file. Will be
-#' 		  passed on directly to estimate()
+#' 		  passed on directly to execute()
 #' @param command A string with the bootstrap command. Default is bootstrap. 
 #' @param samples An integer indicating the number of samples to run.
 #' @param seed An integer with a random seed to pass to bootstrap.
@@ -79,7 +79,7 @@ VPC.PsN <- function(model, command="vpc", samples, seed, vpcOptions="", plot=TRU
 bootstrap.PsN <- function(model, command="bootstrap", samples, seed, bootstrapOptions="", plot=TRUE, subfolder=paste0("bootstrap_",format(Sys.time(), "%Y%b%d%H%M%S")), ...) {
 	bootstrapcommand <- paste0(command," --samples=", samples," --seed=", seed, " ", bootstrapOptions)
 
-	outputObject <- estimate(model, target="PsNgeneric", addargs=bootstrapcommand, subfolder=subfolder, ...)
+	outputObject <- execute(model, target="PsNgeneric", addargs=bootstrapcommand, subfolder=subfolder, ...)
 
     resultsDir <- .resolveResultsDirectory(model, subfolder);
  
@@ -109,7 +109,7 @@ bootstrap.PsN <- function(model, command="bootstrap", samples, seed, bootstrapOp
 #' SSE.PsN
 #' Performs SSE (Stochastic Simulation and Estimation) on a given model.
 #' @param model An object of class \linkS4class{mogObj} or an MDL file. Will be
-#' 		  passed on directly to estimate()
+#' 		  passed on directly to execute()
 #' @param command A string with the sse command. Default is sse. 
 #' @param samples An integer indicating the number of samples to run. Must be at least 2.
 #' @param seed An integer with a random seed to pass to sse. 
@@ -128,11 +128,11 @@ bootstrap.PsN <- function(model, command="bootstrap", samples, seed, bootstrapOp
 SSE.PsN <- function(model, command="sse", samples, seed, sseOptions="", subfolder=paste0("sse_",format(Sys.time(), "%Y%b%d%H%M%S")), ...) {
 	ssecommand <- paste0(command," --samples=", samples," --seed=", seed, " ", sseOptions)
 
-	#TODO loading SO can take a long time, boolean option importSO to estimate would be nice
+	#TODO loading SO can take a long time, boolean option importSO to execute() would be nice
 	#TODO If collect is set to false we do not get result files back, and no SO object. Cannot handle that here
 	#2015-01-14 importSO can only handle -samples=1 -no-est in order to get only one block in SO, otherwise exits with error. SimulatedProfiles not read
 
-	outputObject <- estimate(model, target="PsNgeneric", subfolder=subfolder, addargs=ssecommand, ...)
+	outputObject <- execute(model, target="PsNgeneric", addargs=ssecommand, subfolder=subfolder, importMultipleSO=TRUE, ...)
 
     resultsDir <- .resolveResultsDirectory(model, subfolder);
 

@@ -15,10 +15,17 @@
 #' @param extraInputFileExts An optional vector of file extensions (excluding the
 #'                           dot) that will be used in identifying additional files
 #'                           to copy
+#' @param extraInputFiles An optional vector of file paths (relative to the model
+#'                        file) that will be used in identifying additional files
+#'                        to copy
 #' 
-#' NB: Assumption: The data files are within the same directory as the model file. 
-#' 
-TEL.prepareWorkingFolder <- function(modelfile, tmpdir=tempdir(), extraInputFileExts=NULL) {
+#' @note The data files are within the same directory as the model file. Also, if
+#'       the data files and additional files are in a directory structure, i.e. not
+#'       all within the same directory as the model file, then this directory
+#'       structure is 'flattened' when copying to the job working directory.
+#'       This behaviour should probably be reviewed at some point.
+#'
+TEL.prepareWorkingFolder <- function(modelfile, tmpdir=tempdir(), extraInputFileExts=NULL, extraInputFiles=NULL) {
 
   if (file.exists(tmpdir) == FALSE) {
     stop("Temporary directory does not exist!")
@@ -39,17 +46,25 @@ TEL.prepareWorkingFolder <- function(modelfile, tmpdir=tempdir(), extraInputFile
     
     inputs = file.path(srcdir, TEL.getInputs(modelfile, srcdir))
     
-	if (!is.null(extraInputFileExts)) {
+	# Initialise the additional files list
+	additionalFiles <- c()
+	
+	if (length(extraInputFileExts) > 0) { # The length check also handles null
 		
 		extraInputFileExtsRegex <- paste0("\\.(", paste(extraInputFileExts, collapse="|"), ")$")
 	
 		# Include any extra files identified by the specified list of file extensions,
 		# in the file copying to remote too (e.g. for PsN with a pre-executed NONMEM run)
 
-		additionalFiles <- file.path(srcdir, list.files(srcdir, pattern=extraInputFileExtsRegex))
+		additionalFiles <- c(additionalFiles, file.path(srcdir, list.files(srcdir, pattern=extraInputFileExtsRegex)))
+	}
+	
+	if (length(extraInputFiles) > 0) { # The length check also handles null
 		
-	} else {
-		additionalFiles <- c()
+		# Include any extra files identified by the specified list of relative file paths,
+		# in the file copying to remote too (e.g. for PsN with a pre-executed NONMEM run)
+
+		additionalFiles <- c(additionalFiles, file.path(srcdir, extraInputFiles))
 	}
 	
 	flist = c(modelfile, inputs, additionalFiles)
