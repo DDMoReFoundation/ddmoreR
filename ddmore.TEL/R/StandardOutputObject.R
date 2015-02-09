@@ -118,7 +118,7 @@ setMethod(f="getRawResults",
           signature="StandardOutputObject",
           definition=function(SOObject)
           {                              
-            RawResults <- SOObject@RawResults@Files
+            RawResults <- SOObject@RawResults@DataFiles
             pprintList(RawResults, "Raw Results")  
           }
 )
@@ -273,13 +273,13 @@ setMethod(f="getSimulatedProfiles",
 )
 
 #' Create a method to fetch the value of Simulation : SimulationBlock(s) : IndivParameters slot
-setGeneric(name="getIndividualParametersCovariates",
+setGeneric(name="getSimulationIndividualParameters",
 		def=function(SOObject)
 		{
-			standardGeneric("getIndividualParametersCovariates")
+			standardGeneric("getSimulationIndividualParameters")
 		}
 )
-setMethod(f="getIndividualParametersCovariates",
+setMethod(f="getSimulationIndividualParameters",
 		signature="StandardOutputObject",
 		definition=function(SOObject)
 		{
@@ -293,13 +293,13 @@ setMethod(f="getIndividualParametersCovariates",
 )
 
 #' Create a method to fetch the value of Simulation : SimulationBlock(s) : PopulationParameters slot
-setGeneric(name="getPopulationParametersCovariates",
+setGeneric(name="getSimulationPopulationParameters",
 		def=function(SOObject)
 		{
-			standardGeneric("getPopulationParametersCovariates")
+			standardGeneric("getSimulationPopulationParameters")
 		}
 )
-setMethod(f="getPopulationParametersCovariates",
+setMethod(f="getSimulationPopulationParameters",
 		signature="StandardOutputObject",
 		definition=function(SOObject)
 		{
@@ -313,13 +313,13 @@ setMethod(f="getPopulationParametersCovariates",
 )
 
 #' Create a method to fetch the value of Simulation : SimulationBlock(s) : RawResultsFile slot
-setGeneric(name="getRawResultsFiles",
+setGeneric(name="getSimulationRawResultsFiles",
 		def=function(SOObject)
 		{
-			standardGeneric("getRawResultsFiles")
+			standardGeneric("getSimulationRawResultsFiles")
 		}
 )
-setMethod(f="getRawResultsFiles",
+setMethod(f="getSimulationRawResultsFiles",
 		signature="StandardOutputObject",
 		definition=function(SOObject)
 		{
@@ -333,13 +333,13 @@ setMethod(f="getRawResultsFiles",
 )
 
 #' Create a method to fetch the value of Simulation : OriginalDataSet slot
-setGeneric(name="getOriginalDataset",
+setGeneric(name="getSimulationOriginalDataset",
 		def=function(SOObject)
 		{
-			standardGeneric("getOriginalDataset")
+			standardGeneric("getSimulationOriginalDataset")
 		}
 )
-setMethod(f="getOriginalDataset",
+setMethod(f="getSimulationOriginalDataset",
 		signature="StandardOutputObject",
 		definition=function(SOObject)
 		{
@@ -377,7 +377,7 @@ getEstimationInfo <- function(SOObject){
   likelihood <- getLikelihood(SOObject)
   messages <- getSoftwareMessages(SOObject)
 
-  invisible(list(likelihood=likelihood, messages=messages))
+  invisible(list(Likelihood=likelihood, Messages=messages))
 }
 
 #' getParameterEstimates
