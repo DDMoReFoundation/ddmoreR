@@ -208,6 +208,11 @@ ParseDataSetExternal <- function(parentNode) {
 #'
 ParseMatrix <- function(matrixNode) {
   
+  if ( (length(matrixNode[["RowNames"]]) == 0) || (length(matrixNode[["ColumnNames"]]) == 0) ) {
+	  warning("No RowNames or ColumnNames found for Matrix element. Skipping...")
+	  return(NULL)
+  }
+	
   # Get rownames of matrix 
   matrixRowNames <- xmlSApply(matrixNode[["RowNames"]], xmlValue)
   

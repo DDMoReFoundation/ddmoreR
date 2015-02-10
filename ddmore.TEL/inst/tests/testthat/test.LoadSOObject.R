@@ -301,3 +301,57 @@ test_that("Expected empty list to be returned from LoadSOObjects", {
 	
 })
 
+
+context("Loading a PharmML SO with empty Matrix elements ignores these elements rather than trying to produce some kind of 0x1 dataframe")
+
+# Clear workspace. 
+rm(list=ls())
+
+soXmlFilePath = system.file("tests/data/PharmMLSO/HandCoded/Warfarin-ODE-latest-Monolix-EmptyMatrices.SO.xml", package = "DDMoRe.TEL")
+
+# Load in SO
+SOObject = LoadSOObject(soXmlFilePath)
+
+test_that("Expected Estimation::PrecisionPopulationEstimates::MLE::StandardError to be populated", {
+
+	expect_true(isS4(SOObject), info = "Object is S4")
+	mleStandardError <- SOObject@Estimation@PrecisionPopulationEstimates$MLE$StandardError
+	
+	expect_true(is.list(mleStandardError) && length(mleStandardError) == 2, info="Estimation::PrecisionPopulationEstimates::MLE::StandardError should be a list of 2 elements")
+	
+})
+
+test_that("Expected Estimation::PrecisionPopulationEstimates::MLE::RelativeStandardError to be populated", {
+			
+	expect_true(isS4(SOObject), info = "Object is S4")
+	mleRelativeStandardError <- SOObject@Estimation@PrecisionPopulationEstimates$MLE$RelativeStandardError
+	
+	expect_true(is.list(mleRelativeStandardError) && length(mleRelativeStandardError) == 2, info="Estimation::PrecisionPopulationEstimates::MLE::RelativeStandardError should be a list of 2 elements")
+	
+})
+
+test_that("Expected Estimation::PrecisionPopulationEstimates::MLE::FIM to NOT be populated", {
+			
+	expect_true(isS4(SOObject), info = "Object is S4")
+	
+	expect_true(is.null(SOObject@Estimation@PrecisionPopulationEstimates$MLE$FIM), info="Estimation::PrecisionPopulationEstimates::MLE::FIM should NOT be present")
+	
+})
+
+test_that("Expected Estimation::PrecisionPopulationEstimates::MLE::CorrelationMatrix to NOT be populated", {
+			
+	expect_true(isS4(SOObject), info = "Object is S4")
+	
+	expect_true(is.null(SOObject@Estimation@PrecisionPopulationEstimates$MLE$CorrelationMatrix), info="Estimation::PrecisionPopulationEstimates::MLE::CorrelationMatrix should NOT be present")
+	
+})
+
+test_that("Expected Estimation::PrecisionPopulationEstimates::MLE::CovarianceMatrix to NOT be populated", {
+			
+	expect_true(isS4(SOObject), info = "Object is S4")
+	
+	expect_true(is.null(SOObject@Estimation@PrecisionPopulationEstimates$MLE$CovarianceMatrix), info="Estimation::PrecisionPopulationEstimates::MLE::CovarianceMatrix should NOT be present")
+	
+})
+
+
