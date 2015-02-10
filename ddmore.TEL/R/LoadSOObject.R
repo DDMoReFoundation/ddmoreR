@@ -17,7 +17,7 @@
 #' @include StandardOutputObject.R xmlParsers.R 
 LoadSOObject <- function(file) {
 	
-	root <<- validateAndLoadXMLSOFile(file)
+	root <- validateAndLoadXMLSOFile(file)
 	soBlocks <- root[names(root) == "SOBlock"]
 	if (length(soBlocks) != 1) {
 		stop("LoadSOObject() is used for the case where there is known to be exactly one SOBlock in the SO XML file;\n",
