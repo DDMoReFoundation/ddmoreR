@@ -560,52 +560,68 @@ setGeneric(name="as.data",
 setMethod(f="as.data",
           signature=signature(SOObject="StandardOutputObject", inputDataPath="character"),
           definition=function(SOObject, inputDataPath)
-          {
-            if (missing(inputDataPath)){
-              stop("Path to input data must be specified")
-            } else {
-              rawData <- read.NONMEMDataSet(inputDataPath)
-              rawData[["ID"]] <- as.numeric(rawData[["ID"]]) 
-              rawData[["TIME"]] <- as.numeric(rawData[["TIME"]]) 
-            }
-
-            # Test to see if data rows are the same, if not remove dose rows from the 
-            # input data and recompare.
-            if (nrow(rawData) > nrow(SOObject@Estimation@Predictions$data)) {
-              rawData <- rawData[!is.na(rawData[['DV']]), ]
-            }
-            if (nrow(rawData) != nrow(SOObject@Estimation@Predictions$data)) {
-              print(paste("Number of Rows in Raw Data: ", nrow(rawData)))
-              print(paste("Number of Rows in Predictions: ", nrow(SOObject@Estimation@Predictions$data)))
-              stop("Number of non-dose rows in raw data is different to those in SO Predictions")
-            }
-			
-			mergedDataFrame <- rawData
-
-            # Fetch and merge Predictions 
-            df1 <- mergedDataFrame
-            df2 <- SOObject@Estimation@Predictions$data
-            mergedDataFrame <- mergeByPosition(df1, df2, 'predictions')
-
-            # Fetch and merge Residuals 
-			df1 <- mergedDataFrame
-			df2 <- SOObject@Estimation@Residuals$data
-			mergedDataFrame <- mergeByPosition(df1, df2, 'residuals')
-
-            # IndividualEstimates, Estimates
-            df1 <- mergedDataFrame
-            df2 <- SOObject@Estimation@IndividualEstimates$Estimates$Mean$data
-            df2[, 1] <- as.numeric(as.character(df2[, 1]))
-            mergedDataFrame <- merge(df1, df2)
-            
-            # IndividualEstimates, RandomEffects
-            df1 <- mergedDataFrame
-            df2 <- SOObject@Estimation@IndividualEstimates$RandomEffects$EffectMean$data
-            df2[, 1] <- as.numeric(as.character(df2[, 1]))
-            mergedDataFrame <- merge(df1, df2)
-
-            return(mergedDataFrame)
-          }
+		  {
+			  if (missing(inputDataPath)){
+				  stop("Path to input data must be specified")
+			  } else {
+				  rawData <- read.NONMEMDataSet(inputDataPath)
+				  rawData[["ID"]] <- as.numeric(rawData[["ID"]]) 
+				  rawData[["TIME"]] <- as.numeric(rawData[["TIME"]]) 
+			  }
+			  
+			  # Test to see if data rows are the same, if not remove dose rows from the 
+			  # input data and recompare.
+			  if (nrow(rawData) > nrow(SOObject@Estimation@Predictions$data)) {
+				  rawData <- rawData[!is.na(rawData[['DV']]), ]
+			  }
+			  if (nrow(rawData) != nrow(SOObject@Estimation@Predictions$data)) {
+				  print(paste("Number of Rows in Raw Data: ", nrow(rawData)))
+				  print(paste("Number of Rows in Predictions: ", nrow(SOObject@Estimation@Predictions$data)))
+				  stop("Number of non-dose rows in raw data is different to those in SO Predictions")
+			  }
+			  
+			  mergedDataFrame <- rawData
+			  
+			  if (!is.null(SOObject@Estimation@Predictions)) {
+				  # Fetch and merge Predictions 
+				  df1 <- mergedDataFrame
+				  df2 <- SOObject@Estimation@Predictions$data
+				  mergedDataFrame <- mergeByPosition(df1, df2, 'predictions')
+			  } else {
+				  warning("No Estimation::Predictions found in the SO; the resulting data frame will not contain these")
+			  }
+			  
+			  if (!is.null(SOObject@Estimation@Residuals)) {
+				  # Fetch and merge Residuals 
+				  df1 <- mergedDataFrame
+				  df2 <- SOObject@Estimation@Residuals$data
+				  mergedDataFrame <- mergeByPosition(df1, df2, 'residuals')
+			  } else {
+				  warning("No Estimation::Residuals found in the SO; the resulting data frame will not contain these")
+			  }
+			  
+			  if (!is.null(SOObject@Estimation@IndividualEstimates$Estimates$Mean)) {
+				  # IndividualEstimates, Estimates
+				  df1 <- mergedDataFrame
+				  df2 <- SOObject@Estimation@IndividualEstimates$Estimates$Mean$data
+				  df2[, 1] <- as.numeric(as.character(df2[, 1]))
+				  mergedDataFrame <- merge(df1, df2)
+			  } else {
+				  warning("No Estimation::IndividualEstimates::Estimates::Mean found in the SO; the resulting data frame will not contain these")
+			  }
+			  
+			  if (!is.null(SOObject@Estimation@IndividualEstimates$RandomEffects$EffectMean)) {
+				  # IndividualEstimates, RandomEffects
+				  df1 <- mergedDataFrame
+				  df2 <- SOObject@Estimation@IndividualEstimates$RandomEffects$EffectMean$data
+				  df2[, 1] <- as.numeric(as.character(df2[, 1]))
+				  mergedDataFrame <- merge(df1, df2)
+			  } else {
+				  warning("No Estimation::IndividualEstimates::RandomEffects::EffectMean found in the SO; the resulting data frame will not contain these")
+			  }
+			  
+			  return(mergedDataFrame)
+		  }
           )
 # ============================= #
 # Convert to single Data Frame  #
