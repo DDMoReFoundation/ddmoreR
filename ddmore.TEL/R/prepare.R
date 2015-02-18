@@ -27,16 +27,16 @@
 #'
 TEL.prepareWorkingFolder <- function(modelfile, tmpdir=tempdir(), extraInputFileExts=NULL, extraInputFiles=NULL) {
 
-  if (file.exists(tmpdir) == FALSE) {
-    stop("Temporary directory does not exist!")
-  }
-  tempFolder = tempfile("TEL.job",tmpdir)
+	if (!file.exists(tmpdir)) {
+		stop("Temporary directory does not exist!")
+	}
+	tempFolder = tempfile("TEL.job",tmpdir)
   
-  if (file.exists(modelfile) == FALSE) {
-    stop("Model file missing")
-  } else {
-    if (file.exists(tempFolder) == FALSE) {
-      dir.create(tempFolder)
+	if (!file.exists(modelfile)) {
+    	stop("Model file missing")
+	} else {
+    if (!file.exists(tempFolder)) {
+		dir.create(tempFolder)
     }
     
     # Obtain the full path to the model file
