@@ -68,7 +68,7 @@ setMethod("estimate", signature=signature(x="mogObj"),
 			addargs=addargs, subfolder=subfolder, wait=wait, clearUp=clearUp,
 			HOST=HOST, PORT=PORT)
   })
-
+  
 
 ################################################################################
 #' INTERNAL Common execute function called by estimate() and the psnWrappers functions
@@ -126,7 +126,7 @@ setMethod("estimate", signature=signature(x="mogObj"),
 #' @include import.R
 #' @include telClasses.R
 #' @include StandardOutputObject.R
-execute <- function(x, target=NULL,
+setGeneric("execute", function(x, target=NULL,
 					addargs="", subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), wait=TRUE, clearUp=FALSE,
 					extraInputFileExts=NULL, extraInputFiles=NULL, importSO=TRUE, importMultipleSO=FALSE,
 					HOST='localhost', PORT='9010') {
@@ -177,9 +177,27 @@ execute <- function(x, target=NULL,
 		stop("Submission of execution request was unsuccessful.")
 	}
 	
-}
+})
 
+#' @seealso \code{execute}
+setMethod("execute", signature=signature(x="mogObj"), 
+    function(x, target=NULL,
+                    addargs="", subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), wait=TRUE, clearUp=FALSE,
+                    extraInputFileExts=NULL, extraInputFiles=NULL, importSO=TRUE, importMultipleSO=FALSE,
+                    HOST='localhost', PORT='9010') {
 
+    # First write out MOG to MDL.
+    # TODO: This will write out to the current directory - probably not what is desired!
+    # Should it maybe use MOG object's name?
+    write(x, f="output.mdl")
+    
+    # Now call the generic method using the mdl file
+    execute(x="output.mdl", target=target,
+            addargs=addargs, subfolder=subfolder, wait=wait, clearUp=clearUp,
+            extraInputFileExts=extraInputFileExts,extraInputFiles=extraInputFiles,
+            importSO=importSO,importMultipleSO=importMultipleSO,
+            HOST=HOST, PORT=PORT)
+  })
 
 ################################################################################
 #' Resolve Results Directory
