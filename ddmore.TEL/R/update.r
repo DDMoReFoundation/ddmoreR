@@ -60,7 +60,7 @@ setMethod("update", signature=signature(object="parObj"), function(object, block
   x <- 
   eval(
     parse(
-      text = paste0("object", "@", block, "$", item, "$", names(with), " <- ", unlist(dQuote(with)))
+      text = paste0("object", "@", block, "$", item, "$", names(with), " <- ", dQuote(unlist(with)))
     )
   )
 
