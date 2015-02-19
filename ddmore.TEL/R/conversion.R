@@ -123,7 +123,7 @@ mog_object_types <- c("dataobj", "parobj", "mdlobj", "taskobj")
 }
 
 
-.createParObj <- function(dat) {
+.createParObj <- function(parObjAsList) {
 
 	# Weren't sure what to do about the VARIABILITY block since you can have a mixture
 	# of named parameters, "matrix" blocks, "diag" blocks and "same" blocks.
@@ -140,7 +140,7 @@ mog_object_types <- c("dataobj", "parobj", "mdlobj", "taskobj")
 	# the R objects back out to JSON (and thence to MDL), these suffixes are dropped.
 
 	diagCnt <- 0; matrixCnt <- 0; sameCnt <- 0;
-	variabilityNames <- lapply(as.list(dat$VARIABILITY), function(x) {
+	variabilityNames <- lapply(as.list(parObjAsList$VARIABILITY), function(x) {
 		elemName <- names(x) # only one element in each sub-list of the main list
 		if (elemName == "diag") {
 			diagCnt <<- diagCnt + 1
@@ -158,11 +158,11 @@ mog_object_types <- c("dataobj", "parobj", "mdlobj", "taskobj")
 	})
 	
 	res <- new("parObj", 
-		STRUCTURAL = translateIntoNamedList(dat$STRUCTURAL), # as.list done within the function
-		VARIABILITY = removeExtraLayerOfNesting(dat$VARIABILITY),
+		STRUCTURAL = translateIntoNamedList(parObjAsList$STRUCTURAL), # as.list done within the function
+		VARIABILITY = removeExtraLayerOfNesting(parObjAsList$VARIABILITY),
 		# TODO: TBC - These need to be populated
 		PRIOR_PARAMETERS = list(),
-		TARGET_CODE = as.character(dat$TARGET_CODE)
+		TARGET_CODE = as.character(parObjAsList$TARGET_CODE)
 	)
 	
 	names(res@VARIABILITY) <- variabilityNames
@@ -171,14 +171,14 @@ mog_object_types <- c("dataobj", "parobj", "mdlobj", "taskobj")
 } 
 
 
-.createDataObj <- function(dat) {
+.createDataObj <- function(dataObjAsList) {
 
     res <- new("dataObj",
-        DATA_INPUT_VARIABLES = translateIntoNamedList(dat$DATA_INPUT_VARIABLES), # as.list done within the function
-        SOURCE = as.list(dat$SOURCE),
+        DATA_INPUT_VARIABLES = translateIntoNamedList(dataObjAsList$DATA_INPUT_VARIABLES), # as.list done within the function
+        SOURCE = as.list(dataObjAsList$SOURCE),
         # TODO: TBC - These need to be populated
         DATA_DERIVED_VARIABLES = list(),
-		TARGET_CODE = as.character(dat$TARGET_CODE)
+		TARGET_CODE = as.character(dataObjAsList$TARGET_CODE)
     )
     
     # Unquote the file name so that the file name within the R object is more easily manipulated
@@ -190,41 +190,41 @@ mog_object_types <- c("dataobj", "parobj", "mdlobj", "taskobj")
 }
 
 
-.createMdlObj <- function(dat) {
+.createMdlObj <- function(mdlObjAsList) {
 
     res <- new("mdlObj",
-        MODEL_INPUT_VARIABLES = translateIntoNamedList(dat$MODEL_INPUT_VARIABLES), # as.list done within the function
-        STRUCTURAL_PARAMETERS = translateIntoNamedList(dat$STRUCTURAL_PARAMETERS), # as.list done within the function
-        VARIABILITY_PARAMETERS = translateIntoNamedList(dat$VARIABILITY_PARAMETERS), # as.list done within the function
-        RANDOM_VARIABLE_DEFINITION = translateIntoNamedList(dat$RANDOM_VARIABLE_DEFINITION),
-        INDIVIDUAL_VARIABLES = translateIntoNamedList(dat$INDIVIDUAL_VARIABLES), # as.list done within the function
+        MODEL_INPUT_VARIABLES = translateIntoNamedList(mdlObjAsList$MODEL_INPUT_VARIABLES), # as.list done within the function
+        STRUCTURAL_PARAMETERS = translateIntoNamedList(mdlObjAsList$STRUCTURAL_PARAMETERS), # as.list done within the function
+        VARIABILITY_PARAMETERS = translateIntoNamedList(mdlObjAsList$VARIABILITY_PARAMETERS), # as.list done within the function
+        RANDOM_VARIABLE_DEFINITION = translateIntoNamedList(mdlObjAsList$RANDOM_VARIABLE_DEFINITION),
+        INDIVIDUAL_VARIABLES = translateIntoNamedList(mdlObjAsList$INDIVIDUAL_VARIABLES), # as.list done within the function
         MODEL_PREDICTION = new("modPred",
-            ODE = as.character(dat$MODEL_PREDICTION$ODE),
-            LIBRARY = as.character(dat$MODEL_PREDICTION$LIBRARY),
-            content = as.character(dat$MODEL_PREDICTION$content)
+            ODE = as.character(mdlObjAsList$MODEL_PREDICTION$ODE),
+            LIBRARY = as.character(mdlObjAsList$MODEL_PREDICTION$LIBRARY),
+            content = as.character(mdlObjAsList$MODEL_PREDICTION$content)
         ),
-        OBSERVATION = translateIntoNamedList(dat$OBSERVATION), # as.list done within the function
-		MODEL_OUTPUT_VARIABLES = translateIntoNamedList(dat$MODEL_OUTPUT_VARIABLES), # as.list done within the function
-        GROUP_VARIABLES = removeExtraLayerOfNesting(dat$GROUP_VARIABLES),
+        OBSERVATION = translateIntoNamedList(mdlObjAsList$OBSERVATION), # as.list done within the function
+		MODEL_OUTPUT_VARIABLES = translateIntoNamedList(mdlObjAsList$MODEL_OUTPUT_VARIABLES), # as.list done within the function
+        GROUP_VARIABLES = removeExtraLayerOfNesting(mdlObjAsList$GROUP_VARIABLES),
 		# TODO: TBC - These three slots need to be populated
 		ESTIMATION = list(),
 		SIMULATION = list(),
-		TARGET_CODE = as.character(dat$TARGET_CODE)
+		TARGET_CODE = as.character(mdlObjAsList$TARGET_CODE)
     )
 	
 	res
 }
 
 
-.createTaskObj <- function(dat){
+.createTaskObj <- function(taskObjAsList) {
 	res <- new("taskObj",
-		ESTIMATE = as.character(dat$ESTIMATE),
-		SIMULATE = as.character(dat$SIMULATE),
-		EVALUATE = as.character(dat$EVALUATE),
-		OPTIMISE = as.character(dat$OPTIMISE),
-		DATA = as.character(dat$DATA),
-		MODEL = as.character(dat$MODEL),
-		TARGET_CODE = as.character(dat$TARGET_CODE)
+		ESTIMATE = as.character(taskObjAsList$ESTIMATE),
+		SIMULATE = as.character(taskObjAsList$SIMULATE),
+		EVALUATE = as.character(taskObjAsList$EVALUATE),
+		OPTIMISE = as.character(taskObjAsList$OPTIMISE),
+		DATA = as.character(taskObjAsList$DATA),
+		MODEL = as.character(taskObjAsList$MODEL),
+		TARGET_CODE = as.character(taskObjAsList$TARGET_CODE)
 	)  
 }
 
