@@ -306,7 +306,9 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
 			names(parObjAsList$VARIABILITY[[i]]) <<- elemName
 		})
 	}
-	names(parObjAsList$VARIABILITY) <- NULL
+	# Clear the top-level names of the list elements as these names have been moved onto the individual
+	# sub-elements (we have added an extra layer of nesting to the VARIABILITY list)
+	names(parObjAsList$VARIABILITY) <- NULL # this is not undoing the setting of the names above, it is 
     
     dataObjAsList <- .removeNullEntries(list(
         DATA_INPUT_VARIABLES = translateNamedListIntoList(m@dataObj@DATA_INPUT_VARIABLES),
