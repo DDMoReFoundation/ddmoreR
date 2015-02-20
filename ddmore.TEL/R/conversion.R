@@ -124,6 +124,10 @@ mog_object_types <- c("dataobj", "parobj", "mdlobj", "taskobj")
 
 
 .createParObj <- function(parObjAsList) {
+	
+	if (is.null(parObjAsList)) {
+		stop("Input argument parObjAsList is null")
+	}
 
 	# Weren't sure what to do about the VARIABILITY block since you can have a mixture
 	# of named parameters, "matrix" blocks, "diag" blocks and "same" blocks.
@@ -172,6 +176,10 @@ mog_object_types <- c("dataobj", "parobj", "mdlobj", "taskobj")
 
 
 .createDataObj <- function(dataObjAsList) {
+	
+	if (is.null(dataObjAsList)) {
+		stop("Input argument dataObjAsList is null")
+	}
 
     res <- new("dataObj",
         DATA_INPUT_VARIABLES = translateIntoNamedList(dataObjAsList$DATA_INPUT_VARIABLES), # as.list done within the function
@@ -191,6 +199,10 @@ mog_object_types <- c("dataobj", "parobj", "mdlobj", "taskobj")
 
 
 .createMdlObj <- function(mdlObjAsList) {
+	
+	if (is.null(mdlObjAsList)) {
+		stop("Input argument mdlObjAsList is null")
+	}
 
     res <- new("mdlObj",
         MODEL_INPUT_VARIABLES = translateIntoNamedList(mdlObjAsList$MODEL_INPUT_VARIABLES), # as.list done within the function
@@ -217,6 +229,11 @@ mog_object_types <- c("dataobj", "parobj", "mdlobj", "taskobj")
 
 
 .createTaskObj <- function(taskObjAsList) {
+	
+	if (is.null(taskObjAsList)) {
+		stop("Input argument taskObjAsList is null")
+	}
+	
 	res <- new("taskObj",
 		ESTIMATE = as.character(taskObjAsList$ESTIMATE),
 		SIMULATE = as.character(taskObjAsList$SIMULATE),
