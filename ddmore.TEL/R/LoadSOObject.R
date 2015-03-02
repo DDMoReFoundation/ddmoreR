@@ -69,7 +69,7 @@ LoadSOObjects <- function(file) {
   soObjNames <- make.names(lapply(SOBlockList, function(soBlock) {
 	# Use the blkId as the name of the SOBlock in the named list, for want of a better name
 	# (the default is "SOBlock" which is repeated for all elements)
-	soBlock$attributes["blkId"]
+	xmlAttrs(soBlock)[["blkId"]]
   }))
 
   SOObjectList <- lapply(SOBlockList, createSOObjectFromXMLSOBlock)
@@ -90,7 +90,7 @@ validateAndLoadXMLSOFile <- function(file) {
 	}
 	
 	# Return a reference to the root node in the XML doc
-	xmlRoot(xmlTreeParse(file))
+	xmlRoot(xmlTreeParse(file, useInternalNodes=TRUE)) # useInternalNodes is an important flag that avoids exponential memory usage!
 }
 
 # Process an SOBlock element from the SO XML tree and populate a StandardOutputObject object from the data contained within.
@@ -103,8 +103,7 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 	SOChildren <- xmlChildren(soBlock)
 	
 	# Error Checking of unexpected elements
-	expectedTags = c("ToolSettings", "RawResults", "TaskInformation", "Estimation", 
-			"Simulation")
+	expectedTags = c("ToolSettings", "RawResults", "TaskInformation", "Estimation", "Simulation")
 	unexpected = setdiff(names(SOChildren), expectedTags)
 	if (length(unexpected) != 0) {
 		warning(paste("The following unexpected elements were detected in the PharmML SO.", 
