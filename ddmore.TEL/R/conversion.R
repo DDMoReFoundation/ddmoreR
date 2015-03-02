@@ -123,7 +123,11 @@ mog_object_types <- c("dataobj", "parobj", "mdlobj", "taskobj")
 }
 
 
-.createParObj <- function(dat) {
+.createParObj <- function(parObjAsList) {
+	
+	if (is.null(parObjAsList)) {
+		stop("Input argument parObjAsList is null")
+	}
 
 	# Weren't sure what to do about the VARIABILITY block since you can have a mixture
 	# of named parameters, "matrix" blocks, "diag" blocks and "same" blocks.
@@ -139,16 +143,8 @@ mog_object_types <- c("dataobj", "parobj", "mdlobj", "taskobj")
 	# is an number that increments individually for "matrix", "diag" and "same"; when writing
 	# the R objects back out to JSON (and thence to MDL), these suffixes are dropped.
 
-	res <- new("parObj", 
-		STRUCTURAL = translateIntoNamedList(dat$STRUCTURAL), # as.list done within the function
-		VARIABILITY = lapply(as.list(dat$VARIABILITY), function(x) x[[1]]),
-		# TODO: TBC - These need to be populated
-		PRIOR_PARAMETERS = list(),
-		TARGET_CODE = as.character(dat$TARGET_CODE)
-	)
-	
 	diagCnt <- 0; matrixCnt <- 0; sameCnt <- 0;
-	names(res@VARIABILITY) <- lapply(as.list(dat$VARIABILITY), function(x) {
+	variabilityNames <- lapply(as.list(parObjAsList$VARIABILITY), function(x) {
 		elemName <- names(x) # only one element in each sub-list of the main list
 		if (elemName == "diag") {
 			diagCnt <<- diagCnt + 1
@@ -165,18 +161,32 @@ mog_object_types <- c("dataobj", "parobj", "mdlobj", "taskobj")
 		elemName
 	})
 	
-	return(res)
+	res <- new("parObj", 
+		STRUCTURAL = translateIntoNamedList(parObjAsList$STRUCTURAL), # as.list done within the function
+		VARIABILITY = removeExtraLayerOfNesting(parObjAsList$VARIABILITY),
+		# TODO: TBC - These need to be populated
+		PRIOR_PARAMETERS = list(),
+		TARGET_CODE = as.character(parObjAsList$TARGET_CODE)
+	)
+	
+	names(res@VARIABILITY) <- variabilityNames
+	
+	res
 } 
 
 
-.createDataObj <- function(dat) {
+.createDataObj <- function(dataObjAsList) {
+	
+	if (is.null(dataObjAsList)) {
+		stop("Input argument dataObjAsList is null")
+	}
 
     res <- new("dataObj",
-        DATA_INPUT_VARIABLES = translateIntoNamedList(dat$DATA_INPUT_VARIABLES), # as.list done within the function
-        SOURCE = as.list(dat$SOURCE),
+        DATA_INPUT_VARIABLES = translateIntoNamedList(dataObjAsList$DATA_INPUT_VARIABLES), # as.list done within the function
+        SOURCE = as.list(dataObjAsList$SOURCE),
         # TODO: TBC - These need to be populated
         DATA_DERIVED_VARIABLES = list(),
-		TARGET_CODE = as.character(dat$TARGET_CODE)
+		TARGET_CODE = as.character(dataObjAsList$TARGET_CODE)
     )
     
     # Unquote the file name so that the file name within the R object is more easily manipulated
@@ -188,40 +198,50 @@ mog_object_types <- c("dataobj", "parobj", "mdlobj", "taskobj")
 }
 
 
-.createMdlObj <- function(dat) {
+.createMdlObj <- function(mdlObjAsList) {
+	
+	if (is.null(mdlObjAsList)) {
+		stop("Input argument mdlObjAsList is null")
+	}
 
     res <- new("mdlObj",
-        MODEL_INPUT_VARIABLES = translateIntoNamedList(dat$MODEL_INPUT_VARIABLES), # as.list done within the function
-        STRUCTURAL_PARAMETERS = translateIntoNamedList(dat$STRUCTURAL_PARAMETERS), # as.list done within the function
-        VARIABILITY_PARAMETERS = translateIntoNamedList(dat$VARIABILITY_PARAMETERS), # as.list done within the function
-        RANDOM_VARIABLE_DEFINITION = translateIntoNamedList(dat$RANDOM_VARIABLE_DEFINITION),
-        INDIVIDUAL_VARIABLES = translateIntoNamedList(dat$INDIVIDUAL_VARIABLES), # as.list done within the function
+        MODEL_INPUT_VARIABLES = translateIntoNamedList(mdlObjAsList$MODEL_INPUT_VARIABLES), # as.list done within the function
+        STRUCTURAL_PARAMETERS = translateIntoNamedList(mdlObjAsList$STRUCTURAL_PARAMETERS), # as.list done within the function
+        VARIABILITY_PARAMETERS = translateIntoNamedList(mdlObjAsList$VARIABILITY_PARAMETERS), # as.list done within the function
+        RANDOM_VARIABLE_DEFINITION = translateIntoNamedList(mdlObjAsList$RANDOM_VARIABLE_DEFINITION),
+        INDIVIDUAL_VARIABLES = translateIntoNamedList(mdlObjAsList$INDIVIDUAL_VARIABLES), # as.list done within the function
         MODEL_PREDICTION = new("modPred",
-            ODE = as.character(dat$MODEL_PREDICTION$ODE),
-            LIBRARY = as.character(dat$MODEL_PREDICTION$LIBRARY),
-            content = as.character(dat$MODEL_PREDICTION$content)
+            ODE = as.character(mdlObjAsList$MODEL_PREDICTION$ODE),
+            LIBRARY = as.character(mdlObjAsList$MODEL_PREDICTION$LIBRARY),
+            content = as.character(mdlObjAsList$MODEL_PREDICTION$content)
         ),
-        OBSERVATION = translateIntoNamedList(dat$OBSERVATION), # as.list done within the function
-		MODEL_OUTPUT_VARIABLES = translateIntoNamedList(dat$MODEL_OUTPUT_VARIABLES), # as.list done within the function
-		# TODO: TBC - These need to be populated
-        GROUP_VARIABLES = list(),
+        OBSERVATION = translateIntoNamedList(mdlObjAsList$OBSERVATION), # as.list done within the function
+		MODEL_OUTPUT_VARIABLES = translateIntoNamedList(mdlObjAsList$MODEL_OUTPUT_VARIABLES), # as.list done within the function
+        GROUP_VARIABLES = removeExtraLayerOfNesting(mdlObjAsList$GROUP_VARIABLES),
+		# TODO: TBC - These three slots need to be populated
 		ESTIMATION = list(),
 		SIMULATION = list(),
-		TARGET_CODE = as.character(dat$TARGET_CODE)
+		TARGET_CODE = as.character(mdlObjAsList$TARGET_CODE)
     )
-
+	
+	res
 }
 
 
-.createTaskObj <- function(dat){
+.createTaskObj <- function(taskObjAsList) {
+	
+	if (is.null(taskObjAsList)) {
+		stop("Input argument taskObjAsList is null")
+	}
+	
 	res <- new("taskObj",
-		ESTIMATE = as.character(dat$ESTIMATE),
-		SIMULATE = as.character(dat$SIMULATE),
-		EVALUATE = as.character(dat$EVALUATE),
-		OPTIMISE = as.character(dat$OPTIMISE),
-		DATA = as.character(dat$DATA),
-		MODEL = as.character(dat$MODEL),
-		TARGET_CODE = as.character(dat$TARGET_CODE)
+		ESTIMATE = as.character(taskObjAsList$ESTIMATE),
+		SIMULATE = as.character(taskObjAsList$SIMULATE),
+		EVALUATE = as.character(taskObjAsList$EVALUATE),
+		OPTIMISE = as.character(taskObjAsList$OPTIMISE),
+		DATA = as.character(taskObjAsList$DATA),
+		MODEL = as.character(taskObjAsList$MODEL),
+		TARGET_CODE = as.character(taskObjAsList$TARGET_CODE)
 	)  
 }
 
@@ -271,19 +291,24 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
     # (the transformation here is the reverse of that in .createParObj function)
     parObjAsList <- .removeNullEntries(list(
       STRUCTURAL = translateNamedListIntoList(m@parObj@STRUCTURAL),
-      VARIABILITY = lapply(m@parObj@VARIABILITY, list),
+      VARIABILITY = addExtraLayerOfNesting(m@parObj@VARIABILITY),
 	  # TODO: TBC - These two slots need to be populated
       PRIOR_PARAMETERS = m@parObj@PRIOR_PARAMETERS,
 	  TARGET_CODE = m@parObj@TARGET_CODE,
       identifier = "parobj"
 	))
-	lapply(1:length(m@parObj@VARIABILITY), function(i) {
-		elemName <- names(m@parObj@VARIABILITY)[[i]]
-		# Strip off the redundant count from the end of 'special' variability parameter elements
-		elemName <- gsub("^(same|diag|matrix)_.*$", "\\1", elemName, fixed=FALSE)
-		names(parObjAsList$VARIABILITY[[i]]) <<- elemName
-	})
-	names(parObjAsList$VARIABILITY) <- NULL
+
+	if (length(m@parObj@VARIABILITY) > 0) { # trap the empty-list condition
+		lapply(1:length(m@parObj@VARIABILITY), function(i) {
+			elemName <- names(m@parObj@VARIABILITY)[[i]]
+			# Strip off the redundant count from the end of 'special' variability parameter elements
+			elemName <- gsub("^(same|diag|matrix)_.*$", "\\1", elemName, fixed=FALSE)
+			names(parObjAsList$VARIABILITY[[i]]) <<- elemName
+		})
+	}
+	# Clear the top-level names of the list elements as these names have been moved onto the individual
+	# sub-elements (we have added an extra layer of nesting to the VARIABILITY list)
+	names(parObjAsList$VARIABILITY) <- NULL # this is not undoing the setting of the names above, it is 
     
     dataObjAsList <- .removeNullEntries(list(
         DATA_INPUT_VARIABLES = translateNamedListIntoList(m@dataObj@DATA_INPUT_VARIABLES),
@@ -312,8 +337,8 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
             LIBRARY = m@mdlObj@MODEL_PREDICTION@LIBRARY,
             content = m@mdlObj@MODEL_PREDICTION@content
         )),
-		# TODO: TBC - These four slots need to be populated
-        GROUP_VARIABLES = m@mdlObj@GROUP_VARIABLES,
+        GROUP_VARIABLES = addExtraLayerOfNesting(m@mdlObj@GROUP_VARIABLES),
+		# TODO: TBC - These three slots need to be populated
 		ESTIMATION = m@mdlObj@ESTIMATION,
 		SIMULATION = m@mdlObj@SIMULATION,
 		TARGET_CODE = m@mdlObj@TARGET_CODE,
@@ -389,27 +414,61 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
 	)]
 }
 
-# Incoming (JSON->R) lists of variables etc. have their names as attributes of the list
-# elements; use these as the names in the creation of a named list of these variables etc.,
-# to go in the slots in the R classes.
-# Also, remove the name attribute to avoid duplication and confusion.
+# Incoming (JSON->R) lists of variables etc. have their variable/symbol names as attributes
+# (".name") of the list elements; use these as the names in the creation of a named list
+# of these variables etc., to go in the slots in the R classes.
+# Also, remove the name attribute (".name") to avoid duplication and confusion.
 # Named lists allow for easier access and manipulation of the R objects by R workflows.
 # This function also handles null which gets converted into an empty list.
 translateIntoNamedList <- function(x) {
 	l <- as.list(x) # Handle null which gets converted into an empty list
-	names(l) <- lapply(l, function(e) { e$name }) # 'e' is the list element
-	lapply(l, function(e) { e$name <- NULL; e }) # 'e' is the list element
+	names(l) <- lapply(l, function(e) { e$.name }) # 'e' is the list element
+	lapply(l, function(e) { e$.name <- NULL; e }) # 'e' is the list element
 }
 
 # When writing out JSON, the named lists from the R objects need to have their names
 # stripped off, in order that they are written out as lists in the JSON rather than
 # (unordered) maps.
-# Each name is 'moved' onto an attribute named "name" of the list element instead.
+# Each name is 'moved' onto an attribute named ".name" of the list element instead.
 translateNamedListIntoList <- function(l) {
-	l <- lapply(names(l), function(n) { l[[n]]$name <- n; l[[n]] } ) # 'n' is the name of the list element
-	names(l) <- NULL
-	l
+	res <- lapply(names(l), function(n) { l[[n]]$.name <- n; l[[n]] } ) # 'n' is the name of the list element
+	names(res) <- NULL
+	res
 }
+
+# Given a list that contains individual elements that are themselves
+# lists of length 1, strip off the top-level list to give a list
+# containing the aggregated elements of the individual second-level lists.
+# Normally the individual sub-lists would be named lists, in which
+# case the names would also be aggregated together, and applied to the
+# new top-level 'unified' list.
+removeExtraLayerOfNesting <- function(l) {
+	
+	lNames <- lapply(as.list(l), function(l) names(l))
+	res <- lapply(as.list(l), function(l) l[[1]])
+	
+	if (!any(sapply(lNames, is.null))) { # There are no NULL names in the original nested lists
+		names(res) <- lNames
+	}
+	
+	res
+}
+
+# The reverse of removeExtraLayerOfNesting(), used when writing the JSON back out.
+# Given a named list, wrap each element in the list in an outer list, maintaining
+# the name of the element in the sub-list but leaving the outer list unnamed.
+addExtraLayerOfNesting <- function(l) {
+	if (length(l) > 0) { # trap the empty-list condition
+		lapply(1:length(l), function(i) {
+			res <- list(l[[i]])
+			names(res) <- names(l)[[i]]
+			res
+		})
+	} else {
+		list()
+	}
+}
+
 
 
 ################################################################################

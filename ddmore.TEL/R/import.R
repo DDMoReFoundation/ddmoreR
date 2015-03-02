@@ -123,10 +123,10 @@ TEL.importFiles <- function(submission, target=file.path(submission$sourceDirect
 
 
 ################################################################################
-#' Import results as Standard Output object.
+#' Import results as Standard Output object(s)
 #' 
 #' Import the results retrieved from an execution of an MDL file, into an object
-#' of class \linkS4class{StandardOutputObject}.
+#' of class \linkS4class{StandardOutputObject}, or a list thereof.
 #' 
 #' @param submission Named list containing information relating to the
 #'        submission of an execution request:
@@ -148,19 +148,38 @@ TEL.importFiles <- function(submission, target=file.path(submission$sourceDirect
 #'              then this import into Standard Output object will not work.
 #'          \item{\code{requestId}} - Unique identifier for the submission request.
 #'        }
-#' @return Object of class \linkS4class{StandardOutputObject}.
-#'
+#' @param multiple Whether multiple SOBlocks are expected in the SO XML results file.
+#'        Default is FALSE. Note that if FALSE and multiple SOBlocks are encountered,
+#'        an error will be thrown.
+#' @return Object of class \linkS4class{StandardOutputObject}, or if \code{multiple}
+#'         is TRUE, then a list of such objects.
+#' 
 #' @author mwise
 #' 
 #' @export
 #' 
+#' @include LoadSOObject.R
 #' @include StandardOutputObject.R
 
-TEL.importSO <- function(submission) {
+TEL.importSO <- function(submission, multiple=FALSE) {
 	
-	soXMLFilename <- paste0(file_path_sans_ext(submission$modelFile), ".SO.xml")
-	
-	LoadSOObject(file.path(submission$resultsDir, soXMLFilename))
+	soXMLFileName <- paste0(file_path_sans_ext(submission$modelFile), ".SO.xml")
+	soXMLFilePath <- file.path(submission$resultsDir, soXMLFileName)
+
+	if (class(soXMLFilePath) == "character" && file.exists(soXMLFilePath)) {
+		if (multiple) {
+			LoadSOObjects(soXMLFilePath)
+		} else {
+			LoadSOObject(soXMLFilePath)
+		}
+	}
+	else {
+		stop(
+			"No Standard Output results file produced from execution of model ", submission$modelFile,
+			".\n  The contents of the working directory ", submission$workingDirectory,
+			" may be useful for tracking down the cause of the failure."
+		)
+	}
 
 }
 

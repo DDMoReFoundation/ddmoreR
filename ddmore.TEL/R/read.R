@@ -140,11 +140,53 @@ setMethod("read", "mogObj", function(object, deriveVariables=TRUE, categoricalAs
   
   if (length(dataFiles)==1) {
     # return directly if there is only one data file
-    res <- read.csv(dataFiles, stringsAsFactors=FALSE, ...)
+    res <- read.NONMEMDataSet(dataFiles, ...)
   } else { # create a list of the results
-    res <- lapply(dataFiles, read.csv, stringsAsFactors=FALSE, ...)
+    res <- lapply(dataFiles, read.NONMEMDataSet, ...)
   }
 
   return(res)
-
 }
+
+
+################################################################################
+#' read.NONMEMDataSet
+#'
+#' Use this function to read in the (NONMEM-type data set) data file associated
+#' with a model.
+#' 
+#' It is a wrapper for read.csv() that finds the first row of actual data (by
+#' assuming that this data starts with a numeric value), attempts to parse the
+#' names of the columns from the line immediately preceding this first data row,
+#' discards any header or comment rows before the data rows, and finally calls
+#' \code{read.csv()} using appropriate parameters as determined from this pre-processing.
+#
+#' @param filePath - path to the CSV file to be read in
+#' @return A data frame (data.frame) containing a representation of the data in the file
+#' 
+#' @export
+#' @seealso R base function \code{read.csv}
+read.NONMEMDataSet <- function(filePath) {
+	
+	if (!file.exists(filePath)) {
+		stop("Specified data file ", filePath, " does not exist.")
+	}
+	
+	potentialHeaderRows <- readLines(filePath, n=5) # Maximum arbitrary number of potential header rows to skip past
+
+	# The first row of actual data starts with a numeric value
+	firstDataRow = grep('^\\d.*', potentialHeaderRows)[[1]]
+
+	# Assume that the line immediately preceding the first row of data is the
+	# header row, and skip past any comment characters or whitespace (i.e.,
+	# skip past any non-alphabetical characters)
+	headerRow <- sub('[^A-Za-z]*', '', potentialHeaderRows[[firstDataRow - 1]])
+	
+	# Read the comma-delimited column names from the row that has been assumed to be the header row
+	colNames <- strsplit(gsub(pattern="\\s*", replacement="", x=headerRow), split=",", fixed=TRUE)[[1]]
+	
+	# Now actually read in the CSV file, using appropriate parameters as determined above
+	read.csv(filePath, header=FALSE, col.names=colNames, na.strings=".", stringsAsFactors=FALSE, skip=firstDataRow-1) # handle comment.char, if we know what it is?
+	
+}
+

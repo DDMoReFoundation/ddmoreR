@@ -2,7 +2,7 @@
 #' VPC.PsN
 #' Performs a VPC (Visual Predictive Check) of a given model using PsN.
 #' @param model An object of class \linkS4class{mogObj} or an MDL file. Will be
-#' 		  passed on directly to estimate()
+#' 		  passed on directly to execute()
 #' @param command A string with the vpc command. Default is vpc. 
 #' @param samples An integer indicating the number of samples to run. Must be at least 20.
 #' @param seed An integer with a random seed to pass to vpc.
@@ -15,8 +15,8 @@
 #'        is a timestamped folder with prefix vpc_ .
 #' @param ...
 #' @return A list with an object of class \linkS4class{StandardOutputObject} for simulated 
-#' 		   observations and a set of file names: vpc.info and 
-#' 		   vpctab to be used for plotting with Xpose, and logFile in the case of run failure
+#' 		   observations, the results folder, and a set of file names: vpc.info and 
+#' 		   vpctab to be used for plotting with Xpose, and logFile with PsN run messages
 #' 
 #' @author Kajsa Harling
 #' @export
@@ -25,16 +25,19 @@ VPC.PsN <- function(model, command="vpc", samples, seed, vpcOptions="", plot=TRU
 	vpccommand <- paste0(command," --samples=", samples," --seed=", seed, " ", vpcOptions)
 
 	#TODO cannot handle collect=FALSE
-	#TODO loading SO can take a long time, boolean option importSO to estimate would be nice
-	#2015-01-14 importSO does not yet parse SimulatedProfiles
+	#TODO loading SO can take a long time, boolean option importSO to execute() would be nice
 
-	outputObject <- estimate(model, target="PsNgeneric", subfolder=subfolder, addargs=vpccommand, ...)
+	outputObject <- execute(model, target="PsNgeneric", addargs=vpccommand, subfolder=subfolder, ...)
+
     resultsDir <- .resolveResultsDirectory(model, subfolder);
 
-	vpctab <- grep('^vpctab[[:digit:]]*$',dir(resultsDir),fixed=FALSE,invert=FALSE,value=TRUE)
+	vpctab <- .findResultFile(resultsDir,'^vpctab[[:digit:]]*$')
+	vpc.info <- .findResultFile(resultsDir,"^vpc_results\\.csv$")
+	logfile <- .findResultFile(resultsDir,"\\.psn\\.log$")
 
-	if (length(vpctab)==1){
-	   results <- list(SO=outputObject,vpc.info=file_path_as_absolute(file.path(resultsDir,"vpc_results.csv")),vpctab=file_path_as_absolute(file.path(resultsDir,vpctab[1])),folder=file_path_as_absolute(resultsDir))
+	results <- list(SO=outputObject,vpc.info=vpc.info,logFile=logfile,vpctab=vpctab,folder=file_path_as_absolute(resultsDir))
+
+	if (!is.null(vpctab) && !is.null(vpc.info)){
 	   if (plot) {
 	   	  #TODO special types of VPC
 	   	  library("xpose4")
@@ -42,13 +45,9 @@ VPC.PsN <- function(model, command="vpc", samples, seed, vpcOptions="", plot=TRU
        	  print(plot)
 		}
 	} else {
-	  #we can only get here if psngeneric connector sets exit 0 even if return status of vpc command was non-zero
-	  logfile <- grep('.psn.log$',dir(resultsDir),fixed=FALSE,invert=FALSE,value=TRUE)
-	  if (length(logfile)==1){
-	  	 results <- list(SO=outputObject,folder=file_path_as_absolute(resultsDir),logFile=file_path_as_absolute(file.path(resultsDir,logfile[1])))
+	  if (!is.null(logfile)){
 	  	 warning('vpc failed, could not find vpctab file. Check error messages in ',results$logFile)
 	  } else {
-	  	 results <- list(SO=outputObject)
 	  	 warning('vpc failed, could not find vpctab file in ',resultsDir)
 	  }
 	}
@@ -58,7 +57,7 @@ VPC.PsN <- function(model, command="vpc", samples, seed, vpcOptions="", plot=TRU
 #' bootstrap.PsN
 #' Runs a PsN bootstrap of a given model.
 #' @param model An object of class \linkS4class{mogObj} or an MDL file. Will be
-#' 		  passed on directly to estimate()
+#' 		  passed on directly to execute()
 #' @param command A string with the bootstrap command. Default is bootstrap. 
 #' @param samples An integer indicating the number of samples to run.
 #' @param seed An integer with a random seed to pass to bootstrap.
@@ -70,7 +69,9 @@ VPC.PsN <- function(model, command="vpc", samples, seed, vpcOptions="", plot=TRU
 #'        containing the model file, in which to store the results. Default
 #'        is a timestamped folder with prefix bootstrap_ .
 #' @param ...
-#' @return A list with an object of class \linkS4class{StandardOutputObject}.
+#' @return A list with an object of class \linkS4class{StandardOutputObject},
+#' 		   the results folder and a set of file names: incl.ids.file and results.file
+#'		   to be used for plotting with boot.hist, and the logFile with PsN run messages
 #' 
 #' @author Kajsa Harling
 #' @param ...
@@ -78,41 +79,37 @@ VPC.PsN <- function(model, command="vpc", samples, seed, vpcOptions="", plot=TRU
 bootstrap.PsN <- function(model, command="bootstrap", samples, seed, bootstrapOptions="", plot=TRUE, subfolder=paste0("bootstrap_",format(Sys.time(), "%Y%b%d%H%M%S")), ...) {
 	bootstrapcommand <- paste0(command," --samples=", samples," --seed=", seed, " ", bootstrapOptions)
 
-	#2015-01-14 importSO does not yet parse Bootstrap PercentilesCI
-	outputObject <- estimate(model, target="PsNgeneric", addargs=bootstrapcommand, subfolder=subfolder, ...)
+	outputObject <- execute(model, target="PsNgeneric", addargs=bootstrapcommand, subfolder=subfolder, ...)
 
     resultsDir <- .resolveResultsDirectory(model, subfolder);
-    
+ 
+	rawresults <- .findResultFile(resultsDir,"raw_results_.*\\.csv$")
+	incl.ids.file <- .findResultFile(resultsDir,"^included_individuals1\\.csv$")
+	logfile <- .findResultFile(resultsDir,"\\.psn\\.log$")
+
+	results <- list(SO=outputObject,rawresults=rawresults,incl.ids.file=incl.ids.file,logFile=logfile,folder=file_path_as_absolute(resultsDir))
+
 	if (plot) {
 	   library("xpose4")
 	   if(packageVersion("xpose4")<"4.5.0") { 
-			cat("xpose4 version must be 4.5.0 or later for bootstrap plot")
+			warning("xpose4 version must be 4.5.0 or later for bootstrap plot")
 		} else {
-		  rawresults <- grep('^raw_results_[[:alnum:]]+.csv$',dir(resultsDir),fixed=FALSE,invert=FALSE,value=TRUE)
-		  bootresults <- grep('bootstrap_results.csv',dir(resultsDir),fixed=TRUE,invert=FALSE,value=TRUE)
 		  #TODO check output object errors before doing things here
-		  if (length(rawresults)==1 && length(bootresults)==1 ){
-	   	  	 plots<-boot.hist(results.file=file.path(resultsDir,rawresults[1]),incl.ids.file=file.path(resultsDir,"included_individuals1.csv"))
+		  if ( (!is.null(results$rawresults)) && (!is.null(results$incl.ids.file)) ){
+	   	  	 plots<-boot.hist(results.file=results$rawresults,incl.ids.file=results$incl.ids.file)
        	  	 print(plots)
-			} else {
-	  		  #we can only get here if psngeneric connector sets exit 0 even if return status of bootstrap command was non-zero
-	  		  logfile <- grep('.psn.log$',dir(resultsDir),fixed=FALSE,invert=FALSE,value=TRUE)
-	  		  if (length(logfile)==1) {	
-	  	 	  	 warning('could not find bootstrap results in ',resultsDir,'. Check error messages in ',file.path(resultsDir,logfile[1]))
-	  			} else {
-	  	 	  	 warning('could not find bootstrap results in ',resultsDir)
-	  			}
-
-			}
-	    }
+		 }else{
+			warning('could not find bootstrap results file for plotting in ',resultsDir)
+		 }
+		}
 	}
-	list(SO=outputObject)
+	results
 }
 
 #' SSE.PsN
 #' Performs SSE (Stochastic Simulation and Estimation) on a given model.
 #' @param model An object of class \linkS4class{mogObj} or an MDL file. Will be
-#' 		  passed on directly to estimate()
+#' 		  passed on directly to execute()
 #' @param command A string with the sse command. Default is sse. 
 #' @param samples An integer indicating the number of samples to run. Must be at least 2.
 #' @param seed An integer with a random seed to pass to sse. 
@@ -123,45 +120,40 @@ bootstrap.PsN <- function(model, command="bootstrap", samples, seed, bootstrapOp
 #'        is a timestamped folder with prefix sse_ .
 #' @param ...
 #' @return A list with an object of class \linkS4class{StandardOutputObject} for simulations and 
-#' 		   possibly estimations, and a set of file names: rawresults and 
-#' 		   sseresults to be used for plotting with Xpose, and logFile in the case of run failure
+#' 		   possibly estimations, and a set of file names: sseresults and possibly
+#'		   rawresults to be used for plotting with Xpose, and logFile
 #' 
 #' @author Kajsa Harling
 #' @export
 SSE.PsN <- function(model, command="sse", samples, seed, sseOptions="", subfolder=paste0("sse_",format(Sys.time(), "%Y%b%d%H%M%S")), ...) {
 	ssecommand <- paste0(command," --samples=", samples," --seed=", seed, " ", sseOptions)
 
-	#TODO loading SO can take a long time, boolean option importSO to estimate would be nice
+	#TODO loading SO can take a long time, boolean option importSO to execute() would be nice
 	#TODO If collect is set to false we do not get result files back, and no SO object. Cannot handle that here
 	#2015-01-14 importSO can only handle -samples=1 -no-est in order to get only one block in SO, otherwise exits with error. SimulatedProfiles not read
 
-	outputObject <- estimate(model, target="PsNgeneric", subfolder=subfolder, addargs=ssecommand, ...)
+	outputObject <- execute(model, target="PsNgeneric", addargs=ssecommand, subfolder=subfolder, importMultipleSO=TRUE, ...)
 
     resultsDir <- .resolveResultsDirectory(model, subfolder);
 
-	sseresultsfile <- grep('sse_results.csv',dir(resultsDir),fixed=TRUE,invert=FALSE,value=TRUE)
-
+	sseresults <- .findResultFile(resultsDir,"^sse_results\\.csv$")
+	logfile <- .findResultFile(resultsDir,"\\.psn\\.log$")
 	#this will not exist if only doing simulation
-	rawresultsfile <- grep('^raw_results_[[:alnum:]]+.csv$',dir(resultsDir),fixed=FALSE,invert=FALSE,value=TRUE)
+	rawresults <- .findResultFile(resultsDir,"raw_results_.*\\.csv$")
 
-	if (length(sseresultsfile)==1){
-		if (length(rawresultsfile)==1){
-	   	   results <- list(SO=outputObject,sseresults=file_path_as_absolute(file.path(resultsDir,"sse_results.csv")),
-		   		   rawresults=file_path_as_absolute(file.path(resultsDir,rawresultsfile[1])),folder=file_path_as_absolute(resultsDir))
+	list(SO=outputObject,sseresults=sseresults,rawresults=rawresults,logFile=logfile,folder=file_path_as_absolute(resultsDir))
+
+}
+
+#Helper function to find file with pattern in resultsDir 
+#Return string with absolute path file name, or NULL if no file matching pattern found, or if more than one found
+.findResultFile <- function(resultsDir,pattern) {
+		file <- grep(pattern,dir(resultsDir),fixed=FALSE,invert=FALSE,value=TRUE)
+		if (length(file)==1){
+	   	   result <- file_path_as_absolute(file.path(resultsDir,file[1]))
 		} else {
-	   	   results <- list(SO=outputObject,sseresults=file_path_as_absolute(file.path(resultsDir,"sse_results.csv")),folder=file_path_as_absolute(resultsDir))
+	   	   result <- NULL
 		}
-	} else {
-	  #we can only get here if psngeneric connector sets exit 0 even if return status of sse command was non-zero
-	  logfile <- grep('.psn.log$',dir(subfolder),fixed=FALSE,invert=FALSE,value=TRUE)
-	  if (length(logfile)==1){
-	  	 resuls <- list(SO=outputObject,folder=file_path_as_absolute(resultsDir),logFile=file_path_as_absolute(file.path(resultsDir,logfile[1])))
-	  	 warning('sse failed, could not find sse_results file. Check error messages in ',results$logFile)
-	  } else {
-	  	 results <- list(SO=outputObject)
-	  	 warning('sse failed, could not find sse_results file in ',resultsDir)
-	  }
-	}
-	results
+		result
 }
 

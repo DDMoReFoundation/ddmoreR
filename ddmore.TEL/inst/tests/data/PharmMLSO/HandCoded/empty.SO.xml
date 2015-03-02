@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SO xmlns="http://www.pharmml.org/so/0.1/StandardisedOutput" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ds="http://www.pharmml.org/pharmml/0.6/Dataset" xmlns:ct="http://www.pharmml.org/pharmml/0.6/CommonTypes" xsi:schemaLocation="http://www.pharmml.org/so/0.1/StandardisedOutput" implementedBy="MJS" writtenVersion="0.1" id="i1">
+    <PharmMLRef name="Warfarin-ODE-latest.xml"/>
+</SO>

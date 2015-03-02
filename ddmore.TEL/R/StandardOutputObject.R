@@ -118,7 +118,7 @@ setMethod(f="getRawResults",
           signature="StandardOutputObject",
           definition=function(SOObject)
           {                              
-            RawResults <- SOObject@RawResults@Files
+            RawResults <- SOObject@RawResults@DataFiles
             pprintList(RawResults, "Raw Results")  
           }
 )
@@ -273,13 +273,13 @@ setMethod(f="getSimulatedProfiles",
 )
 
 #' Create a method to fetch the value of Simulation : SimulationBlock(s) : IndivParameters slot
-setGeneric(name="getIndividualParametersCovariates",
+setGeneric(name="getSimulationIndividualParameters",
 		def=function(SOObject)
 		{
-			standardGeneric("getIndividualParametersCovariates")
+			standardGeneric("getSimulationIndividualParameters")
 		}
 )
-setMethod(f="getIndividualParametersCovariates",
+setMethod(f="getSimulationIndividualParameters",
 		signature="StandardOutputObject",
 		definition=function(SOObject)
 		{
@@ -293,13 +293,13 @@ setMethod(f="getIndividualParametersCovariates",
 )
 
 #' Create a method to fetch the value of Simulation : SimulationBlock(s) : PopulationParameters slot
-setGeneric(name="getPopulationParametersCovariates",
+setGeneric(name="getSimulationPopulationParameters",
 		def=function(SOObject)
 		{
-			standardGeneric("getPopulationParametersCovariates")
+			standardGeneric("getSimulationPopulationParameters")
 		}
 )
-setMethod(f="getPopulationParametersCovariates",
+setMethod(f="getSimulationPopulationParameters",
 		signature="StandardOutputObject",
 		definition=function(SOObject)
 		{
@@ -313,13 +313,13 @@ setMethod(f="getPopulationParametersCovariates",
 )
 
 #' Create a method to fetch the value of Simulation : SimulationBlock(s) : RawResultsFile slot
-setGeneric(name="getRawResultsFiles",
+setGeneric(name="getSimulationRawResultsFiles",
 		def=function(SOObject)
 		{
-			standardGeneric("getRawResultsFiles")
+			standardGeneric("getSimulationRawResultsFiles")
 		}
 )
-setMethod(f="getRawResultsFiles",
+setMethod(f="getSimulationRawResultsFiles",
 		signature="StandardOutputObject",
 		definition=function(SOObject)
 		{
@@ -333,13 +333,13 @@ setMethod(f="getRawResultsFiles",
 )
 
 #' Create a method to fetch the value of Simulation : OriginalDataSet slot
-setGeneric(name="getOriginalDataset",
+setGeneric(name="getSimulationOriginalDataset",
 		def=function(SOObject)
 		{
-			standardGeneric("getOriginalDataset")
+			standardGeneric("getSimulationOriginalDataset")
 		}
 )
-setMethod(f="getOriginalDataset",
+setMethod(f="getSimulationOriginalDataset",
 		signature="StandardOutputObject",
 		definition=function(SOObject)
 		{
@@ -377,7 +377,7 @@ getEstimationInfo <- function(SOObject){
   likelihood <- getLikelihood(SOObject)
   messages <- getSoftwareMessages(SOObject)
 
-  invisible(list(likelihood=likelihood, messages=messages))
+  invisible(list(Likelihood=likelihood, Messages=messages))
 }
 
 #' getParameterEstimates
@@ -545,10 +545,11 @@ mergeByPosition <- function(df1, df2, msg='') {
 # ============================= #
 # Convert to single Data Frame  #
 # ============================= #
-#' as.data.old
+#' as.data
 #'
 #'  Method to Fetch all relevant data and return a merged data.frame onject.
 #'
+#' @include read.R
 #' @export
 setGeneric(name="as.data",
            def=function(SOObject, inputDataPath)
@@ -559,62 +560,68 @@ setGeneric(name="as.data",
 setMethod(f="as.data",
           signature=signature(SOObject="StandardOutputObject", inputDataPath="character"),
           definition=function(SOObject, inputDataPath)
-          {
-            if (missing(inputDataPath)){
-              stop("Path to input data must be specified")
-            } else {
-              rawData <- read.csv(inputDataPath, na.strings=".")
-              rawData[["ID"]] <- as.numeric(rawData[["ID"]]) 
-              rawData[["TIME"]] <- as.numeric(rawData[["TIME"]]) 
-            }
-
-            # Test to see if data rows are the same, if not remove dose rows from the 
-            # input data and recompare.
-            if (nrow(rawData) > nrow(SOObject@Estimation@Predictions$data)) {
-              rawData <- rawData[!is.na(rawData[['DV']]), ]
-            }
-            if (nrow(rawData) != nrow(SOObject@Estimation@Predictions$data)) {
-              print(paste("Number of Rows in Raw Data: ", nrow(rawData)))
-              print(paste("Number of Rows in Predictions: ", nrow(SOObject@Estimation@Predictions$data)))
-              stop("Number of non-dose rows in raw data is different to those in SO Predictions")
-            }
-
-            # Fetch and merge Predictions 
-            df1 <- rawData
-            df2 <- SOObject@Estimation@Predictions$data
-            mergedDataFrame <- mergeByPosition(df1, df2, 'predictions')
-
-            # Fetch and merge Residuals
-
-            df1 <- mergedDataFrame
-            df2 <- SOObject@Estimation@Residuals$data
-            mergedDataFrame <- mergeByPosition(df1, df2, 'residuals')
-
-            # FIX ME: Older implimentation of Residuals structure used by Nonmem 
-            # residuals <- SOObject@Estimation@Residuals
-            # residualTagNames <- c("WRES", "IWRES", "RES", "IRES")
-            # for (name in residualTagNames){
-            #   if (name %in% names(residuals)) {
-            #     df1 <- mergedDataFrame
-            #     df2 <- residuals[[name]][["data"]]
-            #     mergedDataFrame <- mergeByPosition(df1, df2, paste("Residual", name))
-            #     }
-            #   } 
-
-            # IndividualEstimates, Estimates
-            df1 <- mergedDataFrame
-            df2 <- SOObject@Estimation@IndividualEstimates$Estimates$Mean$data
-            df2[, 1] <- as.numeric(as.character(df2[, 1]))
-            mergedDataFrame <- merge(df1, df2)
-            
-            # IndividualEstimates, RandomEffects
-            df1 <- mergedDataFrame
-            df2 <- SOObject@Estimation@IndividualEstimates$RandomEffects$EffectMean$data
-            df2[, 1] <- as.numeric(as.character(df2[, 1]))
-            mergedDataFrame <- merge(df1, df2)
-
-            return(mergedDataFrame)
-          }
+		  {
+			  if (missing(inputDataPath)){
+				  stop("Path to input data must be specified")
+			  } else {
+				  rawData <- read.NONMEMDataSet(inputDataPath)
+				  rawData[["ID"]] <- as.numeric(rawData[["ID"]]) 
+				  rawData[["TIME"]] <- as.numeric(rawData[["TIME"]]) 
+			  }
+			  
+			  # Test to see if data rows are the same, if not remove dose rows from the 
+			  # input data and recompare.
+			  if (nrow(rawData) > nrow(SOObject@Estimation@Predictions$data)) {
+				  rawData <- rawData[!is.na(rawData[['DV']]), ]
+			  }
+			  if (nrow(rawData) != nrow(SOObject@Estimation@Predictions$data)) {
+				  print(paste("Number of Rows in Raw Data: ", nrow(rawData)))
+				  print(paste("Number of Rows in Predictions: ", nrow(SOObject@Estimation@Predictions$data)))
+				  stop("Number of non-dose rows in raw data is different to those in SO Predictions")
+			  }
+			  
+			  mergedDataFrame <- rawData
+			  
+			  if (!is.null(SOObject@Estimation@Predictions)) {
+				  # Fetch and merge Predictions 
+				  df1 <- mergedDataFrame
+				  df2 <- SOObject@Estimation@Predictions$data
+				  mergedDataFrame <- mergeByPosition(df1, df2, 'predictions')
+			  } else {
+				  warning("No Estimation::Predictions found in the SO; the resulting data frame will not contain these")
+			  }
+			  
+			  if (!is.null(SOObject@Estimation@Residuals)) {
+				  # Fetch and merge Residuals 
+				  df1 <- mergedDataFrame
+				  df2 <- SOObject@Estimation@Residuals$data
+				  mergedDataFrame <- mergeByPosition(df1, df2, 'residuals')
+			  } else {
+				  warning("No Estimation::Residuals found in the SO; the resulting data frame will not contain these")
+			  }
+			  
+			  if (!is.null(SOObject@Estimation@IndividualEstimates$Estimates$Mean)) {
+				  # IndividualEstimates, Estimates
+				  df1 <- mergedDataFrame
+				  df2 <- SOObject@Estimation@IndividualEstimates$Estimates$Mean$data
+				  df2[, 1] <- as.numeric(as.character(df2[, 1]))
+				  mergedDataFrame <- merge(df1, df2)
+			  } else {
+				  warning("No Estimation::IndividualEstimates::Estimates::Mean found in the SO; the resulting data frame will not contain these")
+			  }
+			  
+			  if (!is.null(SOObject@Estimation@IndividualEstimates$RandomEffects$EffectMean)) {
+				  # IndividualEstimates, RandomEffects
+				  df1 <- mergedDataFrame
+				  df2 <- SOObject@Estimation@IndividualEstimates$RandomEffects$EffectMean$data
+				  df2[, 1] <- as.numeric(as.character(df2[, 1]))
+				  mergedDataFrame <- merge(df1, df2)
+			  } else {
+				  warning("No Estimation::IndividualEstimates::RandomEffects::EffectMean found in the SO; the resulting data frame will not contain these")
+			  }
+			  
+			  return(mergedDataFrame)
+		  }
           )
 ## ============================= #
 ## Convert to single Data Frame  #
@@ -768,9 +775,6 @@ setMethod(f="as.xpdb",
             myXpdb<-new("xpose.data",Runno=0,Doc=NULL)
             
             # TODO: Possibly need to check data types here
-            
-            # TODO: Remove i in ID columns for now.
-            # xpose4_dataFrame$ID <- as.numeric(sub("i", "", xpose4_dataFrame$ID ))
 
             ## Map data.out to xpdb@Data
             Data(myXpdb)<-xpose4_dataFrame
@@ -779,23 +783,32 @@ setMethod(f="as.xpdb",
             ###################################################
             ## TODO: Infer these values from the full PharmML
             
-            ## Fill in / Confirm information from PharmML
-            # myXpdb@Prefs@Xvardef$id<-"ID"
-            # myXpdb@Prefs@Xvardef$idv<-"TIME"
-            # myXpdb@Prefs@Xvardef$occ<-NA
-            # myXpdb@Prefs@Xvardef$dv<-"DV"
-            
-            # ## Fill in / Confirm information from SO
-            # myXpdb@Prefs@Xvardef$pred<-"PRED"
-            # myXpdb@Prefs@Xvardef$ipred<-"IPRED"
-            # myXpdb@Prefs@Xvardef$wres <- "WRES"
-            # myXpdb@Prefs@Xvardef$iwres <- "IWRES"
-            # myXpdb@Prefs@Xvardef$parms <- c("V","CL","KA","TLAG")
-            # myXpdb@Prefs@Xvardef$covariates <- "logtWT"
-            # myXpdb@Prefs@Xvardef$ranpar <- c("ETA_V","ETA_CL","ETA_KA","ETA_TLAG")
+#            ## Fill in / Confirm information from PharmML
+#            myXpdb@Prefs@Xvardef$id<-"ID"
+#            myXpdb@Prefs@Xvardef$idv<-"TIME"
+            myXpdb@Prefs@Xvardef$occ<-NA
+#            myXpdb@Prefs@Xvardef$dv<-"DV"
+#            
+#            ## Fill in / Confirm information from SO
+            myXpdb@Prefs@Xvardef$pred<-"PRED"
+            myXpdb@Prefs@Xvardef$ipred<-"IPRED"
+            myXpdb@Prefs@Xvardef$wres <- "WRES"
+            myXpdb@Prefs@Xvardef$iwres <- "IWRES"
+
+			# Below are the hard-coded column definitions for the Warfarin-latest-ODE model.
+			# These are slightly different to the default ones that are assigned; so this
+			# may give rise to errors such as "ETAs are not properly set in the database"
+			# for certain plots.
+			# TODO: Need to determine if we do need to override the column names here (in
+			# some generic manner), or whether we leave it up to the user to set them in
+			# the Xpose object as and when required.
+#            myXpdb@Prefs@Xvardef$parms <- c("V","CL","KA","TLAG")
+#            myXpdb@Prefs@Xvardef$covariates <- "logtWT"
+#            myXpdb@Prefs@Xvardef$ranpar <- c("ETA_V","ETA_CL","ETA_KA","ETA_TLAG")
             
             ## Ideally would also update xpdb@Prefs@Labels (variable labels for plots)
-            myXpdb@Prefs@Labels
+            #myXpdb@Prefs@Labels
+			myXpdb@Prefs@Labels$OCC <- NA
             
             #####################################################
 
