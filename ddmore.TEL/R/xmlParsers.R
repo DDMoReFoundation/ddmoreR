@@ -350,30 +350,24 @@ ParseRawResults <- function(SOObject, RawResultsNode) {
   DataFileTempList = list()
   GraphicsFileTempList = list()
   
-  for (i in seq(along=RawResultsNode)) {
+  for (i in seq(along=xmlChildren(RawResultsNode))) {
     
     fileType = names(RawResultsNode[i])
 
     node = RawResultsNode[[i]]
     
-    if (!('XMLCommentNode' %in% class(node))) {
-    
-      # Extract child tags and values as 
-      # a list with names = tag names and elements = tag values
-      childTags = xmlSApply(RawResultsNode[[i]], xmlValue) 
-      
-      # Strip namespace parts in child element
-      # DEPRICATED: Used to adress namespace issue with Xpath. 
-      # Xpath expressions no londer used. Can be removed following testing. 
-      # newNames = strsplit(names(childTags), ":")
-      # newNames = sapply(newNames, FUN = function(x)  x[[2]] )
-      # names(childTags) <- newNames
+    if (! any(c('XMLCommentNode','XMLInternalCommentNode') %in% class(node)) ) {
+		
+      # Extract child tags and values as a list with names = tag names and elements = tag values
+      childTags = xmlSApply(node, xmlValue)
+	  
+	  as.list(childTags)
     
       # Add this as an element to the Final Files List 
       if (fileType == 'DataFile') {
-        DataFileTempList[objectIdNames[[i]]] = list(childTags)
+        DataFileTempList[objectIdNames[[i]]] = list(as.list(childTags))
       } else if (fileType == 'GraphicsFile') {
-        GraphicsFileTempList[objectIdNames[[i]]] = list(childTags)
+        GraphicsFileTempList[objectIdNames[[i]]] = list(as.list(childTags))
       }
     }
   }
