@@ -987,6 +987,7 @@ ParseDiagnosticPlotsStructuralModel <- function(DiagnosticPlotsStructuralNode) {
                           description=L$description, 
                           data=L$data)
         }
+      }
 
     } else if (xmlName(child) == "IndivPredictionVsObserv") {
 
@@ -1004,9 +1005,7 @@ ParseDiagnosticPlotsStructuralModel <- function(DiagnosticPlotsStructuralNode) {
           outputList[["VPC"]] = list(
                           description=L$description, 
                           data=L$data)
-
     }
-  }
   }
   return(outputList)
 }
