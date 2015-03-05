@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SO xmlns="http://www.pharmml.org/so/0.1/StandardisedOutput"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ds="http://www.pharmml.org/pharmml/0.6/Dataset"
+    xmlns:ct="http://www.pharmml.org/pharmml/0.6/CommonTypes"
+    xsi:schemaLocation="http://www.pharmml.org/so/0.1/StandardisedOutput 
+    http://www.pharmml.org/so/0.1/StandardisedOutput" 
+    implementedBy="MJS" writtenVersion="0.1"  
+    metadataFile="warfarin_PK_ODE_SO_FULL.rdf" id="i1">
+    
+    <PharmMLRef name="PharmML_ModelFile.xml"/>
+    
+   
+    <!-- more blocks possible -->
+</SO>

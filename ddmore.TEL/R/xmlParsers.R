@@ -572,18 +572,6 @@ ParsePrecisionPopulationEstimates <- function(SOObject, PrecisionPopulationEstim
                               data=L$data)
         }
       }
-    } else if (xmlName(child) == "EtaShrinkage") {
-
-        L = ParseElement(child)
-        SOObject@Estimation@PrecisionPopulationEstimates[["EtaShrinkage"]] = list(
-                              description=L$description, 
-                              data=L$data)
-    } else if (xmlName(child) == "EpsShrinkage") {
-
-        L = ParseElement(child)
-        SOObject@Estimation@PrecisionPopulationEstimates[["EpsShrinkage"]] = list(
-                              description=L$description, 
-                              data=L$data)
     }
   }
   return(SOObject)
@@ -704,12 +692,31 @@ ParsePrecisionIndividualEstimates <- function(SOObject, PrecisionIndividualEstim
 ParseResiduals <- function(SOObject, ResidualsNode) {
 
   # Since SO 0.1 all residuals are in a single Dataset Table Structure
-  
-  L = ParseElement(ResidualsNode)
-  # Update SO Object Slot
-  SOObject@Estimation@Residuals = list(
-    description=L$description, 
-    data=L$data)
+  # called ResidualsTable
+
+  # Get list of Child Nodes
+  children = xmlChildren(ResidualsNode)
+
+  # Iterate over Child nodes, updating SO if appropriate element is present 
+  for (child in children){
+    
+    if (xmlName(child) == "ResidualTable") {
+      L = ParseElement(child)
+
+      # Update SO Object Slot
+      SOObject@Estimation@Residuals[["ResidualTable"]] = list(
+                          description=L$description, 
+                          data=L$data) 
+
+    } else if (xmlName(child) == "EpsShrinkage") {
+      L = ParseElement(child)
+
+      # Update SO Object Slot
+      SOObject@Estimation@Residuals[["EpsShrinkage"]] = list(
+                          description=L$description, 
+                          data=L$data)      
+    } 
+  }
     
   return(SOObject)
 }
@@ -856,11 +863,7 @@ ParseSimulation <- function(SOObject, SimulationNode) {
   # Iterate over Child nodes, updating SO if appropriate element is present 
   for (child in children) {
 	  
-    if (xmlName(child) == "Description" ) {
-		
-      SOObject@Simulation@Description = xmlValue(child)
-	  
-    } else if (xmlName(child) == "OriginalDataset" ) {
+    if (xmlName(child) == "OriginalDataset" ) {
 		
       tempList = xmlApply(child, 
               FUN = function(x) xmlName(x) = xmlValue(x)) 
@@ -880,12 +883,12 @@ ParseSimulation <- function(SOObject, SimulationNode) {
 ParseSimulationBlocks <- function(SimulationBlockNode) {
 	
 	# Error Checking of unexpected elements in each SimulationBlock block
-	expectedTags = c("SimulatedProfiles", "IndivParameters", 
+	expectedTags = c("SimulatedProfiles", "RandomEffects", "IndivParameters", 
 			"Covariates", "PopulationParameters", "Dosing", 
 			"RawResultsFile")
 	unexpected = setdiff(names(SimulationBlockNode), expectedTags)
 	if (length(unexpected) != 0) {
-		warning(paste("The following unexpected elements were detected in the SimulationBlock block of the PharmML SO.", 
+		warning(paste("The following unexpected elements were detected in a SimulationBlock attribute of the parent Simulation section of the PharmML SO.", 
 						paste(unexpected, collapse="\n      "), sep="\n      "))
 	}
 	
@@ -897,6 +900,9 @@ ParseSimulationBlocks <- function(SimulationBlockNode) {
       SimulationBlock@SimulatedProfiles = ParseElement(child)
 
     } else if (xmlName(child) == "IndivParameters" ) {
+      SimulationBlock@IndivParameters = ParseElement(child)
+
+    } else if (xmlName(child) == "RandomEffects" ) {
       SimulationBlock@IndivParameters = ParseElement(child)
 
     } else if (xmlName(child) == "Covariates" ) {
@@ -914,13 +920,19 @@ ParseSimulationBlocks <- function(SimulationBlockNode) {
       SimulationBlock@RawResultsFile = tempList
     } 
 
+
+
+
   }
   
   return(SimulationBlock)
 }
 
+# ============================ #
+# ModelDiagnostic Slot Parsers #
+# ============================ #
 
-ParseModelDiagnostic <- function(ModelDiagnosticNode) {
+ParseModelDiagnostic <- function(SOObject, ModelDiagnosticNode) {
   
   # Error Checking of unexpected elements in each SimulationBlock block
   expectedTags = c("DiagnosticPlotsStructuralModel", 
@@ -945,7 +957,68 @@ ParseModelDiagnostic <- function(ModelDiagnosticNode) {
       ModelDiagnosticSlot@DiagnosticPlotsIndividualParams = ParseDiagnosticPlotsIndividualParams(child)
     }
   }
+
+  SOObject@ModelDiagnostic = ModelDiagnosticSlot
+
+  return(SOObject)
 }
 
 
-ParseDiagnosticPlotsStructuralModel <- function() {}
+ParseDiagnosticPlotsStructuralModel <- function(DiagnosticPlotsStructuralNode) {
+  
+  outputList = list()
+
+  # Get list of Child Nodes
+  children = xmlChildren(DiagnosticPlotsStructuralNode)
+  # Iterate over Child nodes, updating SO if appropriate element is present 
+  for (child in children){
+    
+    if (xmlName(child) == "IndivFits") {
+      subChildren = xmlChildren(child)
+      for (subChild in subChildren){
+        
+        if (xmlName(subChild) == "ObservationTable"){
+          
+          L = ParseElement(subChild)
+          
+          outputList[["IndivFits"]][["ObservationTable"]] = list(
+                          description=L$description, 
+                          data=L$data)
+
+        } else if (xmlName(subChild) == "PredictionTable"){
+          
+          L = ParseElement(subChild)
+          
+          outputList[["IndivFits"]][["PredictionTable"]] = list(
+                          description=L$description, 
+                          data=L$data)
+        }
+
+    } else if (xmlName(child) == "IndivPredictionVsObserv") {
+
+          L = ParseElement(child)
+          
+          outputList[["IndivPredictionVsObserv"]] = list(
+                          description=L$description, 
+                          data=L$data)
+
+
+    } else if (xmlName(child) == "VPC") {
+          
+          L = ParseElement(child)
+          
+          outputList[["VPC"]] = list(
+                          description=L$description, 
+                          data=L$data)
+
+    }
+  }
+  }
+  return(outputList)
+}
+
+
+ParseDiagnosticPlotsIndividualParams <- function() {}
+
+
+

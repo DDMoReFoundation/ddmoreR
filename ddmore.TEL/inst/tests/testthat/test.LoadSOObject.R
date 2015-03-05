@@ -10,19 +10,21 @@ testSlotsNotEmpty <- function(S4class, slotnames) {
   
   expect_true(
     length(SOslot) > 0 , 
-    info = "Slot is not empty", )
+    info = "Slot should not be empty", )
   }
   
 }
 
-context("Loading SOObject from hand coded PharmML")
+context("Loading In SOObjects from PharmMLSO Version 0.1")
+
 
 test_that("PharmML SO fills expected slots in Estimation", {
 
   # Clear workspace. 
   rm(list=ls())
   
-  data.path = system.file("tests/data/PharmMLSO/HandCoded/warfarin_PK_ODE_SO_FULL.xml",  package = "DDMoRe.TEL")
+  data.path = system.file("tests/data/PharmMLSO/HandCoded/warfarin_PK_ODE_SO_FULL-v0_1.xml",  
+  		package = "DDMoRe.TEL")
         
   # Load in SO
   SOObject = LoadSOObject(data.path)
@@ -55,154 +57,30 @@ test_that("PharmML SO fills expected slots in Estimation", {
   testSlotsNotEmpty(SOObject@Estimation, slotnames)
 
   # Simulation 
-  slotnames = c("Description", "OriginalDataset", "SimulationBlock")
+  slotnames = c("OriginalDataset", "SimulationBlock")
   testSlotsNotEmpty(SOObject@Simulation, slotnames)
    
 })
 
+context("Loading an empty, i.e. no SOBlocks, PharmML SO Version 0.1. Checking an Error is raised")
 
+# Clear workspace. 
+rm(list=ls())
 
-# 
-# context("Loading SOObject from machine coded PharmML (Warfarin-ODE-latest.SO.xml)")
-# 
-# test_that("Loading SOObject from latest Machine Generated PharmML SO (Warfarin-ODE-latest.SO.xml)", {
-#   
-#   # Clear workspace. 
-#   rm(list=ls())
-#   
-#   machine.coded.data.path = system.file("tests/data/PharmMLSO/MachineGenerated/Warfarin-ODE-latest.SO.xml",  package = "DDMoRe.TEL")
-#   
-#   # Load in SO
-#   SOObject = LoadSOObject(machine.coded.data.path)
-#   
-#   # Test is S4
-#   expect_true(isS4(SOObject), info = "Object is S4", )
-#   
-#   # Test Slots have been populated #
-#   # ------------------------------ #
-#   
-#   # ToolSettings
-#   expect_true(length(SOObject@ToolSettings) > 0 , info = "Object is not empty", )
-#   
-#   # RawResults
-#   expect_true(
-#     length(SOObject@RawResults@DataFiles) > 0 , 
-#     info = "Slot is not empty", )
-#   
-#   expect_true(
-#     length(SOObject@RawResults@GraphicsFiles) > 0 , 
-#     info = "Slot is not empty", )
-#   
-#   #TaskInformation
-#   expect_false(
-#     all(sapply(SOObject@TaskInformation$Messages, is.null)), 
-#     info = "All Message slots are not empty", )
-#   
-#   expect_true(
-#     length(names(SOObject@TaskInformation)[names(SOObject@TaskInformation) != "Messages"]) > 0, 
-#     info = "Messages is not the only element present")
-#   
-#   # Estimates
-#   expect_true(
-#     length(SOObject@Estimation@PopulationEstimates) > 0 , 
-#     info = "Slot is not empty", )
-#   
-#   expect_true(
-#     length(SOObject@Estimation@PrecisionPopulationEstimates) > 0 , 
-#     info = "Slot is not empty", )
-#   
-#   expect_true(
-#     length(SOObject@Estimation@IndividualEstimates) > 0 , 
-#     info = "Slot is not empty", )
-#   
-#   expect_true(
-#     length(SOObject@Estimation@PrecisionIndividualEstimates) > 0 , 
-#     info = "Slot is not empty", )
-#   
-#   expect_true(
-#     length(SOObject@Estimation@Residuals) > 0 , 
-#     info = "Slot is not empty", )
-#   
-#   expect_true(
-#     length(SOObject@Estimation@Predictions) > 0 , 
-#     info = "Slot is not empty", )
-#   
-#   expect_true(
-#     length(SOObject@Estimation@Likelihood) > 0 , 
-#     info = "Slot is not empty", )
-#   
-# })
-# 
-# 
-# context("Loading SOObject from machine coded PharmML (pheno.SO.xml)")
-# 
-# test_that("Loading SOObject from latest Machine Generated PharmML SO (pheno.SO.xml)", {
-#   
-#   # Clear workspace. 
-#   rm(list=ls())
-#   
-#   machine.coded.data.path = system.file("tests/data/PharmMLSO/MachineGenerated/pheno.SO.xml",  package = "DDMoRe.TEL")
-#   
-#   # Load in SO
-#   SOObject = LoadSOObject(machine.coded.data.path)
-#   
-#   # Test is S4
-#   expect_true(isS4(SOObject), info = "Object is S4", )
-#   
-#   # Test Slots have been populated #
-#   # ------------------------------ #
-#   
-#   # ToolSettings
-#   expect_true(length(SOObject@ToolSettings) > 0 , info = "Object is not empty", )
-#   
-#   # RawResults
-#   expect_true(
-#     length(SOObject@RawResults@DataFiles) > 0 , 
-#     info = "Slot is not empty", )
-#   
-#   expect_true(
-#     length(SOObject@RawResults@GraphicsFiles) > 0 , 
-#     info = "Slot is not empty", )
-#   
-#   #TaskInformation
-#   expect_false(
-#     all(sapply(SOObject@TaskInformation$Messages, is.null)), 
-#     info = "All Message slots are not empty", )
-#   
-#   expect_true(
-#     length(names(SOObject@TaskInformation)[names(SOObject@TaskInformation) != "Messages"]) > 0, 
-#     info = "Messages is not the only element present")
-#   
-#   # Estimates
-#   expect_true(
-#     length(SOObject@Estimation@PopulationEstimates) > 0 , 
-#     info = "Slot is not empty", )
-#   
-#   expect_true(
-#     length(SOObject@Estimation@PrecisionPopulationEstimates) > 0 , 
-#     info = "Slot is not empty", )
-#   
-#   expect_true(
-#     length(SOObject@Estimation@IndividualEstimates) > 0 , 
-#     info = "Slot is not empty", )
-#   
-#   expect_true(
-#     length(SOObject@Estimation@PrecisionIndividualEstimates) > 0 , 
-#     info = "Slot is not empty", )
-#   
-#   expect_true(
-#     length(SOObject@Estimation@Residuals) > 0 , 
-#     info = "Slot is not empty", )
-#   
-#   expect_true(
-#     length(SOObject@Estimation@Predictions) > 0 , 
-#     info = "Slot is not empty", )
-#   
-#   expect_true(
-#     length(SOObject@Estimation@Likelihood) > 0 , 
-#     info = "Slot is not empty", )
-#   
-# })
+test_that("Error raised on passing an empty PharmML SO.", {
+
+	soXmlFilePath = system.file("tests/data/PharmMLSO/HandCoded/emptySO_v0_1.xml", 
+	package = "DDMoRe.TEL")
+
+	# Single SO version
+	expect_error(LoadSOObject(soXmlFilePath), 
+		"Error in LoadSOObject\\(soXmlFilePath\\) : \\n  PharmML parsing aborted")
+
+	# Multiple SO Version
+	expect_error(LoadSOObjects(soXmlFilePath), 
+		"Error in LoadSOObjects\\(soXmlFilePath\\) : \\n  PharmML parsing aborted")
+
+})
 
 
 context("Loading multiple SOBlocks contained within a PsN SSE PharmML SO returns all the SOObjects")
@@ -213,7 +91,7 @@ rm(list=ls())
 soXmlFilePath = system.file("tests/data/PharmMLSO/MachineGenerated/PsN/Warfarin-ODE-latest-sse.SO.xml", package = "DDMoRe.TEL")
 
 # Load in SO
-SOObjects = LoadSOObjects(soXmlFilePath)
+SOObjects = LoadSOObjects(soXmlFilePath)		
 
 test_that("Expected list of 20 objects to be returned from LoadSOObjects", {
 		
@@ -243,23 +121,6 @@ test_that("Checking that distinct SOObjects have been returned in the list", {
 	
 })
 
-
-context("Loading an empty, i.e. no SOBlocks, PharmML SO returns an empty list")
-
-# Clear workspace. 
-rm(list=ls())
-
-soXmlFilePath = system.file("tests/data/PharmMLSO/HandCoded/empty.SO.xml", package = "DDMoRe.TEL")
-
-# Load in SO
-SOObjects = LoadSOObjects(soXmlFilePath)
-
-test_that("Expected empty list to be returned from LoadSOObjects", {
-			
-	expect_true(is.list(SOObjects), info="LoadSOObjects should return a List")
-	expect_equal(length(SOObjects), 0, info="Expected empty list returned from LoadSOObjects")
-	
-})
 
 
 context("Loading a PharmML SO with empty Matrix elements ignores these elements rather than trying to produce some kind of 0x1 dataframe")

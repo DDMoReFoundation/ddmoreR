@@ -19,7 +19,11 @@ LoadSOObject <- function(file) {
 	
 	root <- validateAndLoadXMLSOFile(file)
 	soBlocks <- root[names(root) == "SOBlock"]
-	if (length(soBlocks) != 1) {
+	
+	if (length(soBlocks) == 0) {
+		stop("PharmML parsing aborted. There does not appear to be any SOBlock sections in the specified file.")
+	}
+	if (length(soBlocks) > 1) {
 		stop("LoadSOObject() is used for the case where there is known to be exactly one SOBlock in the SO XML file;\n",
 			 "  use the plural version of the function, LoadSOObjects(), instead if there are multiple SOBlocks in the file.")
 	}
@@ -57,7 +61,16 @@ LoadSOObject <- function(file) {
 LoadSOObjects <- function(file) {
 
 	root <- validateAndLoadXMLSOFile(file)
-	
+	soBlocks <- root[names(root) == "SOBlock"]
+
+	if (length(soBlocks) == 0) {
+		stop("PharmML parsing aborted. There does not appear to be any SOBlock sections in the specified file.")
+	}
+	if (length(soBlocks) == 1) {
+		stop("LoadSOObjects() is used for the case where there is known to multiple SOBlock in the SO XML file;\n", 
+			" use the singlular version of the function, LoadSOObject(), instead if there is only a single SOBlocks in the file.")
+	} 
+
 	# Set working directory to that specified in file
 	# (I (MSW) don't like this, can't we amend the xmlParsers.R to resolve the associated data files
 	# relative to the directory in which the .SO.xml file lives, but remaining in the current directory?)
@@ -104,7 +117,7 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 	
 	# Error Checking of unexpected elements
 	expectedTags = c("ToolSettings", "RawResults", "TaskInformation", "Estimation", 
-			"Simulation")
+			"Simulation", "ModelDiagnostic")
 	unexpected = setdiff(names(SOChildren), expectedTags)
 	if (length(unexpected) != 0) {
 		warning(paste("The following unexpected elements were detected in the PharmML SO.", 
@@ -138,7 +151,7 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 				"Predictions", "Likelihood")
 		unexpected = setdiff(names(SOChildren[["Estimation"]]), expectedTags)
 		if (length(unexpected) != 0) {
-			warning(paste("The following unexpected elements were detected in the Estimation block of the PharmML SO.", 
+			warning(paste("The following unexpected elements were detected in the Estimation section of the PharmML SO.", 
 							paste(unexpected, collapse="\n      "), sep="\n      "))
 		}
 		
@@ -194,7 +207,7 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 		expectedTags = c("Description", "OriginalDataset", "SimulationBlock")
 		unexpected = setdiff(names(SOChildren[["Simulation"]]), expectedTags)
 		if (length(unexpected) != 0) {
-			warning(paste("The following unexpected elements were detected in the Simulation block of the PharmML SO.", 
+			warning(paste("The following unexpected elements were detected in the parent Simulation section of the PharmML SO.", 
 							paste(unexpected, collapse="\n      "), sep="\n      "))
 		}
 		
@@ -205,6 +218,22 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 		message("Simulation element not detected in PharmML. Skipping...")
 	}
 	
+	# if ("ModelDiagnostic" %in% names(SOChildren)){
+		
+	# 	# Error Checking of unexpected elements of Simulation node
+	# 	expectedTags = c("DiagnosticPlotsIndividualParams", "DiagnosticPlotsStructuralModel")
+	# 	unexpected = setdiff(names(SOChildren[["ModelDiagnostic"]]), expectedTags)
+	# 	if (length(unexpected) != 0) {
+	# 		warning(paste("The following unexpected elements were detected in the ModelDiagnostic section of the PharmML SO.", 
+	# 						paste(unexpected, collapse="\n      "), sep="\n      "))
+	# 	}
+		
+	# 	# Parse the Simulation node
+	# 	SOObject <- ParseModelDiagnostic(SOObject, SOChildren[["ModelDiagnostic"]])
+		
+	# } else {
+	# 	message("ModelDiagnostic element not detected in PharmML. Skipping...")
+	# }
 	
 	# Run validation functions on S4 Class and subclasses
 	validObject(SOObject)

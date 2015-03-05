@@ -149,13 +149,11 @@ setClass("ModelDiagnostic",
 setClass("Simulation", 
   # Define the slots
   slots=c(
-    Description="character",
     OriginalDataset="list", 
     SimulationBlock = "list"
     ),
   # Set Default Values to blank lists with names in place
   prototype = list(
-    Description=vector(mode="character"),
     OriginalDataset=list(), 
     SimulationBlock = list()
 ),
@@ -165,7 +163,6 @@ setClass("Simulation",
  #   ),
   # Validity Checking Function 
   validity = function(object) {
-	  stopifnot(class(object@Description) == "character")
       stopifnot(class(object@OriginalDataset) == "list")
       stopifnot(class(object@SimulationBlock) == "list")
 	  return(TRUE)
