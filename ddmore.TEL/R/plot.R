@@ -2,10 +2,10 @@
 #' plot.mogObj
 #' 
 #' TODO: This function needs reviewing and updating!
-#' 
-#' Plots the data within the object of class \code{mogObj}. Uses data specified 
-#' in the \code{dataobj} object, information within the \code{mdlobj} INPUT_VARIABLES 
-#' to define the dependent and independent variables. Delegates to \link{plot.dataObj}.
+#'
+#' Plots the data contained in the data file referenced within the \code{dataObj}
+#' object within the specified object of class \code{mogObj}. Delegates to
+#' \link{plot.dataObj}.
 #' 
 #' @seealso \code{plot.dataObj}
 #' 
@@ -24,7 +24,6 @@ plot.mogObj <-
   obj <- object@dataObj
   
   # Then call the dataObj method
-  #print(sourceDir)
   plot(obj, by, group, IDVVar, sourceDir, deriveVariables, categoricalAsFactor, recode, ... )
 
 }
@@ -34,36 +33,48 @@ plot.mogObj <-
 #' 
 #' TODO: This function needs reviewing and updating!
 #' 
-#' Plots the data specified in the \code{dataObj} object.
+#' Plots the data contained in the data file referenced within the specified \code{dataObj}.
+#' The DATA_INPUT_VARIABLES information from the \code{dataObj} is used to define the
+#' dependent and independent variables.
 #' 
-#' Most of the options take their default values from xpose.data object but may be overridden
-#' by supplying them as arguments.
+#' Most of the options take their default values from xpose.data object but may be
+#' overridden by supplying them as arguments.
 #'
 #' @usage plot(object, by, group, sourceDir=getwd(), deriveVariables=TRUE, categoricalAsFactor=TRUE, recode=TRUE, ...)
 #'
-#' @param object Object of class \code{mogObj}
-#' @param by a data variable specified within the \code{dataObj}. Defines the 
+#' @param object Object of class \code{dataObj}.
+#' @param by A data variable specified within the \code{dataObj}. Defines the 
 #' conditioning for each panel in the plot.
-#' @param group defines grouping variables within each panel, usually varying 
+#' @param group Defines grouping variables within each panel, usually varying 
 #' graphical parameters for each level of the grouping variable.
-#' @param IDVVar (optional) character string denoting data column which is the indepndent
-#' variable. Defaults to "IDV"
-#' @param ... other arguments to be passed through to the plotting function 
-#' lattice graphics options).
+#' @param IDVVar (Optional) Character string denoting data column which is the indepndent
+#' variable. Defaults to "IDV".
+#' @param sourceDir (Optional) The directory in which the referenced data file is to be found.
+#' Defaults to the current working directory.
+#' @param deriveVariables (Optional) See \link{read}
+#' @param categoricalAsFactor (Optional) See \link{read}
+#' @param recode (Optional) See \link{read}
+#' @param ... Other arguments to be passed through to the plotting function 
+#' (lattice graphics options).
 #'
-#' @return Returns an xyplot of DV vs IDV (as defined in the \code{mdlobj}).
+#' @return If the result of the \code{plot()} is not assigned to a variable then the plot of
+#' dependent variable vs independent variable (as defined in the \code{dataObj}) is
+#' displayed on the default graphics device. Otherwise if the result of the \code{plot()}
+#' is assigned to a variable then this variable will be a suitably populated object of
+#' class \code{trellis} as returned from \code{xyplot()}.
 #' 
 #' @details A wide array of extra options controlling \code{xyplot} are available. See 
 #' \code{xpose.plot.default} and \code{xpose.panel.default} for details.
 #'
 #' @examples
 #' ## Create an S4 object of class mclobj.
-#' ThamMDLObjects<- getMDLObjects("2008ThamJCCR.mdl",
-#'   				names=c("tumour_size_dat","tumour_size_par",
-#' 					"tumour_size_mdl", "tumour_size_task"))
+#' ThamMDLObjects <- getMDLObjects("2008ThamJCCR.mdl",
+#'                   names=c("tumour_size_dat","tumour_size_par","tumour_size_mdl","tumour_size_task"))
 #'
 #' myThamMOG <- as.mogObj(ThamMDLObjects)
 #' plot(myThamMOG)
+#' 
+#' @seealso \code{read}, \code{xyplot}
 #' 
 #' @include telClasses.R
 #' @include utils.R
@@ -77,7 +88,7 @@ plot.dataObj <-
     categoricalAsFactor=FALSE, recode=FALSE, ...) {
 
   # First, read in the data:
-  dat <- read(object, sourceDir, deriveVariables, categoricalAsFactor,  recode)
+  dat <- read(object, sourceDir, deriveVariables, categoricalAsFactor, recode)
 
   nam <- names(dat)
   
@@ -88,16 +99,14 @@ plot.dataObj <-
   if(!"DV"%in%nam){stop("Column DV is not present in the data set. Unable to produce plot.")}
   if(!IDVVar%in%nam){stop("Column specified by IDVVar argument is not present in the data set. Unable to produce plot.")}
  
- 
-  if(!missing(by)){
+  if(!missing(by)) {
     if(!by%in%nam){stop("Column specified by 'by' argument is not present in the data set. Unable to produce plot.")}
     # If by variable included, add to formula string for evaluation
     cmd <- paste(cmd, "|", by)
   
   }
   
-
-  if(!missing(group)){
+  if(!missing(group)) {
     
     if(!group%in%nam){stop("Column specified by 'group' argument is not present in the data set. Unable to produce plot.")}
 
