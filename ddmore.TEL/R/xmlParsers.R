@@ -948,7 +948,10 @@ ParseModelDiagnostic <- function(SOObject, ModelDiagnosticNode) {
 
     } else if (xmlName(child) == "DiagnosticPlotsIndividualParams" ) {
 
-      ModelDiagnosticSlot@DiagnosticPlotsIndividualParams = ParseDiagnosticPlotsIndividualParams(child)
+      L = ParseElement(child)
+      ModelDiagnosticSlot@DiagnosticPlotsIndividualParams = list(
+                          description=L$description, 
+                          data=L$data)
     }
   }
 
@@ -974,7 +977,7 @@ ParseDiagnosticPlotsStructuralModel <- function(DiagnosticPlotsStructuralNode) {
         if (xmlName(subChild) == "ObservationTable"){
           
           L = ParseElement(subChild)
-          
+      
           outputList[["IndivFits"]][["ObservationTable"]] = list(
                           description=L$description, 
                           data=L$data)
@@ -1009,9 +1012,4 @@ ParseDiagnosticPlotsStructuralModel <- function(DiagnosticPlotsStructuralNode) {
   }
   return(outputList)
 }
-
-
-ParseDiagnosticPlotsIndividualParams <- function() {}
-
-
 

@@ -59,6 +59,10 @@ test_that("PharmML SO fills expected slots in Estimation", {
   # Simulation 
   slotnames = c("SimulationBlock")
   testSlotsNotEmpty(SOObject@Simulation, slotnames)
+
+  # Model Diagnostic
+  slotnames = c("DiagnosticPlotsIndividualParams", "DiagnosticPlotsStructuralModel")
+  testSlotsNotEmpty(SOObject@ModelDiagnostic, slotnames)
    
 })
 
