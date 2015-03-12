@@ -188,6 +188,38 @@
                         </Table>
                     </PosteriorMode>
                 </Bayesian>
+                <Bootstrap>
+                    <Mean>
+                        <Definition xmlns="http://www.pharmml.org/pharmml/0.6/Dataset">
+                            <Column columnId="ID" columnType="id" valueType="string" columnNum="1"/>
+                            <Column columnId="CL" columnType="undefined" valueType="real" columnNum="2"/>
+                            <Column columnId="V" columnType="undefined" valueType="real" columnNum="3"/>
+                            <Column columnId="KA" columnType="undefined" valueType="real" columnNum="4"/>
+                            <Column columnId="TLAG" columnType="undefined" valueType="real" columnNum="5"/>
+                            <!-- omitted other parameters -->
+                        </Definition>
+                        <Table xmlns="http://www.pharmml.org/pharmml/0.6/Dataset">
+                            <Row><ct:Id>i1</ct:Id><ct:Real>0.28649</ct:Real><ct:Real>7.892</ct:Real><ct:Real>0.3025</ct:Real><ct:Real>0.5588</ct:Real></Row>
+                            <Row><ct:Id>i2</ct:Id><ct:Real>0.11184</ct:Real><ct:Real>7.670</ct:Real><ct:Real>1.3134</ct:Real><ct:Real>0.8290</ct:Real></Row>
+                            <!-- omitted other subjects -->
+                        </Table>
+                    </Mean>
+                    <Median>
+                        <Definition xmlns="http://www.pharmml.org/pharmml/0.6/Dataset">
+                            <Column columnId="ID" columnType="id" valueType="id" columnNum="1"/>
+                            <Column columnId="CL" columnType="undefined" valueType="real" columnNum="2"/>
+                            <Column columnId="V" columnType="undefined" valueType="real" columnNum="3"/>
+                            <Column columnId="KA" columnType="undefined" valueType="real" columnNum="4"/>
+                            <Column columnId="TLAG" columnType="undefined" valueType="real" columnNum="5"/>
+                            <!-- omitted other parameters -->
+                        </Definition>
+                        <Table xmlns="http://www.pharmml.org/pharmml/0.6/Dataset">
+                            <Row><ct:Id>i1</ct:Id><ct:Real>0.28649</ct:Real><ct:Real>7.892</ct:Real><ct:Real>0.3025</ct:Real><ct:Real>0.5588</ct:Real></Row>
+                            <Row><ct:Id>i2</ct:Id><ct:Real>0.11184</ct:Real><ct:Real>7.670</ct:Real><ct:Real>1.3134</ct:Real><ct:Real>0.8290</ct:Real></Row>
+                            <!-- omitted other subjects -->
+                        </Table>
+                    </Median>
+                </Bootstrap>
             </PopulationEstimates>
             
             <PrecisionPopulationEstimates>

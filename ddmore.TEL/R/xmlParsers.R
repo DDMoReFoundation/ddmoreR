@@ -409,8 +409,18 @@ ParsePopulationEstimates <- function(SOObject, PopulationEstimatesNode) {
     									    	description=L$description, 
         										data=L$data)
       }
+    } else if (xmlName(child) == "Bootstrap") {
+      # Fetch Children of Node
+      BootstrapChildren = xmlChildren(child)
+      # Parse XMl DataSet Structure and update SO 
+      for (BChild in c("Mean", "Median")) {
+        L = ParseElement(BootstrapChildren[[BChild]])
+        SOObject@Estimation@PopulationEstimates[["Bootstrap"]][[BChild]] = list(
+                            description=L$description, 
+                            data=L$data)
+      }
     }
-   }
+  }
   return(SOObject)
 }
 
