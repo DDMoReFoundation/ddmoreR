@@ -57,7 +57,11 @@ plot.mogObj <-
 #' @param ... Other arguments to be passed through to the plotting function 
 #' (lattice graphics options).
 #'
-#' @return Returns an xyplot of DV vs IDV (as defined in the \code{dataObj}).
+#' @return If the result of the \code{plot()} is not assigned to a variable then the plot of
+#' dependent variable vs independent variable (as defined in the \code{dataObj}) is
+#' displayed on the default graphics device. Otherwise if the result of the \code{plot()}
+#' is assigned to a variable then this variable will be a suitably populated object of
+#' class \code{trellis} as returned from \code{xyplot()}.
 #' 
 #' @details A wide array of extra options controlling \code{xyplot} are available. See 
 #' \code{xpose.plot.default} and \code{xpose.panel.default} for details.
@@ -70,7 +74,7 @@ plot.mogObj <-
 #' myThamMOG <- as.mogObj(ThamMDLObjects)
 #' plot(myThamMOG)
 #' 
-#' @seealso \code{read}
+#' @seealso \code{read}, \code{xyplot}
 #' 
 #' @include telClasses.R
 #' @include utils.R
