@@ -4,13 +4,13 @@ require("methods")
 
 testSlotsNotEmpty <- function(S4class, slotnames) {
 
-  for (slotname in slotnames){
+  for (slotname in slotnames) {
 
   SOslot = slot(S4class, slotname)
   
   expect_true(
     length(SOslot) > 0 , 
-    info = "Slot is not empty", )
+    info = paste("Slot", slotname, "is not empty"), )
   }
 
 }
@@ -176,7 +176,7 @@ test_that("PharmML SO produced by VPC in PsN fills expected slots in Estimation"
 })
 
 
-### FIX ME: Test is currently failing because SEE has more than one SO block and 
+### FIX ME: Test is currently failing because SSE has more than one SO block and 
 
 # context("Loading SOObject from PsN SSE")
 

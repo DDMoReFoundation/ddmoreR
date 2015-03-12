@@ -4,13 +4,13 @@ require("methods")
 
 testSlotsNotEmpty <- function(S4class, slotnames) {
 
-  for (slotname in slotnames){
+  for (slotname in slotnames) {
 
   SOslot = slot(S4class, slotname)
   
   expect_true(
     length(SOslot) > 0 , 
-    info = "Slot should not be empty", )
+    info = paste("Slot", slotname, "should not be empty"), )
   }
   
 }
@@ -57,7 +57,7 @@ test_that("PharmML SO fills expected slots in Estimation", {
   testSlotsNotEmpty(SOObject@Estimation, slotnames)
 
   # Simulation 
-  slotnames = c("OriginalDataset", "SimulationBlock")
+  slotnames = c("SimulationBlock")
   testSlotsNotEmpty(SOObject@Simulation, slotnames)
    
 })
