@@ -67,6 +67,15 @@ test_that("An update of values of multiple attribute across multiple variables",
 	
 })
 
+test_that("An update of values of a \"fix\" boolean attribute of a variable", {
+
+	updWarfParObj <- update(warfParObj, block="STRUCTURAL", item="BETA_V_WT", with=list(fix="false"))
+	
+	expect_equivalent(class(updWarfParObj), "parObj")
+	expect_equal(updWarfParObj@STRUCTURAL$BETA_V_WT$fix, "false", info="Checking that the \"fix\" attr of variable BETA_V_WT was updated")
+	
+})
+
 test_that("Specifying a item to update that is not an item of the specified block, raises an error", {
 	
 	expect_error(update(warfParObj, block="VARIABILITY", item=c("PPV_TLAG","POP_TLAG"), with=list(value=c(1.5, 2.5))),
