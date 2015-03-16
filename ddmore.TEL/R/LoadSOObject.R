@@ -218,22 +218,22 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 		message("Simulation element not detected in PharmML. Skipping...")
 	}
 	
-	# if ("ModelDiagnostic" %in% names(SOChildren)){
+	if ("ModelDiagnostic" %in% names(SOChildren)){
 		
-	# 	# Error Checking of unexpected elements of Simulation node
-	# 	expectedTags = c("DiagnosticPlotsIndividualParams", "DiagnosticPlotsStructuralModel")
-	# 	unexpected = setdiff(names(SOChildren[["ModelDiagnostic"]]), expectedTags)
-	# 	if (length(unexpected) != 0) {
-	# 		warning(paste("The following unexpected elements were detected in the ModelDiagnostic section of the PharmML SO.", 
-	# 						paste(unexpected, collapse="\n      "), sep="\n      "))
-	# 	}
+		# Error Checking of unexpected elements of Simulation node
+		expectedTags = c("DiagnosticPlotsIndividualParams", "DiagnosticPlotsStructuralModel")
+		unexpected = setdiff(names(SOChildren[["ModelDiagnostic"]]), expectedTags)
+		if (length(unexpected) != 0) {
+			warning(paste("The following unexpected elements were detected in the ModelDiagnostic section of the PharmML SO.", 
+							paste(unexpected, collapse="\n      "), sep="\n      "))
+		}
 		
-	# 	# Parse the Simulation node
-	# 	SOObject <- ParseModelDiagnostic(SOObject, SOChildren[["ModelDiagnostic"]])
+		# Parse the Simulation node
+		SOObject <- ParseModelDiagnostic(SOObject, SOChildren[["ModelDiagnostic"]])
 		
-	# } else {
-	# 	message("ModelDiagnostic element not detected in PharmML. Skipping...")
-	# }
+	} else {
+		message("ModelDiagnostic element not detected in PharmML. Skipping...")
+	}
 	
 	# Run validation functions on S4 Class and subclasses
 	validObject(SOObject)

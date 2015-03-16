@@ -2,8 +2,11 @@
 rm(list=ls())
 
 # Setup imports and directory
-detach("package:DDMoRe.TEL", unload=TRUE)
-install.packages("C:/Users/cmusselle/Projects/DDmore/TEL-R/.__artefacts/DDMoRe.TEL_0.0.2.tar.gz", repos = NULL, type = "source")
+# Detach, install and reload Tell package 
+if ("DDMoRe.TEL" %in% .packages()) {
+  detach("package:DDMoRe.TEL", unload=TRUE)
+}
+install.packages("C:/Users/cmusselle/Projects/DDmore/TEL-R/.__artefacts/DDMoRe.TEL_0.0.3.tar.gz", repos = NULL, type = "source")
 require("DDMoRe.TEL")
 require("XML")
 
@@ -16,8 +19,8 @@ SOObject = createSOObject()
 
 # Get a reference to the root node in the xml doc
 #root = xmlRoot(xmlTreeParse("development data\\MONOLIX_SO\\Warfarin-ODE-latest.SO.xml"))
-root = xmlRoot(xmlTreeParse("inst\\tests\\data\\PharmMLSO\\HandCoded\\warfarin_PK_ODE_SO_FULL.xml"))
-root = xmlRoot(xmlTreeParse("inst\\tests\\data\\PharmMLSO\\MachineGenerated\\Warfarin-ODE-latest.SO.xml"))
+root = xmlRoot(xmlTreeParse("inst\\tests\\data\\PharmMLSO\\HandCoded\\warfarin_PK_ODE_SO_FULL-v0_1.xml"))
+#root = xmlRoot(xmlTreeParse("inst\\tests\\data\\PharmMLSO\\MachineGenerated\\Warfarin-ODE-latest.SO.xml"))
 
 
 # Fetch List of SOBlock elements
@@ -47,12 +50,15 @@ SOObject = ParseResiduals(SOObject, SOChildren$Estimation[["Residuals"]])
 SOObject = ParsePredictions(SOObject, SOChildren$Estimation[["Predictions"]])
 
 
-
-
-
+# Development of Model Diagnostics Block
 SOChildren = xmlChildren(root[["SOBlock"]])
 
-PIE = root[["SOBlock"]][["Estimation"]][["PrecisionIndividualEstimates"]]
+
+
+MD = root[["SOBlock"]][["ModelDiagnostic"]][["DiagnosticPlotsStructuralModel"]]
+
+SOObject = ParseDiagnosticPlotsStructuralModel(SOObject, MD)
+
 
 
 
@@ -71,9 +77,6 @@ ReplicateBlockList = SimulationNode[names(SimulationNode) == "SimulationBlock"]
 
 
 SimulationBlocks = SimulationNode[names(SimulationNode) == "SimulationBlock"]
-
-
-
 
 
 MLEDataSet = root[[2]][["Estimation"]][["PopulationEstimates"]][["MLE"]]

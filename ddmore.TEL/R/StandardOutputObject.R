@@ -492,51 +492,49 @@ setMethod(f="readRawData",
 
 #' mergeByPosition
 #'
-#'  Utility used bt as.data to check column types and then merge by possition
+#'  Utility used by as.data to check column types and then merge by possition
+#'
+#'  @param df1 The first data frame, column types and positiona are known.
+#'  @param df2 The second data frame to merge in, column types and positiona are checked before merge.
 #'
 #' @export
 mergeByPosition <- function(df1, df2, msg='') {
 
-  # Type conversion Checks for column 1
-  if (class(df2[, 1]) == "factor") {
-      df2[, 1] = as.numeric(as.character(df2[, 1]))
-  } else if (class(df2[, 1]) == "integer") {
-      df2[, 1] = as.numeric(df2[, 1])
-  } else if (class(df2[, 1]) == "character") {
-    df2[, 1] = as.numeric(df2[, 1])
-  } else if (class(df2[, 1]) == "numeric") {
-    df2[, 1] = df2[, 1]
+  # Find ID column position in df2
+  ID.col = toupper(names(df2)) == "ID"
+  TIME.col = toupper(names(df2)) == "TIME"
+
+  # Type conversion Checks for ID column
+  if (class(df2[, ID.col]) == "factor") {
+      df2[, ID.col] = as.numeric(as.character(df2[, ID.col]))
+  } else if (class(df2[, ID.col]) == "integer" | 
+             class(df2[, ID.col]) == "character") {
+      df2[, ID.col] = as.numeric(df2[, ID.col])
   }
 
-  # Type conversion Checks for column 2
-  if (class(df2[, 2]) == "factor") {
-      df2[, 2] = as.numeric(as.character(df2[, 2]))
-  } else if (class(df2[, 2]) == "integer") {
-      df2[, 2] = as.numeric(df2[, 2])
-  } else if (class(df2[, 2]) == "character") {
-    df2[, 2] = as.numeric(df2[, 2])
-  } else if (class(df2[, 2]) == "numeric") {
-    df2[, 2] = df2[, 2]
+  # Type conversion Checks for TIME column
+  if (class(df2[, TIME.col]) == "factor") {
+      df2[, TIME.col] = as.numeric(as.character(df2[, TIME.col]))
+  }else if (class(df2[, TIME.col]) == "integer" | 
+             class(df2[, TIME.col]) == "character") {
+      df2[, TIME.col] = as.numeric(df2[, TIME.col])
   }
 
-  # Check ID column is the same on df1 and two
-  if (all(df1[, 1] != df2[, 1])) {
+  # Check ID column is the same on df1 and df2
+  if (all(df1[, "ID"] != df2[, ID.col])) {
     stop(paste("ID column order of df1 and df2 does not match when merging", msg))
   }
 
   # Check TIME column is the same on df1 and df2 
-  if (all(df1[, 2] != df2[, 2])) {
+  if (all(df1[, "TIME"] != df2[, TIME.col])) {
     stop(paste("TIME column order of df1 and df2 does not match when merging", msg))
   }
 
-  names.df1 = names(df1)
-  names.df2 = names(df2)
-
-  new.col.names = c(names.df1, names.df2[3:ncol(df2)])
-
-  mergedDf = cbind(df1, df2[, 3:ncol(df2)], deparse.level = 0)
-
-  names(mergedDf) <- new.col.names
+  # merge all unique columns between df1 and df2
+  unique.names.df2 = setdiff(names(df2),c("ID","TIME"))
+  mergedDf = cbind(df1, df2[, unique.names.df2], deparse.level = 0)
+  # Update column names
+  #names(mergedDf) <- c(names(df1), unique.names.df2)
 
   return(mergedDf)
 }
@@ -565,8 +563,20 @@ setMethod(f="as.data",
 				  stop("Path to input data must be specified")
 			  } else {
 				  rawData <- read.NONMEMDataSet(inputDataPath)
+          # Checks for Column format
 				  rawData[["ID"]] <- as.numeric(rawData[["ID"]]) 
 				  rawData[["TIME"]] <- as.numeric(rawData[["TIME"]]) 
+
+          # Reorder data frame to have ID and TIME column as first two. 
+          ID.col = toupper(names(rawData)) == "ID"
+          TIME.col = toupper(names(rawData)) == "TIME"
+          remaining.names = setdiff(toupper(names(rawData)),c("ID","TIME"))
+          rawData = cbind(rawData[, ID.col], 
+                          rawData[, TIME.col], 
+                          rawData[, remaining.names],
+                          deparse.level = 0)
+          # Update names for first two columns 
+          names(rawData) <- c(c("ID", "TIME"), remaining.names) 
 			  }
 			  
 			  # Test to see if data rows are the same, if not remove dose rows from the 
@@ -594,7 +604,7 @@ setMethod(f="as.data",
 			  if (!is.null(SOObject@Estimation@Residuals)) {
 				  # Fetch and merge Residuals 
 				  df1 <- mergedDataFrame
-				  df2 <- SOObject@Estimation@Residuals$data
+				  df2 <- SOObject@Estimation@Residuals$ResidualTable$data
 				  mergedDataFrame <- mergeByPosition(df1, df2, 'residuals')
 			  } else {
 				  warning("No Estimation::Residuals found in the SO; the resulting data frame will not contain these")
@@ -604,7 +614,6 @@ setMethod(f="as.data",
 				  # IndividualEstimates, Estimates
 				  df1 <- mergedDataFrame
 				  df2 <- SOObject@Estimation@IndividualEstimates$Estimates$Mean$data
-				  df2[, 1] <- as.numeric(as.character(df2[, 1]))
 				  mergedDataFrame <- merge(df1, df2)
 			  } else {
 				  warning("No Estimation::IndividualEstimates::Estimates::Mean found in the SO; the resulting data frame will not contain these")
@@ -614,7 +623,6 @@ setMethod(f="as.data",
 				  # IndividualEstimates, RandomEffects
 				  df1 <- mergedDataFrame
 				  df2 <- SOObject@Estimation@IndividualEstimates$RandomEffects$EffectMean$data
-				  df2[, 1] <- as.numeric(as.character(df2[, 1]))
 				  mergedDataFrame <- merge(df1, df2)
 			  } else {
 				  warning("No Estimation::IndividualEstimates::RandomEffects::EffectMean found in the SO; the resulting data frame will not contain these")

@@ -409,8 +409,18 @@ ParsePopulationEstimates <- function(SOObject, PopulationEstimatesNode) {
     									    	description=L$description, 
         										data=L$data)
       }
+    } else if (xmlName(child) == "Bootstrap") {
+      # Fetch Children of Node
+      BootstrapChildren = xmlChildren(child)
+      # Parse XMl DataSet Structure and update SO 
+      for (BChild in c("Mean", "Median")) {
+        L = ParseElement(BootstrapChildren[[BChild]])
+        SOObject@Estimation@PopulationEstimates[["Bootstrap"]][[BChild]] = list(
+                            description=L$description, 
+                            data=L$data)
+      }
     }
-   }
+  }
   return(SOObject)
 }
 
@@ -948,7 +958,10 @@ ParseModelDiagnostic <- function(SOObject, ModelDiagnosticNode) {
 
     } else if (xmlName(child) == "DiagnosticPlotsIndividualParams" ) {
 
-      ModelDiagnosticSlot@DiagnosticPlotsIndividualParams = ParseDiagnosticPlotsIndividualParams(child)
+      L = ParseElement(child)
+      ModelDiagnosticSlot@DiagnosticPlotsIndividualParams = list(
+                          description=L$description, 
+                          data=L$data)
     }
   }
 
@@ -974,7 +987,7 @@ ParseDiagnosticPlotsStructuralModel <- function(DiagnosticPlotsStructuralNode) {
         if (xmlName(subChild) == "ObservationTable"){
           
           L = ParseElement(subChild)
-          
+      
           outputList[["IndivFits"]][["ObservationTable"]] = list(
                           description=L$description, 
                           data=L$data)
@@ -1009,9 +1022,4 @@ ParseDiagnosticPlotsStructuralModel <- function(DiagnosticPlotsStructuralNode) {
   }
   return(outputList)
 }
-
-
-ParseDiagnosticPlotsIndividualParams <- function() {}
-
-
 
