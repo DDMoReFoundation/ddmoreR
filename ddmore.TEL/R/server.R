@@ -273,7 +273,7 @@ TEL.poll <- function(submission, HOST='localhost', PORT='9010') {
     submission$status = fromJSON(httpGET(statusURL))$status
     
     while (submission$status != 'COMPLETED' && submission$status != 'FAILED' ) {
-        message('Job ', jobID, ' still executing ... (status ', submission$status, ')')
+        message('Job ', jobID, ' is ', submission$status)
         Sys.sleep(20)
         submission$status <- fromJSON(httpGET(statusURL))$status
     }
