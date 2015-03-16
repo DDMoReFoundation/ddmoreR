@@ -278,7 +278,7 @@ TEL.poll <- function(submission, HOST='localhost', PORT='9010') {
         submission$status <- fromJSON(httpGET(statusURL))$status
     }
     
-    message('Job ', jobID, ' finished with status ', submission$status, "\n")
+    message('Job ', jobID, ' has ', submission$status, "\n")
     
     submission
 }
