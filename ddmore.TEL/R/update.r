@@ -11,7 +11,8 @@
 #' @param object An object of class \code{\linkS4class{parObj}}
 #' @param block Which block ("STRUCTURAL", "VARIABILITY" or "PRIOR_PARAMETERS") to update
 #' @param item Identifies which element (e.g. variable) within a block to update;
-#'        corresponds to a named list item within the block
+#'        corresponds to a named list item within the block. Accepts a vector for
+#'        updating multiple variables.
 #' @param with A named list specifying the attributes and their values, for the items
 #'        identified through "block" and "item"; the attributes must already exist, and
 #'        boolean attribute values should be enclosed in double quotes as per string
@@ -43,10 +44,12 @@ setMethod("update", signature=signature(object="parObj"), function(object, block
 	  stop("Block provided is not one of \"STRUCTURAL\", \"VARIABILITY\" or \"PRIOR_PARAMETERS\"")
   }
   if (!all(item%in%names(eval(parse(text=paste0("object", "@", block)))))) {
-	  stop("Item (e.g. variable) provided does not exist in given block")
+	  stop("Item (e.g. variable) provided does not exist in given block \"", block, "\"")
   }
-  if (!all(names(with)%in%names(eval(parse(text=paste0("object", "@", block, "$", item)))))){
-	  stop("Names given do not exist in given block and item")
+  for (i in item) {
+	  if (!all(names(with)%in%names(eval(parse(text=paste0("object", "@", block, "$", i)))))) {
+		  stop("Names given do not exist in given block \"", block, "\"and item \"", i, "\"")
+	  }
   }
   if (!is.list(with)) {
 	  stop("Item to update with is not of list type; if a single parameter is being updated, this should still be enclosed in a list")
@@ -56,11 +59,11 @@ setMethod("update", signature=signature(object="parObj"), function(object, block
   useFancyQuotesSetting <- getOption("useFancyQuotes")
   # Double quotes are used to enclose the values of the variables in the update command to be eval()uated
   options(useFancyQuotes=FALSE)
-			
+  
   x <- 
   eval(
     parse(
-      text = paste0("object", "@", block, "$", item, "$", names(with), " <- ", dQuote(unlist(with)))
+      text = paste0("object", "@", block, "$", item, "$", rep(names(with), each=length(item)), " <- ", dQuote(unlist(with)))
     )
   )
 
