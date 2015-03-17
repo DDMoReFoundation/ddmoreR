@@ -74,18 +74,6 @@ setClass("Estimation",
    Predictions = list(),
    Likelihood = list()
    ),
-#  prototype = list(
-#  	PopulationEstimates = list(MLE=NULL, Bayesian=NULL),
-#  	PrecisionPopulationEstimates = list(MLE=NULL, Bayesian=NULL),
-#  	IndividualEstimates = list(Estimates=NULL, EtaShrinkage=NULL, RandomEffects=NULL),
-#  	PrecisionIndividualEstimates = list(PostDist=NULL),
-#  	Residuals = list(MLE_NPDE=NULL, BE_NPDE=NULL, PD=NULL, Population=NULL, 
-#  		Individual=NULL, Conditional=NULL),
-#	Predictions = list(),
-#	Likelihood = list(LogLikelihood=NULL, Deviance=NULL, AIC=NULL, BIC=NULL),
-#	SoftwareMessages = list(TerminationMsg=NULL, Warnings=NULL, Errors=NULL, 
-#		RunTime=NULL, PharmMLOutputPath=NULL, MCMCChains=NULL, Iterations=NULL)
-#  	),
   # Validity Checking Function 
   validity = function(object) {
 	stopifnot(class(object@PopulationEstimates)=="list")
@@ -122,10 +110,6 @@ setClass("ModelDiagnostic",
   	DiagnosticPlotsStructuralModel = list(),
   	DiagnosticPlotsIndividualParams = list()
   	),
-#  prototype = list(
-#    ModelDiagnostic = list(Plots=NULL, Tests=NULL),
-#    ModelComparison = list(Parentage=NULL, Comparisons=NULL, Tests=NULL)
-#    ),
   # Validity Checking Function 
   validity = function(object) {
 	stopifnot(class(object@DiagnosticPlotsStructuralModel)=="list")
@@ -157,10 +141,6 @@ setClass("Simulation",
     OriginalDataset=list(), 
     SimulationBlock = list()
 ),
- # prototype = list(
- #   Simulation = list(Population=NULL, Individual=NULL, Samples=NULL),
- #   Exploration = list(Plots=NULL, Tables=NULL)
- #   ),
   # Validity Checking Function 
   validity = function(object) {
       stopifnot(class(object@OriginalDataset) == "list")
@@ -201,10 +181,6 @@ setClass("SimulationBlock",
     Dosing = list(),
     RawResultsFile = list()
 ),
- # prototype = list(
- #   Simulation = list(Population=NULL, Individual=NULL, Samples=NULL),
- #   Exploration = list(Plots=NULL, Tables=NULL)
- #   ),
   # Validity Checking Function 
   validity = function(object) {
     stopifnot(class(object@SimulatedProfiles) == "list")
@@ -216,8 +192,6 @@ setClass("SimulationBlock",
     return(TRUE)
   }
 )
-
-
 
 ##############################################################################
 #' The OptimalDesign Object Class (S4) 
@@ -246,16 +220,6 @@ setClass("OptimalDesign",
   	AODEvaluation = list(), 
   	AODOptimisation = list()
   	),
-# prototype = list(
-#    ODEEvaluation = list(FIM=NULL, SE=NULL, RSE=NULL, Shrinkage=NULL, 
-#        Criteria=NULL, Plots=NULL, Tables=NULL, Power=NULL, CI=NULL, Comparisons=NULL,
-#        Window=NULL, RunTime=NULL, SimulatedData=NULL),
-#    ODEOptimisation = list(FIM=NULL, OptimisedDesign=NULL, Improvement=NULL, 
-#        Parameters=NULL, Shrinkage=NULL, Criteria=NULL, Plots=NULL, RunTime=NULL, 
-#        Power=NULL, CI=NULL, Comparisons=NULL, Window=NULL, SimulatedData=NULL), 
-#    AODEvaluation = list(), 
-#    AODOptimisation = list()
-#    ),
   # Validity Checking Function 
   validity = function(object) {
 	  stopifnot(class(object@ODEEvaluation)=="list")
