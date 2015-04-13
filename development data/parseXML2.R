@@ -53,11 +53,10 @@ SOObject = ParsePredictions(SOObject, SOChildren$Estimation[["Predictions"]])
 # Development of Model Diagnostics Block
 SOChildren = xmlChildren(root[["SOBlock"]])
 
+source("R/xmlParsers.R")
+MD = root[["SOBlock"]][["ModelDiagnostic"]]
 
-
-MD = root[["SOBlock"]][["ModelDiagnostic"]][["DiagnosticPlotsStructuralModel"]]
-
-SOObject = ParseDiagnosticPlotsStructuralModel(SOObject, MD)
+x = ParseModelDiagnostic(SOObject, MD)
 
 
 
