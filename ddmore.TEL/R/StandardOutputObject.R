@@ -567,19 +567,15 @@ mergeByPosition <- function(df1, df2, msg='') {
 
   # Type conversion Checks for ID column
   if (class(df2[, ID.col]) == "factor") {
-      df2[, ID.col] = as.numeric(as.character(df2[, ID.col]))
-  } else if (class(df2[, ID.col]) == "integer" | 
-             class(df2[, ID.col]) == "character") {
-      df2[, ID.col] = as.numeric(df2[, ID.col])
-  }
+      df2[, ID.col] = as.character(df2[, ID.col])
+  } 
+  df2[, ID.col] = as.numeric(df2[, ID.col])
 
   # Type conversion Checks for TIME column
   if (class(df2[, TIME.col]) == "factor") {
-      df2[, TIME.col] = as.numeric(as.character(df2[, TIME.col]))
-  }else if (class(df2[, TIME.col]) == "integer" | 
-             class(df2[, TIME.col]) == "character") {
-      df2[, TIME.col] = as.numeric(df2[, TIME.col])
-  }
+      df2[, TIME.col] = as.character(df2[, TIME.col])
+  } 
+  df2[, TIME.col] = as.numeric(df2[, TIME.col])
 
   # Check ID column is the same on df1 and df2
   if (all(df1[, "ID"] != df2[, ID.col])) {
