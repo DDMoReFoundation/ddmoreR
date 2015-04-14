@@ -3,7 +3,7 @@
 # ====================== #
 # 
 # This file contains all code for the top level S4 class of StandardOutputObject 
-# and the associated gettiing/setting and loading PharmML methods. 
+# and the associated getting/setting and loading PharmML methods. 
 #
 # The subclasses that make up the individual slots of StandardOutputObject are stored 
 # in a separate file called StandardOutputSubClasses.R
@@ -45,7 +45,7 @@ setClass("StandardOutputObject",
     Simulation = "Simulation",
     OptimalDesign = "OptimalDesign"
     ), 
-  # Set Default Values to blank instances of the subclases
+  # Set Default Values to blank instances of the subclasses
   prototype = list(
     ToolSettings = list(),
     RawResults = new("RawResults"),
@@ -86,7 +86,6 @@ createSOObject <- function(...) {
   return(SO)
 }
 
-
 # ================ #
 # Getter Methods   #
 # ================ #
@@ -103,9 +102,10 @@ setMethod(f="getToolSettings",
           definition=function(SOObject)
           {                              
             ToolSettings <- SOObject@ToolSettings
-            pprintList(ToolSettings, "Tool Settings")
+            pprintList(ToolSettings, title="Tool Settings")
           }
 )
+
 
 #' Create a method to fetch the value of RawResults Slot
 setGeneric(name="getRawResults",
@@ -118,10 +118,14 @@ setMethod(f="getRawResults",
           signature="StandardOutputObject",
           definition=function(SOObject)
           {                              
-            RawResults <- SOObject@RawResults@DataFiles
-            pprintList(RawResults, "Raw Results")  
+            DataFiles <- SOObject@RawResults@DataFiles
+            GraphicsFiles <- SOObject@RawResults@GraphicsFiles
+
+            L = c(DataFiles, GraphicsFiles)
+            pprintList(L, title="Raw Result Files")  
           }
 )
+
 
 #' Create a method to fetch the value of PopulationEstimates Slot
 setGeneric(name="getPopulationEstimates",
@@ -134,10 +138,19 @@ setMethod(f="getPopulationEstimates",
           signature="StandardOutputObject",
           definition=function(SOObject)
           {     
-            PopulationEstimates <- SOObject@Estimation@PopulationEstimates
-            pprintList(PopulationEstimates, "Population Estimates")
+          PopulationEstimates <- SOObject@Estimation@PopulationEstimates
+          
+          A = PopulationEstimates[["MLE"]]
+          B = PopulationEstimates[["Bayesian"]]
+          names(B) <- paste0('Bayes:', names(B))
+          
+          L = c(A, B)
+
+          # Pretty print a list of data table elements 
+          pprintDefTable(L, title="Population Estimates")
           }
 )
+
 
 #' Create a method to fetch the value of PrecisionPopulationEstimates Slot
 setGeneric(name="getPrecisionPopulationEstimates",
@@ -151,9 +164,21 @@ setMethod(f="getPrecisionPopulationEstimates",
           definition=function(SOObject)
           {                              
           PrecisionPopulationEstimates <- SOObject@Estimation@PrecisionPopulationEstimates
-          pprintList(PrecisionPopulationEstimates, "Precision Population Estimates")
+          
+          A = PrecisionPopulationEstimates[["MLE"]]
+          names(A) <- paste0('MLE:', names(A))
+          B = PrecisionPopulationEstimates[["Bayesian"]]
+          names(B) <- paste0('Bayes:', names(B))
+          C = PrecisionPopulationEstimates[["Bootstrap"]]
+          names(C) <- paste0('Bootstrap:', names(C))
+
+          L = c(A, B, C)
+
+          # Pretty print a list of data table elements 
+          pprintDefTable(L, title="Precision Population Estimates")
           }
 )
+
 
 #' Create a method to fetch the value of IndividualEstimates Slot
 setGeneric(name="getIndividualEstimates",
@@ -166,10 +191,21 @@ setMethod(f="getIndividualEstimates",
           signature="StandardOutputObject",
           definition=function(SOObject)
       {  
-        IndividualEstimates <- SOObject@Estimation@IndividualEstimates
-        pprintList(IndividualEstimates, "Individual Estimates")                           
+          IndividualEstimates <- SOObject@Estimation@IndividualEstimates
+        
+          A = IndividualEstimates[["EtaShrinkage"]]
+          B = IndividualEstimates[["RandomEffects"]]
+          names(B) <- paste0('RandomEffects:', names(B))
+          C = IndividualEstimates[["Estimates"]]
+          names(C) <- paste0('Estimates:', names(C))
+
+          L = c(A, B, C)
+
+          # Pretty print a list of data table elements
+          pprintDefTable(L, "Individual Estimates")
       }                              
 )
+
 
 #' Create a method to fetch the value of PrecisionIndividualEstimates Slot
 setGeneric(name="getPrecisionIndividualEstimates",
@@ -181,11 +217,12 @@ setGeneric(name="getPrecisionIndividualEstimates",
 setMethod(f="getPrecisionIndividualEstimates",
                       signature="StandardOutputObject",
                       definition=function(SOObject)
-   {                              
+   {                          
       PrecisionIndividualEstimates <- SOObject@Estimation@PrecisionIndividualEstimates
       pprintList(PrecisionIndividualEstimates, "Precision Individual Estimates")
    }                                                     
 )
+
 
 #' Create a method to fetch the value of Residuals Slot
 setGeneric(name="getResiduals",
@@ -198,10 +235,18 @@ setMethod(f="getResiduals",
                       signature="StandardOutputObject",
                       definition=function(SOObject)
     {
-      Residuals <- SOObject@Estimation@Residuals
-      pprintList(Residuals, "Residuals")
+          Residuals <- SOObject@Estimation@Residuals
+
+          A = Residuals[["EpsShrinkage"]]
+          B = Residuals[["ResidualTable"]]
+
+          L = c(A, B)
+
+          # Pretty print a list of data table elements
+          pprintDefTable(L, "Residuals")
     }
 )
+
 
 #' Create a method to fetch the value of Predictions Slot
 setGeneric(name="getPredictions",
@@ -215,9 +260,10 @@ setMethod(f="getPredictions",
           definition=function(SOObject)
          {
            Predictions <- SOObject@Estimation@Predictions
-           pprintList(Predictions, "Predictions")
+           pprintDefTable(Predictions, "Predictions")
          }                              
 )
+
 
 #' Create a method to fetch the value of Likelihood Slot
 setGeneric(name="getLikelihood",
@@ -231,9 +277,20 @@ setMethod(f="getLikelihood",
           definition=function(SOObject)
           { 
            Likelihood <- SOObject@Estimation@Likelihood
-           pprintList(Likelihood, "Likelihood")
+
+           # Concatenate all information into one list 
+           L = list(LogLikelihood=Likelihood[["LogLikelihood"]], 
+                    Deviance=Likelihood[["Deviance"]], 
+                    IndividualContribToLL=Likelihood[["IndividualContribToLL"]][["data"]], 
+                    AIC=Likelihood[["InformationCriteria"]][["AIC"]], 
+                    BIC=Likelihood[["InformationCriteria"]][["BIC"]], 
+                    DIC=Likelihood[["InformationCriteria"]][["DIC"]]
+                    )
+
+           pprintList(L, "Likelihood")
           }
 )
+
 
 #' Create a method to fetch the value of SoftwareMessages Slot
 setGeneric(name="getSoftwareMessages",
@@ -246,7 +303,7 @@ setMethod(f="getSoftwareMessages",
           signature="StandardOutputObject",
           definition=function(SOObject)
           {                              
-           SoftwareMessages <- SOObject@Estimation@SoftwareMessages
+           SoftwareMessages <- SOObject@TaskInformation
            pprintList(SoftwareMessages, "Software Messages")
           }
 )
@@ -272,6 +329,7 @@ setMethod(f="getSimulatedProfiles",
 		}                                                     
 )
 
+
 #' Create a method to fetch the value of Simulation : SimulationBlock(s) : IndivParameters slot
 setGeneric(name="getSimulationIndividualParameters",
 		def=function(SOObject)
@@ -291,6 +349,7 @@ setMethod(f="getSimulationIndividualParameters",
 			pprintList(IndivParameters, "Simulation : Simulation Block(s) : Individual Parameters")
 		}
 )
+
 
 #' Create a method to fetch the value of Simulation : SimulationBlock(s) : PopulationParameters slot
 setGeneric(name="getSimulationPopulationParameters",
@@ -312,6 +371,7 @@ setMethod(f="getSimulationPopulationParameters",
 		}
 )
 
+
 #' Create a method to fetch the value of Simulation : SimulationBlock(s) : RawResultsFile slot
 setGeneric(name="getSimulationRawResultsFiles",
 		def=function(SOObject)
@@ -331,6 +391,7 @@ setMethod(f="getSimulationRawResultsFiles",
 			pprintList(RawResultsFiles, "Simulation : Simulation Block(s) : Raw Results File")
 		}
 )
+
 
 #' Create a method to fetch the value of Simulation : OriginalDataSet slot
 setGeneric(name="getSimulationOriginalDataset",
@@ -494,8 +555,8 @@ setMethod(f="readRawData",
 #'
 #'  Utility used by as.data to check column types and then merge by possition
 #'
-#'  @param df1 The first data frame, column types and positiona are known.
-#'  @param df2 The second data frame to merge in, column types and positiona are checked before merge.
+#'  @param df1 The first data frame, column types and positions are known.
+#'  @param df2 The second data frame to merge in, column types and positions are checked before merge.
 #'
 #' @export
 mergeByPosition <- function(df1, df2, msg='') {
