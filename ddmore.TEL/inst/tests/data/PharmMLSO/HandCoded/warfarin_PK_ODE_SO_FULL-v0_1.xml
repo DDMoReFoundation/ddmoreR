@@ -386,13 +386,11 @@
                             <ds:Row>
                                 <ct:Real>0.05</ct:Real>
                                 <ct:Real>0.1</ct:Real>
-                                <!-- .... -->
                                 <ct:Real>0.5</ct:Real>
                             </ds:Row>
                             <ds:Row>
                                 <ct:Real>0.95</ct:Real>
                                 <ct:Real>0.2</ct:Real>
-                                
                                 <ct:Real>0.6</ct:Real>
                             </ds:Row>
                         </ds:Table>
@@ -410,7 +408,7 @@
                         </ds:Definition>
                         <ds:Table>
                             <ds:Row><ct:String>POP_CL</ct:String><ct:Real>0.1</ct:Real><ct:Real>0.2</ct:Real><ct:Real>0.3</ct:Real>
-                                <ct:Real>0.4</ct:Real><ct:Real>0.5</ct:Real><ct:Real>0.6</ct:Real>
+                                <ct:Real>0.4</ct:Real><ct:Real>0.5</ct:Real>
                             </ds:Row>
                             <!-- omitted other parameters -->
                         </ds:Table>
@@ -426,13 +424,11 @@
                             <ds:Row>
                                 <ct:Real>0.05</ct:Real>
                                 <ct:Real>0.1</ct:Real>
-                                <!-- .... -->
                                 <ct:Real>0.5</ct:Real>
                             </ds:Row>
                             <ds:Row>
                                 <ct:Real>0.95</ct:Real>
                                 <ct:Real>0.2</ct:Real>
-                                
                                 <ct:Real>0.6</ct:Real>
                             </ds:Row>
                         </ds:Table>
@@ -466,13 +462,11 @@
                             <ds:Row>
                                 <ct:Real>0.05</ct:Real>
                                 <ct:Real>0.1</ct:Real>
-                                <!-- .... -->
                                 <ct:Real>0.5</ct:Real>
                             </ds:Row>
                             <ds:Row>
                                 <ct:Real>0.95</ct:Real>
                                 <ct:Real>0.2</ct:Real>
-                                
                                 <ct:Real>0.6</ct:Real>
                             </ds:Row>
                         </ds:Table>
@@ -506,13 +500,11 @@
                             <ds:Row>
                                 <ct:Real>0.05</ct:Real>
                                 <ct:Real>0.1</ct:Real>
-                                <!-- .... -->
                                 <ct:Real>0.5</ct:Real>
                             </ds:Row>
                             <ds:Row>
                                 <ct:Real>0.95</ct:Real>
                                 <ct:Real>0.2</ct:Real>
-                                
                                 <ct:Real>0.6</ct:Real>
                             </ds:Row>
                         </ds:Table>
