@@ -117,7 +117,7 @@ ParseDataSetInline <- function(parentNode) {
   rowData = lapply(rowList, FUN = function(x) xmlSApply(x, xmlValue))
   
   # Filter out any Commnet lines 
-  rowData = lapply(rowData, function(x) {x[names(x) != "comment"]})
+  rowData = rowData[names(rowData) != "comment"]
   
   # Convert to data frame 
   temp = Reduce(rbind, rowData)
