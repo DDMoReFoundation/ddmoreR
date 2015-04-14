@@ -758,7 +758,7 @@ ParseLikelihood <- function(SOObject, LikelihoodNode) {
 	  
     }
 	
-	if (xmlName(child) == "IndividualContribToLL") {
+	  if (xmlName(child) == "IndividualContribToLL") {
 		
       # Extract IndividualContribToLL
       L = ParseElement(child)
@@ -767,8 +767,13 @@ ParseLikelihood <- function(SOObject, LikelihoodNode) {
 	  SOObject@Estimation@Likelihood$IndividualContribToLL = list(
 			  description=L$description, 
 			  data=L$data)
-	  
-	}
+	  }
+
+    if (xmlName(child) == "InformationCriteria") {
+    
+      # Fetch the values of the children for InformationCriteria 
+      SOObject@Estimation@Likelihood$InformationCriteria = lapply(xmlChildren(child), xmlValue)
+    }
 	
   }
 
