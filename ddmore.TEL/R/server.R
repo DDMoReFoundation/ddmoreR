@@ -52,7 +52,7 @@ TEL.serverRunning <-
     tryCatch(
         {
             response <- RCurl:::postForm(healthcheckUrl, style="POST")
-            return(response == "ok")
+            return(response == "UP")
         }, error = function(e) {
             return(FALSE)
         }
