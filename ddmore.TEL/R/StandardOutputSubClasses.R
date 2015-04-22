@@ -124,7 +124,6 @@ setClass("ModelDiagnostic",
 #' 
 #' An object to house all data associated with model simulation runs.
 #'  
-#' @slot Description A character vector describing the simulation experiment
 #' @slot OriginalData Details and reference to the original data file.
 #' @slot SimulationBlock A list of SimulationBlock S4 classes that contain
 #'       details of each individual simulation run.
@@ -201,31 +200,72 @@ setClass("SimulationBlock",
 #' As the input data is not well defined at current, the slots for most of this class
 #' are currently defined as lists for flexibility
 #' 
-#' @slot ODE A list for now ... 
-#' @slot AOD A list for now ... 
+#' @slot OptimalDesignBlock A list of all OptimalDesignBlock elements from the SO
 #' 
 #' @author cmusselle
 setClass("OptimalDesign", 
   # Define the slots
   slots=c(
-    ODEEvaluation="list",
-    ODEOptimisation="list",
-    AODEvaluation="list",
-    AODOptimisation="list"
+    OptimalDesignBlock="list"
     ),
   # Set Default Values to blank lists with names in place
   prototype = list(
-  	ODEEvaluation = list(),
-  	ODEOptimisation = list(), 
-  	AODEvaluation = list(), 
-  	AODOptimisation = list()
+  	OptimalDesignBlock = list()
   	),
   # Validity Checking Function 
   validity = function(object) {
-	  stopifnot(class(object@ODEEvaluation)=="list")
-    stopifnot(class(object@ODEOptimisation)=="list")
-    stopifnot(class(object@AODEvaluation)=="list")
-    stopifnot(class(object@AODOptimisation)=="list")
+	  stopifnot(class(object@OptimalDesignBlock)=="list")
 	return(TRUE)
 	}
 )
+
+
+##############################################################################
+#' The OptimalDesignBlock Object Class (S4) 
+#' 
+#' An object to house all data associated with a single simulation run
+#' 
+#' @slot SimulatedProfiles A list containing the data as a dataframe and a description header 
+#' @slot IndivParameters A list containing the data as a dataframe and a description header
+#' @slot Covariates A list containing the data as a dataframe and a description header
+#' @slot PopulationParameters A list containing the data as a dataframe and a description header
+#' @slot Dosing A list containing the data as a dataframe and a description header
+#' @slot RawResultsFile containing the path to the file containing the raw results
+#' 
+#' @author cmusselle
+
+
+# XXXX: Still working on this, may not work
+
+# setClass("OptimalDesignBlock", 
+#   # Define the slots
+#   slots=c(
+#     FIM="matrix",
+#     CovarianceMatrix="matrix", 
+#     Parameters = "list",
+#     Criteria = "list",
+#     Tests = "list",
+#     SimulatedDatasets = "list",
+#     Design = "list"
+#     ),
+#   # Set Default Values to blank lists with names in place
+#   prototype = list(
+#     FIM = "matrix",
+#     CovarianceMatrix = "matrix", 
+#     Parameters = "list",
+#     Criteria = "list",
+#     Tests = "list",
+#     SimulatedDatasets = "list",
+#     Design = "list"
+# ),
+#   # Validity Checking Function 
+#   validity = function(object) {
+#     stopifnot(class(object@SimulatedProfiles) == "list")
+#     stopifnot(class(object@IndivParameters) == "list")
+#     stopifnot(class(object@Covariates) == "list")
+#     stopifnot(class(object@PopulationParameters) == "list")
+#     stopifnot(class(object@Dosing) == "list")
+#     stopifnot(class(object@RawResultsFile) == "list")
+#     return(TRUE)
+#   }
+# )

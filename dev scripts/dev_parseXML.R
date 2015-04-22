@@ -18,8 +18,12 @@ source("R/xmlParsers.R")
 SOObject = createSOObject()
 
 # Get a reference to the root node in the xml doc
+
+root = xmlRoot(xmlTreeParse("inst\\tests\\data\\PharmMLSO\\MachineGenerated\\pheno.SO.xml"))
+
+
 #root = xmlRoot(xmlTreeParse("development data\\MONOLIX_SO\\Warfarin-ODE-latest.SO.xml"))
-root = xmlRoot(xmlTreeParse("inst\\tests\\data\\PharmMLSO\\HandCoded\\warfarin_PK_ODE_SO_FULL-v0_1.xml"))
+# root = xmlRoot(xmlTreeParse("inst\\tests\\data\\PharmMLSO\\HandCoded\\warfarin_PK_ODE_SO_FULL-v0_1.xml"))
 #root = xmlRoot(xmlTreeParse("inst\\tests\\data\\PharmMLSO\\MachineGenerated\\Warfarin-ODE-latest.SO.xml"))
 
 
@@ -35,7 +39,9 @@ stopifnot(length(SOBlockList) == 1)
 SOChildren <- xmlChildren(SOBlockList[[1]])
 
 # Execute Parsers
+SOObject = ParseTaskInformation(SOObject, SOChildren$TaskInformation)
 SOObject = ParseToolSettings(SOObject, SOChildren$ToolSettings)
+
 
 SOObject = ParseRawResults(SOObject, SOChildren$RawResults)
 
@@ -48,6 +54,9 @@ SOObject = ParseIndividualEstimates(SOObject, SOChildren$Estimation[["Individual
 SOObject = ParseResiduals(SOObject, SOChildren$Estimation[["Residuals"]])
 
 SOObject = ParsePredictions(SOObject, SOChildren$Estimation[["Predictions"]])
+
+# Liklihood
+Liklihood = root[["SOBlock"]][["Estimation"]][["Likelihood"]]
 
 
 # Development of Model Diagnostics Block

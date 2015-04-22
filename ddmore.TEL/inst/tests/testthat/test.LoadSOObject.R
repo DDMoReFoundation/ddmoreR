@@ -15,8 +15,7 @@ testSlotsNotEmpty <- function(S4class, slotnames) {
   
 }
 
-context("Loading In SOObjects from PharmMLSO Version 0.1")
-
+context("Loading in SOObjects from Handcoded PharmMLSO Version 0.1")
 
 test_that("PharmML SO fills expected slots in Estimation", {
 
@@ -44,11 +43,11 @@ test_that("PharmML SO fills expected slots in Estimation", {
   #TaskInformation
   expect_false(
     all(sapply(SOObject@TaskInformation$Messages, is.null)), 
-    info = "All Message slots are not empty", )
+    info = "All Message slots should not be empty", )
   
   expect_true(
     length(names(SOObject@TaskInformation)[names(SOObject@TaskInformation) != "Messages"]) > 0, 
-    info = "Messages is not the only element present")
+    info = "'Messages' should be the only child element present")
   
   # Estimates
   slotnames = c("PopulationEstimates", "PrecisionPopulationEstimates",
@@ -66,7 +65,63 @@ test_that("PharmML SO fills expected slots in Estimation", {
    
 })
 
+#-----------------------------------------------------------------------
+context("Loading in SOObjects from machine generated PharmMLSO Version 0.1.2")
+#-----------------------------------------------------------------------
+
+test_that("PharmML SO fills expected slots in Estimation", {
+
+  # Clear workspace. 
+  rm(list=ls())
+  
+  data.path = system.file("tests/data/PharmMLSO/MachineGenerated/pheno.SO.xml",  
+  		package = "DDMoRe.TEL")
+        
+  # Load in SO
+  SOObject = LoadSOObject(data.path)
+  
+  # Test is S4
+  expect_true(isS4(SOObject), info = "Object is S4", )
+  
+  # Test Slots have been populated #
+  # ------------------------------ #
+  
+  # ToolSettings
+  expect_true(length(SOObject@ToolSettings) > 0 , info = "Object is not empty", )
+  
+  # RawResults
+  testSlotsNotEmpty(SOObject@RawResults, c("DataFiles", "GraphicsFiles"))
+  
+  #TaskInformation
+  expect_false(
+    all(sapply(SOObject@TaskInformation$Messages, is.null)), 
+    info = "All Message slots should not be empty", )
+  
+  expect_true(
+    length(names(SOObject@TaskInformation)[names(SOObject@TaskInformation) != "Messages"]) > 0, 
+    info = "'Messages' should be the only child element present")
+  
+  # Estimates
+  slotnames = c("PopulationEstimates", "PrecisionPopulationEstimates",
+    "IndividualEstimates", "PrecisionIndividualEstimates",
+    "Residuals", "Predictions", "Likelihood")
+  testSlotsNotEmpty(SOObject@Estimation, slotnames)
+
+  # Simulation 
+  slotnames = c("SimulationBlock")
+  testSlotsNotEmpty(SOObject@Simulation, slotnames)
+
+  # Model Diagnostic
+  slotnames = c("DiagnosticPlotsIndividualParams", "DiagnosticPlotsStructuralModel")
+  testSlotsNotEmpty(SOObject@ModelDiagnostic, slotnames)
+   
+})
+
+
+#-------------------------------------------------------------------------------------------------
 context("Loading an empty, i.e. no SOBlocks, PharmML SO Version 0.1. Checking an Error is raised")
+#-------------------------------------------------------------------------------------------------
+
 
 # Clear workspace. 
 rm(list=ls())
@@ -142,7 +197,8 @@ test_that("Expected Estimation::PrecisionPopulationEstimates::MLE::StandardError
 	expect_true(isS4(SOObject), info = "Object is S4")
 	mleStandardError <- SOObject@Estimation@PrecisionPopulationEstimates$MLE$StandardError
 	
-	expect_true(is.list(mleStandardError) && length(mleStandardError) == 2, info="Estimation::PrecisionPopulationEstimates::MLE::StandardError should be a list of 2 elements")
+	expect_true(is.list(mleStandardError) && length(mleStandardError) == 2, 
+		info="Estimation::PrecisionPopulationEstimates::MLE::StandardError should be a list of 2 elements")
 	
 })
 
@@ -151,7 +207,8 @@ test_that("Expected Estimation::PrecisionPopulationEstimates::MLE::RelativeStand
 	expect_true(isS4(SOObject), info = "Object is S4")
 	mleRelativeStandardError <- SOObject@Estimation@PrecisionPopulationEstimates$MLE$RelativeStandardError
 	
-	expect_true(is.list(mleRelativeStandardError) && length(mleRelativeStandardError) == 2, info="Estimation::PrecisionPopulationEstimates::MLE::RelativeStandardError should be a list of 2 elements")
+	expect_true(is.list(mleRelativeStandardError) && length(mleRelativeStandardError) == 2, 
+		info="Estimation::PrecisionPopulationEstimates::MLE::RelativeStandardError should be a list of 2 elements")
 	
 })
 
@@ -159,7 +216,8 @@ test_that("Expected Estimation::PrecisionPopulationEstimates::MLE::FIM to NOT be
 			
 	expect_true(isS4(SOObject), info = "Object is S4")
 	
-	expect_true(is.null(SOObject@Estimation@PrecisionPopulationEstimates$MLE$FIM), info="Estimation::PrecisionPopulationEstimates::MLE::FIM should NOT be present")
+	expect_true(is.null(SOObject@Estimation@PrecisionPopulationEstimates$MLE$FIM), 
+		info="Estimation::PrecisionPopulationEstimates::MLE::FIM should NOT be present")
 	
 })
 
@@ -167,7 +225,8 @@ test_that("Expected Estimation::PrecisionPopulationEstimates::MLE::CorrelationMa
 			
 	expect_true(isS4(SOObject), info = "Object is S4")
 	
-	expect_true(is.null(SOObject@Estimation@PrecisionPopulationEstimates$MLE$CorrelationMatrix), info="Estimation::PrecisionPopulationEstimates::MLE::CorrelationMatrix should NOT be present")
+	expect_true(is.null(SOObject@Estimation@PrecisionPopulationEstimates$MLE$CorrelationMatrix), 
+		info="Estimation::PrecisionPopulationEstimates::MLE::CorrelationMatrix should NOT be present")
 	
 })
 
@@ -175,7 +234,8 @@ test_that("Expected Estimation::PrecisionPopulationEstimates::MLE::CovarianceMat
 			
 	expect_true(isS4(SOObject), info = "Object is S4")
 	
-	expect_true(is.null(SOObject@Estimation@PrecisionPopulationEstimates$MLE$CovarianceMatrix), info="Estimation::PrecisionPopulationEstimates::MLE::CovarianceMatrix should NOT be present")
+	expect_true(is.null(SOObject@Estimation@PrecisionPopulationEstimates$MLE$CovarianceMatrix), 
+		info="Estimation::PrecisionPopulationEstimates::MLE::CovarianceMatrix should NOT be present")
 	
 })
 
