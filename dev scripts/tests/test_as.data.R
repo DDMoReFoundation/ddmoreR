@@ -5,6 +5,7 @@ rm(list=ls())
 
 # Paths setup. Set this to TEL repo location
 root = "C:\\Users\\cmusselle\\Projects\\DDmore\\TEL-R"
+setwd(root)
 
 TEL.zip.path = paste(root, ".__artefacts/DDMoRe.TEL_0.0.3.tar.gz", sep="\\")
 
@@ -18,29 +19,21 @@ require("DDMoRe.TEL")
 
 require("testthat")
 
-setwd(root)
-
 
 source( paste(root, "ddmore.TEL\\R\\StandardOutputObject.R", sep="\\"))
 
-
 #Monolix.SO.path = paste(root, "development data\\MONOLIX_SO", sep="\\")
-Nonmem.SO.path = paste(root, "development data\\bugfixing\\IV1CPTCLSD\\output\\IV1CPTCLSD_NONMEM.SO.xml", sep="\\")
-
-# data.path = hand.coded.data.path
-# data.path = machine.coded.data.path
-data.path = Nonmem.SO.path
+test.SO.path = paste(root, "dev scripts\\Product3_EXAMPLE\\models\\Warfarin-ODE-latest-Monolix\\Warfarin-ODE-latest-Monolix.SO.xml", sep="\\")
+csv.file.path = paste(root, "dev scripts\\Product3_EXAMPLE\\models\\Warfarin-ODE-latest-Monolix\\warfarin_conc.csv", sep="\\")
 
 # Load in SO
-SOObject = LoadSOObject(data.path)
-
-csvFilePath = paste(root, "development data\\bugfixing\\IV1CPTCLSD\\output\\IV1CPTCLSD.csv", sep="\\")
+SOObject = LoadSOObject(test.SO.path)
 
 # Test for fetching Raw Data from a file 
-MyDataFrame = as.data(SOObject, inputDataPath=csvFilePath)
+MyDataFrame = as.data(SOObject, inputDataPath=csv.file.path)
 
 # Convert to xpose data base. 
-myXpdb = as.xpdb(SOObject, inputDataPath=csvFilePath) 
+myXpdb = as.xpdb(SOObject, inputDataPath=csv.file.path) 
 
 # # -------------------
 # # MonoLix Test 

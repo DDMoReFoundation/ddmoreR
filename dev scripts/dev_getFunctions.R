@@ -11,7 +11,6 @@ install.packages("C:/Users/cmusselle/Projects/DDmore/TEL-R/.__artefacts/DDMoRe.T
 require("DDMoRe.TEL")
 
 #source("tel-dev-mine.R")
-
 data.path = system.file("tests/data/PharmMLSO/MachineGenerated/pheno.SO.xml",  
                         package = "DDMoRe.TEL")
 
