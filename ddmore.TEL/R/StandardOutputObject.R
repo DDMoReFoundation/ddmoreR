@@ -623,11 +623,12 @@ setMethod(f="as.data",
           # Checks for Column format
 				  rawData[["ID"]] <- as.numeric(rawData[["ID"]]) 
 				  rawData[["TIME"]] <- as.numeric(rawData[["TIME"]]) 
+          names(rawData) <- toupper(names(rawData))
 
           # Reorder data frame to have ID and TIME column as first two. 
-          ID.col = toupper(names(rawData)) == "ID"
-          TIME.col = toupper(names(rawData)) == "TIME"
-          remaining.names = setdiff(toupper(names(rawData)),c("ID","TIME"))
+          ID.col = names(rawData) == "ID"
+          TIME.col = names(rawData) == "TIME"
+          remaining.names = setdiff(names(rawData),c("ID","TIME"))
           rawData = cbind(rawData[, ID.col], 
                           rawData[, TIME.col], 
                           rawData[, remaining.names],
