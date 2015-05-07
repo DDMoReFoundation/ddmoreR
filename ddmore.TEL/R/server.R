@@ -19,7 +19,7 @@ TEL.startServer <-
     
     if (!TEL.serverRunning()) {
       message("Server not running; starting server...")
-      system(paste(shQuote(startupScript), '/B'), wait=F)  # /B argument suppresses the display of the command windows
+      system(paste(shQuote(startupScript), '/B'), wait=F, show.output.on.console=FALSE, ignore.stdout=TRUE, ignore.stderr=TRUE)  # /B argument suppresses the display of the command windows
       count = 0
       message("Retries: ", appendLF=FALSE)
       while ( count < 60 && !TEL.serverRunning() ) {
