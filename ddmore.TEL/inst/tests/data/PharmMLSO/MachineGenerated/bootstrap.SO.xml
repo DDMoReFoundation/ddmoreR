@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SO xmlns="http://www.pharmml.org/so/0.2/StandardisedOutput" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ds="http://www.pharmml.org/pharmml/0.6/Dataset" xmlns:ct="http://www.pharmml.org/pharmml/0.6/CommonTypes" xsi:schemaLocation="http://www.pharmml.org/so/0.2/StandardisedOutput" implementedBy="MJS" writtenVersion="0.2" id="i1">
+  <SOBlock blkId="bootstrap">
+    <RawResults>
+      <DataFile oid="d1">
+        <ct:Description>PsN Bootstrap results file</ct:Description>
+        <ds:path>bootstrap_results.csv</ds:path>
+      </DataFile>
+    </RawResults>
+    <Estimation>
+      <PopulationEstimates>
+        <Bootstrap>
+          <Mean>
+            <ds:Definition>
+              <ds:Column columnId="TVCL" columnType="undefined" valueType="real" columnNum="1"/>
+              <ds:Column columnId="TVV" columnType="undefined" valueType="real" columnNum="2"/>
+              <ds:Column columnId="IVCL" columnType="undefined" valueType="real" columnNum="3"/>
+              <ds:Column columnId="IVV" columnType="undefined" valueType="real" columnNum="4"/>
+              <ds:Column columnId="SIGMA_1_1_" columnType="undefined" valueType="real" columnNum="5"/>
+            </ds:Definition>
+            <ds:Table>
+              <ds:Row>
+                <ct:Real>0.005595309</ct:Real>
+                <ct:Real>1.3551</ct:Real>
+                <ct:Real>0.2045041</ct:Real>
+                <ct:Real>0.1489927</ct:Real>
+                <ct:Real>0.01683749</ct:Real>
+              </ds:Row>
+            </ds:Table>
+          </Mean>
+          <Median>
+            <ds:Definition>
+              <ds:Column columnId="TVCL" columnType="undefined" valueType="real" columnNum="1"/>
+              <ds:Column columnId="TVV" columnType="undefined" valueType="real" columnNum="2"/>
+              <ds:Column columnId="IVCL" columnType="undefined" valueType="real" columnNum="3"/>
+              <ds:Column columnId="IVV" columnType="undefined" valueType="real" columnNum="4"/>
+              <ds:Column columnId="SIGMA_1_1_" columnType="undefined" valueType="real" columnNum="5"/>
+            </ds:Definition>
+            <ds:Table>
+              <ds:Row>
+                <ct:Real>0.00563288</ct:Real>
+                <ct:Real>1.324875</ct:Real>
+                <ct:Real>0.217693</ct:Real>
+                <ct:Real>0.1422235</ct:Real>
+                <ct:Real>0.0167075</ct:Real>
+              </ds:Row>
+            </ds:Table>
+          </Median>
+        </Bootstrap>
+      </PopulationEstimates>
+      <PrecisionPopulationEstimates>
+        <Bootstrap>
+          <Percentiles>
+            <ds:Definition>
+              <ds:Column columnId="Percentile" columnType="undefined" valueType="real" columnNum="1"/>
+              <ds:Column columnId="TVCL" columnType="undefined" valueType="real" columnNum="2"/>
+              <ds:Column columnId="TVV" columnType="undefined" valueType="real" columnNum="3"/>
+              <ds:Column columnId="IVCL" columnType="undefined" valueType="real" columnNum="4"/>
+              <ds:Column columnId="IVV" columnType="undefined" valueType="real" columnNum="5"/>
+              <ds:Column columnId="SIGMA_1_1_" columnType="undefined" valueType="real" columnNum="6"/>
+            </ds:Definition>
+            <ds:Table>
+              <ds:Row>
+                <ct:Real>5</ct:Real>
+                <ct:Real>0.004930895</ct:Real>
+                <ct:Real>1.206546</ct:Real>
+                <ct:Real>0.02280642</ct:Real>
+                <ct:Real>0.08265286</ct:Real>
+                <ct:Real>0.009385112</ct:Real>
+              </ds:Row>
+              <ds:Row>
+                <ct:Real>95</ct:Real>
+                <ct:Real>0.006278781</ct:Real>
+                <ct:Real>1.580135</ct:Real>
+                <ct:Real>0.5144336</ct:Real>
+                <ct:Real>0.2397183</ct:Real>
+                <ct:Real>0.02245299</ct:Real>
+              </ds:Row>
+            </ds:Table>
+          </Percentiles>
+        </Bootstrap>
+      </PrecisionPopulationEstimates>
+    </Estimation>
+  </SOBlock>
+</SO>
