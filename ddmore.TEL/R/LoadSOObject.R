@@ -115,32 +115,37 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 	# Fetch all Components of the SO object that are defined
 	SOChildren <- xmlChildren(soBlock)
 	
+	messageList <- list(parsed=list(), skipped=list())
+
 	# Error Checking of unexpected elements
 	expectedTags = c("ToolSettings", "RawResults", "TaskInformation", "Estimation", 
 			"Simulation", "ModelDiagnostic")
 	unexpected = setdiff(names(SOChildren), expectedTags)
 	if (length(unexpected) != 0) {
-		warning(paste("The following unexpected elements were detected in the PharmML SO.", 
+		warning(paste("The following unexpected elements were detected in the PharmML SO. These will be ignored.", 
 						paste(unexpected, collapse="\n      "), sep="\n      "))
 	}
 	
 	# Error checking of expected XML structure + Parser Execution
 	if ("ToolSettings" %in% names(SOChildren)){
 		SOObject <- ParseToolSettings(SOObject, SOChildren[["ToolSettings"]])
+		messageList[["parsed"]] <- append(messageList[["parsed"]], "ToolSettings")
 	} else {
-		message("ToolSettings element not detected in PharmML. Skipping...")
+		messageList[["skipped"]] <- append(messageList[["skipped"]], "ToolSettings")
 	}
 	
 	if ("RawResults" %in% names(SOChildren)){
 		SOObject <- ParseRawResults(SOObject, SOChildren[["RawResults"]])
+		messageList[["parsed"]] <- append(messageList[["parsed"]], "RawResults")
 	} else {
-		message("RawResults element not detected in PharmML. Skipping...")
+		messageList[["skipped"]] <- append(messageList[["skipped"]], "RawResults")
 	}
 	
 	if ("TaskInformation" %in% names(SOChildren)){
 		SOObject <- ParseTaskInformation(SOObject, SOChildren[["TaskInformation"]])
+		messageList[["parsed"]] <- append(messageList[["parsed"]], "TaskInformation")
 	} else {
-		message("TaskInformation element not detected in PharmML. Skipping...")
+		messageList[["skipped"]] <- append(messageList[["skipped"]], "TaskInformation")
 	}
 	
 	if ("Estimation" %in% names(SOChildren)){
@@ -151,54 +156,61 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 				"Predictions", "Likelihood")
 		unexpected = setdiff(names(SOChildren[["Estimation"]]), expectedTags)
 		if (length(unexpected) != 0) {
-			warning(paste("The following unexpected elements were detected in the Estimation section of the PharmML SO.", 
+			warning(paste("The following unexpected elements were detected in the Estimation section of the PharmML SO. These will be ignored.", 
 							paste(unexpected, collapse="\n      "), sep="\n      "))
 		}
 		
 		if ("PopulationEstimates" %in% names(SOChildren[["Estimation"]])){
 			SOObject <- ParsePopulationEstimates(SOObject, SOChildren[["Estimation"]][["PopulationEstimates"]])
+			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:PopulationEstimates")
 		} else {
-			message("PopulationEstimates element not detected in PharmML. Skipping...")
+			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:PopulationEstimates")
 		}
 		
 		if ("PrecisionPopulationEstimates" %in% names(SOChildren[["Estimation"]])){
 			SOObject <- ParsePrecisionPopulationEstimates(SOObject, SOChildren[["Estimation"]][["PrecisionPopulationEstimates"]])
+			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:PrecisionPopulationEstimates")
 		} else {
-			message("PrecisionPopulationEstimates element not detected in PharmML. Skipping...")
+			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:PrecisionPopulationEstimates")
 		}
 		
 		if ("IndividualEstimates" %in% names(SOChildren[["Estimation"]])){
 			SOObject <- ParseIndividualEstimates(SOObject, SOChildren[["Estimation"]][["IndividualEstimates"]])
+			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:IndividualEstimates")
 		} else {
-			message("IndividualEstimates element not detected in PharmML. Skipping...")
+			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:IndividualEstimates")
 		}
 		
 		if ("PrecisionIndividualEstimates" %in% names(SOChildren[["Estimation"]])){
 			SOObject <- ParsePrecisionIndividualEstimates(SOObject, SOChildren[["Estimation"]][["PrecisionIndividualEstimates"]])
+			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:PrecisionIndividualEstimates")
 		} else {
-			message("PrecisionIndividualEstimates element not detected in PharmML. Skipping...")
+			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:PrecisionIndividualEstimates")
 		}
 		
 		if ("Residuals" %in% names(SOChildren[["Estimation"]])){
 			SOObject <- ParseResiduals(SOObject, SOChildren[["Estimation"]][["Residuals"]])
+			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:Residuals")
 		} else {
-			message("Residuals element not detected in PharmML. Skipping...")
+			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:Residuals")
 		}
 		
 		if ("Predictions" %in% names(SOChildren[["Estimation"]])){
 			SOObject <- ParsePredictions(SOObject, SOChildren[["Estimation"]][["Predictions"]])
+			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:Predictions")
 		} else {
-			message("Predictions element not detected in PharmML. Skipping...")
+			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:Predictions")
 		}
 		
 		if ("Likelihood" %in% names(SOChildren[["Estimation"]])){
 			SOObject <- ParseLikelihood(SOObject, SOChildren[["Estimation"]][["Likelihood"]])
+			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:Likelihood")
 		} else {
-			message("Likelihood element not detected in PharmML. Skipping...")
+			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:Likelihood")
 		}
 		
 	} else {
-		message("Estimation element not detected in PharmML. Skipping...")
+		messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation")
 	}
 	
 	if ("Simulation" %in% names(SOChildren)){
@@ -207,15 +219,15 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 		expectedTags = c("Description", "OriginalDataset", "SimulationBlock")
 		unexpected = setdiff(names(SOChildren[["Simulation"]]), expectedTags)
 		if (length(unexpected) != 0) {
-			warning(paste("The following unexpected elements were detected in the parent Simulation section of the PharmML SO.", 
+			warning(paste("The following unexpected elements were detected in the parent Simulation section of the PharmML SO. These will be ignored.", 
 							paste(unexpected, collapse="\n      "), sep="\n      "))
-		}
+		} 
 		
 		# Parse the Simulation node
 		SOObject <- ParseSimulation(SOObject, SOChildren[["Simulation"]])
-		
+		messageList[["parsed"]] <- append(messageList[["parsed"]], "Simulation")	
 	} else {
-		message("Simulation element not detected in PharmML. Skipping...")
+		messageList[["skipped"]] <- append(messageList[["skipped"]], "Simulation")
 	}
 	
 	if ("ModelDiagnostic" %in% names(SOChildren)){
@@ -224,15 +236,15 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 		expectedTags = c("DiagnosticPlotsIndividualParams", "DiagnosticPlotsStructuralModel")
 		unexpected = setdiff(names(SOChildren[["ModelDiagnostic"]]), expectedTags)
 		if (length(unexpected) != 0) {
-			warning(paste("The following unexpected elements were detected in the ModelDiagnostic section of the PharmML SO.", 
+			warning(paste("The following unexpected elements were detected in the ModelDiagnostic section of the PharmML SO. These will be ignored.", 
 							paste(unexpected, collapse="\n      "), sep="\n      "))
 		}
 		
 		# Parse the Simulation node
 		SOObject <- ParseModelDiagnostic(SOObject, SOChildren[["ModelDiagnostic"]])
-		
+		messageList[["parsed"]] <- append(messageList[["parsed"]], "ModelDiagnostic")	
 	} else {
-		message("ModelDiagnostic element not detected in PharmML. Skipping...")
+		messageList[["skipped"]] <- append(messageList[["skipped"]], "ModelDiagnostic")
 	}
 	
 	# Run validation functions on S4 Class and subclasses
@@ -242,5 +254,9 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 	validObject(SOObject@Simulation)
 	validObject(SOObject@OptimalDesign)
 	
+	# Print parsed and skipped elements.
+	message(paste("\nThe following elements were parsed successfully ", 
+				paste(messageList$parsed, collapse="\n      "), sep="\n      "))
+
 	SOObject
 }
