@@ -65,11 +65,118 @@ test_that("PharmML SO fills expected slots in Estimation", {
    
 })
 
-## TODO: Commented out due to incomplete machine generated data available for SO version 0.1.2    
 
-# #-----------------------------------------------------------------------
-# context("Loading in SOObjects from machine generated PharmMLSO Version 0.1.2")
-# #-----------------------------------------------------------------------
+#-----------------------------------------------------------------------
+context("Loading in SOObjects from machine generated PharmMLSO Version 0.2")
+#-----------------------------------------------------------------------
+
+test_that("PharmML SO returns expected slots when running a bootstrap task", {
+
+  # Clear workspace.
+  rm(list=ls())
+
+  data.path = system.file("tests/data/PharmMLSO/MachineGenerated/bootstrap.SO.xml",  
+                          package = "DDMoRe.TEL")
+  
+  # Load in SO
+  SOObject = LoadSOObject(data.path)
+
+  # Test is S4
+  expect_true(isS4(SOObject), info = "Object is S4", )
+
+  # Test Slots have been populated #
+  # ------------------------------ #
+  # Commented out tests are yet to be populated in the task generated data 
+
+  # ToolSettings
+#    expect_true(length(SOObject@ToolSettings) > 0 , info = "Object is not empty", )
+
+  # RawResults
+  testSlotsNotEmpty(SOObject@RawResults, "DataFiles")
+
+  #TaskInformation
+#   expect_false(
+#     all(sapply(SOObject@TaskInformation$Messages, is.null)), 
+#     info = "All Message slots should not be empty", )
+# 
+#   expect_true(
+#     length(names(SOObject@TaskInformation)[names(SOObject@TaskInformation) != "Messages"]) > 0, 
+#     info = "'Messages' should be the only child element present")
+
+  # Estimates
+#   slotnames = c("PopulationEstimates", "PrecisionPopulationEstimates",
+#     "IndividualEstimates", "PrecisionIndividualEstimates",
+#     "Residuals", "Predictions", "Likelihood")
+  slotnames = c("PopulationEstimates", "PrecisionPopulationEstimates")
+  testSlotsNotEmpty(SOObject@Estimation, slotnames)
+
+#   # Simulation 
+#   slotnames = c("SimulationBlock")
+#   testSlotsNotEmpty(SOObject@Simulation, slotnames)
+# 
+#   # Model Diagnostic
+#   slotnames = c("DiagnosticPlotsIndividualParams", "DiagnosticPlotsStructuralModel")
+#   testSlotsNotEmpty(SOObject@ModelDiagnostic, slotnames)
+
+})
+
+
+test_that("PharmML SO returns expected slots when running a simulation task", {
+  
+  # Clear workspace.
+  rm(list=ls())
+  
+  data.path = system.file("tests/data/PharmMLSO/MachineGenerated/run1.SO.xml",  
+                          package = "DDMoRe.TEL")
+  
+  # Load in SO
+  SOObject = LoadSOObject(data.path)
+  
+  # Test is S4
+  expect_true(isS4(SOObject), info = "Object is S4", )
+  
+  # Test Slots have been populated #
+  # ------------------------------ #
+  # Commented out tests are yet to be populated in the task generated data 
+  
+  # ToolSettings
+  #    expect_true(length(SOObject@ToolSettings) > 0 , info = "Object is not empty", )
+  
+  # RawResults
+  testSlotsNotEmpty(SOObject@RawResults, "DataFiles")
+  
+  # TaskInformation
+  expect_false(
+      all(sapply(SOObject@TaskInformation$Messages, is.null)), 
+      info = "All Message slots should not be empty", )
+  
+  expect_true(
+      length(names(SOObject@TaskInformation)[names(SOObject@TaskInformation) != "Messages"]) > 0, 
+      info = "'Messages' should be the only child element present")
+  
+  # Estimates
+  #   slotnames = c("PopulationEstimates", "PrecisionPopulationEstimates",
+  #     "IndividualEstimates", "PrecisionIndividualEstimates",
+  #     "Residuals", "Predictions", "Likelihood")
+#   testSlotsNotEmpty(SOObject@Estimation, slotnames)
+  
+  # Simulation 
+  slotnames = c("SimulationBlock")
+  testSlotsNotEmpty(SOObject@Simulation, slotnames)
+  
+  expect_true(
+    length(SOObject@Simulation@SimulationBlock) == 20, 
+    info = "Simulation Block should contain 20 separate simulations.")
+   
+  #   # Model Diagnostic
+  #   slotnames = c("DiagnosticPlotsIndividualParams", "DiagnosticPlotsStructuralModel")
+  #   testSlotsNotEmpty(SOObject@ModelDiagnostic, slotnames)
+  
+})
+
+
+# TODO: Commented out due to incomplete machine generated data available for SO version 0.2    
+
 
 # test_that("PharmML SO fills expected slots in Estimation", {
 
@@ -118,6 +225,9 @@ test_that("PharmML SO fills expected slots in Estimation", {
 #   testSlotsNotEmpty(SOObject@ModelDiagnostic, slotnames)
    
 # })
+
+
+
 
 
 #-------------------------------------------------------------------------------------------------
