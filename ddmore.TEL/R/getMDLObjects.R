@@ -48,7 +48,7 @@ setGeneric("getMDLObjects", function(x, name, HOST='localhost', PORT='9010') {
   raw <- .parseMDLFile0(x, HOST, PORT);
   
   allObjs <- list()
-  sapply(mog_object_types, function(mog_object_type) {
+  sapply(MOG_OBJECT_TYPES, function(mog_object_type) {
 	allObjs <<- c(allObjs, .extractTypeObject(raw, mog_object_type))
   })
 
