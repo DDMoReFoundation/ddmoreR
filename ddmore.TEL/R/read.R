@@ -90,12 +90,12 @@ setMethod("read", "dataObj", function(object, sourceDir=getwd(), deriveVariables
     
     for (ii in vars) {
       type <- input[[ii]]$type
-      if (type=="categorical" && categoricalAsFactor) {
-		  try(res[, ii] <- as.factor(res[, ii]))
-	  }
-      if (type=="continuous") {
-		  try(res[, ii] <- as.numeric(res[, ii]))
-	  }
+      if (is.null(type) || type=="continuous") {
+          # continuous is assumed if no type is specified 
+		      try(res[, ii] <- as.numeric(res[, ii]))
+      } else if (type=="categorical" && categoricalAsFactor) {
+          try(res[, ii] <- as.factor(res[, ii]))
+      }
 	  # TODO: add more options here 
     }
   }
