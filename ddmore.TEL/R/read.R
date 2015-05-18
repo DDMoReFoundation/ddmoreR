@@ -57,7 +57,9 @@ setMethod("read", "dataObj", function(object, sourceDir=getwd(), deriveVariables
   res <- .importCSV(object, sourceDir=sourceDir, ...)
   
   # Overwrite the names from the csv with names from DATA_INPUT_VARIABLES
-  names(res) <- names(object@DATA_INPUT_VARIABLES)
+  if (!is.null(names(object@DATA_INPUT_VARIABLES))) {
+    names(res) <- names(object@DATA_INPUT_VARIABLES)
+  }
   
   # Apply code from DATA_DERIVED_VARIABLES:
   if (deriveVariables) {
