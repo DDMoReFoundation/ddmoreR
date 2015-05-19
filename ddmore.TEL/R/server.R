@@ -47,23 +47,64 @@ TEL.startServer <-
 #' Checks if the TEL server is running.
 #'
 #' @param HOST Hostname of the server running the FIS service. Defaults to localhost.
-#' @param PORT Port of the server running the FIS service. Defaults to 9010.
+#' @param OPERATIONAL_PORT Operational (as opposed to Service) port of the server
+#'						   running the FIS service. Defaults to 9011.
 #' @return True if the server is running, false if the server is not running.
 #' 
+#' @export
+#' 
 TEL.serverRunning <- 
-  function(HOST='localhost', PORT='9010') {
+  function(HOST='localhost', OPERATIONAL_PORT=9011) {
 
-    healthcheckUrl <- sprintf('http://%s:%s/healthcheck', HOST, PORT)
-    
-    tryCatch(
-        {
-            response <- RCurl:::postForm(healthcheckUrl, style="POST")
-            return(response == "UP")
-        }, error = function(e) {
-            return(FALSE)
-        }
-    )
+	healthStatuses <- TEL.serverHealthcheck(HOST, OPERATIONAL_PORT)
+	
+	(healthStatuses[[1]] == 'UP') && # Status of FIS itself
+		all(lapply(healthStatuses[-1], function(srvStatus) { srvStatus$status }) == 'UP')
+
   }
+
+################################################################################
+#' TEL.serverHealthcheck
+#'
+#' Queries the health of FIS and its dependent servers.
+#' 
+#' @param HOST Hostname of the server running the FIS service. Defaults to localhost.
+#' @param OPERATIONAL_PORT Operational (as opposed to Service) port of the server
+#'						   running the FIS service. Defaults to 9011.
+#' @return a named list detailing the status of FIS and its dependent services, i.e.:
+#' $status
+#' [1] "UP"
+#' $ctsHealth
+#' $ctsHealth$status
+#' [1] "UP"
+#' $mifHealth
+#' $mifHealth$status
+#' [1] "UP"
+#' $db
+#' $db$status
+#' [1] "UP"
+#' $db$database
+#' [1] "H2"
+#' $db$hello
+#' [1] 1
+#'
+#' @export
+#' 
+TEL.serverHealthcheck <-
+  function (HOST='localhost', OPERATIONAL_PORT=9011) {
+
+	healthcheckUrl <- sprintf('http://%s:%s/health', HOST, OPERATIONAL_PORT)
+
+	tryCatch(
+		{
+			response <- RCurl:::postForm(healthcheckUrl, style="POST", binary=FALSE)
+			return(fromJSON(response))
+		}, error = function(e) {
+			return(list(status='DOWN'))
+		}
+	)
+	
+}
   
 ################################################################################
 #' TEL.stopServer
@@ -76,7 +117,7 @@ TEL.serverRunning <-
 #' 				   termination should call this with TRUE
 #'
 TEL.stopServer <-
-  function(HOST='localhost', PORT='9010', dontWait = FALSE) {
+  function(HOST='localhost', PORT=9010, dontWait = FALSE) {
     message("Stopping server...")
 	shutdownURL = sprintf('http://%s:%s/shutdown', HOST, PORT)
 	ret = RCurl:::postForm(shutdownURL, style="HTTPPOST", shutdown="yes")
@@ -103,11 +144,13 @@ TEL.stopServer <-
 #' 
 #' @param HOST Hostname of the server running the FIS service. Defaults to localhost.
 #' @param PORT Port of the server running the FIS service. Defaults to 9010.
+#' @param OPERATIONAL_PORT Operational (as opposed to Service) port of the server
+#'						   running the FIS service. Defaults to 9011.
 #' 
 #' @export
 #'
-q <- function(HOST='localhost', PORT='9010') {
-	TEL.safeStop(HOST, PORT, dontWait=TRUE);
+q <- function(HOST='localhost', PORT=9010, OPERATIONAL_PORT=9011) {
+	TEL.safeStop(HOST, PORT, OPERATIONAL_PORT, dontWait=TRUE);
 	base:::q()
 }
 
@@ -118,12 +161,14 @@ q <- function(HOST='localhost', PORT='9010') {
 #' 
 #' @param HOST Hostname of the server running the FIS service. Defaults to localhost.
 #' @param PORT Port of the server running the FIS service. Defaults to 9010.
+#' @param OPERATIONAL_PORT Operational (as opposed to Service) port of the server
+#'						   running the FIS service. Defaults to 9011.
 #' @param dontWait (Internal usage only) Defaults to FALSE; only the R console
 #' 				   termination should call this with TRUE
 #'
 TEL.safeStop <-
-  function(HOST='localhost', PORT='9010', dontWait = FALSE) {
-    if (TEL.serverRunning(HOST, PORT)) {
+  function(HOST='localhost', PORT=9010, OPERATIONAL_PORT=9011, dontWait = FALSE) {
+    if (TEL.serverRunning(HOST, OPERATIONAL_PORT)) {
       TEL.stopServer(HOST, PORT, dontWait)
     }
   }
@@ -205,7 +250,7 @@ TEL.checkConfiguration <-
 #' 
 #' @export
 #' 
-TEL.submitJob <- function( executionType=NULL, workingDirectory, modelfile, HOST='localhost', PORT='9010', addargs="", ... ) {
+TEL.submitJob <- function( executionType=NULL, workingDirectory, modelfile, HOST='localhost', PORT=9010, addargs="", ... ) {
 	
     submission <- list()
     
@@ -270,7 +315,7 @@ TEL.submitJob <- function( executionType=NULL, workingDirectory, modelfile, HOST
 #' @return Updated \code{submission} named list augmented with the \code{status}
 #'         of the job.
 #'
-TEL.poll <- function(submission, HOST='localhost', PORT='9010') {
+TEL.poll <- function(submission, HOST='localhost', PORT=9010) {
     
     jobID <- submission$requestID
     
@@ -293,7 +338,7 @@ TEL.poll <- function(submission, HOST='localhost', PORT='9010') {
 #'
 #' Gets all jobs
 #
-TEL.getJobs <- function(HOST='localhost', PORT='9010') {
+TEL.getJobs <- function(HOST='localhost', PORT=9010) {
 	
 	jobsURL <- sprintf('http://%s:%s/jobs', HOST, PORT)
 	
@@ -306,7 +351,7 @@ TEL.getJobs <- function(HOST='localhost', PORT='9010') {
 #'
 #' Gets the IDs of the jobs that have completed but haven't been imported (assuming clearUp=TRUE)
 #
-TEL.getNotImportedJobIDs <- function(HOST='localhost', PORT='9010') {
+TEL.getNotImportedJobIDs <- function(HOST='localhost', PORT=9010) {
 	
 	jobs <- TEL.getJobs()
 	
@@ -325,7 +370,7 @@ TEL.getNotImportedJobIDs <- function(HOST='localhost', PORT='9010') {
 #'
 #' Gets a TEL job
 #
-TEL.getJob <- function(submission, HOST='localhost', PORT='9010') {
+TEL.getJob <- function(submission, HOST='localhost', PORT=9010) {
   
 	jobID <- submission$requestID
   
