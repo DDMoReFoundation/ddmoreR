@@ -229,6 +229,8 @@ TEL.checkConfiguration <-
 #'        executed. Note that relative paths are currently not supported.
 #' @param HOST Hostname of the server running the FIS service. Defaults to localhost.
 #' @param PORT Port of the server running the FIS service. Defaults to 9010.
+#' @param OPERATIONAL_PORT Operational (as opposed to Service) port of the server
+#'						   running the FIS service. Defaults to 9011.
 #' @param addargs Additional arguments to be passed to the target software.
 #' 
 #' @return \code{submission} named list containing information relating to the
@@ -250,7 +252,11 @@ TEL.checkConfiguration <-
 #' 
 #' @export
 #' 
-TEL.submitJob <- function( executionType=NULL, workingDirectory, modelfile, HOST='localhost', PORT=9010, addargs="", ... ) {
+TEL.submitJob <- function( executionType=NULL, workingDirectory, modelfile, HOST='localhost', PORT=9010, OPERATIONAL_PORT=9011, addargs="", ... ) {
+	
+	if (!TEL.serverRunning(HOST, OPERATIONAL_PORT)) {
+		stop("Server is not runnibg, unable to submit job. Server health details are:\n", TEL.serverHealthcheck(HOST, OPERATIONAL_PORT))
+	}
 	
     submission <- list()
     
@@ -275,25 +281,24 @@ TEL.submitJob <- function( executionType=NULL, workingDirectory, modelfile, HOST
     json <- toJSON(parameters)
     formParams=sprintf('%s%s','submissionRequest=',json)
 
-    # Submit
-
-    h<-basicTextGatherer()
-
-    submitURL <- sprintf('http://%s:%s/submit', HOST, PORT)
-	  
-    ret <- RCurl:::curlPerform(url=submitURL, postfields=formParams, writefunction=h$update)
+	# Submit
 	
-	if (ret[[1]] == 0) {
-
-	    response <- fromJSON(h$value())
+	h <- basicTextGatherer()
 	
-	    submission$requestID <- response$requestID
-		
+	submitURL <- sprintf('http://%s:%s/submit', HOST, PORT)
+	
+	curlRet <- RCurl:::curlPerform(url=submitURL, postfields=formParams, writefunction=h$update)
+	
+	response <- fromJSON(h$value())
+	
+	if (!is.null(response$requestID)) {
+		submission$requestID <- response$requestID
 		submission$status <- 'NEW'
-
+	} else {
+		stop(paste("Failed to submit job.\n  Server returned:", response$status, response$error, "\n ", response$exception, ":", response$message))
 	}
-
-    submission
+	
+	submission
 }
 
 ################################################################################
