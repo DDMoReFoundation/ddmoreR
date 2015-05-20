@@ -108,7 +108,7 @@ setMethod("read", "dataObj", function(object, sourceDir=getwd(), deriveVariables
 
 #' @rdname read-methods
 #' @aliases read,mogObj,mogObj-method
-setMethod("read", "mogObj", function(object, deriveVariables=TRUE, categoricalAsFactor=TRUE, recode=TRUE, asRaw=FALSE, ...) {
+setMethod("read", "mogObj", function(object, sourceDir=getwd(), deriveVariables=TRUE, categoricalAsFactor=TRUE, recode=TRUE, asRaw=FALSE, ...) {
   # extract dataObj
   ob <- object@dataObj
   # pass to method for dataObj
