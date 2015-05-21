@@ -255,7 +255,7 @@ TEL.checkConfiguration <-
 TEL.submitJob <- function( executionType=NULL, workingDirectory, modelfile, HOST='localhost', PORT=9010, OPERATIONAL_PORT=9011, addargs="", ... ) {
 	
 	if (!TEL.serverRunning(HOST, OPERATIONAL_PORT)) {
-		stop("Server is not runnibg, unable to submit job. Server health details are:\n", TEL.serverHealthcheck(HOST, OPERATIONAL_PORT))
+		stop("Server is not running, unable to submit job. Server health details are:\n", TEL.serverHealthcheck(HOST, OPERATIONAL_PORT))
 	}
 	
     submission <- list()
