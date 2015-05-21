@@ -378,8 +378,11 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
 		dataObjAsList, parObjAsList, mdlObjAsList, taskObjAsList,
 		# The mog definition object
 		list(
-			identifier = "mog",
-			blockNames = list(dataObjName, parObjName, mdlObjName, taskObjName)
+			identifier = "mogobj",
+			OBJECTS = setNames(
+				vector("list", 4), # Creates an empty list of length 4
+				list(dataObjName, parObjName, mdlObjName, taskObjName)
+			)
 		)
 	)
 	names(allObjsAsList) <- c(dataObjName, parObjName, mdlObjName, taskObjName, mogDefinitionName)

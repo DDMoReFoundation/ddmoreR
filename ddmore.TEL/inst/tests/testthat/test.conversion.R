@@ -80,10 +80,15 @@ test_that("Expected taskObj to have been created from the JSON-format text repre
 
 test_that("Expected output Mog to have been created", {
 
-	myOutputMog <<- createMogObj(myDataObj, myParObj, myMdlObj, myTaskObj, "FullyPopulatedOutput")
+	myOutputMog <<- createMogObj(myDataObj, myParObj, myMdlObj, myTaskObj, "warfarin_PK_ODE_mog")
 	
 	expect_true(isS4(myOutputMog), info="Output MOG object should be an S4 class")
 	expect_true(class(myOutputMog) == "mogObj", info="Checking the class of the Output MOG object")
+	expect_identical(myOutputMog@dataObj, myDataObj, info="dataObj slot in the Output MOG object should have been populated")
+	expect_identical(myOutputMog@parObj, myParObj, info="parObj slot in the Output MOG object should have been populated")
+	expect_identical(myOutputMog@mdlObj, myMdlObj, info="mdlObj slot in the Output MOG object should have been populated")
+	expect_identical(myOutputMog@taskObj, myTaskObj, info="taskObj slot in the Output MOG object should have been populated")
+	expect_equal(myOutputMog@name, "warfarin_PK_ODE_mog", info="Checking the name of the Output MOG object")
 
 })
 
@@ -203,4 +208,5 @@ compareNestedListsRepresentationOfTopLevelObject(myDataObj@name)
 compareNestedListsRepresentationOfTopLevelObject(myParObj@name)
 compareNestedListsRepresentationOfTopLevelObject(myMdlObj@name)
 compareNestedListsRepresentationOfTopLevelObject(myTaskObj@name)
+compareNestedListsRepresentationOfTopLevelObject("warfarin_PK_ODE_mog")
 
