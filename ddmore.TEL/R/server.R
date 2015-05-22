@@ -44,7 +44,9 @@ TEL.startServer <-
 ################################################################################
 #' TEL.serverRunning
 #'
-#' Checks if the TEL server is running.
+#' Checks if the FIS server, and its dependent servers, are running.
+#' As a side effect, populates a TEL.serverHealthDetails global object so that the
+#' user can access the health statuses of the individual server components.
 #'
 #' @param HOST Hostname of the server running the FIS service. Defaults to localhost.
 #' @param OPERATIONAL_PORT Operational (as opposed to Service) port of the server
@@ -58,9 +60,11 @@ TEL.serverRunning <-
 
 	healthStatuses <- TEL.serverHealthcheck(HOST, OPERATIONAL_PORT)
 	
+	# Make the server health details available to the user
+	TEL.serverHealthDetails <<- healthStatuses
+	
 	(healthStatuses[[1]] == 'UP') && # Status of FIS itself
 		all(lapply(healthStatuses[-1], function(srvStatus) { srvStatus$status }) == 'UP')
-
   }
 
 ################################################################################
@@ -256,7 +260,7 @@ TEL.checkConfiguration <-
 TEL.submitJob <- function( executionType=NULL, workingDirectory, modelfile, HOST='localhost', PORT=9010, OPERATIONAL_PORT=9011, addargs="", ... ) {
 	
 	if (!TEL.serverRunning(HOST, OPERATIONAL_PORT)) {
-		stop("Server is not running, unable to submit job. Server health details are:\n", TEL.serverHealthcheck(HOST, OPERATIONAL_PORT))
+		stop("Server(s) is/are not running, unable to submit job. Server health details have been made available in the TEL.serverHealthDetails object.")
 	}
 	
     submission <- list()
