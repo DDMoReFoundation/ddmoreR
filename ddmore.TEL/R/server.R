@@ -99,6 +99,12 @@ TEL.serverHealthcheck <-
 
 	healthcheckUrl <- sprintf('http://%s:%s/health', HOST, OPERATIONAL_PORT)
 
+	# Some explanation of this HTTP call and response handling.
+	# We use getURL() rather than postForm() to ensure that a non-OK HTTP Status (i.e. the 503 Service
+	# Unavailable returned from FIS if a component e.g. CTS is down) doesn't throw an error and we can
+	# still access the JSON response data.
+	# In fact, the HTTP status code doesn't actually seem to be available using getURL() - it is with
+	# postForm() - but this is probably ok since I don't think we need it if we have the JSON statuses.
 	tryCatch(
 		{
 			response <- RCurl:::getURL(healthcheckUrl)
