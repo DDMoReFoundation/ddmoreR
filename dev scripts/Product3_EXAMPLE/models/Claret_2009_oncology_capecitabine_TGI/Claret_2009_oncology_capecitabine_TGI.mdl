@@ -1,0 +1,137 @@
+# Claret 2009
+# TS model
+
+
+
+claret2009_data = dataobj{
+   DATA_INPUT_VARIABLES{
+      ID: {type=categorical}
+      TIME: {type=continuous,units="week"}
+      AMT: {type=continuous,units="mg"}
+      II: {type=continuous,units="week"}
+      ADDL: {type=categorical}
+      CMT: {type=continuous}
+      DV: {type=continuous}
+      CYCLE: {type=categorical}
+      MDV: {type=categorical}
+   }
+   
+   SOURCE{
+           file="claret_simuldata.csv"
+           inputformat=nonmemFormat
+           ignore="@"
+           header=true
+    }
+}
+
+claret2009_par = parobj{
+
+   STRUCTURAL{
+      #PARAMETER VALUES TO USE FOR ESTIMATION:
+      POP_TS0: {value=71, lo=0, units="mm"}
+      POP_KL: {value=0.021, lo=0, units="1/week"}
+      POP_KD: {value=0.025, lo=0, units="1/week"}
+      POP_KE: {value=0.05, lo=0, units="1/h"} # transformation to 1/weeks needed for calculations
+      POP_LAMBDA: {value=0.053, lo=0, units="1/week"}
+      PERR: {value=0, fix=true}
+      AERR: {value=12, lo=0}
+   }
+
+   VARIABILITY{
+   	  OMEGA_TS0: {value=0.4,type=VAR} 
+      OMEGA_KL: {value=0.499,type=VAR} 
+      OMEGA_KD: {value=0.388,type=VAR}
+      OMEGA_KE: {value=0.04,type=VAR} 
+      OMEGA_LAMBDA: {value=1.26,type=VAR}           
+      SIGMA_RES_TS: {value=1 ,type=VAR, fix=true}
+   }
+}
+
+claret2009_mdl = mdlobj{
+
+	MODEL_INPUT_VARIABLES{
+	  ID: {use=id, level=2}
+      TIME: {use=idv,units="week"}     
+      AMT: {use=amt,units="mg",administration=CAPE}
+      II: {use=ii}
+      ADDL: {use=addl}
+      CMT: {use=cmt}
+      DV: {type=continuous,use=dv,level=1, prediction=Y}
+      MDV: {use=mdv}
+	}
+	
+	STRUCTURAL_PARAMETERS{
+      POP_TS0
+      POP_KL
+      POP_KD
+      POP_KE
+      POP_LAMBDA
+      PERR
+      AERR
+	}
+	
+	VARIABILITY_PARAMETERS{
+      OMEGA_TS0 
+      OMEGA_KL
+      OMEGA_KD
+      OMEGA_KE
+      OMEGA_LAMBDA         
+      SIGMA_RES_TS
+	}
+		
+	RANDOM_VARIABLE_DEFINITION{
+		ETA_TS0 ~ {type=normal, mean=0, var=OMEGA_TS0, level=ID} 
+        ETA_KL ~ {type=normal, mean=0, var=OMEGA_KL, level=ID} 
+        ETA_KD ~ {type=normal, mean=0, var=OMEGA_KD, level=ID} 
+        ETA_KE ~ {type=normal, mean=0, var=OMEGA_KE, level=ID} 
+        ETA_LAMBDA ~ {type=normal, mean=0, var=OMEGA_LAMBDA, level=ID} 
+	   
+	} 
+	
+	
+	INDIVIDUAL_VARIABLES{
+      
+      POP_KE_h = POP_KE*168
+      
+      TS0 : {type=linear, trans=log, pop = POP_TS0, ranEff=ETA_TS0} 
+	  KL : {type=linear, trans=log, pop = POP_KL, ranEff=ETA_KL}
+	  KD : {type=linear, trans=log, pop = POP_KD, ranEff=ETA_KD}
+	  KE : {type=linear, trans=log, pop = POP_KE_h, ranEff=ETA_KE}
+	  LAMBDA : {type=linear, trans=log, pop = POP_LAMBDA, ranEff=ETA_LAMBDA}
+   	}
+	
+	MODEL_PREDICTION{
+      	
+		ODE{
+			RESISTANCE=exp(-LAMBDA*T)
+			CAPE: {deriv=(-KE*CAPE), init=0, wrt=T}
+			TS: {deriv=(KL*TS-KD*RESISTANCE*CAPE*TS), init=TS0, wrt=T}
+		}
+   }
+   
+   OBSERVATION{
+ 	 eps_RES_TS ~ {type=normal, mean=0, var=SIGMA_RES_TS, level=DV}
+ 
+     Y : {type=continuous, error=combinedError2(additive=AERR, proportional=PERR, f=TS),
+      	eps=eps_RES_TS, prediction=TS}    
+   }
+    
+    MODEL_OUTPUT_VARIABLES{ 
+	ID TIME DV AMT CMT TS CAPE MDV TS0 KL KD KE LAMBDA 
+    }
+}
+   
+claret2009_task = taskobj{ 
+        ESTIMATE { 
+            target=NMTRAN_CODE 
+            cov=true
+            algo=["FOCEI"] 
+        }
+}
+
+claret2009_mog = mog{
+claret2009_data
+claret2009_par
+claret2009_mdl
+claret2009_task
+}
