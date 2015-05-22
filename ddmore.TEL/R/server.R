@@ -97,9 +97,10 @@ TEL.serverHealthcheck <-
 
 	tryCatch(
 		{
-			response <- RCurl:::postForm(healthcheckUrl, style="POST", binary=FALSE)
+			response <- RCurl:::getURL(healthcheckUrl)
 			return(fromJSON(response))
 		}, error = function(e) {
+			warning(e)
 			return(list(status='DOWN'))
 		}
 	)
