@@ -2,11 +2,15 @@
 # Author: khanley, mwise
 ################################################################################
 
+
 #### Data object class
+
+
 validity.dataObj <- function(object)
 {
-  stopifnot(is.list(object@DATA_INPUT_VARIABLES))
   stopifnot(is.list(object@SOURCE))
+  stopifnot(is.list(object@DECLARED_VARIABLES))
+  stopifnot(is.list(object@DATA_INPUT_VARIABLES))
   stopifnot(is.list(object@DATA_DERIVED_VARIABLES))
   stopifnot(is.character(object@TARGET_CODE))
   return(TRUE)
@@ -21,17 +25,26 @@ validity.dataObj <- function(object)
 #' 
 #' @slot SOURCE Named list of parameter values keyed by their parameter names.
 #'       Example parameter names are \code{file}, \code{inputformat}, \code{ignore}.
+#' @slot DECLARED_VARIABLES Named list of variables where the names are the variable
+#' 		 names but there are no attributes of these variables to map to.
 #' @slot DATA_INPUT_VARIABLES Named list of variable names mapping to lists
 #'       of attribute values keyed by their names, for each variable.
-#' @slot DATA_DERIVED_VARIABLES TODO TBC
+#' @slot DATA_DERIVED_VARIABLES Named list of variable names mapping to lists
+#'       of attribute values keyed by their names, for each variable.
 #' @slot TARGET_CODE TODO TBC
 #' @slot name The name assigned to the \code{dataobj} in the MDL file.
+#' 
+#' @note Wherever a list of attribute values is mentioned for a Slot, this can instead
+#'       be a special case of a single key '.expr', which maps to a string and
+#'       represents a variable being an expression in the MDL e.g. "logtWT = log(WT/70)"
+#'       rather than a set of attributes e.g. "DV : {level=1, type=observation}".
 #' 
 #' @author khanley, mwise
 setClass("dataObj", 
   slots = c(
-    DATA_INPUT_VARIABLES="list",
     SOURCE = "list",
+	DECLARED_VARIABLES = "list",
+    DATA_INPUT_VARIABLES = "list",
     DATA_DERIVED_VARIABLES = "list",
 	TARGET_CODE = "character",
 	name = "character"
@@ -56,6 +69,8 @@ is.dataObj <- function(obj){
 
 
 #### Task object class
+
+
 validity.taskObj <- function(object)
 {
 	stopifnot(is.character(object@ESTIMATE))
@@ -116,8 +131,10 @@ is.taskObj <- function(obj){
 
 #### Parameter object class
 
+
 validity.parObj <- function(object)
 {
+  stopifnot(is.list(object@DECLARED_VARIABLES))
   stopifnot(is.list(object@STRUCTURAL))
   stopifnot(is.list(object@VARIABILITY))
   stopifnot(is.list(object@PRIOR_PARAMETERS))
@@ -131,29 +148,42 @@ validity.parObj <- function(object)
 #' Objects of this class map to occurrences of the \code{parobj} top-level block
 #' in an MDL file. They are created by parsing an MDL file using
 #' \link{getParameterObjects} or \link{getMDLObjects}.
-#' 
-#' @slot STRUCTURAL Named list of variable names mapping to lists
-#'       of attribute values keyed by their names, for each variable.
-#' @slot VARIABILITY A named list, comprising a mixture of zero or more occurrences
-#'       of any, some or all of the following 'types' of Variability element:
-#'       \itemize{
-#'         \item{Variable name mapping to a list of attribute values keyed by their names}
-#'         \item{Matrix block, keyed as \code{matrix_X} where X is an incrementing number,
-#'               that maps to a list comprising elements with names \code{name},
-#'               \code{type} and \code{content}}
-#'         \item{Same block, keyed as \code{same_Y} where Y is an incrementing number, that
-#'               maps to a list comprising elements with names \code{name} and \code{content}}
-#'         \item{Diag block, keyed as \code{diag_Z} where Z is an incrementing number, that
-#'               maps to a list comprising elements with names \code{name}, \code{type}
-#'               and \code{content}}
-#'       }
+#'
+#' @slot DECLARED_VARIABLES Named list of variables where the names are the variable
+#' 		 names but there are no attributes of these variables to map to.
+#' @slot STRUCTURAL Named list of variable names mapping to lists of attribute
+#'       values keyed by their names, for each variable.
+#' @slot VARIABILITY Named list of variable names mapping to lists of attribute
+#'       values keyed by their names, for each variable.
 #' @slot PRIOR_PARAMETERS TODO TBC
 #' @slot TARGET_CODE TODO TBC
 #' @slot name The name assigned to the \code{parobj} in the MDL file.
 #' 
+#' @note Wherever a list of attribute values is mentioned for a Slot, this can instead
+#'       be a special case of a single key '.expr', which maps to a string and
+#'       represents a variable being an expression in the MDL e.g. "logtWT = log(WT/70)"
+#'       rather than a set of attributes e.g. "DV : {level=1, type=observation}".
+#' 
 #' @author khanley, mwise
+#
+# NB: VARIABILITY slot description was originally the following. This functionality
+# might be reinstated in a future Product.
+#       A named list, comprising a mixture of zero or more occurrences
+#       of any, some or all of the following 'types' of Variability element:
+#       \itemize{
+#         \item{Variable name mapping to a list of attribute values keyed by their names}
+#         \item{Matrix block, keyed as \code{matrix_X} where X is an incrementing number,
+#               that maps to a list comprising elements with names \code{name},
+#               \code{type} and \code{content}}
+#         \item{Same block, keyed as \code{same_Y} where Y is an incrementing number, that
+#               maps to a list comprising elements with names \code{name} and \code{content}}
+#         \item{Diag block, keyed as \code{diag_Z} where Z is an incrementing number, that
+#               maps to a list comprising elements with names \code{name}, \code{type}
+#               and \code{content}}
+#       }
 setClass("parObj", 
   slots = c(
+	DECLARED_VARIABLES = "list",
   	STRUCTURAL = "list",
   	VARIABILITY = "list",
   	PRIOR_PARAMETERS = "list",
@@ -177,74 +207,22 @@ is.parObj <- function(obj){
 }
 
 
-
-#### Model Prediction object class
-
-
-validity.modPred <- function(object)
-{
-  stopifnot(is.character(object@ODE))
-  stopifnot(is.character(object@LIBRARY))
-  stopifnot(is.character(object@content))
-  return(TRUE)
-}
-
-
-# Create modPred class:
-
-################################################################################
-#' Model Prediction S4 Class Definition.
-#' 
-#' Objects of this class map to the \code{MODEL_PREDICTION} sub-block within
-#' occurrences of the \code{mdlobj} top-level block in an MDL file. They are
-#' not created directly but are created as part of parsing an MDL file using
-#' \link{getModelObjects} or \link{getMDLObjects}.
-#' 
-#' @slot ODE Character vector content of this sub-block "as-is".
-#' @slot LIBRARY Character vector content of this sub-block "as-is".
-#' @slot content Character vector of the remaining content of the Model
-#'       Prediction block "as-is".
-#' 
-#' @author khanley
-setClass("modPred", 
-  slots = c(
-	ODE = "character",
-	LIBRARY = "character",
-	content = "character"
-  ),
-  validity = validity.modPred
-)
-
-
-#' is.modPred
-#'
-#' Determines if an object is of class "modPred"
-#'
-#' @usage is.modPred(object)
-#'
-#' @return TRUE or FALSE 
-is.modPred <- function(obj){
-
-  class(obj)=="modPred"
-
-}
-
-
-
 #### Model object class
 
 
 validity.mdlObj <- function(object)
 {
-	stopifnot(is.list(object@MODEL_INPUT_VARIABLES))
+	stopifnot(is.list(object@IDV))
+	stopifnot(is.list(object@COVARIATES))
+	stopifnot(is.list(object@VARIABILITY_LEVELS))
 	stopifnot(is.list(object@STRUCTURAL_PARAMETERS))
 	stopifnot(is.list(object@VARIABILITY_PARAMETERS))
 	stopifnot(is.list(object@RANDOM_VARIABLE_DEFINITION))
 	stopifnot(is.list(object@INDIVIDUAL_VARIABLES))
-	stopifnot(is.modPred(object@MODEL_PREDICTION))
+	stopifnot(is.list(object@MODEL_PREDICTION))
     stopifnot(is.list(object@OBSERVATION))
-	stopifnot(is.list(object@MODEL_OUTPUT_VARIABLES))
 	stopifnot(is.list(object@GROUP_VARIABLES))
+	stopifnot(is.list(object@MODEL_OUTPUT_VARIABLES))
 	stopifnot(is.list(object@ESTIMATION))
 	stopifnot(is.list(object@SIMULATION))
 	stopifnot(is.character(object@TARGET_CODE))
@@ -260,58 +238,70 @@ validity.mdlObj <- function(object)
 #' in an MDL file. They are created by parsing an MDL file using
 #' \link{getModelObjects} or \link{getMDLObjects}.
 #' 
-#' @slot MODEL_INPUT_VARIABLES Named list of variable names mapping to lists
+#' @slot IDV Named list of variables where the names are the variable names
+#' 		 but there are no attributes of these variables to map to.
+#' @slot COVARIATES Named list of variable names mapping to lists
 #'       of attribute values keyed by their names, for each variable.
-#' @slot STRUCTURAL_PARAMETERS Named list of variables where the names are
-#'       the variable names but there are no attributes of these variables
-#'       to map to.
-#' @slot VARIABILITY_PARAMETERS Named list of variables where the names are
-#'       the variable names but there are no attributes of these variables
-#'       to map to.
-#' @slot RANDOM_VARIABLE_DEFINITION A named list, keyed by variable name, mapping
-#'       to either of the following two 'types' of Random Variable element:
+#' @slot VARIABILITY_LEVELS Named list of variable names mapping to lists
+#'       of attribute values keyed by their names, for each variable.
+#' @slot STRUCTURAL_PARAMETERS Named list of variable names mapping to lists
+#'       of attribute values keyed by their names, for each variable.
+#' @slot VARIABILITY_PARAMETERS Named list of variable names mapping to lists
+#'       of attribute values keyed by their names, for each variable.
+#' @slot RANDOM_VARIABLE_DEFINITION A named list, keyed by variable name,
+#' 		 each of whose elements is itself a named list containing
 #'       \itemize{
-#'         \item{Distribution parameter - a list comprising a single element having
-#'               name "complexAttrs", mapping to a list of attribute values keyed
-#'               by their names}
-#'         \item{'Standard' variable - a list comprising a single element having
-#'               name "attrs", mapping to a list of attribute values keyed
-#'               by their names}
-#'       }
+#'         \item{.random_var_attrs - maps to a list of attribute values keyed
+#' 			     by their values, pertaining to the random variable}
+#'         \item{.random_var_distribution - maps to a string defining the
+#' 				 distribution type of the random variable, e.g. "Normal"}
+#' 		 }
 #' @slot INDIVIDUAL_VARIABLES Named list of variable names mapping to lists
 #'       of attribute values keyed by their names, for each variable.
-#' @slot MODEL_PREDICTION Object of class \linkS4class{modPred}.
-#' @slot OBSERVATION A named list, keyed by variable name, mapping
-#'       to either of the following two 'types' of Random Variable element:
+#' @slot MODEL_PREDICTION Named list, comprising some or all of the following:
 #'       \itemize{
-#'         \item{Distribution parameter - a list comprising a single element having
-#'               name "complexAttrs", mapping to a list of attribute values keyed
-#'               by their names}
-#'         \item{'Standard' variable - a list comprising a single element having
-#'               name "attrs", mapping to a list of attribute values keyed
-#'               by their names}
-#'       }
-#' @slot MODEL_OUTPUT_VARIABLES Named list of variables where the names are
-#'       the variable names but there are no attributes of these variables
-#'       to map to.
-#' @slot GROUP_VARIABLES TODO TBC
+#'         \item{Variable names mapping to lists of attribute values keyed by
+#' 				 their names, for each variable.}
+#'         \item{DEQ sub-block, represented by key '.DEQ'. This maps to a named
+#'				 list of variable names mapping to lists of attribute values
+#' 				 keyed by their names, for each variable.}
+#'         \item{PKMACRO sub-block, represented by key '.PKMACRO'. This maps to
+#'				 a named list of variable names mapping to lists of attribute
+#' 				 values keyed by their names, for each variable.}
+#'         \item{COMPARTMENT sub-block, represented by key '.COMPARTMENT'.
+#'				 This maps to a named list of variable names mapping to lists of
+#' 			     attribute values keyed by their names, for each variable.}
+#' 		 }
+#' @slot OBSERVATION Named list of variable names mapping to lists
+#'       of attribute values keyed by their names, for each variable.
+#' @slot GROUP_VARIABLES Named list of variable names mapping to lists
+#'       of attribute values keyed by their names, for each variable.
+#' @slot MODEL_OUTPUT_VARIABLES Named list of variables where the names are the
+#' 		 variable names but there are no attributes of these variables to map to.
 #' @slot ESTIMATION TODO TBC
 #' @slot SIMULATION TODO TBC
 #' @slot TARGET_CODE TODO TBC
 #' @slot name The name assigned to the \code{mdlobj} in the MDL file.
 #' 
+#' @note Wherever a list of attribute values is mentioned for a Slot, this can instead
+#'       be a special case of a single key '.expr', which maps to a string and
+#'       represents a variable being an expression in the MDL e.g. "logtWT = log(WT/70)"
+#'       rather than a set of attributes e.g. "DV : {level=1, type=observation}".
+#' 
 #' @author khanley, mwise
 setClass("mdlObj", 
   slots = c(
-    MODEL_INPUT_VARIABLES = "list",
+	IDV = "list",
+	COVARIATES = "list",
+	VARIABILITY_LEVELS = "list",
     STRUCTURAL_PARAMETERS = "list",
     VARIABILITY_PARAMETERS = "list",
     RANDOM_VARIABLE_DEFINITION ="list",
     INDIVIDUAL_VARIABLES = "list",
-    MODEL_PREDICTION = "modPred",
+    MODEL_PREDICTION = "list",
     OBSERVATION = "list",
-	MODEL_OUTPUT_VARIABLES = "list",
     GROUP_VARIABLES = "list",
+	MODEL_OUTPUT_VARIABLES = "list",
 	ESTIMATION = "list",
 	SIMULATION = "list",
 	TARGET_CODE = "character",

@@ -54,10 +54,12 @@ setMethod("read", "dataObj", function(object, sourceDir=getwd(), deriveVariables
     recode <- FALSE
   }
   
-  res <- .importCSV(object, sourceDir=sourceDir, ...)
+  res <- .importData(object, sourceDir=sourceDir, ...)
   
   # Overwrite the names from the csv with names from DATA_INPUT_VARIABLES
-  names(res) <- names(object@DATA_INPUT_VARIABLES)
+  if (!is.null(names(object@DATA_INPUT_VARIABLES))) {
+    names(res) <- names(object@DATA_INPUT_VARIABLES)
+  }
   
   # Apply code from DATA_DERIVED_VARIABLES:
   if (deriveVariables) {
@@ -106,7 +108,7 @@ setMethod("read", "dataObj", function(object, sourceDir=getwd(), deriveVariables
 
 #' @rdname read-methods
 #' @aliases read,mogObj,mogObj-method
-setMethod("read", "mogObj", function(object, deriveVariables=TRUE, categoricalAsFactor=TRUE, recode=TRUE, asRaw=FALSE, ...) {
+setMethod("read", "mogObj", function(object, sourceDir=getwd(), deriveVariables=TRUE, categoricalAsFactor=TRUE, recode=TRUE, asRaw=FALSE, ...) {
   # extract dataObj
   ob <- object@dataObj
   # pass to method for dataObj
@@ -115,37 +117,25 @@ setMethod("read", "mogObj", function(object, deriveVariables=TRUE, categoricalAs
 
 
 ################################################################################
-#' .importCSV
+#' .importData
 #'
-#' Imports the CSV files from a data object (class dataObj) and returns either
-#' a single data frame, or a list of data frames if there is more than one.
+#' Imports the data file from a data object (class dataObj) and returns a data frame.
 #
 #' @param dataObj object of class "dataObj"
-#' @param sourceDir if specified, the directory in which the data files are held,
+#' @param sourceDir if specified, the directory in which the data file is held,
 #'                  in case they are not in the current directory
 #'
-.importCSV <- function(dataObj, sourceDir=getwd(), ...) {
+.importData <- function(dataObj, sourceDir=getwd(), ...) {
+	
+	if (is.null(dataObj@SOURCE$file)) {
+		stop("No data file referenced in the data object")
+	}
 
-  # extract information from the "SOURCE" slot, and unlist to create a vector
-  allInf <- unlist(dataObj@SOURCE)
+	# Prepend the source directory (the current directory if not specified) to the data files
+	dataFile <- file.path(sourceDir, dataObj@SOURCE$file)
   
-  # pick out the csv files in the vector
-  dataFiles <- allInf[grep("[[:print:]]+.csv", allInf)]
-  if (length(dataFiles)==0) {
-    stop("No csv data files were found in the data object")
-  }
+	read.NONMEMDataSet(dataFile, ...) # return this as the result
 
-  # Prepend the source directory (the current directory if not specified) to the data files
-  dataFiles <- file.path(sourceDir, dataFiles)
-  
-  if (length(dataFiles)==1) {
-    # return directly if there is only one data file
-    res <- read.NONMEMDataSet(dataFiles, ...)
-  } else { # create a list of the results
-    res <- lapply(dataFiles, read.NONMEMDataSet, ...)
-  }
-
-  return(res)
 }
 
 
