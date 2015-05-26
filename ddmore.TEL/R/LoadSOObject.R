@@ -35,6 +35,9 @@ LoadSOObject <- function(file) {
 	setwd(dirname(file))
 	
 	SOObject <- createSOObjectFromXMLSOBlock(soBlocks[[1]])
+
+	# Print out any errors in the SO Object to the R console (as warnings) to make it obvious if execution failed
+	for (e in (SOObject@TaskInformation$Messages$Errors)) { warning(e$Content) }
 	
 	# Reset Working directory 
 	setwd(old.wd)
