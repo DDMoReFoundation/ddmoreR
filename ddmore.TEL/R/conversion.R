@@ -469,11 +469,6 @@ translateNamedListIntoList <- function(l) {
 		list()
 	}
 }
-#translateNamedListIntoListOld <- function(l) {
-#	res <- lapply(names(l), function(n) { cat(n); cat("\n"); l[[n]]$.name <- n; l[[n]] } ) # 'n' is the name of the list element
-#	names(res) <- NULL
-#	res
-#}
 
 # Given a list that contains individual elements that are themselves
 # lists of length 1, strip off the top-level list to give a list
