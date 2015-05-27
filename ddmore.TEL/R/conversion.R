@@ -77,7 +77,7 @@ MODEL_PREDICTION_SUBBLOCKS <- c(".DEQ", ".PKMACRO", ".COMPARTMENT")
 	} else if (file_ext(f) == 'json') { # For testing purposes
 		json <- readLines(f, warn=FALSE)[[1]]
 	} else {
-		stop("The file extension for the file being parsed into R objects should be .mdl")
+		stop(paste("The file extension for the file being parsed into R objects should be .mdl; the filename was", f))
 	}
   
     fromJSON(json)[[1]]
@@ -421,7 +421,7 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
 	} else if (file_ext(f) == 'json') { # For testing purposes
 		writeLines(json, f)
 	} else {
-		stop("The file extension for the file being written out from R objects should be .mdl")
+		stop(paste("The file extension for the file being written out from R objects should be .mdl; the filename was", f))
 	}
 
 }
