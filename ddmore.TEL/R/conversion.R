@@ -1,4 +1,7 @@
 
+MDL_FILE_EXT <- 'mdl'
+JSON_FILE_EXT <- 'json'
+
 MOG_OBJECT_TYPES <- c("dataobj", "parobj", "mdlobj", "taskobj")
 
 MODEL_PREDICTION_SUBBLOCKS <- c(".DEQ", ".PKMACRO", ".COMPARTMENT")
@@ -67,14 +70,14 @@ MODEL_PREDICTION_SUBBLOCKS <- c(".DEQ", ".PKMACRO", ".COMPARTMENT")
 
 .parseMDLFile0 <- function(f, HOST='localhost', PORT='9010') {
 	
-	if (file_ext(f) == 'mdl') {
+	if (file_ext(f) == MDL_FILE_EXT) {
 		
 		# Call parser and read in the JSON data:
 		cmd <- URLencode(paste0("http://", HOST, ":", PORT, "/readmdl?fileName=", normalizePath(f, winslash="/")))
 		
 		json <- httpGET(cmd)
 		
-	} else if (file_ext(f) == 'json') { # For testing purposes
+	} else if (file_ext(f) == JSON_FILE_EXT) { # For testing purposes
 		json <- readLines(f, warn=FALSE)[[1]]
 	} else {
 		stop(paste("The file extension for the file being parsed into R objects should be .mdl; the filename was", f))
@@ -396,7 +399,7 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
 
     fullPath <- normalizePath(f, winslash="/", mustWork=FALSE)
 	
-	if (file_ext(f) == 'mdl') {
+	if (file_ext(f) == MDL_FILE_EXT) {
 		
 		wreq <- URLencode(toJSON(list(
 			fileName = fullPath,
@@ -418,7 +421,7 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
 		# Don't print out the JSON-format return status
 		invisible(retStatus)
 		
-	} else if (file_ext(f) == 'json') { # For testing purposes
+	} else if (file_ext(f) == JSON_FILE_EXT) { # For testing purposes
 		writeLines(json, f)
 	} else {
 		stop(paste("The file extension for the file being written out from R objects should be .mdl; the filename was", f))
