@@ -61,7 +61,8 @@ test_that("Expected mdlObj to have been created from the JSON-format text repres
 	expect_false(is.null(myMdlObj@INDIVIDUAL_VARIABLES), info="INDIVIDUAL_VARIABLES slot should be populated")
 	expect_false(is.null(myMdlObj@MODEL_PREDICTION), info="MODEL_PREDICTION slot should be populated")
 	expect_false(is.null(myMdlObj@MODEL_PREDICTION$.DEQ), info="MODEL_PREDICTION::DEQ slot should be populated")
-	expect_false(is.null(myMdlObj@MODEL_PREDICTION$.PKMACRO), info="MODEL_PREDICTION::PKMACRO slot should be populated")
+	# Reinstate this if PKMACRO is re-introduced into the MDL grammar
+	#expect_false(is.null(myMdlObj@MODEL_PREDICTION$.PKMACRO), info="MODEL_PREDICTION::PKMACRO slot should be populated")
 	expect_false(is.null(myMdlObj@MODEL_PREDICTION$.COMPARTMENT), info="MODEL_PREDICTION::COMPARTMENT slot should be populated")
 	expect_false(is.null(myMdlObj@OBSERVATION), info="OBSERVATION slot should be populated")
 	expect_false(is.null(myMdlObj@MODEL_OUTPUT_VARIABLES), info="MODEL_OUTPUT_VARIABLES slot should be populated")
@@ -127,7 +128,7 @@ compareAttributesOfElementOfBlock <- function(objName, blockName, elemNo, inputA
 
 	lapply(attrNames, function(attrName) {
 
-		if ( (blockName == 'MODEL_PREDICTION') && (attrName %in% c(".DEQ", ".PKMACRO", ".COMPARTMENT")) ) {
+		if ( (blockName == 'MODEL_PREDICTION') && (attrName %in% c(".DEQ", ".COMPARTMENT")) ) { # Used to be ".PKMACRO" too; reinstate this if "PKMACRO" is re-introduced into the MDL syntax
 			# Nested sub-blocks have to be treated as blocks in their own right for the purposes of comparison of their content
 			compareNestedListsRepresentationOfBlock(objName, paste0('MODEL_PREDICTION::', attrName), inputAttributes[[attrName]], outputAttributes[[attrName]]) 
 		} else {

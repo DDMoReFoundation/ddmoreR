@@ -267,7 +267,8 @@ validity.mdlObj <- function(object)
 #' 				 keyed by their names, for each variable.}
 #'         \item{PKMACRO sub-block, represented by key '.PKMACRO'. This maps to
 #'				 a named list of variable names mapping to lists of attribute
-#' 				 values keyed by their names, for each variable.}
+#' 				 values keyed by their names, for each variable.
+#' 				 (Obsolete as of May 2015)}
 #'         \item{COMPARTMENT sub-block, represented by key '.COMPARTMENT'.
 #'				 This maps to a named list of variable names mapping to lists of
 #' 			     attribute values keyed by their names, for each variable.}
