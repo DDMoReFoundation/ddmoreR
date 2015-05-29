@@ -1,9 +1,11 @@
+#' Tests for MDL file with as many blocks and sub-blocks populated as possible, and with a variety of types/formats of variables and attributes
+
 library("DDMoRe.TEL")
 require("methods")
 
-context("Loading in MDL into R objects")
+context("Loading in MDL into R objects, for fully populated MDL file")
 
-# Clear workspace. 
+# Clear workspace 
 rm(list=ls())
 
 jsonFile <- system.file("tests/data/json/FullyPopulated.json", package = "DDMoRe.TEL")
