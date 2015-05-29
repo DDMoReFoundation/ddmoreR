@@ -18,13 +18,16 @@ Depends:
     lattice(>= 0.20-14),
     XML(>= 3.98-1.1)
 Collate:
-    'DDMoRe.TEL-internal.R'
+    'DDMoRe.TEL-
+    internal.R'
     'xmlParsers.R'
+    'utils.R'
+    'telClasses.R'
+    'read.R'
     'StandardOutputSubClasses.R'
     'StandardOutputObject.R'
     'LoadSOObject.R'
     'StandardOutputMethods.R'
-    'telClasses.R'
     'conversion.R'
     'createMogObj.R'
     'server.R'
@@ -35,12 +38,11 @@ Collate:
     'getMDLObjects.R'
     'getModelObjects.R'
     'getParameterObjects.R'
+    'getPopulationParameters.R'
     'getTaskPropertiesObjects.R'
     'mdlUtils.R'
-    'utils.R'
     'plot.R'
     'psnWrappers.R'
-    'read.R'
     'sample.R'
     'startingValues.r'
     'subset.R'
