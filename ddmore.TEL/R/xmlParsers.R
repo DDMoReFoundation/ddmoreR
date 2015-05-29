@@ -835,12 +835,10 @@ ParseTaskInformation <- function(SOObject, TaskInformationNode){
       SOObject@TaskInformation$OutputFilePath = as.character(xmlValue(child[['path']]))
     
     } else if (xmlName(child) == "RunTime") {
-      
+            
       # Extract RunTime
-      SOObject@TaskInformation$RunTime = list(
-        description=as.character(xmlValue(child[['Description']])), 
-        value=as.numeric(xmlValue(child[['Real']]))
-        )
+      SOObject@TaskInformation$RunTime = as.numeric(xmlValue(child[['Real']]))
+
     } else if (xmlName(child) == "NumberChains") {
       
       # Extract NumberChains
