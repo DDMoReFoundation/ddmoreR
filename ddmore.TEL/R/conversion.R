@@ -1,7 +1,10 @@
 
+MDL_FILE_EXT <- 'mdl'
+JSON_FILE_EXT <- 'json'
+
 MOG_OBJECT_TYPES <- c("dataobj", "parobj", "mdlobj", "taskobj")
 
-MODEL_PREDICTION_SUBBLOCKS <- c(".DEQ", ".PKMACRO", ".COMPARTMENT")
+MODEL_PREDICTION_SUBBLOCKS <- c(".DEQ", ".COMPARTMENT") # Used to be ".PKMACRO" too; reinstate this if "PKMACRO" is re-introduced into the MDL syntax
 
 
 ################################################################################
@@ -67,17 +70,17 @@ MODEL_PREDICTION_SUBBLOCKS <- c(".DEQ", ".PKMACRO", ".COMPARTMENT")
 
 .parseMDLFile0 <- function(f, HOST='localhost', PORT='9010') {
 	
-	if (file_ext(f) == 'mdl') {
+	if (file_ext(f) == MDL_FILE_EXT) {
 		
 		# Call parser and read in the JSON data:
 		cmd <- URLencode(paste0("http://", HOST, ":", PORT, "/readmdl?fileName=", normalizePath(f, winslash="/")))
 		
 		json <- httpGET(cmd)
 		
-	} else if (file_ext(f) == 'json') { # For testing purposes
+	} else if (file_ext(f) == JSON_FILE_EXT) { # For testing purposes
 		json <- readLines(f, warn=FALSE)[[1]]
 	} else {
-		stop("The file extension for the file being parsed into R objects should be .mdl")
+		stop(paste("The file extension for the file being parsed into R objects should be .mdl; the filename was", f))
 	}
   
     fromJSON(json)[[1]]
@@ -396,7 +399,7 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
 
     fullPath <- normalizePath(f, winslash="/", mustWork=FALSE)
 	
-	if (file_ext(f) == 'mdl') {
+	if (file_ext(f) == MDL_FILE_EXT) {
 		
 		wreq <- URLencode(toJSON(list(
 			fileName = fullPath,
@@ -418,10 +421,10 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
 		# Don't print out the JSON-format return status
 		invisible(retStatus)
 		
-	} else if (file_ext(f) == 'json') { # For testing purposes
+	} else if (file_ext(f) == JSON_FILE_EXT) { # For testing purposes
 		writeLines(json, f)
 	} else {
-		stop("The file extension for the file being written out from R objects should be .mdl")
+		stop(paste("The file extension for the file being written out from R objects should be .mdl; the filename was", f))
 	}
 
 }
@@ -469,11 +472,6 @@ translateNamedListIntoList <- function(l) {
 		list()
 	}
 }
-#translateNamedListIntoListOld <- function(l) {
-#	res <- lapply(names(l), function(n) { cat(n); cat("\n"); l[[n]]$.name <- n; l[[n]] } ) # 'n' is the name of the list element
-#	names(res) <- NULL
-#	res
-#}
 
 # Given a list that contains individual elements that are themselves
 # lists of length 1, strip off the top-level list to give a list
@@ -511,9 +509,9 @@ addExtraLayerOfNesting <- function(l) {
 # Each element in the incoming JSON list can either represent a 'normal' variable
 # (i.e. variable name mapping to either a named list of attributes, or mapping to
 # an expression held in the special key ".expr"); or it can represent one of the
-# special sub-blocks "DEQ", "PKMACRO" or "COMPARTMENT" which are stored in the
-# JSON with a dot prefix to distinguish them from actual variable names. For
-# each of these sub-blocks:
+# special sub-blocks "DEQ", "PKMACRO" (obsolete as of May 2015) or "COMPARTMENT"
+# which are stored in the JSON with a dot prefix to distinguish them from actual
+# variable names. For each of these sub-blocks:
 # They contain lists of variables so the only processing they require is
 # the standard translation into named list of variables.
 # Next, the sub-block name including the dot prefix, is stored in the special
@@ -536,10 +534,10 @@ addExtraLayerOfNesting <- function(l) {
 }
 
 # The reverse of .parseModelPredictionListFromJSON(), used when writing the JSON back out.
-# The special sub-blocks "DEQ", "PKMACRO" and "COMPARTMENT" have translateNamedListIntoList()
-# applied to them to 'move' the name of each list element onto an attribute named ".name"
-# of the element instead, before translateNamedListIntoList() is applied to the Model
-# Prediction named list itself.
+# The special sub-blocks "DEQ", "PKMACRO" (obsolete as of May 2015) and "COMPARTMENT" have
+# translateNamedListIntoList() applied to them to 'move' the name of each list element
+# onto an attribute named ".name" of the element instead, before translateNamedListIntoList()
+# is applied to the Model Prediction named list itself.
 .parseModelPredictionNamedListIntoJSON <- function(modPredNamedList) {
 	
 	lapply(translateNamedListIntoList(modPredNamedList), function(e) {

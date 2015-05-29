@@ -110,8 +110,7 @@ TEL.serverHealthcheck <-
 			response <- RCurl:::getURL(healthcheckUrl)
 			return(fromJSON(response))
 		}, error = function(e) {
-			warning(e)
-			return(list(status='DOWN'))
+			return(list(status='DOWN', error=conditionMessage(e)))
 		}
 	)
 	
