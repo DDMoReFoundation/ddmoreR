@@ -3,7 +3,7 @@
 ## rather than having to re-build the DDMoRE.TEL package every time a change is made.
 ##
 
-reqdLibs <- c('rjson','RCurl','RNMImport','XML')
+reqdLibs <- c('rjson','RCurl','RNMImport','XML','stringr')
 
 # Unload libraries if they're already loaded, this is required because
 # loading in the XML library messes up the environment that source()

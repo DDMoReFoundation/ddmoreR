@@ -36,8 +36,16 @@ LoadSOObject <- function(file) {
 	
 	SOObject <- createSOObjectFromXMLSOBlock(soBlocks[[1]])
 
-	# Print out any errors in the SO Object to the R console (as warnings) to make it obvious if execution failed
-	for (e in (SOObject@TaskInformation$Messages$Errors)) { warning(e$Content) }
+	# Print out any errors in the SO Object to the R console to make it obvious if execution failed
+	if (length(SOObject@TaskInformation$Messages$Errors) > 0) {
+		cat("\nThe following ERRORs were raised during the job execution:\n", file=stderr())
+		for (e in (SOObject@TaskInformation$Messages$Errors)) { cat(paste0(" ", e$Name, ": ", str_trim(e$Content), "\n"), file=stderr()) }
+	}
+	if (length(SOObject@TaskInformation$Messages$Warnings) > 0) {
+		cat("\nThe following WARNINGs were raised during the job execution:\n", file=stderr())
+		for (e in (SOObject@TaskInformation$Messages$Warnings)) { cat(paste0(" ", e$Name, ": ", str_trim(e$Content), "\n"), file=stderr()) }
+	}
+	cat("\n")
 	
 	# Reset Working directory 
 	setwd(old.wd)
@@ -258,7 +266,7 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 	validObject(SOObject@OptimalDesign)
 	
 	# Print parsed and skipped elements.
-	message(paste("\nThe following elements were parsed successfully ", 
+	message(paste("\nThe following elements were parsed successfully:", 
 				paste(messageList$parsed, collapse="\n      "), sep="\n      "))
 
 	SOObject
