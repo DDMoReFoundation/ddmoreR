@@ -262,6 +262,15 @@ getBayesianPopulationParameters <- function(SOObject, what="all", keep.only=NULL
     
     Bayesian.output <- cbind(Bayesian.output, CI.output[setdiff(colnames(CI.output), "Parameter")])
   } 
+
+  if (!is.null(keep.only)) {
+
+    stopifnot(tolower(keep.only) %in% c("mean", "median", "mode"))
+
+    # Drop the other central tendency statistics and only keep the one mentioned. 
+    drop.indicies = grep(tolower(keep.only), tolower(names(Bayesian.output))[2:4], invert = TRUE)
+    Bayesian.output = Bayesian.output[-(drop.indicies+1)]
+  }
   
   return(Bayesian.output)
   
@@ -335,6 +344,15 @@ getBootstrapPopulationParameters <- function(SOObject, what="all", keep.only=NUL
 
     Bootstrap.output <- cbind(Bootstrap.output, percentiles.output[setdiff(colnames(percentiles.output), "Parameter")])
   } 
+
+  if (!is.null(keep.only)) {
+
+    stopifnot(tolower(keep.only) %in% c("mean", "median"))
+
+    # Drop the other central tendency statistics and only keep the one mentioned. 
+    drop.indicies = grep(tolower(keep.only), tolower(names(Bootstrap.output))[2:3], invert = TRUE)
+    Bootstrap.output = Bootstrap.output[-(drop.indicies+1)]
+  }
   
   return(Bootstrap.output)
   

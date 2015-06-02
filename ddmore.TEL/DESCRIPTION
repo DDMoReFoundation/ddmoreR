@@ -18,8 +18,7 @@ Depends:
     lattice(>= 0.20-14),
     XML(>= 3.98-1.1)
 Collate:
-    'DDMoRe.TEL-
-    internal.R'
+    'DDMoRe.TEL-internal.R'
     'xmlParsers.R'
     'utils.R'
     'telClasses.R'

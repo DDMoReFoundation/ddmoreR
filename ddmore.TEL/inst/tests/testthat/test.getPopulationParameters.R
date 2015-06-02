@@ -25,7 +25,7 @@ test_that("Test getPopulationParameters returns a list of dataframes, one per es
   	expect_true(class(df) == "data.frame", info = "Elements should be data frames")
   	expect_true(length(df) > 0, info = "Elements should not be empty")
   }
-  
+   
  })
 
 
@@ -103,7 +103,7 @@ test_that("Test getPopulationParameters returns correct statistics using 'estima
   SOObject = LoadSOObject(data.path)
   
   # By specifying just estimates, and a keep.only for Bayesian and Bootstrap, only a named list is returned
-  output = getPopulationParameters(SOObject, type="estimates", keep.only="mean")
+  output = getPopulationParameters(SOObject, what="estimates", keep.only="mean")
   
   # MLE
   # ----------
@@ -151,7 +151,7 @@ test_that("Test getPopulationParameters returns correct statistics using 'precis
   SOObject = LoadSOObject(data.path)
   
   # By default will return estimates, measures for precision and confidence intervals; for each of: MLE Bayesian and Bootstrap
-  output = getPopulationParameters(SOObject, type="precision", keep.only="mean")
+  output = getPopulationParameters(SOObject, what="precision", keep.only="mean")
     
   # MLE
   # --------------
@@ -184,12 +184,8 @@ test_that("Test getPopulationParameters returns correct statistics using 'precis
   # Bootstrap
   # --------------
   Bootstrap = output[["Bootstrap"]]
-  expect_true(colnames(Bootstrap) == c("Parameter", "MLE", "SE", "RSE"),
-           info = "MLE should have correct column names.")
-
-  expect_true(all(colnames(Bootstrap) == c("Parameter", "Mean", "Median", "StandardDeviation", 
-                                      "StandardError", "LowerCI", "UpperCI", "Alpha", 
-                                      "Perc_0.05", "Perc_0.25", "Perc_0.75", "Perc_0.95")),
+  expect_true(all(colnames(Bootstrap) == c("Parameter", "Mean", "StandardDeviation", 
+                                      "StandardError", "LowerCI", "UpperCI", "Alpha")),
            info = "Bootstrap should have correct column names.")
 
   expect_true(all(Bootstrap[["Parameter"]] == c("POP_CL", "POP_V", "POP_KA", "POP_TLAG", "BETA_CL_WT", 
@@ -211,18 +207,18 @@ test_that("Test getPopulationParameters returns correct statistics using 'interv
   SOObject = LoadSOObject(data.path)
   
   # By default will return estimates, measures for precision and confidence intervals; for each of: MLE Baysian and Bootstrap
-  output = getPopulationParameters(SOObject, type="intervals", keep.only="mean")
+  output = getPopulationParameters(SOObject, what="intervals", keep.only="mean")
     
   # MLE
   # --------------
 
   MLE = output[["MLE"]]
-  expect_true(colnames(MLE) == c("Parameter", "MLE", "CI", "LowerBound", "UpperBound"),
+  expect_true(all(colnames(MLE) == c("Parameter", "MLE", "CI", "LowerBound", "UpperBound")),
            info = "MLE should have correct column names.")
 
-  expect_true(MLE[["Parameter"]] == c("POP_CL", "POP_V", "POP_KA", "POP_TLAG", "BETA_CL_WT", 
+  expect_true(all(MLE[["Parameter"]] == c("POP_CL", "POP_V", "POP_KA", "POP_TLAG", "BETA_CL_WT", 
                       "BETA_V_WT", "PPV_CL", "PPV_V", "PPV_KA", "PPV_TLAG", 
-                      "RUV_PROP", "RUV_ADD", "CORR_PPV_CL_V"),
+                      "RUV_PROP", "RUV_ADD", "CORR_PPV_CL_V")),
            info = "MLE should contain statistics of correct parameter names.")
 
   # Check all number columns are of type numeric 
@@ -233,13 +229,13 @@ test_that("Test getPopulationParameters returns correct statistics using 'interv
   # ---------------
 
   Bayesian = output[["Bayesian"]]
-  expect_true(colnames(Bayesian) == c("Parameter", "Mean",
-                  "Perc_0.05", "Perc_0.25", "Perc_0.75", "Perc_0.95"),
+  expect_true(all(colnames(Bayesian) == c("Parameter", "Mean",
+                  "Perc_0.05", "Perc_0.25", "Perc_0.75", "Perc_0.95")),
            info = "Bayesian should have correct column names.")
 
-  expect_true(Bayesian[["Parameter"]] == c("POP_CL", "POP_V", "POP_KA", "POP_TLAG", "BETA_CL_WT", 
+  expect_true(all(Bayesian[["Parameter"]] == c("POP_CL", "POP_V", "POP_KA", "POP_TLAG", "BETA_CL_WT", 
                       "BETA_V_WT", "PPV_CL", "PPV_V", "PPV_KA", "PPV_TLAG", 
-                      "RUV_PROP", "RUV_ADD", "CORR_PPV_CL_V"),
+                      "RUV_PROP", "RUV_ADD", "CORR_PPV_CL_V")),
            info = "Bayesian should contain statistics of correct parameter names.")
 
   # Check all number columns are of type numeric 
@@ -250,13 +246,13 @@ test_that("Test getPopulationParameters returns correct statistics using 'interv
   # --------------
 
   Bootstrap = output[["Bootstrap"]]
-  expect_true(colnames(Bootstrap) == c("Parameter", "Mean", 
-                                      "Perc_0.05", "Perc_0.25", "Perc_0.75", "Perc_0.95"),
+  expect_true(all(colnames(Bootstrap) == c("Parameter", "Mean", 
+                                      "Perc_0.05", "Perc_0.25", "Perc_0.75", "Perc_0.95")),
            info = "Bootstrap should have correct column names.")
 
-  expect_true(Bootstrap[["Parameter"]] == c("POP_CL", "POP_V", "POP_KA", "POP_TLAG", "BETA_CL_WT", 
+  expect_true(all(Bootstrap[["Parameter"]] == c("POP_CL", "POP_V", "POP_KA", "POP_TLAG", "BETA_CL_WT", 
                       "BETA_V_WT", "PPV_CL", "PPV_V", "PPV_KA", "PPV_TLAG", 
-                      "RUV_PROP", "RUV_ADD", "CORR_PPV_CL_V"),
+                      "RUV_PROP", "RUV_ADD", "CORR_PPV_CL_V")),
            info = "Bootstrap should contain statistics of correct parameter names.")
 
   # Check all number columns are of type numeric 
