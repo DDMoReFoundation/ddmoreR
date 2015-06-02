@@ -134,7 +134,7 @@ TEL.importFiles <- function(submission, target=file.path(submission$sourceDirect
 #'          \item{\code{executionType}}
 #'            - Identifying the target software to use for the execution.
 #'          \item{\code{modelFile}}
-#'            - MDL file that was executed.
+#'            - MDL file that was executed, without leading path.
 #'          \item{\code{sourceDirectory}}
 #'            - The directory in which the MDL file lives.
 #'          \item{\code{resultsDir}}
