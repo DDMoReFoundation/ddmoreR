@@ -145,7 +145,7 @@ compareAttributesOfElementOfBlock <- function(objName, blockName, elemNo, inputA
 # Compares the blocks within dataObj, parObj, mdlObj or taskObj, in nested-list representation
 compareNestedListsRepresentationOfBlock <- function(objName, blockName, inputBlockAsNestedList, outputBlockAsNestedList) {
 	
-	cat(paste0("Comparing block name ", objName, "::", blockName, "...\n"))
+	cat(paste0("\nComparing block name ", objName, "::", blockName, "...\n"))
 	
 	test_that(paste("Same number of items expected for input and output nested-list representations of block:", blockName), {
 		expect_equal(length(outputBlockAsNestedList), length(inputBlockAsNestedList))
