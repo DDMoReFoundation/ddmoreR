@@ -272,7 +272,7 @@ TEL.submitJob <- function( executionType=NULL, workingDirectory, modelfile, HOST
     
     # Strip off the path to the model file leaving just the file name itself
     # TODO: Cater for relative paths of model files too? (currently just path-less files and absolute-path files are supported)
-    modelfile_without_path <- tail(strsplit(modelfile, "[\\\\|/]")[[1]], n=1)
+    modelfile_without_path <- basename(modelfile)
 
     submission$executionType <- executionType
     submission$modelFile <- modelfile_without_path
@@ -283,7 +283,7 @@ TEL.submitJob <- function( executionType=NULL, workingDirectory, modelfile, HOST
 	submission$status <- ''
 
     # Build form
-    parameters <- c(command=executionType, workingDirectory=workingDirectory, executionFile=(modelfile_without_path))
+    parameters <- c(command=executionType, workingDirectory=workingDirectory, executionFile=modelfile_without_path)
 	if (nchar(addargs) > 0) {
         parameters <- c(parameters, commandParameters=addargs)
     }
