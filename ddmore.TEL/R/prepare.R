@@ -25,14 +25,14 @@
 #'       structure is 'flattened' when copying to the job working directory.
 #'       This behaviour should probably be reviewed at some point.
 #'
-TEL.prepareWorkingFolder <- function(modelfile, tmpdir=tempdir(), extraInputFileExts=NULL, extraInputFiles=NULL) {
+TEL.prepareWorkingFolder <- function(modelFile, tmpdir=tempdir(), extraInputFileExts=NULL, extraInputFiles=NULL) {
 
 	if (!file.exists(tmpdir)) {
 		stop("Temporary directory does not exist!")
 	}
 	tempFolder = tempfile("TEL.job",tmpdir)
   
-	if (!file.exists(modelfile)) {
+	if (!file.exists(modelFile)) {
     	stop("Model file missing")
 	} else {
     if (!file.exists(tempFolder)) {
@@ -40,11 +40,11 @@ TEL.prepareWorkingFolder <- function(modelfile, tmpdir=tempdir(), extraInputFile
     }
     
     # Obtain the full path to the model file
-    modelfile <- file_path_as_absolute(modelfile)
+	modelFile <- file_path_as_absolute(modelFile)
 
-    srcdir <- parent.folder(modelfile)
+    srcdir <- parent.folder(modelFile)
     
-    inputs = file.path(srcdir, TEL.getInputs(modelfile, srcdir))
+    inputs = file.path(srcdir, TEL.getInputs(modelFile, srcdir))
     
 	# Initialise the additional files list
 	additionalFiles <- c()
@@ -67,7 +67,7 @@ TEL.prepareWorkingFolder <- function(modelfile, tmpdir=tempdir(), extraInputFile
 		additionalFiles <- c(additionalFiles, file.path(srcdir, extraInputFiles))
 	}
 	
-	flist = c(modelfile, inputs, additionalFiles)
+	flist = c(modelFile, inputs, additionalFiles)
 
     file.copy(flist, tempFolder)
     

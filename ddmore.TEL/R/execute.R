@@ -132,12 +132,12 @@ setGeneric("execute", function(x, target=NULL,
 					HOST='localhost', PORT='9010') {
 	
 	if (is.null(target)) {
-		stop('Parameter \"target\" not specified. Possible target tool specifiers include \"NONMEM\", \"PsN\", \"MONOLIX\".');
+		stop('Parameter \"target\" not specified. Possible target tool specifiers might include \"NONMEM\", \"PsN\", \"MONOLIX\".');
 	}
 	
-	workingDirectory <- TEL.prepareWorkingFolder(modelfile=x, extraInputFileExts=extraInputFileExts, extraInputFiles=extraInputFiles)
+	workingDirectory <- TEL.prepareWorkingFolder(modelFile=x, extraInputFileExts=extraInputFileExts, extraInputFiles=extraInputFiles)
 	
-	submission <- TEL.submitJob(executionType=target, workingDirectory=workingDirectory, 
+	submission <- TEL.submitJob(executionType=target, workingDirectory=workingDirectory,
 								modelfile=x, HOST=HOST, PORT=PORT, addargs=addargs)
 	
 	if (submission$status == "NEW") { # Successfully submitted
