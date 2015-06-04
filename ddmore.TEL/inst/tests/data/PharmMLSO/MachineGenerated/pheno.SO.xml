@@ -204,7 +204,7 @@
           <ct:String>nmoutput2so_version</ct:String>
         </Name>
         <Content>
-          <ct:String>This SOBlock was created with nmoutput2so version 4.4.0</ct:String>
+          <ct:String>This SOBlock was created with nmoutput2so version 4.4.1</ct:String>
         </Content>
         <Severity>
           <ct:Int>0</ct:Int>
@@ -234,44 +234,6 @@
             </ds:Row>
           </ds:Table>
         </MLE>
-        <Bootstrap>
-          <Mean>
-            <ds:Definition>
-              <ds:Column columnId="TVCL" columnType="undefined" valueType="real" columnNum="1"/>
-              <ds:Column columnId="TVV" columnType="undefined" valueType="real" columnNum="2"/>
-              <ds:Column columnId="IVCL" columnType="undefined" valueType="real" columnNum="3"/>
-              <ds:Column columnId="IVV" columnType="undefined" valueType="real" columnNum="4"/>
-              <ds:Column columnId="SIGMA_1_1_" columnType="undefined" valueType="real" columnNum="5"/>
-            </ds:Definition>
-            <ds:Table>
-              <ds:Row>
-                <ct:Real>0.005595309</ct:Real>
-                <ct:Real>1.3551</ct:Real>
-                <ct:Real>0.2045041</ct:Real>
-                <ct:Real>0.1489927</ct:Real>
-                <ct:Real>0.01683749</ct:Real>
-              </ds:Row>
-            </ds:Table>
-          </Mean>
-          <Median>
-            <ds:Definition>
-              <ds:Column columnId="TVCL" columnType="undefined" valueType="real" columnNum="1"/>
-              <ds:Column columnId="TVV" columnType="undefined" valueType="real" columnNum="2"/>
-              <ds:Column columnId="IVCL" columnType="undefined" valueType="real" columnNum="3"/>
-              <ds:Column columnId="IVV" columnType="undefined" valueType="real" columnNum="4"/>
-              <ds:Column columnId="SIGMA_1_1_" columnType="undefined" valueType="real" columnNum="5"/>
-            </ds:Definition>
-            <ds:Table>
-              <ds:Row>
-                <ct:Real>0.00563288</ct:Real>
-                <ct:Real>1.324875</ct:Real>
-                <ct:Real>0.217693</ct:Real>
-                <ct:Real>0.1422235</ct:Real>
-                <ct:Real>0.0167075</ct:Real>
-              </ds:Row>
-            </ds:Table>
-          </Median>
-        </Bootstrap>
       </PopulationEstimates>
       <PrecisionPopulationEstimates>
         <MLE>
@@ -437,37 +399,10 @@
               </ds:Row>
             </ds:Table>
           </RelativeStandardError>
+          <ConditionNumber>
+            <ct:Real>3.89447</ct:Real>
+          </ConditionNumber>
         </MLE>
-        <Bootstrap>
-          <Percentiles>
-            <ds:Definition>
-              <ds:Column columnId="Percentile" columnType="undefined" valueType="real" columnNum="1"/>
-              <ds:Column columnId="TVCL" columnType="undefined" valueType="real" columnNum="2"/>
-              <ds:Column columnId="TVV" columnType="undefined" valueType="real" columnNum="3"/>
-              <ds:Column columnId="IVCL" columnType="undefined" valueType="real" columnNum="4"/>
-              <ds:Column columnId="IVV" columnType="undefined" valueType="real" columnNum="5"/>
-              <ds:Column columnId="SIGMA_1_1_" columnType="undefined" valueType="real" columnNum="6"/>
-            </ds:Definition>
-            <ds:Table>
-              <ds:Row>
-                <ct:Real>5</ct:Real>
-                <ct:Real>0.004930895</ct:Real>
-                <ct:Real>1.206546</ct:Real>
-                <ct:Real>0.02280642</ct:Real>
-                <ct:Real>0.08265286</ct:Real>
-                <ct:Real>0.009385112</ct:Real>
-              </ds:Row>
-              <ds:Row>
-                <ct:Real>95</ct:Real>
-                <ct:Real>0.006278781</ct:Real>
-                <ct:Real>1.580135</ct:Real>
-                <ct:Real>0.5144336</ct:Real>
-                <ct:Real>0.2397183</ct:Real>
-                <ct:Real>0.02245299</ct:Real>
-              </ds:Row>
-            </ds:Table>
-          </Percentiles>
-        </Bootstrap>
       </PrecisionPopulationEstimates>
       <IndividualEstimates>
         <Estimates>
@@ -1704,91 +1639,11 @@
           <ds:Table>
             <ds:Row>
               <ct:String>1</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-17.806</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>1</ct:String>
               <ct:Real>2</ct:Real>
               <ct:Real>-1.2523</ct:Real>
               <ct:Real>-0.3753</ct:Real>
               <ct:Real>-0.25642</ct:Real>
               <ct:Real>-0.021233</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>1</ct:String>
-              <ct:Real>12.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-19.498</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>1</ct:String>
-              <ct:Real>24.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-21.149</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>1</ct:String>
-              <ct:Real>37</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-22.691</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>1</ct:String>
-              <ct:Real>48</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-24.283</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>1</ct:String>
-              <ct:Real>60.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.685</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>1</ct:String>
-              <ct:Real>72.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-27.068</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>1</ct:String>
-              <ct:Real>85.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-28.315</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>1</ct:String>
-              <ct:Real>96.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-29.665</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>1</ct:String>
-              <ct:Real>108.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-30.876</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>1</ct:String>
@@ -1800,59 +1655,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>2</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-11.163</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>2</ct:String>
               <ct:Real>2</ct:Real>
               <ct:Real>-1.4314</ct:Real>
               <ct:Real>-1.396</ct:Real>
               <ct:Real>-1.1483</ct:Real>
               <ct:Real>-0.12581</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>2</ct:String>
-              <ct:Real>4</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-13.857</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>2</ct:String>
-              <ct:Real>16</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-16.194</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>2</ct:String>
-              <ct:Real>27.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-18.456</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>2</ct:String>
-              <ct:Real>40</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-20.619</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>2</ct:String>
-              <ct:Real>52</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-22.715</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>2</ct:String>
@@ -1864,67 +1671,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>2</ct:String>
-              <ct:Real>64</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-24.737</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>2</ct:String>
-              <ct:Real>76</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-26.687</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>2</ct:String>
-              <ct:Real>88</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-28.568</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>2</ct:String>
-              <ct:Real>100</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-30.382</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>2</ct:String>
-              <ct:Real>112</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-32.132</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>2</ct:String>
-              <ct:Real>124</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-33.819</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>2</ct:String>
               <ct:Real>135.5</ct:Real>
               <ct:Real>3.0818</ct:Real>
               <ct:Real>0.33165</ct:Real>
               <ct:Real>0.22284</ct:Real>
               <ct:Real>0.010152</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>3</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-17.95</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>3</ct:String>
@@ -1936,99 +1687,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>3</ct:String>
-              <ct:Real>11.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-19.212</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>3</ct:String>
-              <ct:Real>23.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-20.365</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>3</ct:String>
-              <ct:Real>35.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-21.454</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>3</ct:String>
-              <ct:Real>47.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-22.483</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>3</ct:String>
-              <ct:Real>59.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-23.475</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>3</ct:String>
-              <ct:Real>73</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-24.214</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>3</ct:String>
               <ct:Real>83.5</ct:Real>
               <ct:Real>-6.0833</ct:Real>
               <ct:Real>0.76042</ct:Real>
               <ct:Real>-0.065706</ct:Real>
               <ct:Real>0.033005</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>3</ct:String>
-              <ct:Real>84</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.199</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>3</ct:String>
-              <ct:Real>96.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.965</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>3</ct:String>
-              <ct:Real>108.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-26.744</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>3</ct:String>
-              <ct:Real>120</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-27.541</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>3</ct:String>
-              <ct:Real>132</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-28.233</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>3</ct:String>
@@ -2040,51 +1703,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>4</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-20.572</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>4</ct:String>
               <ct:Real>1.8</ct:Real>
               <ct:Real>6.9856</ct:Real>
               <ct:Real>0.39687</ct:Real>
               <ct:Real>0.81282</ct:Real>
               <ct:Real>0.019451</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>4</ct:String>
-              <ct:Real>12</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-22.018</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>4</ct:String>
-              <ct:Real>24.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-23.358</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>4</ct:String>
-              <ct:Real>35.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-24.706</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>4</ct:String>
-              <ct:Real>48.1</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.899</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>4</ct:String>
@@ -2096,67 +1719,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>4</ct:String>
-              <ct:Real>59.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-27.095</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>4</ct:String>
-              <ct:Real>71.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-28.193</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>4</ct:String>
-              <ct:Real>83.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-29.232</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>4</ct:String>
-              <ct:Real>95.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-30.216</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>4</ct:String>
-              <ct:Real>107.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-31.148</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>4</ct:String>
-              <ct:Real>119.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-32.029</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>4</ct:String>
               <ct:Real>130.8</ct:Real>
               <ct:Real>10.342</ct:Real>
               <ct:Real>1.2409</ct:Real>
               <ct:Real>1.2681</ct:Real>
               <ct:Real>0.040739</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>5</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-14.497</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>5</ct:String>
@@ -2168,91 +1735,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>5</ct:String>
-              <ct:Real>12</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-15.649</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>5</ct:String>
-              <ct:Real>24</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-16.748</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>5</ct:String>
-              <ct:Real>36</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-17.796</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>5</ct:String>
-              <ct:Real>48</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-18.795</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>5</ct:String>
               <ct:Real>59.5</ct:Real>
               <ct:Real>-6.5944</ct:Real>
               <ct:Real>0.24257</ct:Real>
               <ct:Real>-0.23731</ct:Real>
               <ct:Real>0.013508</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>5</ct:String>
-              <ct:Real>60</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-19.747</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>5</ct:String>
-              <ct:Real>72</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-20.656</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>5</ct:String>
-              <ct:Real>84</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-21.522</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>5</ct:String>
-              <ct:Real>96</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-22.348</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>5</ct:String>
-              <ct:Real>108</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-23.136</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>5</ct:String>
-              <ct:Real>120</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-23.887</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>5</ct:String>
@@ -2264,51 +1751,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>6</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-17.511</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>6</ct:String>
               <ct:Real>1.8</ct:Real>
               <ct:Real>1.1749</ct:Real>
               <ct:Real>1.6058</ct:Real>
               <ct:Real>0.66847</ct:Real>
               <ct:Real>0.092318</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>6</ct:String>
-              <ct:Real>11.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-18.95</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>6</ct:String>
-              <ct:Real>23.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-20.315</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>6</ct:String>
-              <ct:Real>35.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-21.621</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>6</ct:String>
-              <ct:Real>47.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-22.87</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>6</ct:String>
@@ -2320,75 +1767,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>6</ct:String>
-              <ct:Real>59.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-24.064</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>6</ct:String>
-              <ct:Real>71.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.207</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>6</ct:String>
-              <ct:Real>83.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-26.299</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>6</ct:String>
-              <ct:Real>95.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-27.345</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>6</ct:String>
-              <ct:Real>107.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-28.345</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>6</ct:String>
-              <ct:Real>120.1</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-29.271</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>6</ct:String>
-              <ct:Real>131.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-30.218</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>6</ct:String>
               <ct:Real>142.8</ct:Real>
               <ct:Real>3.963</ct:Real>
               <ct:Real>3.4884</ct:Real>
               <ct:Real>0.95666</ct:Real>
               <ct:Real>0.12024</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>7</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-18.208</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>7</ct:String>
@@ -2400,107 +1783,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>7</ct:String>
-              <ct:Real>11.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-19.522</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>7</ct:String>
-              <ct:Real>23.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-20.701</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>7</ct:String>
-              <ct:Real>36.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-21.697</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>7</ct:String>
-              <ct:Real>48.2</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-22.781</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>7</ct:String>
-              <ct:Real>60.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-23.762</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>7</ct:String>
               <ct:Real>73.8</ct:Real>
               <ct:Real>5.2461</ct:Real>
               <ct:Real>1.1677</ct:Real>
               <ct:Real>0.85867</ct:Real>
               <ct:Real>0.052525</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>7</ct:String>
-              <ct:Real>75.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-24.314</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>7</ct:String>
-              <ct:Real>84.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.617</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>7</ct:String>
-              <ct:Real>96.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-26.445</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>7</ct:String>
-              <ct:Real>108.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-27.226</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>7</ct:String>
-              <ct:Real>120.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-27.963</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>7</ct:String>
-              <ct:Real>132.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-28.657</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>7</ct:String>
-              <ct:Real>144.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-29.284</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>7</ct:String>
@@ -2512,67 +1799,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>8</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.882</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>8</ct:String>
               <ct:Real>1.7</ct:Real>
               <ct:Real>7.9675</ct:Real>
               <ct:Real>0.17978</ct:Real>
               <ct:Real>0.86761</ct:Real>
               <ct:Real>0.0070173</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>8</ct:String>
-              <ct:Real>11.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-27.351</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>8</ct:String>
-              <ct:Real>23.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-28.705</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>8</ct:String>
-              <ct:Real>35.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-29.949</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>8</ct:String>
-              <ct:Real>47.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-31.107</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>8</ct:String>
-              <ct:Real>59.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-32.184</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>8</ct:String>
-              <ct:Real>71.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-33.187</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>8</ct:String>
@@ -2584,67 +1815,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>8</ct:String>
-              <ct:Real>83.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-34.12</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>8</ct:String>
-              <ct:Real>95.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-34.989</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>8</ct:String>
-              <ct:Real>107.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-35.797</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>8</ct:String>
-              <ct:Real>119.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-36.549</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>8</ct:String>
-              <ct:Real>131.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-37.249</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>8</ct:String>
-              <ct:Real>143.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-37.901</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>8</ct:String>
               <ct:Real>146.7</ct:Real>
               <ct:Real>5.8143</ct:Real>
               <ct:Real>-1.1256</ct:Real>
               <ct:Real>0.0072618</ct:Real>
               <ct:Real>-0.030237</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>9</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-21.853</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>9</ct:String>
@@ -2656,99 +1831,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>9</ct:String>
-              <ct:Real>11.1</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-23.535</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>9</ct:String>
-              <ct:Real>22.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.138</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>9</ct:String>
-              <ct:Real>34.6</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-26.572</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>9</ct:String>
-              <ct:Real>46.6</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-27.97</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>9</ct:String>
-              <ct:Real>58.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-29.295</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>9</ct:String>
-              <ct:Real>70.9</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-30.549</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>9</ct:String>
               <ct:Real>82.7</ct:Real>
               <ct:Real>2.7623</ct:Real>
               <ct:Real>-0.0012835</ct:Real>
               <ct:Real>0.16275</ct:Real>
               <ct:Real>-0.000043953</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>9</ct:String>
-              <ct:Real>83.2</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-31.735</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>9</ct:String>
-              <ct:Real>94.6</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-32.971</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>9</ct:String>
-              <ct:Real>106.6</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-34.082</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>9</ct:String>
-              <ct:Real>118.6</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-35.143</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>9</ct:String>
-              <ct:Real>130.6</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-36.156</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>9</ct:String>
@@ -2760,27 +1847,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>9</ct:String>
-              <ct:Real>142.6</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-37.124</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>9</ct:String>
               <ct:Real>312.6</ct:Real>
               <ct:Real>3.1479</ct:Real>
               <ct:Real>0.22429</ct:Real>
               <ct:Real>0.34134</ct:Real>
               <ct:Real>0.011576</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>10</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-19.418</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>10</ct:String>
@@ -2792,99 +1863,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>10</ct:String>
-              <ct:Real>11.2</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-20.973</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>10</ct:String>
-              <ct:Real>23.2</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-22.379</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>10</ct:String>
-              <ct:Real>35.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-23.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>10</ct:String>
-              <ct:Real>47.2</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-24.971</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>10</ct:String>
-              <ct:Real>59.2</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-26.165</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>10</ct:String>
               <ct:Real>70.7</ct:Real>
               <ct:Real>-2.9882</ct:Real>
               <ct:Real>-1.4342</ct:Real>
               <ct:Real>-0.49748</ct:Real>
               <ct:Real>-0.05775</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>10</ct:String>
-              <ct:Real>71.2</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-27.295</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>10</ct:String>
-              <ct:Real>83.2</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-28.365</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>10</ct:String>
-              <ct:Real>95.2</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-29.379</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>10</ct:String>
-              <ct:Real>107.2</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-30.339</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>10</ct:String>
-              <ct:Real>119.2</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-31.248</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>10</ct:String>
-              <ct:Real>131.2</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-32.109</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>10</ct:String>
@@ -2896,59 +1879,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>11</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-12.983</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>11</ct:String>
-              <ct:Real>11.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.477</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>11</ct:String>
-              <ct:Real>23.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-26.101</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>11</ct:String>
-              <ct:Real>35.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-26.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>11</ct:String>
-              <ct:Real>47.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-27.276</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>11</ct:String>
               <ct:Real>57.5</ct:Real>
               <ct:Real>-10.827</ct:Real>
               <ct:Real>-2.0823</ct:Real>
               <ct:Real>-0.89777</ct:Real>
               <ct:Real>-0.078927</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>12</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-18.478</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>12</ct:String>
@@ -2960,107 +1895,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>12</ct:String>
-              <ct:Real>12</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-19.938</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>12</ct:String>
-              <ct:Real>13</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-23.41</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>12</ct:String>
-              <ct:Real>24.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-24.678</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>12</ct:String>
-              <ct:Real>36</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.889</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>12</ct:String>
-              <ct:Real>48.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-26.942</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>12</ct:String>
-              <ct:Real>60</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-28.048</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>12</ct:String>
-              <ct:Real>72</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-29.049</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>12</ct:String>
-              <ct:Real>84</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-30.001</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>12</ct:String>
-              <ct:Real>96</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-30.908</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>12</ct:String>
-              <ct:Real>108</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-31.772</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>12</ct:String>
-              <ct:Real>120</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-32.594</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>12</ct:String>
               <ct:Real>132.2</ct:Real>
               <ct:Real>1.6341</ct:Real>
               <ct:Real>3.0944</ct:Real>
               <ct:Real>0.55584</ct:Real>
               <ct:Real>0.0998</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>12</ct:String>
-              <ct:Real>132.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-33.313</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>12</ct:String>
@@ -3072,123 +1911,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>13</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-11.992</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>13</ct:String>
-              <ct:Real>12</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-23.345</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>13</ct:String>
-              <ct:Real>25</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.052</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>13</ct:String>
               <ct:Real>36.5</ct:Real>
               <ct:Real>7.5955</ct:Real>
               <ct:Real>0.32978</ct:Real>
               <ct:Real>0.87829</ct:Real>
               <ct:Real>0.013874</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>13</ct:String>
-              <ct:Real>37</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-26.769</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>13</ct:String>
-              <ct:Real>49</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-28.394</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>13</ct:String>
-              <ct:Real>61</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-29.932</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>13</ct:String>
-              <ct:Real>74</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-31.259</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>13</ct:String>
-              <ct:Real>85</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-32.78</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>13</ct:String>
-              <ct:Real>98</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-33.943</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>13</ct:String>
-              <ct:Real>110</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-35.185</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>13</ct:String>
-              <ct:Real>121.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-36.468</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>13</ct:String>
-              <ct:Real>134</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-37.465</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>13</ct:String>
-              <ct:Real>145</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-38.682</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>13</ct:String>
-              <ct:Real>157</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-39.671</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>13</ct:String>
@@ -3200,51 +1927,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>14</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-23.333</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>14</ct:String>
               <ct:Real>2.3</ct:Real>
               <ct:Real>9.2943</ct:Real>
               <ct:Real>2.5936</ct:Real>
               <ct:Real>2.1807</ct:Real>
               <ct:Real>0.11274</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>14</ct:String>
-              <ct:Real>11.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-24.676</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>14</ct:String>
-              <ct:Real>23.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.897</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>14</ct:String>
-              <ct:Real>35.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-27.031</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>14</ct:String>
-              <ct:Real>47.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-28.086</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>14</ct:String>
@@ -3256,75 +1943,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>14</ct:String>
-              <ct:Real>59.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-29.065</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>14</ct:String>
-              <ct:Real>71.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-29.975</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>14</ct:String>
-              <ct:Real>83.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-30.821</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>14</ct:String>
-              <ct:Real>95.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-31.606</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>14</ct:String>
-              <ct:Real>107.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-32.427</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>14</ct:String>
-              <ct:Real>119.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-33.006</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>14</ct:String>
               <ct:Real>131.5</ct:Real>
               <ct:Real>0.062433</ct:Real>
               <ct:Real>-5.0239</ct:Real>
               <ct:Real>-1.1066</ct:Real>
               <ct:Real>-0.16352</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>14</ct:String>
-              <ct:Real>131.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-33.637</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>14</ct:String>
-              <ct:Real>143.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-34.223</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>14</ct:String>
@@ -3336,107 +1959,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>15</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-18.65</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>15</ct:String>
-              <ct:Real>12.2</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-20.079</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>15</ct:String>
               <ct:Real>22.2</ct:Real>
               <ct:Real>-0.80971</ct:Real>
               <ct:Real>0.053611</ct:Real>
               <ct:Real>-0.023052</ct:Real>
               <ct:Real>0.0027855</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>15</ct:String>
-              <ct:Real>24.2</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-21.451</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>15</ct:String>
-              <ct:Real>36.2</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-22.756</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>15</ct:String>
-              <ct:Real>47.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-24.033</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>15</ct:String>
-              <ct:Real>70.2</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-24.226</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>15</ct:String>
-              <ct:Real>85.6</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.064</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>15</ct:String>
-              <ct:Real>96.2</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-26.331</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>15</ct:String>
-              <ct:Real>108.2</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-27.394</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>15</ct:String>
-              <ct:Real>120.2</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-28.405</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>15</ct:String>
-              <ct:Real>132.2</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-29.365</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>15</ct:String>
-              <ct:Real>143.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-30.337</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>15</ct:String>
@@ -3448,59 +1975,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>16</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-9.5256</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>16</ct:String>
-              <ct:Real>9</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-18.778</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>16</ct:String>
               <ct:Real>12</ct:Real>
               <ct:Real>-0.11084</ct:Real>
               <ct:Real>-1.2972</ct:Real>
               <ct:Real>-0.60699</ct:Real>
               <ct:Real>-0.069751</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>16</ct:String>
-              <ct:Real>15.4</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-21.569</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>16</ct:String>
-              <ct:Real>21.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-23.543</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>16</ct:String>
-              <ct:Real>33</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.051</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>16</ct:String>
-              <ct:Real>45</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-26.48</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>16</ct:String>
@@ -3512,107 +1991,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>16</ct:String>
-              <ct:Real>57</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-27.855</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>16</ct:String>
-              <ct:Real>69</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-29.177</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>16</ct:String>
-              <ct:Real>81</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-30.449</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>16</ct:String>
-              <ct:Real>93</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-31.672</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>16</ct:String>
-              <ct:Real>105</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-32.849</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>16</ct:String>
-              <ct:Real>117</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-33.981</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>16</ct:String>
-              <ct:Real>129.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-35.018</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>16</ct:String>
-              <ct:Real>141.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-36.067</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>16</ct:String>
-              <ct:Real>152.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-37.156</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>16</ct:String>
               <ct:Real>153.5</ct:Real>
               <ct:Real>6.2972</ct:Real>
               <ct:Real>1.3282</ct:Real>
               <ct:Real>0.63685</ct:Real>
               <ct:Real>0.035826</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>17</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-20.107</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>17</ct:String>
-              <ct:Real>12</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-21.791</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>17</ct:String>
-              <ct:Real>24</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-23.402</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>17</ct:String>
@@ -3624,91 +2007,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>17</ct:String>
-              <ct:Real>35.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-24.985</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>17</ct:String>
-              <ct:Real>48</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-26.413</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>17</ct:String>
-              <ct:Real>60</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-27.822</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>17</ct:String>
               <ct:Real>72</ct:Real>
               <ct:Real>7.5557</ct:Real>
               <ct:Real>2.1882</ct:Real>
               <ct:Real>1.1563</ct:Real>
               <ct:Real>0.082228</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>17</ct:String>
-              <ct:Real>72.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-29.141</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>17</ct:String>
-              <ct:Real>84.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-30.432</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>17</ct:String>
-              <ct:Real>95.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-31.721</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>17</ct:String>
-              <ct:Real>108</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-32.878</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>17</ct:String>
-              <ct:Real>120</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-34.006</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>17</ct:String>
-              <ct:Real>132</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-35.086</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>17</ct:String>
-              <ct:Real>144</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-36.118</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>17</ct:String>
@@ -3720,14 +2023,6 @@
             </ds:Row>
             <ds:Row>
               <ct:String>18</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-19.197</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>18</ct:String>
               <ct:Real>2.8</ct:Real>
               <ct:Real>7.1074</ct:Real>
               <ct:Real>3.0682</ct:Real>
@@ -3736,99 +2031,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>18</ct:String>
-              <ct:Real>11.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-36.902</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>18</ct:String>
-              <ct:Real>23.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-36.389</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>18</ct:String>
-              <ct:Real>35.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-35.917</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>18</ct:String>
-              <ct:Real>48.1</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-35.414</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>18</ct:String>
-              <ct:Real>59.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-35.198</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>18</ct:String>
               <ct:Real>71.3</ct:Real>
               <ct:Real>-3.5435</ct:Real>
               <ct:Real>-6.5198</ct:Real>
               <ct:Real>-1.1928</ct:Real>
               <ct:Real>-0.20111</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>18</ct:String>
-              <ct:Real>71.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-34.709</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>18</ct:String>
-              <ct:Real>82.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-34.589</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>18</ct:String>
-              <ct:Real>95.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-34.041</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>18</ct:String>
-              <ct:Real>107.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-33.754</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>18</ct:String>
-              <ct:Real>119.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-33.489</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>18</ct:String>
-              <ct:Real>131.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-33.246</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>18</ct:String>
@@ -3848,75 +2055,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>19</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-9.3534</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>19</ct:String>
-              <ct:Real>4</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-18.52</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>19</ct:String>
               <ct:Real>9.5</ct:Real>
               <ct:Real>4.393</ct:Real>
               <ct:Real>0.88582</ct:Real>
               <ct:Real>0.91286</ct:Real>
               <ct:Real>0.049173</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>19</ct:String>
-              <ct:Real>13</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-20.038</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>19</ct:String>
-              <ct:Real>24</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-21.296</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>19</ct:String>
-              <ct:Real>35.9</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-22.863</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>19</ct:String>
-              <ct:Real>48</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-24.317</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>19</ct:String>
-              <ct:Real>59.9</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.709</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>19</ct:String>
-              <ct:Real>72</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-26.995</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>19</ct:String>
@@ -3928,67 +2071,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>19</ct:String>
-              <ct:Real>84.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-28.179</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>19</ct:String>
-              <ct:Real>96</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-29.372</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>19</ct:String>
-              <ct:Real>108.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-30.414</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>19</ct:String>
-              <ct:Real>120</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-31.48</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>19</ct:String>
-              <ct:Real>132</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-32.439</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>19</ct:String>
-              <ct:Real>144</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-33.343</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>19</ct:String>
               <ct:Real>158</ct:Real>
               <ct:Real>5.8779</ct:Real>
               <ct:Real>1.8275</ct:Real>
               <ct:Real>0.73156</ct:Real>
               <ct:Real>0.058815</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>20</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-22.698</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>20</ct:String>
@@ -4000,99 +2087,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>20</ct:String>
-              <ct:Real>12</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-24.098</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>20</ct:String>
-              <ct:Real>24</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.409</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>20</ct:String>
-              <ct:Real>36</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-26.637</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>20</ct:String>
-              <ct:Real>48</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-27.788</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>20</ct:String>
-              <ct:Real>60.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-28.794</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>20</ct:String>
               <ct:Real>62.5</ct:Real>
               <ct:Real>3.8656</ct:Real>
               <ct:Real>-0.68194</ct:Real>
               <ct:Real>0.083007</ct:Real>
               <ct:Real>-0.023943</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>20</ct:String>
-              <ct:Real>72</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-29.882</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>20</ct:String>
-              <ct:Real>84</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-30.826</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>20</ct:String>
-              <ct:Real>95.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-31.79</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>20</ct:String>
-              <ct:Real>108</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-32.533</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>20</ct:String>
-              <ct:Real>120</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-33.31</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>20</ct:String>
-              <ct:Real>132</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-34.038</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>20</ct:String>
@@ -4104,91 +2103,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>21</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-10.873</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>21</ct:String>
-              <ct:Real>4.2</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-21.535</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>21</ct:String>
               <ct:Real>8.3</ct:Real>
               <ct:Real>-4.4249</ct:Real>
               <ct:Real>-0.02848</ct:Real>
               <ct:Real>-0.16775</ct:Real>
               <ct:Real>-0.0013479</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>21</ct:String>
-              <ct:Real>15.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-23.201</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>21</ct:String>
-              <ct:Real>28</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-24.718</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>21</ct:String>
-              <ct:Real>39.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-26.195</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>21</ct:String>
-              <ct:Real>51.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-27.57</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>21</ct:String>
-              <ct:Real>63.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-28.87</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>21</ct:String>
-              <ct:Real>76.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-29.974</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>21</ct:String>
-              <ct:Real>88.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-31.21</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>21</ct:String>
-              <ct:Real>100.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-32.244</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>21</ct:String>
@@ -4200,59 +2119,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>21</ct:String>
-              <ct:Real>112.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-33.291</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>21</ct:String>
-              <ct:Real>124.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-34.355</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>21</ct:String>
-              <ct:Real>136.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-35.288</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>21</ct:String>
-              <ct:Real>148.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-36.092</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>21</ct:String>
               <ct:Real>260.6</ct:Real>
               <ct:Real>-7.3948</ct:Real>
               <ct:Real>-0.36802</ct:Real>
               <ct:Real>-0.424</ct:Real>
               <ct:Real>-0.017143</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>22</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-10.907</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>22</ct:String>
-              <ct:Real>4</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-21.63</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>22</ct:String>
@@ -4264,43 +2135,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>22</ct:String>
-              <ct:Real>16</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-23.459</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>22</ct:String>
-              <ct:Real>28</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.197</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>22</ct:String>
-              <ct:Real>40</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-26.848</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>22</ct:String>
               <ct:Real>51</ct:Real>
               <ct:Real>-1.4811</ct:Real>
               <ct:Real>-0.61676</ct:Real>
               <ct:Real>-0.23665</ct:Real>
               <ct:Real>-0.024076</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>23</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-22.592</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>23</ct:String>
@@ -4312,99 +2151,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>23</ct:String>
-              <ct:Real>11.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-24.553</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>23</ct:String>
-              <ct:Real>24</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-26.359</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>23</ct:String>
-              <ct:Real>35.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-28.177</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>23</ct:String>
-              <ct:Real>47</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-29.925</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>23</ct:String>
-              <ct:Real>59.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-31.508</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>23</ct:String>
               <ct:Real>70.5</ct:Real>
               <ct:Real>-31.217</ct:Real>
               <ct:Real>-3.7563</ct:Real>
               <ct:Real>-0.90513</ct:Real>
               <ct:Real>-0.12374</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>23</ct:String>
-              <ct:Real>71.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-33.078</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>23</ct:String>
-              <ct:Real>84</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-34.531</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>23</ct:String>
-              <ct:Real>95.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-36.002</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>23</ct:String>
-              <ct:Real>107.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-37.428</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>23</ct:String>
-              <ct:Real>120</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-38.701</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>23</ct:String>
-              <ct:Real>132.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-39.921</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>23</ct:String>
@@ -4416,83 +2167,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>24</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-20.6</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>24</ct:String>
-              <ct:Real>0.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-41.148</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>24</ct:String>
               <ct:Real>2</ct:Real>
               <ct:Real>-56.34</ct:Real>
               <ct:Real>-3.6565</ct:Real>
               <ct:Real>-0.71275</ct:Real>
               <ct:Real>-0.089279</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>24</ct:String>
-              <ct:Real>6.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-50.763</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>24</ct:String>
-              <ct:Real>16</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-52.328</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>24</ct:String>
-              <ct:Real>28</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-53.389</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>24</ct:String>
-              <ct:Real>40</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-54.405</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>24</ct:String>
-              <ct:Real>52.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-55.247</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>24</ct:String>
-              <ct:Real>64</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-56.317</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>24</ct:String>
-              <ct:Real>76</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-57.21</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>24</ct:String>
@@ -4504,67 +2183,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>24</ct:String>
-              <ct:Real>88</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-58.064</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>24</ct:String>
-              <ct:Real>100</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-58.882</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>24</ct:String>
-              <ct:Real>112</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-59.666</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>24</ct:String>
-              <ct:Real>124</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-60.417</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>24</ct:String>
-              <ct:Real>136</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-61.136</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>24</ct:String>
-              <ct:Real>147.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-61.93</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>24</ct:String>
               <ct:Real>176</ct:Real>
               <ct:Real>-80.838</ct:Real>
               <ct:Real>-17.8</ct:Real>
               <ct:Real>-1.4566</ct:Real>
               <ct:Real>-0.31842</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>25</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-13.396</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>25</ct:String>
@@ -4576,59 +2199,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>25</ct:String>
-              <ct:Real>12</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-14.593</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>25</ct:String>
-              <ct:Real>18.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-20.994</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>25</ct:String>
               <ct:Real>21</ct:Real>
               <ct:Real>4.59</ct:Real>
               <ct:Real>0.97176</ct:Real>
               <ct:Real>0.51823</ct:Real>
               <ct:Real>0.046656</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>25</ct:String>
-              <ct:Real>23.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-21.991</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>25</ct:String>
-              <ct:Real>35.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-22.504</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>25</ct:String>
-              <ct:Real>48.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-22.97</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>25</ct:String>
-              <ct:Real>60.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-23.439</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>25</ct:String>
@@ -4640,59 +2215,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>25</ct:String>
-              <ct:Real>70.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-27.16</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>25</ct:String>
-              <ct:Real>72</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-28.834</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>25</ct:String>
-              <ct:Real>84</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-29.545</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>25</ct:String>
               <ct:Real>90.5</ct:Real>
               <ct:Real>6.9415</ct:Real>
               <ct:Real>0.85635</ct:Real>
               <ct:Real>0.5941</ct:Real>
               <ct:Real>0.029587</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>25</ct:String>
-              <ct:Real>95.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-30.248</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>25</ct:String>
-              <ct:Real>108</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-30.888</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>25</ct:String>
-              <ct:Real>120</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-31.523</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>25</ct:String>
@@ -4704,51 +2231,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>25</ct:String>
-              <ct:Real>132</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-32.134</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>25</ct:String>
               <ct:Real>138</ct:Real>
               <ct:Real>7.1108</ct:Real>
               <ct:Real>-0.22912</ct:Real>
               <ct:Real>0.38318</ct:Real>
               <ct:Real>-0.0072671</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>26</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.409</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>26</ct:String>
-              <ct:Real>11.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-27.944</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>26</ct:String>
-              <ct:Real>23.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-30.373</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>26</ct:String>
-              <ct:Real>35.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-32.729</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>26</ct:String>
@@ -4760,67 +2247,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>26</ct:String>
-              <ct:Real>47.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-35.014</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>26</ct:String>
-              <ct:Real>59.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-37.23</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>26</ct:String>
-              <ct:Real>71.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-39.38</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>26</ct:String>
-              <ct:Real>83.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-41.466</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>26</ct:String>
-              <ct:Real>95.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-43.489</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>26</ct:String>
-              <ct:Real>107.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-45.451</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>26</ct:String>
               <ct:Real>110.5</ct:Real>
               <ct:Real>-47.636</ct:Real>
               <ct:Real>-10.206</ct:Real>
               <ct:Real>-1.5145</ct:Real>
               <ct:Real>-0.22627</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>27</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.829</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>27</ct:String>
@@ -4832,67 +2263,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>27</ct:String>
-              <ct:Real>12.4</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-27.962</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>27</ct:String>
-              <ct:Real>23.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-30.111</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>27</ct:String>
-              <ct:Real>35.2</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-32.114</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>27</ct:String>
-              <ct:Real>48</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-33.808</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>27</ct:String>
-              <ct:Real>59.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-35.571</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>27</ct:String>
-              <ct:Real>71.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-37.184</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>27</ct:String>
               <ct:Real>83.2</ct:Real>
               <ct:Real>-4.2012</ct:Real>
               <ct:Real>-1.8002</ct:Real>
               <ct:Real>-0.51349</ct:Real>
               <ct:Real>-0.051288</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>28</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-23.435</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>28</ct:String>
@@ -4904,59 +2279,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>29</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-19.82</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>29</ct:String>
-              <ct:Real>12</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-21.169</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>29</ct:String>
-              <ct:Real>23.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-22.491</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>29</ct:String>
-              <ct:Real>36.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-23.586</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>29</ct:String>
               <ct:Real>47.5</ct:Real>
               <ct:Real>5.5207</ct:Real>
               <ct:Real>0.54768</ct:Real>
               <ct:Real>0.91153</ct:Real>
               <ct:Real>0.024502</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>30</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-9.7513</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>30</ct:String>
-              <ct:Real>2.2</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-19.406</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>30</ct:String>
@@ -4968,107 +2295,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>30</ct:String>
-              <ct:Real>15.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-20.189</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>30</ct:String>
-              <ct:Real>26.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-21.108</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>30</ct:String>
-              <ct:Real>38.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-21.848</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>30</ct:String>
-              <ct:Real>50.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-22.593</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>30</ct:String>
-              <ct:Real>62.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-23.299</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>30</ct:String>
-              <ct:Real>75.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-23.918</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>30</ct:String>
-              <ct:Real>87.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-24.554</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>30</ct:String>
-              <ct:Real>98.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.209</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>30</ct:String>
-              <ct:Real>110.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.778</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>30</ct:String>
-              <ct:Real>123.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-26.261</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>30</ct:String>
-              <ct:Real>134.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-26.83</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>30</ct:String>
               <ct:Real>226.3</ct:Real>
               <ct:Real>-9.6173</ct:Real>
               <ct:Real>-1.2594</ct:Real>
               <ct:Real>-0.83266</ct:Real>
               <ct:Real>-0.070915</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>31</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.152</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>31</ct:String>
@@ -5080,35 +2311,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>32</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-18.157</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>32</ct:String>
               <ct:Real>6.5</ct:Real>
               <ct:Real>-38.284</ct:Real>
               <ct:Real>-5.2659</ct:Real>
               <ct:Real>-0.83834</ct:Real>
               <ct:Real>-0.2931</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>32</ct:String>
-              <ct:Real>12</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-19.751</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>32</ct:String>
-              <ct:Real>21.6</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-28.524</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>32</ct:String>
@@ -5120,67 +2327,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>32</ct:String>
-              <ct:Real>24.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-30.344</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>32</ct:String>
-              <ct:Real>35.6</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-31.736</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>32</ct:String>
-              <ct:Real>48</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-33.048</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>32</ct:String>
-              <ct:Real>61</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-34.301</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>32</ct:String>
-              <ct:Real>72</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-35.638</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>32</ct:String>
               <ct:Real>83.5</ct:Real>
               <ct:Real>-64.533</ct:Real>
               <ct:Real>-13.778</ct:Real>
               <ct:Real>-1.857</ct:Real>
               <ct:Real>-0.3939</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>33</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-10.976</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>33</ct:String>
-              <ct:Real>4</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-21.796</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>33</ct:String>
@@ -5192,51 +2343,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>33</ct:String>
-              <ct:Real>16</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-23.649</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>33</ct:String>
-              <ct:Real>28</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.423</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>33</ct:String>
-              <ct:Real>40.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-27.096</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>33</ct:String>
-              <ct:Real>52</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-28.753</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>33</ct:String>
               <ct:Real>65</ct:Real>
               <ct:Real>-3.5182</ct:Real>
               <ct:Real>-0.03556</ct:Real>
               <ct:Real>-0.2036</ct:Real>
               <ct:Real>-0.0012961</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>34</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-22.156</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>34</ct:String>
@@ -5248,83 +2359,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>34</ct:String>
-              <ct:Real>11.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-23.939</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>34</ct:String>
-              <ct:Real>23.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.622</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>34</ct:String>
-              <ct:Real>47.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-26.085</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>34</ct:String>
-              <ct:Real>59.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-27.473</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>34</ct:String>
-              <ct:Real>71.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-28.795</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>34</ct:String>
-              <ct:Real>83.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-30.056</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>34</ct:String>
               <ct:Real>86.8</ct:Real>
               <ct:Real>-5.0499</ct:Real>
               <ct:Real>-0.99876</ct:Real>
               <ct:Real>-0.43743</ct:Real>
               <ct:Real>-0.03363</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>35</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-12.914</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>35</ct:String>
-              <ct:Real>3.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.694</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>35</ct:String>
-              <ct:Real>15</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-27.928</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>35</ct:String>
@@ -5336,54 +2375,6 @@
             </ds:Row>
             <ds:Row>
               <ct:String>35</ct:String>
-              <ct:Real>27</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-30.045</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>35</ct:String>
-              <ct:Real>39</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-32.088</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>35</ct:String>
-              <ct:Real>51</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-34.06</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>35</ct:String>
-              <ct:Real>63</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-35.962</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>35</ct:String>
-              <ct:Real>75</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-37.797</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>35</ct:String>
-              <ct:Real>87</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-39.567</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>35</ct:String>
               <ct:Real>99</ct:Real>
               <ct:Real>-12.849</ct:Real>
               <ct:Real>-0.17635</ct:Real>
@@ -5392,107 +2383,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>36</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-22.142</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>36</ct:String>
               <ct:Real>2</ct:Real>
               <ct:Real>0.93718</ct:Real>
               <ct:Real>1.3162</ct:Real>
               <ct:Real>0.7018</ct:Real>
               <ct:Real>0.060147</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>36</ct:String>
-              <ct:Real>12</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-23.591</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>36</ct:String>
-              <ct:Real>23.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.007</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>36</ct:String>
-              <ct:Real>36</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-26.195</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>36</ct:String>
-              <ct:Real>48</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-27.369</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>36</ct:String>
-              <ct:Real>60</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-28.465</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>36</ct:String>
-              <ct:Real>72</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-29.485</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>36</ct:String>
-              <ct:Real>85</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-30.277</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>36</ct:String>
-              <ct:Real>96</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-31.34</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>36</ct:String>
-              <ct:Real>108</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-32.166</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>36</ct:String>
-              <ct:Real>120</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-32.936</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>36</ct:String>
-              <ct:Real>132</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-33.653</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>36</ct:String>
@@ -5512,123 +2407,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>37</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-19.598</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>37</ct:String>
               <ct:Real>2.3</ct:Real>
               <ct:Real>1.7119</ct:Real>
               <ct:Real>0.09688</ct:Real>
               <ct:Real>0.17603</ct:Real>
               <ct:Real>0.004993</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>37</ct:String>
-              <ct:Real>11.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-21.07</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>37</ct:String>
-              <ct:Real>24.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-22.408</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>37</ct:String>
-              <ct:Real>36.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-23.722</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>37</ct:String>
-              <ct:Real>48.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-24.969</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>37</ct:String>
-              <ct:Real>60.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-26.153</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>37</ct:String>
-              <ct:Real>72.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-27.223</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>37</ct:String>
-              <ct:Real>84.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-28.349</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>37</ct:String>
-              <ct:Real>96.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-29.362</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>37</ct:String>
-              <ct:Real>108.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-30.323</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>37</ct:String>
-              <ct:Real>119.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-31.298</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>37</ct:String>
-              <ct:Real>132.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-32.097</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>37</ct:String>
-              <ct:Real>144.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-32.92</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>37</ct:String>
-              <ct:Real>156.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-33.701</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>37</ct:String>
@@ -5640,14 +2423,6 @@
             </ds:Row>
             <ds:Row>
               <ct:String>38</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-18.347</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>38</ct:String>
               <ct:Real>1.8</ct:Real>
               <ct:Real>-1.4105</ct:Real>
               <ct:Real>-0.28186</ct:Real>
@@ -5656,123 +2431,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>38</ct:String>
-              <ct:Real>11.6</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-19.424</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>38</ct:String>
-              <ct:Real>23.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-20.431</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>38</ct:String>
-              <ct:Real>35.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-21.351</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>38</ct:String>
-              <ct:Real>47.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-22.217</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>38</ct:String>
-              <ct:Real>59.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-23.032</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>38</ct:String>
-              <ct:Real>71.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-23.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>38</ct:String>
-              <ct:Real>83.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-24.523</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>38</ct:String>
-              <ct:Real>95.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.203</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>38</ct:String>
-              <ct:Real>107.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.844</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>38</ct:String>
               <ct:Real>118.8</ct:Real>
               <ct:Real>-6.1856</ct:Real>
               <ct:Real>-2.7908</ct:Real>
               <ct:Real>-0.99983</ct:Real>
               <ct:Real>-0.11442</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>38</ct:String>
-              <ct:Real>119.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-26.447</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>38</ct:String>
-              <ct:Real>131.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-27.014</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>38</ct:String>
-              <ct:Real>143.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-27.549</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>38</ct:String>
-              <ct:Real>155.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-28.052</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>38</ct:String>
-              <ct:Real>167.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-28.525</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>38</ct:String>
@@ -5792,91 +2455,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>39</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-32.044</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>39</ct:String>
               <ct:Real>1.4</ct:Real>
               <ct:Real>-11.661</ct:Real>
               <ct:Real>-1.8082</ct:Real>
               <ct:Real>-0.55933</ct:Real>
               <ct:Real>-0.056846</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>39</ct:String>
-              <ct:Real>12.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-32.826</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>39</ct:String>
-              <ct:Real>24.4</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-33.72</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>39</ct:String>
-              <ct:Real>36.4</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-34.51</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>39</ct:String>
-              <ct:Real>48.4</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-35.251</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>39</ct:String>
-              <ct:Real>60.4</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-35.947</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>39</ct:String>
-              <ct:Real>72.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-36.618</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>39</ct:String>
-              <ct:Real>84.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-37.139</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>39</ct:String>
-              <ct:Real>96.4</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-37.792</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>39</ct:String>
-              <ct:Real>108.4</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-38.332</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>39</ct:String>
@@ -5888,35 +2471,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>39</ct:String>
-              <ct:Real>120.4</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-38.839</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>39</ct:String>
-              <ct:Real>132.4</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-39.314</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>39</ct:String>
               <ct:Real>260.4</ct:Real>
               <ct:Real>-14.881</ct:Real>
               <ct:Real>-1.5932</ct:Real>
               <ct:Real>-0.85626</ct:Real>
               <ct:Real>-0.079689</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>40</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-13.95</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>40</ct:String>
@@ -5928,35 +2487,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>40</ct:String>
-              <ct:Real>2</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-16.039</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>40</ct:String>
-              <ct:Real>3.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-24.732</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>40</ct:String>
               <ct:Real>4</ct:Real>
               <ct:Real>-0.18135</ct:Real>
               <ct:Real>0.28801</ct:Real>
               <ct:Real>0.037891</ct:Real>
               <ct:Real>0.011655</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>41</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-17.972</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>41</ct:String>
@@ -5968,59 +2503,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>41</ct:String>
-              <ct:Real>7.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-19.667</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>41</ct:String>
-              <ct:Real>12</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-21.486</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>41</ct:String>
-              <ct:Real>24.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-22.73</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>41</ct:String>
-              <ct:Real>33.9</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-24.186</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>41</ct:String>
               <ct:Real>36</ct:Real>
               <ct:Real>-12.096</ct:Real>
               <ct:Real>-3.0229</ct:Real>
               <ct:Real>-1.0469</ct:Real>
               <ct:Real>-0.12583</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>41</ct:String>
-              <ct:Real>48.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.202</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>41</ct:String>
-              <ct:Real>58.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-26.484</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>41</ct:String>
@@ -6032,75 +2519,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>42</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-8.2332</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>42</ct:String>
-              <ct:Real>12</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-16.273</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>42</ct:String>
               <ct:Real>14</ct:Real>
               <ct:Real>-27.246</ct:Real>
               <ct:Real>-2.9088</ct:Real>
               <ct:Real>-0.8327</ct:Real>
               <ct:Real>-0.17946</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>42</ct:String>
-              <ct:Real>23.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-17.959</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>42</ct:String>
-              <ct:Real>36.2</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-19.578</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>42</ct:String>
-              <ct:Real>47.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-21.192</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>42</ct:String>
-              <ct:Real>60</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-22.745</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>42</ct:String>
-              <ct:Real>72</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-24.269</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>42</ct:String>
-              <ct:Real>84</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.758</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>42</ct:String>
@@ -6112,35 +2535,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>43</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-22.12</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>43</ct:String>
               <ct:Real>2</ct:Real>
               <ct:Real>8.9423</ct:Real>
               <ct:Real>0.47668</ct:Real>
               <ct:Real>1.6967</ct:Real>
               <ct:Real>0.021842</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>44</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-9.4874</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>44</ct:String>
-              <ct:Real>5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-18.76</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>44</ct:String>
@@ -6152,91 +2551,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>44</ct:String>
-              <ct:Real>17</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-20.13</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>44</ct:String>
-              <ct:Real>29</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-21.427</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>44</ct:String>
-              <ct:Real>41</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-22.654</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>44</ct:String>
-              <ct:Real>54.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-23.67</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>44</ct:String>
-              <ct:Real>65</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-24.932</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>44</ct:String>
-              <ct:Real>77.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.918</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>44</ct:String>
-              <ct:Real>89</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-26.962</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>44</ct:String>
-              <ct:Real>101</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-27.894</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>44</ct:String>
-              <ct:Real>113</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-28.776</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>44</ct:String>
               <ct:Real>125</ct:Real>
               <ct:Real>-3.5324</ct:Real>
               <ct:Real>0.3612</ct:Real>
               <ct:Real>-0.15683</ct:Real>
               <ct:Real>0.01326</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>44</ct:String>
-              <ct:Real>125.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-29.548</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>44</ct:String>
@@ -6248,43 +2567,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>45</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-17.151</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>45</ct:String>
               <ct:Real>4.5</ct:Real>
               <ct:Real>4.8492</ct:Real>
               <ct:Real>-0.20515</ct:Real>
               <ct:Real>0.36269</ct:Real>
               <ct:Real>-0.012208</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>45</ct:String>
-              <ct:Real>12.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-18.351</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>45</ct:String>
-              <ct:Real>24.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-19.525</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>45</ct:String>
-              <ct:Real>36.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-20.637</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>45</ct:String>
@@ -6296,67 +2583,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>45</ct:String>
-              <ct:Real>48.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-21.689</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>45</ct:String>
-              <ct:Real>60.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-22.687</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>45</ct:String>
-              <ct:Real>72.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-23.631</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>45</ct:String>
-              <ct:Real>84.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-24.525</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>45</ct:String>
-              <ct:Real>96.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.373</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>45</ct:String>
               <ct:Real>106.5</ct:Real>
               <ct:Real>7.1002</ct:Real>
               <ct:Real>0.25025</ct:Real>
               <ct:Real>0.87254</ct:Real>
               <ct:Real>0.01032</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>46</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-9.985</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>46</ct:String>
-              <ct:Real>0.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-19.945</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>46</ct:String>
@@ -6368,59 +2599,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>47</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-18.834</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>47</ct:String>
-              <ct:Real>9.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-21.505</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>47</ct:String>
-              <ct:Real>19.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-24.066</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>47</ct:String>
-              <ct:Real>33.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-26.295</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>47</ct:String>
-              <ct:Real>36.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-29.23</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>47</ct:String>
               <ct:Real>38.3</ct:Real>
               <ct:Real>-19.387</ct:Real>
               <ct:Real>-3.9668</ct:Real>
               <ct:Real>-1.2058</ct:Real>
               <ct:Real>-0.13647</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>48</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-17.273</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>48</ct:String>
@@ -6432,67 +2615,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>48</ct:String>
-              <ct:Real>11.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-19.045</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>48</ct:String>
-              <ct:Real>23.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-20.762</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>48</ct:String>
-              <ct:Real>28.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-32.909</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>48</ct:String>
-              <ct:Real>35.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-34.648</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>48</ct:String>
-              <ct:Real>47.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-36.041</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>48</ct:String>
-              <ct:Real>59.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-37.43</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>48</ct:String>
               <ct:Real>65.8</ct:Real>
               <ct:Real>21.096</ct:Real>
               <ct:Real>4.0774</ct:Real>
               <ct:Real>2.4951</ct:Real>
               <ct:Real>0.11013</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>48</ct:String>
-              <ct:Real>71.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-38.748</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>48</ct:String>
@@ -6520,67 +2647,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>49</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-18.138</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>49</ct:String>
               <ct:Real>2</ct:Real>
               <ct:Real>-0.49444</ct:Real>
               <ct:Real>0.80733</ct:Real>
               <ct:Real>0.30131</ct:Real>
               <ct:Real>0.04487</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>49</ct:String>
-              <ct:Real>12</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-20.072</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>49</ct:String>
-              <ct:Real>24</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-21.913</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>49</ct:String>
-              <ct:Real>36</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-23.668</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>49</ct:String>
-              <ct:Real>48</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.34</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>49</ct:String>
-              <ct:Real>60.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-26.884</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>49</ct:String>
-              <ct:Real>72</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-28.456</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>49</ct:String>
@@ -6592,67 +2663,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>49</ct:String>
-              <ct:Real>84</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-29.901</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>49</ct:String>
-              <ct:Real>96</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-31.278</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>49</ct:String>
-              <ct:Real>108.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-32.53</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>49</ct:String>
-              <ct:Real>120</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-33.846</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>49</ct:String>
-              <ct:Real>132</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-35.037</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>49</ct:String>
-              <ct:Real>144</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-36.171</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>49</ct:String>
               <ct:Real>150</ct:Real>
               <ct:Real>-0.26628</ct:Real>
               <ct:Real>1.894</ct:Real>
               <ct:Real>0.28383</ct:Real>
               <ct:Real>0.053646</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>50</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-23.137</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>50</ct:String>
@@ -6664,75 +2679,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>50</ct:String>
-              <ct:Real>12.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-24.482</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>50</ct:String>
-              <ct:Real>24.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.799</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>50</ct:String>
-              <ct:Real>36.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-27.033</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>50</ct:String>
-              <ct:Real>48</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-28.256</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>50</ct:String>
-              <ct:Real>60.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-29.258</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>50</ct:String>
-              <ct:Real>72.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-30.269</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>50</ct:String>
               <ct:Real>81</ct:Real>
               <ct:Real>10.216</ct:Real>
               <ct:Real>1.6229</ct:Real>
               <ct:Real>1.0262</ct:Real>
               <ct:Real>0.056199</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>50</ct:String>
-              <ct:Real>84.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-31.215</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>50</ct:String>
-              <ct:Real>88</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-65.321</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>50</ct:String>
@@ -6744,67 +2695,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>50</ct:String>
-              <ct:Real>96.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-65.209</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>50</ct:String>
-              <ct:Real>108.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-63.908</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>50</ct:String>
-              <ct:Real>120.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-63.848</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>50</ct:String>
-              <ct:Real>132.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-63.791</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>50</ct:String>
-              <ct:Real>144.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-63.738</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>50</ct:String>
-              <ct:Real>157</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-63.523</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>50</ct:String>
               <ct:Real>162</ct:Real>
               <ct:Real>13.908</ct:Real>
               <ct:Real>-3.0882</ct:Real>
               <ct:Real>0.11246</ct:Real>
               <ct:Real>-0.04998</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>51</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-14.949</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>51</ct:String>
@@ -6816,99 +2711,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>51</ct:String>
-              <ct:Real>11.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-16.492</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>51</ct:String>
-              <ct:Real>12.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-23.914</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>51</ct:String>
-              <ct:Real>24.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.101</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>51</ct:String>
-              <ct:Real>36.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-26.243</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>51</ct:String>
-              <ct:Real>49</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-27.304</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>51</ct:String>
               <ct:Real>60</ct:Real>
               <ct:Real>8.648</ct:Real>
               <ct:Real>4.9285</ct:Real>
               <ct:Real>1.8083</ct:Real>
               <ct:Real>0.18689</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>51</ct:String>
-              <ct:Real>60.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-28.406</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>51</ct:String>
-              <ct:Real>72.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-29.426</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>51</ct:String>
-              <ct:Real>84.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-30.408</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>51</ct:String>
-              <ct:Real>96.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-31.353</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>51</ct:String>
-              <ct:Real>108.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-32.263</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>51</ct:String>
-              <ct:Real>120.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-33.139</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>51</ct:String>
@@ -6920,67 +2727,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>52</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-14.569</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>52</ct:String>
               <ct:Real>2</ct:Real>
               <ct:Real>7.2501</ct:Real>
               <ct:Real>-0.02411</ct:Real>
               <ct:Real>1.9317</ct:Real>
               <ct:Real>-0.0016832</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>52</ct:String>
-              <ct:Real>4</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-28.652</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>52</ct:String>
-              <ct:Real>12.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-40.465</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>52</ct:String>
-              <ct:Real>35.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-37.138</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>52</ct:String>
-              <ct:Real>37.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-40.348</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>52</ct:String>
-              <ct:Real>59.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-37.325</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>52</ct:String>
-              <ct:Real>71.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-37.553</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>52</ct:String>
@@ -6992,75 +2743,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>52</ct:String>
-              <ct:Real>83.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-37.758</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>52</ct:String>
-              <ct:Real>95.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-37.944</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>52</ct:String>
-              <ct:Real>107.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-38.112</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>52</ct:String>
-              <ct:Real>119.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-38.264</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>52</ct:String>
-              <ct:Real>131.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-38.401</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>52</ct:String>
-              <ct:Real>143.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-38.525</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>52</ct:String>
               <ct:Real>155</ct:Real>
               <ct:Real>5.5994</ct:Real>
               <ct:Real>-3.7504</ct:Real>
               <ct:Real>-0.68818</ct:Real>
               <ct:Real>-0.10731</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>53</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-10.868</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>53</ct:String>
-              <ct:Real>4</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-21.597</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>53</ct:String>
@@ -7072,59 +2759,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>53</ct:String>
-              <ct:Real>23.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-22.823</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>53</ct:String>
-              <ct:Real>27</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-27.384</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>53</ct:String>
-              <ct:Real>28</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-29.854</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>53</ct:String>
-              <ct:Real>39.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-31.328</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>53</ct:String>
               <ct:Real>47</ct:Real>
               <ct:Real>-1.3529</ct:Real>
               <ct:Real>2.7179</ct:Real>
               <ct:Real>0.34855</ct:Real>
               <ct:Real>0.088872</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>54</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-12.941</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>54</ct:String>
-              <ct:Real>3.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.687</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>54</ct:String>
@@ -7136,43 +2775,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>54</ct:String>
-              <ct:Real>15.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-27.611</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>54</ct:String>
-              <ct:Real>27.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-29.443</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>54</ct:String>
               <ct:Real>29.7</ct:Real>
               <ct:Real>-0.96655</ct:Real>
               <ct:Real>0.19848</ct:Real>
               <ct:Real>0.0099097</ct:Real>
               <ct:Real>0.0067969</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>54</ct:String>
-              <ct:Real>39.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-31.187</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>54</ct:String>
-              <ct:Real>51.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-32.846</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>54</ct:String>
@@ -7184,99 +2791,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>54</ct:String>
-              <ct:Real>63.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-34.425</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>54</ct:String>
-              <ct:Real>75.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-35.928</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>54</ct:String>
-              <ct:Real>87.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-37.359</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>54</ct:String>
-              <ct:Real>99.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-38.721</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>54</ct:String>
               <ct:Real>111.3</ct:Real>
               <ct:Real>-0.4122</ct:Real>
               <ct:Real>0.98584</ct:Real>
               <ct:Real>0.13795</ct:Real>
               <ct:Real>0.026706</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>55</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-15.464</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>55</ct:String>
-              <ct:Real>12</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-16.642</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>55</ct:String>
-              <ct:Real>24</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-17.768</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>55</ct:String>
-              <ct:Real>36</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-18.845</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>55</ct:String>
-              <ct:Real>48</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-19.874</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>55</ct:String>
-              <ct:Real>60</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-20.858</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>55</ct:String>
-              <ct:Real>72</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-21.799</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>55</ct:String>
@@ -7288,43 +2807,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>56</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-18.592</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>56</ct:String>
-              <ct:Real>12.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-19.313</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>56</ct:String>
               <ct:Real>20</ct:Real>
               <ct:Real>9.4478</ct:Real>
               <ct:Real>0.46328</ct:Real>
               <ct:Real>2.7145</ct:Real>
               <ct:Real>0.025265</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>57</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-10.151</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>57</ct:String>
-              <ct:Real>0.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-20.283</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>57</ct:String>
@@ -7336,91 +2823,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>57</ct:String>
-              <ct:Real>12.2</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-21.974</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>57</ct:String>
-              <ct:Real>24.7</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-23.534</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>57</ct:String>
-              <ct:Real>37.2</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.025</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>57</ct:String>
-              <ct:Real>47.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-26.615</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>57</ct:String>
-              <ct:Real>60.2</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-27.978</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>57</ct:String>
-              <ct:Real>72.2</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-29.827</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>57</ct:String>
-              <ct:Real>84.2</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-31.597</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>57</ct:String>
-              <ct:Real>96.2</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-33.291</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>57</ct:String>
               <ct:Real>109</ct:Real>
               <ct:Real>-17.279</ct:Real>
               <ct:Real>-3.9751</ct:Real>
               <ct:Real>-1.1252</ct:Real>
               <ct:Real>-0.1251</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>58</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-11.863</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>58</ct:String>
-              <ct:Real>0.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-23.693</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>58</ct:String>
@@ -7432,91 +2839,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>58</ct:String>
-              <ct:Real>12</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-25.225</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>58</ct:String>
-              <ct:Real>24.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-26.562</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>58</ct:String>
-              <ct:Real>35.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-27.92</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>58</ct:String>
               <ct:Real>47.5</ct:Real>
               <ct:Real>3.5505</ct:Real>
               <ct:Real>1.6974</ct:Real>
               <ct:Real>0.69434</ct:Real>
               <ct:Real>0.064779</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>58</ct:String>
-              <ct:Real>48</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-29.097</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>58</ct:String>
-              <ct:Real>59.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-30.302</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>58</ct:String>
-              <ct:Real>72</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-31.281</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>58</ct:String>
-              <ct:Real>84</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-32.274</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>58</ct:String>
-              <ct:Real>96.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-33.156</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>58</ct:String>
-              <ct:Real>107</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-34.251</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>58</ct:String>
-              <ct:Real>120.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-34.831</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>58</ct:String>
@@ -7528,14 +2855,6 @@
             </ds:Row>
             <ds:Row>
               <ct:String>59</ct:String>
-              <ct:Real>0</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-23.119</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>59</ct:String>
               <ct:Real>1.8</ct:Real>
               <ct:Real>5.6662</ct:Real>
               <ct:Real>-0.34247</ct:Real>
@@ -7544,107 +2863,11 @@
             </ds:Row>
             <ds:Row>
               <ct:String>59</ct:String>
-              <ct:Real>12.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-24.963</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>59</ct:String>
-              <ct:Real>24.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-26.783</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>59</ct:String>
-              <ct:Real>36.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-28.491</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>59</ct:String>
-              <ct:Real>48.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-30.057</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>59</ct:String>
-              <ct:Real>60.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-31.664</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>59</ct:String>
-              <ct:Real>72.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-33.129</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>59</ct:String>
               <ct:Real>73.8</ct:Real>
               <ct:Real>9.8802</ct:Real>
               <ct:Real>1.3813</ct:Real>
               <ct:Real>0.98684</ct:Real>
               <ct:Real>0.041961</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>59</ct:String>
-              <ct:Real>84.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-34.522</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>59</ct:String>
-              <ct:Real>96</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-35.887</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>59</ct:String>
-              <ct:Real>108.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-37.099</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>59</ct:String>
-              <ct:Real>120.5</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-38.264</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>59</ct:String>
-              <ct:Real>132.3</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-39.432</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
-            </ds:Row>
-            <ds:Row>
-              <ct:String>59</ct:String>
-              <ct:Real>144.8</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-40.432</ct:Real>
-              <ct:Real>0</ct:Real>
-              <ct:Real>-1</ct:Real>
             </ds:Row>
             <ds:Row>
               <ct:String>59</ct:String>
