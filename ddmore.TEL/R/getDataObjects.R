@@ -16,7 +16,8 @@
 #' @param HOST (Optional) Hostname of the server running the FIS service; defaults
 #'        to "localhost".
 #' @param PORT (Optional) Port of the server running the FIS service, defaults to 9010.
-#' @return List of S4 Objects of class \code{dataObj}.
+#' @return List of S4 Objects of class \code{dataObj}. If name is specified, only the 
+#'          single specified object is returned.
 #' 
 #' @examples
 #' # Retrieve all data objects

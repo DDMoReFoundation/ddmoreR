@@ -13,7 +13,8 @@
 #' @param HOST hostname of the server running the FIS service, defaults to localhost
 #' @param PORT port of the server running the FIS service, defaults to 9010
 #'
-#' @return A list of objects of class "dataObj", "parObj", "taskObj" and "mdlObj".
+#' @return A list of objects of class "dataObj", "parObj", "taskObj" and "mdlObj". 
+#'          If name is specified, only the single specified object is returned.
 #'
 #' @export
 #' @docType methods

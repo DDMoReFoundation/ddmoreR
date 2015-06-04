@@ -34,7 +34,7 @@ MODEL_PREDICTION_SUBBLOCKS <- c(".DEQ", ".COMPARTMENT") # Used to be ".PKMACRO" 
 #' @param HOST Hostname of the server running the FIS service. Defaults to localhost.
 #' @param PORT Port of the server running the FIS service. Defaults to 9010.
 #' @return A list of parsed objects which are contained in the MDL file, that match
-#'         the specified criteria.
+#'         the specified criteria. If name is specified, only the single specified object is returned.
 #' 
 #' @usage .parseMDLFile('Warfarin-ODE-latest.mdl', type='dataobj')
 #' 
@@ -54,6 +54,9 @@ MODEL_PREDICTION_SUBBLOCKS <- c(".DEQ", ".COMPARTMENT") # Used to be ".PKMACRO" 
 	if (length(res) == 0) {
 	  stop(paste0("No object named \"", name, "\" of type \"", type, "\" found in the parsed MDL file"))
 	}
+
+	# res is currently returned as a list with one element. This will return the element itself instead 
+	res <- res[[1]]
     
   } else {
 	  

@@ -247,6 +247,23 @@ setMethod(f="as.data",
 				  # Fetch and merge Residuals 
 				  df1 <- mergedDataFrame
 				  df2 <- SOObject@Estimation@Residuals$ResidualTable$data
+
+          #### Additional check to compare rows of data as Residuals does not include dose rows at current 
+          #### Therfore need to remove the rows in rawData and Predictions to make merge possible
+
+          # Test to see if data rows are the same, if not remove dose rows from the 
+          # input data and recompare.
+          if (nrow(df1) > nrow(df2)) {
+            df1 <- df1[!is.na(df1[['DV']]), ]
+            print(paste0("Removed dose rows in raw data and predictions slot of SO to enable merge with residuals data.\n", 
+              "Residuals data does not currently contain dose rows in output from Nonmem executions."))
+          }
+          if (nrow(df1) != nrow(df2)) {
+            print(paste("Number of Rows in Raw Data + Predictions: ", nrow(df1)))
+            print(paste("Number of Rows in Residuals: ", nrow(df2)))
+            stop("Number of non-dose rows in raw data + Predictions slot is different to those in SO Residuals")
+          }
+
 				  mergedDataFrame <- mergeByPosition(df1, df2, 'residuals')
 			  } else {
 				  warning("No Estimation::Residuals found in the SO; the resulting data frame will not contain these")
