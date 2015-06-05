@@ -14,14 +14,14 @@
 #' @param SOObject an object of class StandardOutputObject, the output from an 
 #'    estimation task.
 #' @param type character string determining which parameters to return. 
-#'    Options are “structural”, “variability”, “all” (default).
+#'    Options are "structural", "variability", "all" (default).
 #' @param what character vector determining what values to return:
 #'  \itemize{
-#'    \item “estimates” – returns point estimates for the parameters.
-#'    \item “precision” – returns variability / uncertainty estimates for the 
+#'    \item "estimates" – returns point estimates for the parameters.
+#'    \item "precision" – returns variability / uncertainty estimates for the 
 #'        parameters.
-#'    \item “intervals” - returns interval estimates for the parameters. 
-#'    \item “all” – returns all of the above in a table.}
+#'    \item "intervals" - returns interval estimates for the parameters. 
+#'    \item"all" – returns all of the above in a table.}
 #'
 #' @param keep.only character string determining which central tendency statistic to use 
 #'      for the estimate when multiple are present. Only applicable to Bayesian which
@@ -31,16 +31,16 @@
 #' estimation method used and how these are populated – either directly from the
 #' estimation task output or subsequently via other methods e.g. bootstrapping. 
 #' The function will provide suitable names for the columns depending on the 
-#' methods used. So for example, although the argument for “what” accepts 
-#' “precision” this may mean SE assuming Normality, Bootstrap SE, SD from MCMC 
+#' methods used. So for example, although the argument for "what" accepts 
+#' "precision" this may mean SE assuming Normality, Bootstrap SE, SD from MCMC 
 #' or SAEM estimation methods.
 #' 
-#' @return If only returning “estimates” or “precision” then a named vector of 
-#' real values. If returning “intervalEstimates” or “All” then a data frame 
-#' containing one row for each parameter. Columns are “Estimate”, “Precision”, 
-#' “Lower”, “Upper”, “Shrinkage”
+#' @return If only returning "estimates" or "precision" then a named vector of 
+#' real values. If returning "intervalEstimates" or "All" then a data frame 
+#' containing one row for each parameter. Columns are "Estimate", "Precision", 
+#' "Lower", "Upper", "Shrinkage"
 #' 
-#' @examples getPopulationParameters(object, type=”all”, what=”all”)
+#' @examples getPopulationParameters(object, type="all", what="all")
 #'
 #' @seealso getPopulationEstimates, getPrecisionPopulationEstimates
 #'
