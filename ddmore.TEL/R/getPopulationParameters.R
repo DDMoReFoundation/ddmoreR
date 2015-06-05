@@ -76,7 +76,7 @@ getPopulationParameters <- function(SOObject, type="all", what="all", keep.only=
       
       out = getBootstrapPopulationParameters(SOObject, what=what, keep.only=keep.only)
       estimates.output.list[["Bootstrap"]] = out  
-    
+      
     }
   
   }
@@ -86,14 +86,27 @@ getPopulationParameters <- function(SOObject, type="all", what="all", keep.only=
     # Only return the structural parameters for each type of estimate
     for (df.name in names(estimates.output.list)) {
         
-        keep.idx <- sapply(estimates.output.list[[df.name]]["Parameter"], 
-            FUN = function(x) {
-                    x %in% c("POP_CL", "POP_V", "POP_KA", 
-                             "POP_TLAG", "BETA_CL_WT", "BETA_V_WT")
-                    })
+        if (is.vector(estimates.output.list[[df.name]])) {
+
+          keep.idx <- sapply(names(estimates.output.list[[df.name]]), 
+              FUN = function(x) {
+                      x %in% c("POP_CL", "POP_V", "POP_KA", 
+                               "POP_TLAG", "BETA_CL_WT", "BETA_V_WT")
+                      })
+          
+          estimates.output.list[[df.name]] <- estimates.output.list[[df.name]][keep.idx]
+
+        } else {
+
+          keep.idx <- sapply(estimates.output.list[[df.name]]["Parameter"], 
+              FUN = function(x) {
+                      x %in% c("POP_CL", "POP_V", "POP_KA", 
+                               "POP_TLAG", "BETA_CL_WT", "BETA_V_WT")
+                      })
         
-        estimates.output.list[[df.name]] <- estimates.output.list[[df.name]][keep.idx, ]
+          estimates.output.list[[df.name]] <- estimates.output.list[[df.name]][keep.idx, ]
         
+        }
     }
   }
   
