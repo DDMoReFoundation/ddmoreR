@@ -13,7 +13,6 @@ TEL.startServer <-
   
     see.home <- TEL.checkConfiguration()
     
-    message("Starting FIS and MIF servers...")
     startupScriptName = "startup.bat"
 	startupScript <- file.path(see.home, startupScriptName)
     
@@ -21,24 +20,30 @@ TEL.startServer <-
         stop(paste("Services startup script", startupScript," does not exist."))
     }
     
+    message("Starting servers [ ")
     if (!TEL.serverRunning()) {
-      message("Server not running; starting server...")
+      # message("Server not running; starting server...")
       startupScriptStdErr <- file.path(see.home, paste0(".",startupScriptName, ".stderr"))
       startupScriptStdOut <- file.path(see.home, paste0(".",startupScriptName, ".stdout"))
       system2(startupScript,'/B', wait=F, stdout=startupScriptStdOut, stderr=startupScriptStdErr)  # /B argument suppresses the display of the command windows
       count = 0
-      message("Retries: ", appendLF=FALSE)
       while ( count < 60 && !TEL.serverRunning() ) {
         Sys.sleep(1)
         count <- count+1
-        message(count, " ", appendLF=FALSE)
+        message(".", appendLF=FALSE)
       }
+      message(" ]", appendLF=FALSE)
       message() # Append a newline
       if (!TEL.serverRunning()) {
-        stop(paste("Server was unable to start. Refer to", startupScriptStdErr, " and ", startupScriptStdOut, "for details."))
+      	healthStatuses <- TEL.serverHealthcheck()
+        stop(paste("Failure!", healthStatuses, sep="\n"))
       }
+      message("Success!")
+    } else {
+	  message(". ]", appendLF=FALSE)
+      message() # Append a newline
+	  message("Success!")
     }
-    message("Server is running!")
   }
 
 ################################################################################
