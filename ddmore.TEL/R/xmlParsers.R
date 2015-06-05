@@ -141,7 +141,7 @@ ParseDataSetInline <- function(parentNode) {
 #' Utility function to parse a DataSet xml structure as it appears in PharmML. 
 #'
 #' @param parentNode The parent xmlNode object that contains two decendant tags:
-#'   Definition and Table 
+#'   Definition and ImportData 
 #'
 #' @value Returns a list with two named elements: \code{description}, which holds all 
 #' the meta data about the columns in a data frame; \code{data}, which holds the
