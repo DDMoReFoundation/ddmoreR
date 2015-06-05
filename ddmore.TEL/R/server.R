@@ -20,7 +20,7 @@ TEL.startServer <-
         stop(paste("Services startup script", startupScript," does not exist."))
     }
     
-    message("Starting servers [ ")
+    message("Starting servers [ ", appendLF=FALSE)
     if (!TEL.serverRunning()) {
       # message("Server not running; starting server...")
       startupScriptStdErr <- file.path(see.home, paste0(".",startupScriptName, ".stderr"))
