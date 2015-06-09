@@ -157,7 +157,7 @@ ParseDataSetExternal <- function(parentNode) {
   stopifnot(("Definition" %in% parentNodeChildNames & "ImportData" %in% parentNodeChildNames) | 
    ("Definition" %in% parentNodeChildNames & "ds:ImportData" %in% parentNodeChildNames))
 
-  # Namespaces are not delt with correctly in the R xml library, so two hardcoded 
+  # Namespaces are not dealt with correctly in the R xml library, so two hardcoded 
   # versions of this function are necessary unitl a workaround is found.  
   if (xmlName(parentNode[[1]]) == "Definition" & xmlName(parentNode[[2]]) == "ImportData") {
     descriptionRef = "Definition"
