@@ -53,6 +53,11 @@ getPopulationParameters <- function(SOObject, type="all", what="all", keep.only=
   if (is.null(SOObject@Estimation@PopulationEstimates) || length(SOObject@Estimation@PopulationEstimates) == 0 ) {
     stop("Section Estimation:PopulationEstimates not found in SO Object")
   }
+
+  if (is.null(SOObject@Estimation@PrecisionPopulationEstimates) || length(SOObject@Estimation@PrecisionPopulationEstimates) == 0 ) {
+    message("Section Estimation:PrecisionPopulationEstimates not found in SO Object. \nOutput will only contain values for the point estimates. ")
+    what='estimates'
+  }
   
   # Cycle tough estimates present, parsing as necessary
   estimateTypes = names(SOObject@Estimation@PopulationEstimates)
