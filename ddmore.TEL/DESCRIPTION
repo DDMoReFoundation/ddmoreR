@@ -25,7 +25,6 @@ Collate:
     'StandardOutputSubClasses.R'
     'StandardOutputObject.R'
     'LoadSOObject.R'
-    'StandardOutputMethods.R'
     'conversion.R'
     'createMogObj.R'
     'server.R'

@@ -26,7 +26,7 @@ script.files = c(
     "telClasses", "createMogObj",
     "utils", "prepare", "import", "execute", "mdlUtils", "conversion", "read", "update",
     "getDataObjects", "getParameterObjects", "getModelObjects", "getTaskPropertiesObjects", "getMDLObjects",
-    "server","psnWrappers", "xmlParsers", "StandardOutputMethods", "StandardOutputSubClasses", "StandardOutputObject",
+    "server","psnWrappers", "xmlParsers", "StandardOutputSubClasses", "StandardOutputObject",
 	"LoadSOObject"
 )
 
