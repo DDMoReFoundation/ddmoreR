@@ -134,8 +134,12 @@ setGeneric("execute", function(x, target=NULL,
 	if (is.null(target)) {
 		stop('Parameter \"target\" not specified. Possible target tool specifiers might include \"NONMEM\", \"PsN\", \"MONOLIX\".');
 	}
-	
-	workingDirectory <- TEL.prepareWorkingFolder(modelFile=x, extraInputFileExts=extraInputFileExts, extraInputFiles=extraInputFiles)
+
+	# Create a working folder in which FIS will create the Archive for conversion and execution
+	workingDirectory <- tempfile("TEL.job",tempdir())
+	if (!file.exists(workingDirectory)) {
+		dir.create(workingDirectory)
+	}
 	
 	submission <- TEL.submitJob(executionType=target, workingDirectory=workingDirectory,
 								modelfile=x, extraInputFileExts=extraInputFileExts, extraInputFiles=extraInputFiles,

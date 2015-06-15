@@ -292,12 +292,12 @@ TEL.submitJob <- function( executionType=NULL, workingDirectory, modelfile, extr
 	sourceDirectory <- parent.folder(modelfile)
 	
 	# Resolve the extraInputFileExts against files in the model file's directory
-	extraInputFiles <- c(extraInputFiles,
-		sapply(extraInputFileExts, function(fileExt) {
-			matchingFilesAndDirs <- list.files(sourceDirectory, paste0(".*\\.", fileExt))
-			matchingFiles <- matchingFilesAndDirs[ !file.info(paste0(sourceDirectory,"/",matchingFilesAndDirs))$isdir ]
-		})
-	)
+	# and add these files to the existing vector of extraInputFiles
+	for (fileExt in extraInputFileExts) {
+		matchingFilesAndDirs <- list.files(sourceDirectory, paste0(".*\\.", fileExt))
+		matchingFiles <- matchingFilesAndDirs[ !file.info(paste0(sourceDirectory,"/",matchingFilesAndDirs))$isdir ]
+		extraInputFiles <- c(extraInputFiles, matchingFiles)
+	}
 	
     submission$executionType <- executionType
     submission$modelFile <- modelfile
