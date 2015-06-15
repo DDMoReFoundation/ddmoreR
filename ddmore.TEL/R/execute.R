@@ -43,7 +43,7 @@
 #' @include telClasses.R
 #' @include StandardOutputObject.R
 setGeneric("estimate", function(x, target=NULL,
-	addargs="", subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), wait=TRUE, clearUp=FALSE,
+	addargs=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), wait=TRUE, clearUp=FALSE,
 	HOST='localhost', PORT='9010') {
   
 	execute(x=x, target=target,
@@ -55,7 +55,7 @@ setGeneric("estimate", function(x, target=NULL,
 #' @aliases estimate,mogObj,mogObj-method
 setMethod("estimate", signature=signature(x="mogObj"), 
 	function(x, target=NULL,
-			 addargs="", subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), wait=TRUE, clearUp=FALSE,
+			 addargs=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), wait=TRUE, clearUp=FALSE,
 			 HOST='localhost', PORT='9010') {
 
     # First write out MOG to MDL.
@@ -95,10 +95,10 @@ setMethod("estimate", signature=signature(x="mogObj"),
 #'        dot) that will be used in identifying additional files to copy from the
 #'        source directory (the directory containing the MDL file) into the job
 #'        working directory. Default is null/empty.
-#' @param extraInputFiles (Optional) A vector of file paths (relative to the
-#'        model file) that will be used in identifying additional files to copy
-#'        from the source directory (the directory containing the MDL file) into
-#'        the job working directory. Default is null/empty.
+#' @param extraInputFiles (Optional) A vector of file paths (either relative to the
+#'        model file, or absolute) that will be used in identifying additional files
+#' 		  to copy from the source directory (the directory containing the MDL file)
+#'        into the job working directory. Default is null/empty.
 #' @param importSO (Optional) Whether to create and return a Standard Output
 #'        Object representing the results of the execution. Mutually exclusive
 #'        with the \code{importMultipleSO} parameter. Default is true.
@@ -127,7 +127,7 @@ setMethod("estimate", signature=signature(x="mogObj"),
 #' @include telClasses.R
 #' @include StandardOutputObject.R
 setGeneric("execute", function(x, target=NULL,
-					addargs="", subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), wait=TRUE, clearUp=FALSE,
+					addargs=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), wait=TRUE, clearUp=FALSE,
 					extraInputFileExts=NULL, extraInputFiles=NULL, importSO=TRUE, importMultipleSO=FALSE,
 					HOST='localhost', PORT='9010') {
 	
@@ -138,7 +138,8 @@ setGeneric("execute", function(x, target=NULL,
 	workingDirectory <- TEL.prepareWorkingFolder(modelFile=x, extraInputFileExts=extraInputFileExts, extraInputFiles=extraInputFiles)
 	
 	submission <- TEL.submitJob(executionType=target, workingDirectory=workingDirectory,
-								modelfile=x, HOST=HOST, PORT=PORT, addargs=addargs)
+								modelfile=x, extraInputFileExts=extraInputFileExts, extraInputFiles=extraInputFiles,
+								addargs=addargs, HOST=HOST, PORT=PORT)
 	
 	if (submission$status == "NEW") { # Successfully submitted
 		
@@ -182,7 +183,7 @@ setGeneric("execute", function(x, target=NULL,
 #' @seealso \code{execute}
 setMethod("execute", signature=signature(x="mogObj"), 
     function(x, target=NULL,
-                    addargs="", subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), wait=TRUE, clearUp=FALSE,
+                    addargs=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), wait=TRUE, clearUp=FALSE,
                     extraInputFileExts=NULL, extraInputFiles=NULL, importSO=TRUE, importMultipleSO=FALSE,
                     HOST='localhost', PORT='9010') {
 

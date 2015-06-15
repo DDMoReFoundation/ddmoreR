@@ -134,7 +134,9 @@ TEL.importFiles <- function(submission, target=file.path(submission$sourceDirect
 #'          \item{\code{executionType}}
 #'            - Identifying the target software to use for the execution.
 #'          \item{\code{modelFile}}
-#'            - MDL file that was executed, without leading path.
+#'            - MDL file that was executed; any leading path will be stripped off,
+#'              and the .mdl file extension replaced with .SO.xml, to derive the
+#'              filename of the Standard Output XML file.
 #'          \item{\code{sourceDirectory}}
 #'            - The directory in which the MDL file lives.
 #'          \item{\code{resultsDir}}
@@ -163,7 +165,7 @@ TEL.importFiles <- function(submission, target=file.path(submission$sourceDirect
 
 TEL.importSO <- function(submission, multiple=FALSE) {
 	
-	soXMLFileName <- paste0(file_path_sans_ext(submission$modelFile), ".SO.xml")
+	soXMLFileName <- paste0(file_path_sans_ext(basename(submission$modelFile)), ".SO.xml")
 	soXMLFilePath <- file.path(submission$resultsDir, soXMLFileName)
 
 	if (class(soXMLFilePath) == "character" && file.exists(soXMLFilePath)) {

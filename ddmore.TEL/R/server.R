@@ -240,13 +240,22 @@ TEL.checkConfiguration <-
 #' @param workingDirectory Directory, normally within the system temporary directory,
 #'        into which the model file and any data files are expected to have been
 #'        copied, and within which the target software will execute the job.
-#' @param modelfile Path-less filename, or absolute path, to the MDL file to be
+#' @param modelfile Path-less filename, or absolute path, to the model file to be
 #'        executed. Note that relative paths are currently not supported.
-#' @param HOST Hostname of the server running the FIS service. Defaults to localhost.
-#' @param PORT Port of the server running the FIS service. Defaults to 9010.
-#' @param OPERATIONAL_PORT Operational (as opposed to Service) port of the server
-#'						   running the FIS service. Defaults to 9011.
-#' @param addargs Additional arguments to be passed to the target software.
+#' @param extraInputFileExts (Optional) A vector of file extensions (excluding the
+#'        dot) that will be used in identifying additional files, from the same
+#'        directory as the model file, to be included in the execution.
+#'        Primarily used by PsN e.g. to provide the .lst file for a PsN execution of
+#'        an already-executed NONMEM run.
+#' @param extraInputFiles (Optional) A vector of paths, either absolute or relative
+#'        (to the model file), to any additional files to be included in the execution.
+#'        Used as an alternative, and/or in conjunction with, extraInputFileExts.
+#' @param addargs (Optional) Additional arguments to be passed to the target software.
+#' @param HOST (Optional) Hostname of the server running the FIS service. Defaults
+#'        to localhost.
+#' @param PORT (Optional) Port of the server running the FIS service. Defaults to 9010.
+#' @param OPERATIONAL_PORT (Optional) Operational (as opposed to Service) port of the
+#'        server running the FIS service. Defaults to 9011.
 #' 
 #' @return \code{submission} named list containing information relating to the
 #'         submission of the execution request:
@@ -267,31 +276,38 @@ TEL.checkConfiguration <-
 #' 
 #' @export
 #' 
-TEL.submitJob <- function( executionType=NULL, workingDirectory, modelfile, HOST='localhost', PORT=9010, OPERATIONAL_PORT=9011, addargs="", ... ) {
+TEL.submitJob <- function( executionType=NULL, workingDirectory, modelfile, extraInputFileExts=NULL, extraInputFiles=NULL, addargs=NULL, HOST='localhost', PORT=9010, OPERATIONAL_PORT=9011 ) {
 	
 	if (!TEL.serverRunning(HOST, OPERATIONAL_PORT)) {
 		stop("Server(s) is/are not running, unable to submit job. Server health details have been made available in the TEL.serverHealthDetails object.")
 	}
 	
     submission <- list()
-    
-    # Strip off the path to the model file leaving just the file name itself
-    # TODO: Cater for relative paths of model files too? (currently just path-less files and absolute-path files are supported)
+	
+	# Strip off the path to the model file leaving just the file name itself
+	# TODO: Cater for relative paths of model files too? (currently just path-less files and absolute-path files are supported)
     modelfile_without_path <- basename(modelfile)
-
-    submission$executionType <- executionType
-    submission$modelFile <- modelfile_without_path
+	
     # Parent folder of the model file is the source directory
-    submission$sourceDirectory <- parent.folder(modelfile)
+	sourceDirectory <- parent.folder(modelfile)
+	
+	# Resolve the extraInputFileExts against files in the model file's directory
+	extraInputFiles <- c(extraInputFiles,
+		sapply(extraInputFileExts, function(fileExt) {
+			matchingFilesAndDirs <- list.files(sourceDirectory, paste0(".*\\.", fileExt))
+			matchingFiles <- matchingFilesAndDirs[ !file.info(paste0(sourceDirectory,"/",matchingFilesAndDirs))$isdir ]
+		})
+	)
+	
+    submission$executionType <- executionType
+    submission$modelFile <- modelfile
+    submission$sourceDirectory <- sourceDirectory
     submission$workingDirectory <- workingDirectory
 	
 	submission$status <- ''
 
     # Build form
-    parameters <- c(command=executionType, workingDirectory=workingDirectory, executionFile=modelfile_without_path)
-	if (nchar(addargs) > 0) {
-        parameters <- c(parameters, commandParameters=addargs)
-    }
+    parameters <- list(command=executionType, workingDirectory=workingDirectory, executionFile=modelfile, extraInputFiles=as.list(extraInputFiles), commandParameters=addargs)
 
     json <- toJSON(parameters)
     formParams=sprintf('%s%s','submissionRequest=',json)
