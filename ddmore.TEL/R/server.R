@@ -244,12 +244,14 @@ TEL.checkConfiguration <-
 #'        executed. Note that relative paths are currently not supported.
 #' @param extraInputFileExts (Optional) A vector of file extensions (excluding the
 #'        dot) that will be used in identifying additional files, from the same
-#'        directory as the model file, to be included in the execution.
+#'        directory as the model file and having the same base name as the model file,
+#'        to be included in the execution. Default is null/empty.
 #'        Primarily used by PsN e.g. to provide the .lst file for a PsN execution of
 #'        an already-executed NONMEM run.
 #' @param extraInputFiles (Optional) A vector of paths, either absolute or relative
 #'        (to the model file), to any additional files to be included in the execution.
 #'        Used as an alternative, and/or in conjunction with, extraInputFileExts.
+#'        Default is null/empty.
 #' @param addargs (Optional) Additional arguments to be passed to the target software.
 #' @param HOST (Optional) Hostname of the server running the FIS service. Defaults
 #'        to localhost.
@@ -294,9 +296,11 @@ TEL.submitJob <- function( executionType=NULL, workingDirectory, modelfile, extr
 	# Resolve the extraInputFileExts against files in the model file's directory
 	# and add these files to the existing vector of extraInputFiles
 	for (fileExt in extraInputFileExts) {
-		matchingFilesAndDirs <- list.files(sourceDirectory, paste0(".*\\.", fileExt))
-		matchingFiles <- matchingFilesAndDirs[ !file.info(paste0(sourceDirectory,"/",matchingFilesAndDirs))$isdir ]
-		extraInputFiles <- c(extraInputFiles, matchingFiles)
+		fileName <- paste0(file_path_sans_ext(basename(modelfile)), ".", fileExt)
+		filePath <- file.path(sourceDirectory, fileName)
+		if ( file.exists(filePath) && !file.info(filePath)$isdir ) {
+			extraInputFiles <- c(extraInputFiles, fileName)
+		}
 	}
 	
     submission$executionType <- executionType

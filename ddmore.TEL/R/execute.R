@@ -92,13 +92,15 @@ setMethod("estimate", signature=signature(x="mogObj"),
 #'        directory may contain useful information in the event that a job failed
 #'        to execute successfully.
 #' @param extraInputFileExts (Optional) A vector of file extensions (excluding the
-#'        dot) that will be used in identifying additional files to copy from the
-#'        source directory (the directory containing the MDL file) into the job
-#'        working directory. Default is null/empty.
-#' @param extraInputFiles (Optional) A vector of file paths (either relative to the
-#'        model file, or absolute) that will be used in identifying additional files
-#' 		  to copy from the source directory (the directory containing the MDL file)
-#'        into the job working directory. Default is null/empty.
+#'        dot) that will be used in identifying additional files, from the same
+#'        directory as the model file and having the same base name as the model
+#'        file, to be included in the execution. Default is null/empty.
+#'        Primarily used by PsN e.g. to provide the .lst file for a PsN execution of
+#'        an already-executed NONMEM run.
+#' @param extraInputFiles (Optional) A vector of paths, either absolute or relative
+#'        (to the model file), to any additional files to be included in the execution.
+#'        Used as an alternative, and/or in conjunction with, extraInputFileExts.
+#'        Default is null/empty.
 #' @param importSO (Optional) Whether to create and return a Standard Output
 #'        Object representing the results of the execution. Mutually exclusive
 #'        with the \code{importMultipleSO} parameter. Default is true.
