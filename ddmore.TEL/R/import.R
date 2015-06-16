@@ -47,6 +47,9 @@ TEL.importFiles <- function(submission, target=file.path(submission$sourceDirect
     if(!("id" %in% names(submission$job)) || is.null(submission$job$id)) {
       stop("Illegal Argument: job's id element must be set and can't be NULL.")
     }
+    if(is.null(target)) {
+      stop("Illegal Argument: target must be set and can't be NULL.")
+    }
 	
 	jobID <- submission$requestID
 	modelfile <- submission$modelFile

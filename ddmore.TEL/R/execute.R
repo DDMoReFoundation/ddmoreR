@@ -135,10 +135,16 @@ setGeneric("execute", function(x, target=NULL,
 	if (is.null(target)) {
 		stop('Parameter \"target\" not specified. Possible target tool specifiers might include \"NONMEM\", \"PsN\", \"MONOLIX\".');
 	}
-	
-	
-	# FIXME: This is to enable mocking of FIS integration functions. To be removed after 'testthat' upgrade
-	# and introducing global FIS Server instance
+    if(is.null(x)) {
+        stop("Illegal Argument: x must be set and can't be NULL.")
+    }
+    absoluteModelFilePath <- normalizePath(x)
+    if (!file.exists(absoluteModelFilePath)) {
+        stop(paste('Illegal Argument: file ', x, ' does not exist.'))
+    }
+  
+    # FIXME: This is to enable mocking of functions responsible for integration with FIS REST API. 
+    # To be removed after 'testthat' upgrade and introducing global FIS Server instance
 	inargs <- list(...)
 	if(!is.null(inargs) && !is.null(inargs$server)) {
 		SERVER = inargs$server
@@ -158,11 +164,11 @@ setGeneric("execute", function(x, target=NULL,
 	}
 	
 	submission <- SERVER$submitJob(executionType=target, workingDirectory=workingDirectory,
-								modelfile=x, extraInputFileExts=extraInputFileExts, extraInputFiles=extraInputFiles,
+								modelfile=absoluteModelFilePath, extraInputFileExts=extraInputFileExts, extraInputFiles=extraInputFiles,
 								addargs=addargs, HOST=HOST, PORT=PORT)
 
     result <- NULL
-	if (submission$status == "Submitted") { # Successfully submitted
+	if (submission$status == "Submitted") {
     if (wait) {
       result <- TEL.monitor(submission, importDirectory=file.path(submission$sourceDirectory, subfolder), clearUp, importSO, importMultipleSO, HOST, PORT)
 		} else {
@@ -207,8 +213,8 @@ TEL.monitor <- function(submission=NULL, importDirectory=NULL, clearUp=FALSE, im
       stop("Illegal Argument: submission's requestID element must be set and can't be NULL.")
     }
   
-    # FIXME: This is to enable mocking of FIS integration functions. To be removed after 'testthat' upgrade
-    # and introducing global FIS Server instance
+    # FIXME: This is to enable mocking of functions responsible for integration with FIS REST API. 
+    # To be removed after 'testthat' upgrade and introducing global FIS Server instance
     inargs <- list(...)
   	if(!is.null(inargs) && !is.null(inargs$server)) {
   		SERVER = inargs$server

@@ -291,34 +291,43 @@ TEL.checkConfiguration <-
 #' @export
 #' 
 TEL.submitJob <- function( executionType=NULL, workingDirectory, modelfile, extraInputFileExts=NULL, extraInputFiles=NULL, addargs=NULL, HOST='localhost', PORT=9010, OPERATIONAL_PORT=9011 ) {
-	
-	if (!TEL.serverRunning(HOST, OPERATIONAL_PORT)) {
-		stop("Server(s) is/are not running, unable to submit job. Server health details have been made available in the TEL.serverHealthDetails object.")
-	}
-	
+    if(is.null(executionType)) {
+        stop("Illegal Argument: executionType must be set and can't be NULL.")
+    }
+    if(is.null(modelfile)) {
+      stop("Illegal Argument: modelfile must be set and can't be NULL.")
+    }
+    if(is.null(workingDirectory)) {
+      stop("Illegal Argument: workingDirectory must be set and can't be NULL.")
+    }
+    if (!TEL.serverRunning(HOST, OPERATIONAL_PORT)) {
+        stop("Server(s) is/are not running, unable to submit job. Server health details have been made available in the TEL.serverHealthDetails object.")
+    }
+
+    absoluteModelFilePath <- normalizePath(modelfile)
+    
+    if (!file.exists(absoluteModelFilePath)) {
+      stop(paste('Illegal Argument: file ', absoluteModelFilePath, ' does not exist.'))
+    }
+
     submission <- list()
     submission$start <- date()
-	
-	# Strip off the path to the model file leaving just the file name itself
-	# TODO: Cater for relative paths of model files too? (currently just path-less files and absolute-path files are supported)
 
-    modelfile_without_path <- basename(modelfile)
-	
     # Parent folder of the model file is the source directory
-	sourceDirectory <- parent.folder(modelfile)
-	
-	# Resolve the extraInputFileExts against files in the model file's directory
-	# and add these files to the existing vector of extraInputFiles
-	for (fileExt in extraInputFileExts) {
-		fileName <- paste0(file_path_sans_ext(basename(modelfile)), ".", fileExt)
-		filePath <- file.path(sourceDirectory, fileName)
-		if ( file.exists(filePath) && !file.info(filePath)$isdir ) {
-			extraInputFiles <- c(extraInputFiles, fileName)
-		}
-	}
-	
+    sourceDirectory <- parent.folder(absoluteModelFilePath)
+
+    # Resolve the extraInputFileExts against files in the model file's directory
+    # and add these files to the existing vector of extraInputFiles
+    for (fileExt in extraInputFileExts) {
+        fileName <- paste0(file_path_sans_ext(basename(modelfile)), ".", fileExt)
+        filePath <- file.path(sourceDirectory, fileName)
+        if ( file.exists(filePath) && !file.info(filePath)$isdir ) {
+            extraInputFiles <- c(extraInputFiles, fileName)
+        }
+    }
+
     submission$executionType <- executionType
-    submission$modelFile <- modelfile
+    submission$modelFile <- absoluteModelFilePath
     submission$sourceDirectory <- sourceDirectory
     submission$workingDirectory <- workingDirectory
 	
@@ -326,7 +335,7 @@ TEL.submitJob <- function( executionType=NULL, workingDirectory, modelfile, extr
     submission$status <- ''
 
     # Build form
-    parameters <- list(command=executionType, workingDirectory=workingDirectory, executionFile=modelfile, extraInputFiles=as.list(extraInputFiles), commandParameters=addargs)
+    parameters <- list(command=executionType, workingDirectory=workingDirectory, executionFile=absoluteModelFilePath, extraInputFiles=as.list(extraInputFiles), commandParameters=addargs)
 
     json <- toJSON(parameters)
     formParams=sprintf('%s%s','submissionRequest=',json)
