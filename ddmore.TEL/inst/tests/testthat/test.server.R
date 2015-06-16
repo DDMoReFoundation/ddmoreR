@@ -11,8 +11,8 @@ context("Server Integration")
 
 test_that("TEL.poll should poll untill Job status is COMPLETED", {
     # Given
-    pollCount <<- 0
-    pollMax <<- 1
+    pollCount <- 0
+    pollMax <- 1
     serverMock <- list(
         getJob = function(...) {
             if (pollCount < pollMax) {
@@ -41,8 +41,8 @@ test_that("TEL.poll should poll untill Job status is COMPLETED", {
 
 test_that("TEL.poll should poll untill Job status is FAILED", {
     # Given
-    pollCount <<- 0
-    pollMax <<- 1
+    pollCount <- 0
+    pollMax <- 1
     serverMock <- list(
         getJob = function(...) {
             if (pollCount < pollMax) {
