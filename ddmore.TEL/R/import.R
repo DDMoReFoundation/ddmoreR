@@ -1,4 +1,3 @@
-
 ################################################################################
 #' Import result files.
 #' 
@@ -22,9 +21,8 @@
 #'              then this import into Standard Output object will not work.
 #'          \item{\code{requestId}} - Unique identifier for the submission request.
 #'        }
-#' @param target (Optional) Specify the name of a subfolder, within the directory
-#'        containing the model file, into which to copy the results. Default
-#'        is a timestamped folder.
+#' @param target (Optional) Specify the path of a directory, into which to copy the results. Default
+#'        is a timestamped subdirectory of the input model source directory.
 #' @param clearUp (Optional) Logical dictating if the job working directory should
 #'        be deleted upon successful job completion. Default is false, since this
 #'        directory may contain useful information in the event that a job failed
@@ -40,16 +38,25 @@
 #' @include StandardOutputObject.R
 
 TEL.importFiles <- function(submission, target=file.path(submission$sourceDirectory, format(Sys.time(), "%Y%b%d%H%M%S")), clearUp=FALSE) {
-	
-	submission$resultsDir <- target
+    if(is.null(submission)) {
+      stop("Illegal Argument: submission can't be NULL.")
+    }
+    if(!("job" %in% names(submission)) || is.null(submission$job)) {
+      stop("Illegal Argument: submission's 'job' element must be set and can't be NULL.")
+    }
+    if(!("id" %in% names(submission$job)) || is.null(submission$job$id)) {
+      stop("Illegal Argument: job's id element must be set and can't be NULL.")
+    }
 	
 	jobID <- submission$requestID
 	modelfile <- submission$modelFile
 	jobDirectory <- submission$workingDirectory
 	
+	# FIXME: verify if the following logic is correct and if it is needed, 
+	# if so make it caller's responsibility since it violates SRP
 	if (nchar(modelfile) == 0 || nchar(jobDirectory) == 0) {
 		# Model file and/or job directory not specified, so get them from Framework Integration service
-		job = TEL.getJob(jobID)	
+		job = submission$job
 		modelfile <- job$controlFile
 		jobDirectory <- job$workingDirectory
 	}
@@ -111,6 +118,7 @@ TEL.importFiles <- function(submission, target=file.path(submission$sourceDirect
 #		file.copy(fileslist, target)
 		
 		
+		submission$resultsDir <- target
 		
 		if (clearUp==TRUE) {
 			unlink(workingFolder, recursive=TRUE)
@@ -164,7 +172,15 @@ TEL.importFiles <- function(submission, target=file.path(submission$sourceDirect
 #' @include StandardOutputObject.R
 
 TEL.importSO <- function(submission, multiple=FALSE) {
-	
+    if(is.null(submission)) {
+      stop("Illegal Argument: submission can't be NULL.")
+    }
+    if(!("modelFile" %in% names(submission)) || is.null(submission$modelFile)) {
+      stop("Illegal Argument: submission's 'modelFile' element must be set and can't be NULL.")
+    }
+    if(!("resultsDir" %in% names(submission)) || is.null(submission$resultsDir)) {
+      stop("Illegal Argument: submission's 'resultsDir' element must be set and can't be NULL.")
+    }
 	soXMLFileName <- paste0(file_path_sans_ext(basename(submission$modelFile)), ".SO.xml")
 	soXMLFilePath <- file.path(submission$resultsDir, soXMLFileName)
 
@@ -185,3 +201,12 @@ TEL.importSO <- function(submission, multiple=FALSE) {
 
 }
 
+
+#
+# What follows enables mocking of TEL functions during tests, will be removed once testthat has been upgraded.
+#
+if(!exists(".TEL")) {
+    .TEL<-list()
+}
+.TEL$importFiles = TEL.importFiles
+.TEL$importSO = TEL.importSO
