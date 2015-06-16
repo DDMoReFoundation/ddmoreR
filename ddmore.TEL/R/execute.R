@@ -128,55 +128,66 @@ setMethod("estimate", signature=signature(x="mogObj"),
 #' @include import.R
 #' @include telClasses.R
 #' @include StandardOutputObject.R
-setGeneric("execute", function(x, target=NULL,
-					addargs=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), wait=TRUE, clearUp=FALSE,
-					extraInputFileExts=NULL, extraInputFiles=NULL, importSO=TRUE, importMultipleSO=FALSE,
-					HOST='localhost', PORT='9010', ...) {
-	if (is.null(target)) {
-		stop('Parameter \"target\" not specified. Possible target tool specifiers might include \"NONMEM\", \"PsN\", \"MONOLIX\".');
-	}
-    if(is.null(x)) {
+setGeneric("execute", function(x, target = NULL,
+                               addargs = NULL, subfolder = format(Sys.time(), "%Y%b%d%H%M%S"), wait =
+                                   TRUE, clearUp = FALSE,
+                               extraInputFileExts = NULL, extraInputFiles = NULL, importSO = TRUE, importMultipleSO =
+                                   FALSE,
+                               HOST = 'localhost', PORT = '9010', ...) {
+    if (is.null(target)) {
+        stop(
+            'Parameter \"target\" not specified. Possible target tool specifiers might include \"NONMEM\", \"PsN\", \"MONOLIX\".'
+        );
+    }
+    if (is.null(x)) {
         stop("Illegal Argument: x must be set and can't be NULL.")
     }
     absoluteModelFilePath <- normalizePath(x)
     if (!file.exists(absoluteModelFilePath)) {
         stop(paste('Illegal Argument: file ', x, ' does not exist.'))
     }
-  
-    # FIXME: This is to enable mocking of functions responsible for integration with FIS REST API. 
+    
+    # FIXME: This is to enable mocking of functions responsible for integration with FIS REST API.
     # To be removed after 'testthat' upgrade and introducing global FIS Server instance
-	inargs <- list(...)
-	if(!is.null(inargs) && !is.null(inargs$server)) {
-		SERVER = inargs$server
-	} else {
-		SERVER = .SERVER
-	}
-	if(!is.null(inargs) && !is.null(inargs$tel)) {
-	  TEL = inargs$tel
-	} else {
-	  TEL = .TEL
-	}
-	
-	# Create a working folder in which FIS will create the Archive for conversion and execution
-	workingDirectory <- tempfile("TEL.job",tempdir())
-	if (!file.exists(workingDirectory)) {
-		dir.create(workingDirectory)
-	}
-	
-	submission <- SERVER$submitJob(executionType=target, workingDirectory=workingDirectory,
-								modelfile=absoluteModelFilePath, extraInputFileExts=extraInputFileExts, extraInputFiles=extraInputFiles,
-								addargs=addargs, HOST=HOST, PORT=PORT)
-
+    inargs <- list(...)
+    if (!is.null(inargs) && !is.null(inargs$server)) {
+        SERVER = inargs$server
+    } else {
+        SERVER = .SERVER
+    }
+    if (!is.null(inargs) && !is.null(inargs$tel)) {
+        TEL = inargs$tel
+    } else {
+        TEL = .TEL
+    }
+    
+    # Create a working folder in which FIS will create the Archive for conversion and execution
+    workingDirectory <- tempfile("TEL.job",tempdir())
+    if (!file.exists(workingDirectory)) {
+        dir.create(workingDirectory)
+    }
+    
+    submission <-
+        SERVER$submitJob(
+            executionType = target, workingDirectory = workingDirectory,
+            modelfile = absoluteModelFilePath, extraInputFileExts = extraInputFileExts, extraInputFiles =
+                extraInputFiles,
+            addargs = addargs, HOST = HOST, PORT = PORT
+        )
+    
     result <- NULL
-	if (submission$status == "Submitted") {
-    if (wait) {
-      result <- TEL.monitor(submission, importDirectory=file.path(submission$sourceDirectory, subfolder), clearUp, importSO, importMultipleSO, HOST, PORT)
-		} else {
-			result <- submission
-		}
-	} else {
-		stop("Submission of execution request was unsuccessful.")
-	}
+    if (submission$status == "Submitted") {
+        if (wait) {
+            result <-
+                TEL.monitor(
+                    submission, importDirectory = file.path(submission$sourceDirectory, subfolder), clearUp, importSO, importMultipleSO, HOST, PORT
+                )
+        } else {
+            result <- submission
+        }
+    } else {
+        stop("Submission of execution request was unsuccessful.")
+    }
     
     result
 })
@@ -187,7 +198,7 @@ setGeneric("execute", function(x, target=NULL,
 #' Function performing monitoring and import of FIS job results. 
 #' 
 #' Note: This method will be refactored in the future to resolve SRP violation 
-#' and also so the import of theresults happens even if a job fails 
+#' and also so the import of the results happens even if a job fails 
 #' (SO may still be available in such case)
 #'
 #' @param submission a list representing a job that was submitted to FIS.
@@ -201,68 +212,75 @@ setGeneric("execute", function(x, target=NULL,
 #' 
 #' @export
 #' 
-TEL.monitor <- function(submission=NULL, importDirectory=NULL, clearUp=FALSE, importSO=TRUE, importMultipleSO=FALSE,
-        HOST='localhost', PORT='9010', ...) {
-    if (is.null(submission)) {
-        stop('Illegal Argument: submission object was null.')
-    }
-    if (is.null(importDirectory)) {
-      stop('Illegal Argument: target directory was null.')
-    }
-    if(!("requestID" %in% names(submission)) || is.null(submission$requestID)) {
-      stop("Illegal Argument: submission's requestID element must be set and can't be NULL.")
-    }
-  
-    # FIXME: This is to enable mocking of functions responsible for integration with FIS REST API. 
-    # To be removed after 'testthat' upgrade and introducing global FIS Server instance
-    inargs <- list(...)
-  	if(!is.null(inargs) && !is.null(inargs$server)) {
-  		SERVER = inargs$server
-  	} else {
-  		SERVER = .SERVER
-  	}
-  	if(!is.null(inargs) && !is.null(inargs$tel)) {
-  	  TEL = inargs$tel
-  	} else {
-  	  TEL = .TEL
-  	}
-	
-    message(sprintf('-- %s', submission$start ))
-    message(sprintf('Job %s progress:', submission$requestID))
-    message(submission$status)
-    
-    submission <- SERVER$poll(submission, HOST=HOST, PORT=PORT)
-    result <- NULL
-    if (submission$fisJobStatus == "COMPLETED") {
-        submission$status = "Importing Results"
-        message(submission$status)
-        submission$job <- SERVER$getJob(submission$requestID)
-        submission <- TEL$importFiles(submission, target=importDirectory, clearUp=clearUp)
-        if (importMultipleSO) {
-            result <- TEL$importSO(submission, multiple=TRUE)
-        } else if (importSO) {
-            result <- TEL$importSO(submission)
+TEL.monitor <-
+    function(submission = NULL, importDirectory = NULL, clearUp = FALSE, importSO =
+                 TRUE, importMultipleSO = FALSE,
+             HOST = 'localhost', PORT = '9010', ...) {
+        if (is.null(submission)) {
+            stop('Illegal Argument: submission object was null.')
         }
-        submission$status <- "Completed"
-    } else {
-        submission$status <- "Failed"
+        if (is.null(importDirectory)) {
+            stop('Illegal Argument: target directory was null.')
+        }
+        if (!("requestID" %in% names(submission)) ||
+            is.null(submission$requestID)) {
+            stop("Illegal Argument: submission's requestID element must be set and can't be NULL.")
+        }
+        
+        # FIXME: This is to enable mocking of functions responsible for integration with FIS REST API.
+        # To be removed after 'testthat' upgrade and introducing global FIS Server instance
+        inargs <- list(...)
+        if (!is.null(inargs) && !is.null(inargs$server)) {
+            SERVER = inargs$server
+        } else {
+            SERVER = .SERVER
+        }
+        if (!is.null(inargs) && !is.null(inargs$tel)) {
+            TEL = inargs$tel
+        } else {
+            TEL = .TEL
+        }
+        
+        message(sprintf('-- %s', submission$start))
+        message(sprintf('Job %s progress:', submission$requestID))
+        message(submission$status)
+        
+        submission <- SERVER$poll(submission, HOST = HOST, PORT = PORT)
+        result <- NULL
+        if (submission$fisJobStatus == "COMPLETED") {
+            submission$status = "Importing Results"
+            message(submission$status)
+            submission$job <-
+                SERVER$getJob(submission$requestID, HOST = HOST, PORT = PORT)
+            submission <-
+                TEL$importFiles(submission, target = importDirectory, clearUp = clearUp)
+            if (importMultipleSO) {
+                result <- TEL$importSO(submission, multiple = TRUE)
+            } else if (importSO) {
+                result <- TEL$importSO(submission)
+            }
+            submission$status <- "Completed"
+        } else {
+            submission$status <- "Failed"
+        }
+        
+        message(submission$status)
+        submission$end <- date()
+        message(sprintf('-- %s', submission$end))
+        
+        if (submission$status == "Failed") {
+            stop(
+                "Execution of model ", submission$modelFile, " failed.\n  The contents of the working directory ",
+                submission$workingDirectory, " may be useful for tracking down the cause of the failure."
+            )
+        }
+        
+        if (is.null(result)) {
+            submission
+        } else {
+            result
+        }
     }
-    
-    message(submission$status)
-    submission$end <- date()
-    message(sprintf('-- %s', submission$end ))
-    
-    if(submission$status=="Failed") {
-      stop("Execution of model ", submission$modelFile, " failed.\n  The contents of the working directory ",
-                submission$workingDirectory, " may be useful for tracking down the cause of the failure.")
-    }
-    
-    if(is.null(result)) {
-      submission
-    } else {
-      result
-    }
-}
 
 
 #' @seealso \code{execute}

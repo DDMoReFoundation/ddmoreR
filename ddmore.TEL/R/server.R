@@ -295,10 +295,10 @@ TEL.submitJob <- function( executionType=NULL, workingDirectory, modelfile, extr
         stop("Illegal Argument: executionType must be set and can't be NULL.")
     }
     if(is.null(modelfile)) {
-      stop("Illegal Argument: modelfile must be set and can't be NULL.")
+        stop("Illegal Argument: modelfile must be set and can't be NULL.")
     }
     if(is.null(workingDirectory)) {
-      stop("Illegal Argument: workingDirectory must be set and can't be NULL.")
+        stop("Illegal Argument: workingDirectory must be set and can't be NULL.")
     }
     if (!TEL.serverRunning(HOST, OPERATIONAL_PORT)) {
         stop("Server(s) is/are not running, unable to submit job. Server health details have been made available in the TEL.serverHealthDetails object.")
@@ -330,7 +330,7 @@ TEL.submitJob <- function( executionType=NULL, workingDirectory, modelfile, extr
     submission$modelFile <- absoluteModelFilePath
     submission$sourceDirectory <- sourceDirectory
     submission$workingDirectory <- workingDirectory
-	
+
     submission$fisJobStatus <- ''
     submission$status <- ''
 
@@ -340,25 +340,25 @@ TEL.submitJob <- function( executionType=NULL, workingDirectory, modelfile, extr
     json <- toJSON(parameters)
     formParams=sprintf('%s%s','submissionRequest=',json)
 
-  	# Submit
-  	
-  	h <- basicTextGatherer()
-  	
-  	submitURL <- sprintf('http://%s:%s/submit', HOST, PORT)
-  	
-  	curlRet <- RCurl:::curlPerform(url=submitURL, postfields=formParams, writefunction=h$update)
-  	
-  	response <- fromJSON(h$value())
-  	
-  	if (!is.null(response$requestID)) {
+    # Submit
+
+    h <- basicTextGatherer()
+
+    submitURL <- sprintf('http://%s:%s/submit', HOST, PORT)
+
+    curlRet <- RCurl:::curlPerform(url=submitURL, postfields=formParams, writefunction=h$update)
+
+    response <- fromJSON(h$value())
+
+    if (!is.null(response$requestID)) {
         submission$requestID <- response$requestID
         submission$status <- 'Submitted'
-  	} else {
+    } else {
         submission$status <- 'Failed'
         stop(paste("Failed to submit job.\n  Server returned:", response$status, response$error, "\n ", response$exception, ":", response$message))
-  	}
-  	
-  	submission
+    }
+
+    submission
 }
 
 ################################################################################
@@ -383,26 +383,26 @@ TEL.submitJob <- function( executionType=NULL, workingDirectory, modelfile, extr
 #'
 TEL.poll <- function(submission, HOST='localhost', PORT=9010, ...) {
     if(is.null(submission)) {
-      stop("Illegal Argument: submission can't be null")
+        stop("Illegal Argument: submission can't be null")
     }
     if(!("requestID" %in% names(submission)) || is.null(submission$requestID)) {
-      stop("Illegal Argument: submission's requestID element must be set and can't be NULL.")
+        stop("Illegal Argument: submission's requestID element must be set and can't be NULL.")
     }
     
     # FIXME: This is to enable mocking of server integration, to be removed after testthat upgrade
     # and introducing global Server class instance
     inargs <- list(...)
     if(!is.null(inargs) && !is.null(inargs$server)) {
-      SERVER = inargs$server
+        SERVER = inargs$server
     } else {
-      SERVER = .SERVER
+        SERVER = .SERVER
     }
     message("Running [ ", appendLF=FALSE )
     while (submission$fisJobStatus != 'COMPLETED' && submission$fisJobStatus != 'FAILED' ) {
         message(".", appendLF=FALSE)
         job = SERVER$getJob(submission$requestID, HOST, PORT);
         if(is.null(job)) {
-          stop(sprintf("Illegal State: job with id %s doesn't exist.",submission$requestID))
+            stop(sprintf("Illegal State: job with id %s doesn't exist.",submission$requestID))
         }
         submission$fisJobStatus <- job$status
         Sys.sleep(TEL.server.env$JOB_STATUS_POLLING_DELAY)
@@ -453,12 +453,12 @@ TEL.getNotImportedJobIDs <- function(HOST='localhost', PORT=9010) {
 #' 
 #' @export
 TEL.getJob <- function(jobID, HOST='localhost', PORT=9010) {
-  if(is.null(jobID)) {
-    stop("Illegal Argument: jobID can't be null")
-  }
-  jobsURL = sprintf('http://%s:%s/jobs/%s', HOST, PORT, jobID)
+    if(is.null(jobID)) {
+        stop("Illegal Argument: jobID can't be null")
+    }
+    jobsURL = sprintf('http://%s:%s/jobs/%s', HOST, PORT, jobID)
 
-  fromJSON(httpGET(jobsURL))
+    fromJSON(httpGET(jobsURL))
 }
 
 #' TEL.setJobPollingDelay
@@ -469,12 +469,12 @@ TEL.getJob <- function(jobID, HOST='localhost', PORT=9010) {
 #' 
 #' @export
 TEL.setJobPollingDelay <- function(delay = 20) {
-  if(is.null(delay)) {
-    error("Illegal Argument: Delay may not be null")
-  } else if(delay <= 0) {
-    error("Illegal Argument: Delay must be greater than zero")
-  }
-  TEL.server.env$JOB_STATUS_POLLING_DELAY <- delay
+    if(is.null(delay)) {
+      error("Illegal Argument: Delay may not be null")
+    } else if(delay <= 0) {
+      error("Illegal Argument: Delay must be greater than zero")
+    }
+    TEL.server.env$JOB_STATUS_POLLING_DELAY <- delay
 }
 
 #

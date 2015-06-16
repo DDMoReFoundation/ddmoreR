@@ -39,16 +39,16 @@
 
 TEL.importFiles <- function(submission, target=file.path(submission$sourceDirectory, format(Sys.time(), "%Y%b%d%H%M%S")), clearUp=FALSE) {
     if(is.null(submission)) {
-      stop("Illegal Argument: submission can't be NULL.")
+        stop("Illegal Argument: submission can't be NULL.")
     }
     if(!("job" %in% names(submission)) || is.null(submission$job)) {
-      stop("Illegal Argument: submission's 'job' element must be set and can't be NULL.")
+        stop("Illegal Argument: submission's 'job' element must be set and can't be NULL.")
     }
     if(!("id" %in% names(submission$job)) || is.null(submission$job$id)) {
-      stop("Illegal Argument: job's id element must be set and can't be NULL.")
+        stop("Illegal Argument: job's id element must be set and can't be NULL.")
     }
     if(is.null(target)) {
-      stop("Illegal Argument: target must be set and can't be NULL.")
+        stop("Illegal Argument: target must be set and can't be NULL.")
     }
 	
 	jobID <- submission$requestID
@@ -121,7 +121,7 @@ TEL.importFiles <- function(submission, target=file.path(submission$sourceDirect
 #		file.copy(fileslist, target)
 		
 		
-		submission$resultsDir <- target
+        submission$resultsDir <- target
 		
 		if (clearUp==TRUE) {
 			unlink(workingFolder, recursive=TRUE)
