@@ -457,8 +457,8 @@ TEL.getJob <- function(jobID, HOST='localhost', PORT=9010) {
         stop("Illegal Argument: jobID can't be null")
     }
     jobsURL = sprintf('http://%s:%s/jobs/%s', HOST, PORT, jobID)
-
-    fromJSON(httpGET(jobsURL))
+	
+    fromJSON(httpGET(jobsURL, timeout.ms=300)) # Don't know if this increase in timeout will mitigate against intermittent download issues: http://jira.mango.local/browse/DDMORE-1315
 }
 
 #' TEL.setJobPollingDelay
