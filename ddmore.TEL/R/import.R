@@ -20,6 +20,7 @@
 #'            - The status of the execution of the model file. If not "COMPLETED"
 #'              then this import into Standard Output object will not work.
 #'          \item{\code{requestId}} - Unique identifier for the submission request.
+#'          \item{\code{job}} - structure returned from \link{TEL.getJob}
 #'        }
 #' @param target (Optional) Specify the path of a directory, into which to copy the results. Default
 #'        is a timestamped subdirectory of the input model source directory.
@@ -147,7 +148,11 @@ TEL.importFiles <- function(submission, target=file.path(submission$sourceDirect
 #'          \item{\code{modelFile}}
 #'            - MDL file that was executed; any leading path will be stripped off,
 #'              and the .mdl file extension replaced with .SO.xml, to derive the
-#'              filename of the Standard Output XML file.
+#'              filename of the Standard Output XML file. If \code{submission$job}
+#'              is available (which it will be if called as part of \link{TEL.monitor})
+#'              then the \code{job$controlFile} is used instead of the \code{modelFile}
+#'              since this will include any relative file path prefix on the control
+#'              file i.e. if the model file references its data file via a relative path.
 #'          \item{\code{sourceDirectory}}
 #'            - The directory in which the MDL file lives.
 #'          \item{\code{resultsDir}}
@@ -160,6 +165,7 @@ TEL.importFiles <- function(submission, target=file.path(submission$sourceDirect
 #'            - The status of the execution of the model file. If not "COMPLETED"
 #'              then this import into Standard Output object will not work.
 #'          \item{\code{requestId}} - Unique identifier for the submission request.
+#'          \item{\code{job}} - structure returned from \link{TEL.getJob}
 #'        }
 #' @param multiple Whether multiple SOBlocks are expected in the SO XML results file.
 #'        Default is FALSE. Note that if FALSE and multiple SOBlocks are encountered,
@@ -184,8 +190,14 @@ TEL.importSO <- function(submission, multiple=FALSE) {
     if(!("resultsDir" %in% names(submission)) || is.null(submission$resultsDir)) {
       stop("Illegal Argument: submission's 'resultsDir' element must be set and can't be NULL.")
     }
+
 	soXMLFileName <- paste0(file_path_sans_ext(basename(submission$modelFile)), ".SO.xml")
-	soXMLFilePath <- file.path(submission$resultsDir, soXMLFileName)
+	if (!is.null(submission$job)) { # Should always be the case, if called as part of \link{TEL.monitor})
+		# Take into account the fact that the control file, and thus the SO XML file, might be in a subdirectory
+		soXMLFilePath <- file.path(submission$resultsDir, dirname(submission$job$controlFile), soXMLFileName)
+	} else {
+		soXMLFilePath <- file.path(submission$resultsDir, soXMLFileName)
+	}
 
 	if (class(soXMLFilePath) == "character" && file.exists(soXMLFilePath)) {
 		if (multiple) {
