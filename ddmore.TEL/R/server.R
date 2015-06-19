@@ -458,7 +458,7 @@ TEL.getJob <- function(jobID, HOST='localhost', PORT=9010) {
     }
     jobsURL = sprintf('http://%s:%s/jobs/%s', HOST, PORT, jobID)
 	
-    fromJSON(httpGET(jobsURL, timeout.ms=300)) # Don't know if this increase in timeout will mitigate against intermittent download issues: http://jira.mango.local/browse/DDMORE-1315
+    fromJSON(httpGET(jobsURL, timeout.ms=500)) # Don't know if this increase in timeout will mitigate against intermittent download issues: http://jira.mango.local/browse/DDMORE-1315
 }
 
 #' TEL.setJobPollingDelay
