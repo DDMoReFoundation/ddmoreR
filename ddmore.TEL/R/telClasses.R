@@ -261,18 +261,14 @@ validity.mdlObj <- function(object)
 #' @slot MODEL_PREDICTION Named list, comprising some or all of the following:
 #'       \itemize{
 #'         \item{Variable names mapping to lists of attribute values keyed by
-#' 				 their names, for each variable.}
+#' 	             their names, for each variable.}
 #'         \item{DEQ sub-block, represented by key '.DEQ'. This maps to a named
-#'				 list of variable names mapping to lists of attribute values
-#' 				 keyed by their names, for each variable.}
-#'         \item{PKMACRO sub-block, represented by key '.PKMACRO'. This maps to
-#'				 a named list of variable names mapping to lists of attribute
-#' 				 values keyed by their names, for each variable.
-#' 				 (Obsolete as of May 2015)}
+#'               list of variable names mapping to lists of attribute values
+#'               keyed by their names, for each variable.}
 #'         \item{COMPARTMENT sub-block, represented by key '.COMPARTMENT'.
-#'				 This maps to a named list of variable names mapping to lists of
-#' 			     attribute values keyed by their names, for each variable.}
-#' 		 }
+#'               This maps to a named list of variable names mapping to lists of
+#'               attribute values keyed by their names, for each variable.}
+#'       }
 #' @slot OBSERVATION Named list of variable names mapping to lists
 #'       of attribute values keyed by their names, for each variable.
 #' @slot GROUP_VARIABLES Named list of variable names mapping to lists

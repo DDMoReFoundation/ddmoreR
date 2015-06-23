@@ -4,7 +4,9 @@ JSON_FILE_EXT <- 'json'
 
 MOG_OBJECT_TYPES <- c("dataobj", "parobj", "mdlobj", "taskobj")
 
-MODEL_PREDICTION_SUBBLOCKS <- c(".DEQ", ".COMPARTMENT") # Used to be ".PKMACRO" too; reinstate this if "PKMACRO" is re-introduced into the MDL syntax
+# This used to include ".PKMACRO" too; add this back in if "PKMACRO" is re-introduced into the MDL syntax,
+# and also update the R doc on the MODEL_PREDICTION slot in the class definition of mdlObj accordingly.
+MODEL_PREDICTION_SUBBLOCKS <- c(".DEQ", ".COMPARTMENT") 
 
 
 ################################################################################
