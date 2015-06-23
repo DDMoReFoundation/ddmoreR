@@ -512,9 +512,9 @@ addExtraLayerOfNesting <- function(l) {
 # Each element in the incoming JSON list can either represent a 'normal' variable
 # (i.e. variable name mapping to either a named list of attributes, or mapping to
 # an expression held in the special key ".expr"); or it can represent one of the
-# special sub-blocks "DEQ", "PKMACRO" (obsolete as of May 2015) or "COMPARTMENT"
-# which are stored in the JSON with a dot prefix to distinguish them from actual
-# variable names. For each of these sub-blocks:
+# special sub-blocks i.e. "DEQ" or "COMPARTMENT" which are stored in the JSON with
+# a dot prefix to distinguish them from actual variable names. For each of these
+# sub-blocks:
 # They contain lists of variables so the only processing they require is
 # the standard translation into named list of variables.
 # Next, the sub-block name including the dot prefix, is stored in the special
@@ -537,10 +537,10 @@ addExtraLayerOfNesting <- function(l) {
 }
 
 # The reverse of .parseModelPredictionListFromJSON(), used when writing the JSON back out.
-# The special sub-blocks "DEQ", "PKMACRO" (obsolete as of May 2015) and "COMPARTMENT" have
-# translateNamedListIntoList() applied to them to 'move' the name of each list element
-# onto an attribute named ".name" of the element instead, before translateNamedListIntoList()
-# is applied to the Model Prediction named list itself.
+# The special sub-blocks i.e. "DEQ" and "COMPARTMENT" have translateNamedListIntoList() applied
+# applied to them to 'move' the name of each list element onto an attribute named ".name" of
+# the element instead, before translateNamedListIntoList() is applied to the Model Prediction
+# named list itself.
 .parseModelPredictionNamedListIntoJSON <- function(modPredNamedList) {
 	
 	lapply(translateNamedListIntoList(modPredNamedList), function(e) {
