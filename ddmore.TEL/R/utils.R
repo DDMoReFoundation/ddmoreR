@@ -1,13 +1,23 @@
 
 ################################################################################
-#' Override the standard message() function to print to stdout not stderr
-#' in order that benign messages are not printed in red in the TEL-R console.
+#' Override of the standard message() function.
+#' 
+#' Prints to stdout not stderr in order that benign messages are not printed in
+#' red in the TEL-R console.
+#' Also added optional parameter \code{file}, which defaults to \code{stdout()},
+#' as per \link{cat}.
 #' 
 #' Taken from answer on:
 #' http://stackoverflow.com/questions/25306819/send-r-diagnostic-messages-to-stdout-instead-stderr
 #' 
+#' @param ... Zero or more objects which can be coerced to character (and which are pasted together with
+#'            no separator) or a single condition object.
+#' @param appendLF Logical: should messages given as a character string have a newline appended?
+#' @param file A connection, or a character string naming the file to print to. If not specified then
+#'             prints to the standard output connection.
+#' 
 #' @export
-message <- function (..., domain = NULL, appendLF = TRUE) 
+message <- function (..., domain = NULL, appendLF = TRUE, file=stdout())
 {
 	args <- list(...)
 	cond <- if (length(args) == 1L && inherits(args[[1L]], "condition")) {
@@ -21,7 +31,7 @@ message <- function (..., domain = NULL, appendLF = TRUE)
 				simpleMessage(msg, call)
 			}
 	defaultHandler <- function(c) {
-		cat(conditionMessage(c), file = stdout(), sep = "")
+		cat(conditionMessage(c), file = file, sep = "")
 	}
 	withRestarts({
 				signalCondition(cond)
