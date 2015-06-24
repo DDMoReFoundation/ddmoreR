@@ -314,6 +314,10 @@ setMethod(f="as.xpdb",
             # create Merged data frame
             xpose4_dataFrame <- as.data(SOObject, inputDataPath)
 
+            # Assert that all "ETA_" column names are upper case so that they are compatible with expose. 
+            eta_cols_idx <- grep('ETA_', colnames(xpose4_dataFrame), ignore.case=TRUE)
+            colnames(xpose4_dataFrame)[eta_cols_idx] <- toupper(colnames(xpose4_dataFrame)[eta_cols_idx])
+
             library('xpose4')
             # CREATE new Xpose database
             myXpdb<-new("xpose.data",Runno=0,Doc=NULL)
