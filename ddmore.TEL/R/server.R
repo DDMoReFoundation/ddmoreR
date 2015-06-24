@@ -22,7 +22,6 @@ TEL.startServer <-
     
     message("Starting servers [ ", appendLF=FALSE)
     if (!TEL.serverRunning()) {
-      # message("Server not running; starting server...")
       startupScriptStdErr <- file.path(see.home, paste0(".",startupScriptName, ".stderr"))
       startupScriptStdOut <- file.path(see.home, paste0(".",startupScriptName, ".stdout"))
       system2(startupScript,'/B', wait=F, stdout=startupScriptStdOut, stderr=startupScriptStdErr)  # /B argument suppresses the display of the command windows
@@ -31,6 +30,7 @@ TEL.startServer <-
         Sys.sleep(1)
         count <- count+1
         message(".", appendLF=FALSE)
+        flush.console()
       }
       message(" ]", appendLF=FALSE)
       message() # Append a newline
