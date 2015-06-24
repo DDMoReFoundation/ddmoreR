@@ -1,3 +1,15 @@
+# Package-local environment for storing shared variables
+# This will be replaced in the future by Server class and its instance, which will hold 
+# all FIS integration properties (ports, urls, polling settings, etc.) and this instance will be passed
+# to execute (and other) functions
+TEL.server.env <- new.env()
+# Delay between FIS job status checks (in seconds)
+TEL.server.env$JOB_STATUS_POLLING_DELAY <- 20
+# Number of times FIS will be polled during startup after which FIS startup will be considered as failed
+TEL.server.env$SERVER_STARTUP_POLLING_MAX <- 60
+# Delay between FIS job status checks (in seconds)
+TEL.server.env$SERVER_STARTUP_POLLING_DELAY <- 1
+
 ################################################################################
 #' TEL.startServer
 #'
@@ -9,12 +21,12 @@
 #' setup then this function is a no-op.
 #'
 TEL.startServer <- 
-  function() {
-  
+    function() {
+
     see.home <- TEL.checkConfiguration()
     
     startupScriptName = "startup.bat"
-	startupScript <- file.path(see.home, startupScriptName)
+    startupScript <- file.path(see.home, startupScriptName)
     
     if(!file.exists(startupScript)) {
         stop(paste("Services startup script", startupScript," does not exist."))
@@ -26,8 +38,8 @@ TEL.startServer <-
       startupScriptStdOut <- file.path(see.home, paste0(".",startupScriptName, ".stdout"))
       system2(startupScript,'/B', wait=F, stdout=startupScriptStdOut, stderr=startupScriptStdErr)  # /B argument suppresses the display of the command windows
       count = 0
-      while ( count < 60 && !TEL.serverRunning() ) {
-        Sys.sleep(1)
+      while ( count < TEL.server.env$SERVER_STARTUP_POLLING_MAX && !TEL.serverRunning() ) {
+        Sys.sleep(TEL.server.env$SERVER_STARTUP_POLLING_DELAY)
         count <- count+1
         message(".", appendLF=FALSE)
         flush.console()
@@ -40,9 +52,9 @@ TEL.startServer <-
       }
       message("Success!")
     } else {
-	  message(". ]", appendLF=FALSE)
+      message(". ]", appendLF=FALSE)
       message() # Append a newline
-	  message("Success!")
+      message("Success!")
     }
   }
 
@@ -240,13 +252,24 @@ TEL.checkConfiguration <-
 #' @param workingDirectory Directory, normally within the system temporary directory,
 #'        into which the model file and any data files are expected to have been
 #'        copied, and within which the target software will execute the job.
-#' @param modelfile Path-less filename, or absolute path, to the MDL file to be
+#' @param modelfile Path-less filename, or absolute path, to the model file to be
 #'        executed. Note that relative paths are currently not supported.
-#' @param HOST Hostname of the server running the FIS service. Defaults to localhost.
-#' @param PORT Port of the server running the FIS service. Defaults to 9010.
-#' @param OPERATIONAL_PORT Operational (as opposed to Service) port of the server
-#'						   running the FIS service. Defaults to 9011.
-#' @param addargs Additional arguments to be passed to the target software.
+#' @param extraInputFileExts (Optional) A vector of file extensions (excluding the
+#'        dot) that will be used in identifying additional files, from the same
+#'        directory as the model file and having the same base name as the model file,
+#'        to be included in the execution. Default is null/empty.
+#'        Primarily used by PsN e.g. to provide the .lst file for a PsN execution of
+#'        an already-executed NONMEM run.
+#' @param extraInputFiles (Optional) A vector of paths, either absolute or relative
+#'        (to the model file), to any additional files to be included in the execution.
+#'        Used as an alternative, and/or in conjunction with, extraInputFileExts.
+#'        Default is null/empty.
+#' @param addargs (Optional) Additional arguments to be passed to the target software.
+#' @param HOST (Optional) Hostname of the server running the FIS service. Defaults
+#'        to localhost.
+#' @param PORT (Optional) Port of the server running the FIS service. Defaults to 9010.
+#' @param OPERATIONAL_PORT (Optional) Operational (as opposed to Service) port of the
+#'        server running the FIS service. Defaults to 9011.
 #' 
 #' @return \code{submission} named list containing information relating to the
 #'         submission of the execution request:
@@ -267,53 +290,75 @@ TEL.checkConfiguration <-
 #' 
 #' @export
 #' 
-TEL.submitJob <- function( executionType=NULL, workingDirectory, modelfile, HOST='localhost', PORT=9010, OPERATIONAL_PORT=9011, addargs="", ... ) {
-	
-	if (!TEL.serverRunning(HOST, OPERATIONAL_PORT)) {
-		stop("Server(s) is/are not running, unable to submit job. Server health details have been made available in the TEL.serverHealthDetails object.")
-	}
-	
-    submission <- list()
+TEL.submitJob <- function( executionType=NULL, workingDirectory, modelfile, extraInputFileExts=NULL, extraInputFiles=NULL, addargs=NULL, HOST='localhost', PORT=9010, OPERATIONAL_PORT=9011 ) {
+    if(is.null(executionType)) {
+        stop("Illegal Argument: executionType must be set and can't be NULL.")
+    }
+    if(is.null(modelfile)) {
+        stop("Illegal Argument: modelfile must be set and can't be NULL.")
+    }
+    if(is.null(workingDirectory)) {
+        stop("Illegal Argument: workingDirectory must be set and can't be NULL.")
+    }
+    if (!TEL.serverRunning(HOST, OPERATIONAL_PORT)) {
+        stop("Server(s) is/are not running, unable to submit job. Server health details have been made available in the TEL.serverHealthDetails object.")
+    }
+
+    absoluteModelFilePath <- normalizePath(modelfile)
     
-    # Strip off the path to the model file leaving just the file name itself
-    # TODO: Cater for relative paths of model files too? (currently just path-less files and absolute-path files are supported)
-    modelfile_without_path <- basename(modelfile)
+    if (!file.exists(absoluteModelFilePath)) {
+      stop(paste('Illegal Argument: file ', absoluteModelFilePath, ' does not exist.'))
+    }
+
+    submission <- list()
+    submission$start <- date()
+
+    # Parent folder of the model file is the source directory
+    sourceDirectory <- parent.folder(absoluteModelFilePath)
+
+    # Resolve the extraInputFileExts against files in the model file's directory
+    # and add these files to the existing vector of extraInputFiles
+    for (fileExt in extraInputFileExts) {
+        fileName <- paste0(file_path_sans_ext(basename(modelfile)), ".", fileExt)
+        filePath <- file.path(sourceDirectory, fileName)
+        if ( file.exists(filePath) && !file.info(filePath)$isdir ) {
+            extraInputFiles <- c(extraInputFiles, fileName)
+        }
+    }
 
     submission$executionType <- executionType
-    submission$modelFile <- modelfile_without_path
-    # Parent folder of the model file is the source directory
-    submission$sourceDirectory <- parent.folder(modelfile)
+    submission$modelFile <- absoluteModelFilePath
+    submission$sourceDirectory <- sourceDirectory
     submission$workingDirectory <- workingDirectory
-	
-	submission$status <- ''
+
+    submission$fisJobStatus <- ''
+    submission$status <- ''
 
     # Build form
-    parameters <- c(command=executionType, workingDirectory=workingDirectory, executionFile=modelfile_without_path)
-	if (nchar(addargs) > 0) {
-        parameters <- c(parameters, commandParameters=addargs)
-    }
+    parameters <- list(command=executionType, workingDirectory=workingDirectory, executionFile=absoluteModelFilePath, extraInputFiles=as.list(extraInputFiles), commandParameters=addargs)
 
     json <- toJSON(parameters)
     formParams=sprintf('%s%s','submissionRequest=',json)
 
-	# Submit
-	
-	h <- basicTextGatherer()
-	
-	submitURL <- sprintf('http://%s:%s/submit', HOST, PORT)
-	
-	curlRet <- RCurl:::curlPerform(url=submitURL, postfields=formParams, writefunction=h$update)
-	
-	response <- fromJSON(h$value())
-	
-	if (!is.null(response$requestID)) {
-		submission$requestID <- response$requestID
-		submission$status <- 'NEW'
-	} else {
-		stop(paste("Failed to submit job.\n  Server returned:", response$status, response$error, "\n ", response$exception, ":", response$message))
-	}
-	
-	submission
+    # Submit
+
+    h <- basicTextGatherer()
+
+    submitURL <- sprintf('http://%s:%s/submit', HOST, PORT)
+
+    curlRet <- RCurl:::curlPerform(url=submitURL, postfields=formParams, writefunction=h$update)
+
+    response <- fromJSON(h$value())
+
+    if (!is.null(response$requestID)) {
+        submission$requestID <- response$requestID
+        submission$status <- 'Submitted'
+    } else {
+        submission$status <- 'Failed'
+        stop(paste("Failed to submit job.\n  Server returned:", response$status, response$error, "\n ", response$exception, ":", response$message))
+    }
+
+    submission
 }
 
 ################################################################################
@@ -334,30 +379,44 @@ TEL.submitJob <- function( executionType=NULL, workingDirectory, modelfile, HOST
 #' 
 #' @return Updated \code{submission} named list augmented with the \code{status}
 #'         of the job.
+#' @export
 #'
-TEL.poll <- function(submission, HOST='localhost', PORT=9010) {
-    
-    jobID <- submission$requestID
-    
-    # poll status service (need to have jobID set before this)
-    statusURL <- sprintf('%s/%s', sprintf('http://%s:%s/jobs', HOST, PORT), jobID)
-    submission$status = fromJSON(httpGET(statusURL))$status
-    
-    while (submission$status != 'COMPLETED' && submission$status != 'FAILED' ) {
-        message('Job ', jobID, ' is ', submission$status)
-        Sys.sleep(20)
-        submission$status <- fromJSON(httpGET(statusURL))$status
+TEL.poll <- function(submission, HOST='localhost', PORT=9010, ...) {
+    if(is.null(submission)) {
+        stop("Illegal Argument: submission can't be null")
+    }
+    if(!("requestID" %in% names(submission)) || is.null(submission$requestID)) {
+        stop("Illegal Argument: submission's requestID element must be set and can't be NULL.")
     }
     
-    message('Job ', jobID, ' has ', submission$status, "\n")
-    
+    # FIXME: This is to enable mocking of server integration, to be removed after testthat upgrade
+    # and introducing global Server class instance
+    inargs <- list(...)
+    if(!is.null(inargs) && !is.null(inargs$server)) {
+        SERVER = inargs$server
+    } else {
+        SERVER = .SERVER
+    }
+    message("Running [ ", appendLF=FALSE )
+    while (submission$fisJobStatus != 'COMPLETED' && submission$fisJobStatus != 'FAILED' ) {
+        message(".", appendLF=FALSE)
+        job = SERVER$getJob(submission$requestID, HOST, PORT);
+        if(is.null(job)) {
+            stop(sprintf("Illegal State: job with id %s doesn't exist.",submission$requestID))
+        }
+        submission$fisJobStatus <- job$status
+        Sys.sleep(TEL.server.env$JOB_STATUS_POLLING_DELAY)
+    }
+    message(" ]")
     submission
 }
 
 #' TEL.getJobs
 #'
 #' Gets all jobs
-#
+#' 
+#' @export
+#' 
 TEL.getJobs <- function(HOST='localhost', PORT=9010) {
 	
 	jobsURL <- sprintf('http://%s:%s/jobs', HOST, PORT)
@@ -388,14 +447,41 @@ TEL.getNotImportedJobIDs <- function(HOST='localhost', PORT=9010) {
 
 #' TEL.getJob
 #'
-#' Gets a TEL job
-#
-TEL.getJob <- function(submission, HOST='localhost', PORT=9010) {
-  
-	jobID <- submission$requestID
-  
-	jobsURL = paste("http://", HOST, ":", PORT, "/jobs/", jobID, sep="")
+#' Gets a FIS job
+#' 
+#' @param jobID id of a FIS job
+#' 
+#' @export
+TEL.getJob <- function(jobID, HOST='localhost', PORT=9010) {
+    if(is.null(jobID)) {
+        stop("Illegal Argument: jobID can't be null")
+    }
+    jobsURL = sprintf('http://%s:%s/jobs/%s', HOST, PORT, jobID)
 	
-	fromJSON(httpGET(jobsURL))
-	
+    fromJSON(httpGET(jobsURL))
 }
+
+#' TEL.setJobPollingDelay
+#'
+#' Sets FIS Job status polling delay
+#' 
+#' @param delay a delay between job status polls, must be greater than zero. 
+#' 
+#' @export
+TEL.setJobPollingDelay <- function(delay = 20) {
+    if(is.null(delay)) {
+      error("Illegal Argument: Delay may not be null")
+    } else if(delay <= 0) {
+      error("Illegal Argument: Delay must be greater than zero")
+    }
+    TEL.server.env$JOB_STATUS_POLLING_DELAY <- delay
+}
+
+#
+# SERVER instance which is used by FIS integration functions, will be replaced by Server class instance.
+#
+.SERVER = list()
+.SERVER$submitJob = TEL.submitJob
+.SERVER$poll = TEL.poll
+.SERVER$getJobs = TEL.getJobs
+.SERVER$getJob = TEL.getJob

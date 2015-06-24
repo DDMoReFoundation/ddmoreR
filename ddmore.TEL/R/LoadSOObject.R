@@ -38,14 +38,14 @@ LoadSOObject <- function(file) {
 
 	# Print out any errors in the SO Object to the R console to make it obvious if execution failed
 	if (length(SOObject@TaskInformation$Messages$Errors) > 0) {
-		cat("\nThe following ERRORs were raised during the job execution:\n", file=stderr())
-		for (e in (SOObject@TaskInformation$Messages$Errors)) { cat(paste0(" ", e$Name, ": ", str_trim(e$Content), "\n"), file=stderr()) }
+		message("\nThe following ERRORs were raised during the job execution:", file=stderr())
+		for (e in (SOObject@TaskInformation$Messages$Errors)) { message(paste0(" ", e$Name, ": ", str_trim(e$Content)), file=stderr()) }
 	}
 	if (length(SOObject@TaskInformation$Messages$Warnings) > 0) {
-		cat("\nThe following WARNINGs were raised during the job execution:\n", file=stderr())
-		for (e in (SOObject@TaskInformation$Messages$Warnings)) { cat(paste0(" ", e$Name, ": ", str_trim(e$Content), "\n"), file=stderr()) }
+		message("\nThe following WARNINGs were raised during the job execution:", file=stderr())
+		for (e in (SOObject@TaskInformation$Messages$Warnings)) { message(paste0(" ", e$Name, ": ", str_trim(e$Content)), file=stderr()) }
 	}
-	cat("\n")
+	message("") # Extra line break
 	
 	# Reset Working directory 
 	setwd(old.wd)

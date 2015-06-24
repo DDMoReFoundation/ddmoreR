@@ -1,4 +1,3 @@
-
 ################################################################################
 #' Import result files.
 #' 
@@ -21,10 +20,10 @@
 #'            - The status of the execution of the model file. If not "COMPLETED"
 #'              then this import into Standard Output object will not work.
 #'          \item{\code{requestId}} - Unique identifier for the submission request.
+#'          \item{\code{job}} - structure returned from \link{TEL.getJob}
 #'        }
-#' @param target (Optional) Specify the name of a subfolder, within the directory
-#'        containing the model file, into which to copy the results. Default
-#'        is a timestamped folder.
+#' @param target (Optional) Specify the path of a directory, into which to copy the results. Default
+#'        is a timestamped subdirectory of the input model source directory.
 #' @param clearUp (Optional) Logical dictating if the job working directory should
 #'        be deleted upon successful job completion. Default is false, since this
 #'        directory may contain useful information in the event that a job failed
@@ -40,16 +39,28 @@
 #' @include StandardOutputObject.R
 
 TEL.importFiles <- function(submission, target=file.path(submission$sourceDirectory, format(Sys.time(), "%Y%b%d%H%M%S")), clearUp=FALSE) {
-	
-	submission$resultsDir <- target
+    if(is.null(submission)) {
+        stop("Illegal Argument: submission can't be NULL.")
+    }
+    if(!("job" %in% names(submission)) || is.null(submission$job)) {
+        stop("Illegal Argument: submission's 'job' element must be set and can't be NULL.")
+    }
+    if(!("id" %in% names(submission$job)) || is.null(submission$job$id)) {
+        stop("Illegal Argument: job's id element must be set and can't be NULL.")
+    }
+    if(is.null(target)) {
+        stop("Illegal Argument: target must be set and can't be NULL.")
+    }
 	
 	jobID <- submission$requestID
 	modelfile <- submission$modelFile
 	jobDirectory <- submission$workingDirectory
 	
+	# FIXME: verify if the following logic is correct and if it is needed, 
+	# if so make it caller's responsibility since it violates SRP
 	if (nchar(modelfile) == 0 || nchar(jobDirectory) == 0) {
 		# Model file and/or job directory not specified, so get them from Framework Integration service
-		job = TEL.getJob(jobID)	
+		job = submission$job
 		modelfile <- job$controlFile
 		jobDirectory <- job$workingDirectory
 	}
@@ -111,6 +122,7 @@ TEL.importFiles <- function(submission, target=file.path(submission$sourceDirect
 #		file.copy(fileslist, target)
 		
 		
+        submission$resultsDir <- target
 		
 		if (clearUp==TRUE) {
 			unlink(workingFolder, recursive=TRUE)
@@ -134,7 +146,13 @@ TEL.importFiles <- function(submission, target=file.path(submission$sourceDirect
 #'          \item{\code{executionType}}
 #'            - Identifying the target software to use for the execution.
 #'          \item{\code{modelFile}}
-#'            - MDL file that was executed, without leading path.
+#'            - MDL file that was executed; any leading path will be stripped off,
+#'              and the .mdl file extension replaced with .SO.xml, to derive the
+#'              filename of the Standard Output XML file. If \code{submission$job}
+#'              is available (which it will be if called as part of \link{TEL.monitor})
+#'              then the \code{job$controlFile} is used instead of the \code{modelFile}
+#'              since this will include any relative file path prefix on the control
+#'              file i.e. if the model file references its data file via a relative path.
 #'          \item{\code{sourceDirectory}}
 #'            - The directory in which the MDL file lives.
 #'          \item{\code{resultsDir}}
@@ -147,6 +165,7 @@ TEL.importFiles <- function(submission, target=file.path(submission$sourceDirect
 #'            - The status of the execution of the model file. If not "COMPLETED"
 #'              then this import into Standard Output object will not work.
 #'          \item{\code{requestId}} - Unique identifier for the submission request.
+#'          \item{\code{job}} - structure returned from \link{TEL.getJob}
 #'        }
 #' @param multiple Whether multiple SOBlocks are expected in the SO XML results file.
 #'        Default is FALSE. Note that if FALSE and multiple SOBlocks are encountered,
@@ -162,9 +181,23 @@ TEL.importFiles <- function(submission, target=file.path(submission$sourceDirect
 #' @include StandardOutputObject.R
 
 TEL.importSO <- function(submission, multiple=FALSE) {
-	
-	soXMLFileName <- paste0(file_path_sans_ext(submission$modelFile), ".SO.xml")
-	soXMLFilePath <- file.path(submission$resultsDir, soXMLFileName)
+    if(is.null(submission)) {
+      stop("Illegal Argument: submission can't be NULL.")
+    }
+    if(!("modelFile" %in% names(submission)) || is.null(submission$modelFile)) {
+      stop("Illegal Argument: submission's 'modelFile' element must be set and can't be NULL.")
+    }
+    if(!("resultsDir" %in% names(submission)) || is.null(submission$resultsDir)) {
+      stop("Illegal Argument: submission's 'resultsDir' element must be set and can't be NULL.")
+    }
+
+	soXMLFileName <- paste0(file_path_sans_ext(basename(submission$modelFile)), ".SO.xml")
+	if (!is.null(submission$job)) { # Should always be the case, if called as part of \link{TEL.monitor})
+		# Take into account the fact that the control file, and thus the SO XML file, might be in a subdirectory
+		soXMLFilePath <- file.path(submission$resultsDir, dirname(submission$job$controlFile), soXMLFileName)
+	} else {
+		soXMLFilePath <- file.path(submission$resultsDir, soXMLFileName)
+	}
 
 	if (class(soXMLFilePath) == "character" && file.exists(soXMLFilePath)) {
 		if (multiple) {
@@ -183,3 +216,12 @@ TEL.importSO <- function(submission, multiple=FALSE) {
 
 }
 
+
+#
+# What follows enables mocking of TEL functions during tests, will be removed once testthat has been upgraded.
+#
+if(!exists(".TEL")) {
+    .TEL<-list()
+}
+.TEL$importFiles = TEL.importFiles
+.TEL$importSO = TEL.importSO

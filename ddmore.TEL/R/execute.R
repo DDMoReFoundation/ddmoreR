@@ -43,7 +43,7 @@
 #' @include telClasses.R
 #' @include StandardOutputObject.R
 setGeneric("estimate", function(x, target=NULL,
-	addargs="", subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), wait=TRUE, clearUp=FALSE,
+	addargs=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), wait=TRUE, clearUp=FALSE,
 	HOST='localhost', PORT='9010') {
   
 	execute(x=x, target=target,
@@ -55,7 +55,7 @@ setGeneric("estimate", function(x, target=NULL,
 #' @aliases estimate,mogObj,mogObj-method
 setMethod("estimate", signature=signature(x="mogObj"), 
 	function(x, target=NULL,
-			 addargs="", subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), wait=TRUE, clearUp=FALSE,
+			 addargs=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), wait=TRUE, clearUp=FALSE,
 			 HOST='localhost', PORT='9010') {
 
     # First write out MOG to MDL.
@@ -92,13 +92,15 @@ setMethod("estimate", signature=signature(x="mogObj"),
 #'        directory may contain useful information in the event that a job failed
 #'        to execute successfully.
 #' @param extraInputFileExts (Optional) A vector of file extensions (excluding the
-#'        dot) that will be used in identifying additional files to copy from the
-#'        source directory (the directory containing the MDL file) into the job
-#'        working directory. Default is null/empty.
-#' @param extraInputFiles (Optional) A vector of file paths (relative to the
-#'        model file) that will be used in identifying additional files to copy
-#'        from the source directory (the directory containing the MDL file) into
-#'        the job working directory. Default is null/empty.
+#'        dot) that will be used in identifying additional files, from the same
+#'        directory as the model file and having the same base name as the model
+#'        file, to be included in the execution. Default is null/empty.
+#'        Primarily used by PsN e.g. to provide the .lst file for a PsN execution of
+#'        an already-executed NONMEM run.
+#' @param extraInputFiles (Optional) A vector of paths, either absolute or relative
+#'        (to the model file), to any additional files to be included in the execution.
+#'        Used as an alternative, and/or in conjunction with, extraInputFileExts.
+#'        Default is null/empty.
 #' @param importSO (Optional) Whether to create and return a Standard Output
 #'        Object representing the results of the execution. Mutually exclusive
 #'        with the \code{importMultipleSO} parameter. Default is true.
@@ -126,63 +128,165 @@ setMethod("estimate", signature=signature(x="mogObj"),
 #' @include import.R
 #' @include telClasses.R
 #' @include StandardOutputObject.R
-setGeneric("execute", function(x, target=NULL,
-					addargs="", subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), wait=TRUE, clearUp=FALSE,
-					extraInputFileExts=NULL, extraInputFiles=NULL, importSO=TRUE, importMultipleSO=FALSE,
-					HOST='localhost', PORT='9010') {
-	
-	if (is.null(target)) {
-		stop('Parameter \"target\" not specified. Possible target tool specifiers might include \"NONMEM\", \"PsN\", \"MONOLIX\".');
-	}
-	
-	workingDirectory <- TEL.prepareWorkingFolder(modelFile=x, extraInputFileExts=extraInputFileExts, extraInputFiles=extraInputFiles)
-	
-	submission <- TEL.submitJob(executionType=target, workingDirectory=workingDirectory,
-								modelfile=x, HOST=HOST, PORT=PORT, addargs=addargs)
-	
-	if (submission$status == "NEW") { # Successfully submitted
-		
-		if (wait) {
-			
-			submission <- TEL.poll(submission, HOST=HOST, PORT=PORT)
-			
-			if (submission$status == "COMPLETED") {
-				
-				submission <- TEL.importFiles(submission, target=file.path(submission$sourceDirectory, subfolder), clearUp=clearUp)
-				
-				if (importMultipleSO) {
-					
-					# Create and return the list of Standard Output objects
-					TEL.importSO(submission, multiple=TRUE)
-					
-				} else if (importSO) {
-				
-					# Create and return the Standard Output object
-					TEL.importSO(submission)
-					
-				} else { # Not importing the S.O.
-					submission
-				}
-				
-			} else { # submission$status != "COMPLETED"
-				stop("Execution of model ", submission$modelFile, " failed.\n  The contents of the working directory ",
-					submission$workingDirectory, " may be useful for tracking down the cause of the failure.")
-			}
-			
-		} else { # Don't wait for the job to complete
-			submission
-		}
-		
-	} else {
-		stop("Submission of execution request was unsuccessful.")
-	}
-	
+setGeneric("execute", function(x, target = NULL,
+                               addargs = NULL, subfolder = format(Sys.time(), "%Y%b%d%H%M%S"), wait =
+                                   TRUE, clearUp = FALSE,
+                               extraInputFileExts = NULL, extraInputFiles = NULL, importSO = TRUE, importMultipleSO =
+                                   FALSE,
+                               HOST = 'localhost', PORT = '9010', ...) {
+    if (is.null(target)) {
+        stop(
+            'Parameter \"target\" not specified. Possible target tool specifiers might include \"NONMEM\", \"PsN\", \"MONOLIX\".'
+        );
+    }
+    if (is.null(x)) {
+        stop("Illegal Argument: x must be set and can't be NULL.")
+    }
+    absoluteModelFilePath <- normalizePath(x)
+    if (!file.exists(absoluteModelFilePath)) {
+        stop(paste('Illegal Argument: file ', x, ' does not exist.'))
+    }
+    
+    # FIXME: This is to enable mocking of functions responsible for integration with FIS REST API.
+    # To be removed after 'testthat' upgrade and introducing global FIS Server instance
+    inargs <- list(...)
+    if (!is.null(inargs) && !is.null(inargs$server)) {
+        SERVER = inargs$server
+    } else {
+        SERVER = .SERVER
+    }
+    if (!is.null(inargs) && !is.null(inargs$tel)) {
+        TEL = inargs$tel
+    } else {
+        TEL = .TEL
+    }
+    
+    # Create a working folder in which FIS will create the Archive for conversion and execution
+    workingDirectory <- tempfile("TEL.job",tempdir())
+    if (!file.exists(workingDirectory)) {
+        dir.create(workingDirectory)
+    }
+    
+    submission <-
+        SERVER$submitJob(
+            executionType = target, workingDirectory = workingDirectory,
+            modelfile = absoluteModelFilePath, extraInputFileExts = extraInputFileExts, extraInputFiles =
+                extraInputFiles,
+            addargs = addargs, HOST = HOST, PORT = PORT
+        )
+    
+    result <- NULL
+    if (submission$status == "Submitted") {
+        if (wait) {
+            result <-
+                TEL.monitor(
+                    submission, importDirectory = file.path(submission$sourceDirectory, subfolder), clearUp, importSO, importMultipleSO, HOST, PORT
+                )
+        } else {
+            result <- submission
+        }
+    } else {
+        stop("Submission of execution request was unsuccessful.")
+    }
+    
+    result
 })
+
+################################################################################
+#' Monitor
+#' 
+#' Function performing monitoring and import of FIS job results. 
+#' 
+#' Note: This method will be refactored in the future to resolve SRP violation 
+#' and also so the import of the results happens even if a job fails 
+#' (SO may still be available in such case)
+#'
+#' @param submission a list representing a job that was submitted to FIS.
+#' For other params see execute function.
+#'
+#' @param importDirectory a directory where the result files should be imported into.
+#' 
+#' For the rest of the parameters see \code{execute} function
+#'
+#' @seealso \code{execute}
+#' 
+#' @export
+#' 
+TEL.monitor <-
+    function(submission = NULL, importDirectory = NULL, clearUp = FALSE, importSO =
+                 TRUE, importMultipleSO = FALSE,
+             HOST = 'localhost', PORT = '9010', ...) {
+        if (is.null(submission)) {
+            stop('Illegal Argument: submission object was null.')
+        }
+        if (is.null(importDirectory)) {
+            stop('Illegal Argument: target directory was null.')
+        }
+        if (!("requestID" %in% names(submission)) ||
+            is.null(submission$requestID)) {
+            stop("Illegal Argument: submission's requestID element must be set and can't be NULL.")
+        }
+        
+        # FIXME: This is to enable mocking of functions responsible for integration with FIS REST API.
+        # To be removed after 'testthat' upgrade and introducing global FIS Server instance
+        inargs <- list(...)
+        if (!is.null(inargs) && !is.null(inargs$server)) {
+            SERVER = inargs$server
+        } else {
+            SERVER = .SERVER
+        }
+        if (!is.null(inargs) && !is.null(inargs$tel)) {
+            TEL = inargs$tel
+        } else {
+            TEL = .TEL
+        }
+        
+        message(sprintf('-- %s', submission$start))
+        message(sprintf('Job %s progress:', submission$requestID))
+        message(submission$status)
+        
+        submission <- SERVER$poll(submission, HOST = HOST, PORT = PORT)
+        result <- NULL
+        if (submission$fisJobStatus == "COMPLETED") {
+            submission$status = "Importing Results"
+            message(submission$status)
+            submission$job <-
+                SERVER$getJob(submission$requestID, HOST = HOST, PORT = PORT)
+            submission <-
+                TEL$importFiles(submission, target = importDirectory, clearUp = clearUp)
+            if (importMultipleSO) {
+                result <- TEL$importSO(submission, multiple = TRUE)
+            } else if (importSO) {
+                result <- TEL$importSO(submission)
+            }
+            submission$status <- "Completed"
+        } else {
+            submission$status <- "Failed"
+        }
+        
+        message(submission$status)
+        submission$end <- date()
+        message(sprintf('-- %s', submission$end))
+        
+        if (submission$status == "Failed") {
+            stop(
+                "Execution of model ", submission$modelFile, " failed.\n  The contents of the working directory ",
+                submission$workingDirectory, " may be useful for tracking down the cause of the failure."
+            )
+        }
+        
+        if (is.null(result)) {
+            submission
+        } else {
+            result
+        }
+    }
+
 
 #' @seealso \code{execute}
 setMethod("execute", signature=signature(x="mogObj"), 
     function(x, target=NULL,
-                    addargs="", subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), wait=TRUE, clearUp=FALSE,
+                    addargs=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), wait=TRUE, clearUp=FALSE,
                     extraInputFileExts=NULL, extraInputFiles=NULL, importSO=TRUE, importMultipleSO=FALSE,
                     HOST='localhost', PORT='9010') {
 
