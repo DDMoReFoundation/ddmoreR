@@ -65,27 +65,27 @@ getPopulationParameters <- function(SOObject, type="all", what="all", keep.only=
   }
   
   # Cycle tough estimates present, parsing as necessary
-  estimateTypes = names(SOObject@Estimation@PopulationEstimates)
-  estimates.output.list = list()
+  estimateTypes <- names(SOObject@Estimation@PopulationEstimates)
+  estimates.output.list <- list()
   
   for (estimateType in estimateTypes) {
   
     if (estimateType == "MLE") {
       
-      out = getMLEPopulationParameters(SOObject, what=what)      
-      estimates.output.list[["MLE"]] = out
+      out <- getMLEPopulationParameters(SOObject, what=what)      
+      estimates.output.list[["MLE"]] <- out
       
     }
     if (estimateType == "Bayesian") {
       
-      out = getBayesianPopulationParameters(SOObject, what=what, keep.only=keep.only)
-      estimates.output.list[["Bayesian"]] = out
+      out <- getBayesianPopulationParameters(SOObject, what=what, keep.only=keep.only)
+      estimates.output.list[["Bayesian"]] <- out
       
     }
     if (estimateType == "Bootstrap") {
       
-      out = getBootstrapPopulationParameters(SOObject, what=what, keep.only=keep.only)
-      estimates.output.list[["Bootstrap"]] = out  
+      out <- getBootstrapPopulationParameters(SOObject, what=what, keep.only=keep.only)
+      estimates.output.list[["Bootstrap"]] <- out  
       
     }
   
@@ -136,10 +136,10 @@ getPopulationParameters <- function(SOObject, type="all", what="all", keep.only=
   # Convert all values to a numeric type
   for (estimate.name in names(estimates.output.list)) {
 
-    x = estimates.output.list[[estimate.name]] 
+    x <- estimates.output.list[[estimate.name]] 
     
     if (!is.null(colnames(x))) {
-        x[, setdiff(colnames(x), "Parameter")] = sapply(x[, setdiff(colnames(x), "Parameter")], 
+        x[, setdiff(colnames(x), "Parameter")] <- sapply(x[, setdiff(colnames(x), "Parameter")], 
                               FUN = function(x) as.numeric(as.character(x)))
     } else {      
       vec.names <- names(x)
@@ -147,7 +147,7 @@ getPopulationParameters <- function(SOObject, type="all", what="all", keep.only=
       names(x) <- vec.names
     }
     
-    estimates.output.list[[estimate.name]] = x
+    estimates.output.list[[estimate.name]] <- x
   
   }
   
@@ -211,22 +211,22 @@ getMLEPopulationParameters <- function(SOObject, what="all"){
 getBayesianPopulationParameters <- function(SOObject, what="all", keep.only=NULL){
   
   # Extract parameter values for MLE
-  estimate_mean = SOObject@Estimation@PopulationEstimates$Bayesian$PosteriorMean$data
+  estimate_mean <- SOObject@Estimation@PopulationEstimates$Bayesian$PosteriorMean$data
   if (is.null(estimate_mean)) {
     stop(paste0("Section Estimation:PopulationEstimates$Bayesian$PosteriorMean not found in SO Object"))
   }
-  estimate_median = SOObject@Estimation@PopulationEstimates$Bayesian$PosteriorMedian$data
+  estimate_median <- SOObject@Estimation@PopulationEstimates$Bayesian$PosteriorMedian$data
   if (is.null(estimate_median)) {
     stop(paste0("Section Estimation:PopulationEstimates$Bayesian$PosteriorMedian not found in SO Object"))
   }
-  estimate_mode = SOObject@Estimation@PopulationEstimates$Bayesian$PosteriorMode$data
+  estimate_mode <- SOObject@Estimation@PopulationEstimates$Bayesian$PosteriorMode$data
   if (is.null(estimate_mode)) {
     stop(paste0("Section Estimation:PopulationEstimates$Bayesian$PosteriorMode not found in SO Object"))
   }
   
   if (what == "estimates" & !is.null(keep.only)) {
       # Return only named vector of mena/median/mode if thats all thats asked for
-      out = eval(parse(text=paste0("estimate_", tolower(keep.only))))
+      out <- eval(parse(text=paste0("estimate_", tolower(keep.only))))
       out.as.list <- unlist(as.list(out))
       names(out.as.list) <- colnames(out)
       return(out.as.list)
@@ -251,7 +251,7 @@ getBayesianPopulationParameters <- function(SOObject, what="all", keep.only=NULL
   Bayesian.mode.output <- Bayesian.mode.output[c("Parameter", "Mode")]
   rownames(Bayesian.mode.output) <- NULL
   
-  Bayesian.output = cbind(Bayesian.mean.output, 
+  Bayesian.output <- cbind(Bayesian.mean.output, 
                           Bayesian.median.output["Median"], 
                           Bayesian.mode.output["Mode"])
 
@@ -291,8 +291,8 @@ getBayesianPopulationParameters <- function(SOObject, what="all", keep.only=NULL
     stopifnot(tolower(keep.only) %in% c("mean", "median", "mode"))
 
     # Drop the other central tendency statistics and only keep the one mentioned. 
-    drop.indicies = grep(tolower(keep.only), tolower(names(Bayesian.output))[2:4], invert = TRUE)
-    Bayesian.output = Bayesian.output[-(drop.indicies+1)]
+    drop.indicies <- grep(tolower(keep.only), tolower(names(Bayesian.output))[2:4], invert = TRUE)
+    Bayesian.output <- Bayesian.output[-(drop.indicies+1)]
   }
   
   return(Bayesian.output)
@@ -303,19 +303,19 @@ getBayesianPopulationParameters <- function(SOObject, what="all", keep.only=NULL
 getBootstrapPopulationParameters <- function(SOObject, what="all", keep.only=NULL){
 
   # Extract parameter values for MLE
-  estimate_mean = SOObject@Estimation@PopulationEstimates$Bootstrap$Mean$data
+  estimate_mean <- SOObject@Estimation@PopulationEstimates$Bootstrap$Mean$data
   if (is.null(estimate_mean)) {
     stop(paste0("Section Estimation:PopulationEstimates$Bootstrap$Mean not found in SO Object"))
   }
-  estimate_median = SOObject@Estimation@PopulationEstimates$Bootstrap$Median$data
+  estimate_median <- SOObject@Estimation@PopulationEstimates$Bootstrap$Median$data
   if (is.null(estimate_median)) {
     stop(paste0("Section Estimation:PopulationEstimates$Bootstrap$Median not found in SO Object"))
   }
   
   if (what == "estimates" & !is.null(keep.only)) {
     # Return only named vector of mena/median/mode if thats all thats asked for
-    out = eval(parse(text=paste0("estimate_", tolower(keep.only))))
-    out.as.list = unlist(as.list(out))
+    out <- eval(parse(text=paste0("estimate_", tolower(keep.only))))
+    out.as.list <- unlist(as.list(out))
     names(out.as.list) <- colnames(out)
     return(out.as.list)
   } 
@@ -333,7 +333,7 @@ getBootstrapPopulationParameters <- function(SOObject, what="all", keep.only=NUL
   Bootstrap.median.output <- Bootstrap.median.output[c("Parameter", "Median")]
   rownames(Bootstrap.median.output) <- NULL
   
-  Bootstrap.output = cbind(Bootstrap.mean.output, 
+  Bootstrap.output <- cbind(Bootstrap.mean.output, 
                           Bootstrap.median.output["Median"])
   
   # Return this data frame if thats all the user requires
@@ -373,8 +373,8 @@ getBootstrapPopulationParameters <- function(SOObject, what="all", keep.only=NUL
     stopifnot(tolower(keep.only) %in% c("mean", "median"))
 
     # Drop the other central tendency statistics and only keep the one mentioned. 
-    drop.indicies = grep(tolower(keep.only), tolower(names(Bootstrap.output))[2:3], invert = TRUE)
-    Bootstrap.output = Bootstrap.output[-(drop.indicies+1)]
+    drop.indicies <- grep(tolower(keep.only), tolower(names(Bootstrap.output))[2:3], invert = TRUE)
+    Bootstrap.output <- Bootstrap.output[-(drop.indicies+1)]
   }
   
   return(Bootstrap.output)
