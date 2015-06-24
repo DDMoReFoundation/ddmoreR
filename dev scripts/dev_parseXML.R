@@ -19,8 +19,9 @@ SOObject = createSOObject()
 
 # Get a reference to the root node in the xml doc
 
-root = xmlRoot(xmlTreeParse("inst\\tests\\data\\PharmMLSO\\MachineGenerated\\pheno.SO.xml"))
+path = "C:\\Users\\cmusselle\\Projects\\DDmore\\TEL-R\\ddmore.TEL\\inst\\tests\\data\\PharmMLSO\\MachineGenerated\\pheno.SO.xml"
 
+root = xmlRoot(xmlTreeParse(path))
 
 #root = xmlRoot(xmlTreeParse("development data\\MONOLIX_SO\\Warfarin-ODE-latest.SO.xml"))
 # root = xmlRoot(xmlTreeParse("inst\\tests\\data\\PharmMLSO\\HandCoded\\warfarin_PK_ODE_SO_FULL-v0_1.xml"))
