@@ -9,35 +9,34 @@
 #' estimates of the STRUCTURAL and RANDOM_VARIABILITY parameters along with any 
 #' associated measures of uncertainty (Std Dev) and interval estimates if these 
 #' are available.
-#' 
+#'
+#' The values available for return from the StandardOutputObject depend on the 
+#' estimation method used and how these are populated - either directly from the
+#' estimation task output or subsequently via other methods e.g. bootstrapping. 
+#' The function will provide suitable names for the columns depending on the 
+#' methods used. So for example, although the argument for "what" accepts 
+#' "precision" this may mean SE assuming Normality, Bootstrap SE, SD from MCMC 
+#' or SAEM estimation methods.
+#'
 #' @param SOObject an object of class StandardOutputObject, the output from an 
 #'    estimation task.
 #' @param type character string determining which parameters to return. 
-#'    Options are \dQuote{structural}, \dQuote{variability}, \dQuote{all} (default).
+#'    Options are "structural", "variability", "all" (default).
 #' @param what character vector determining what values to return:
 #'  \itemize{
-#'    \item \dQuote{estimates} – returns point estimates for the parameters.
-#'    \item \dQuote{precision} – returns variability / uncertainty estimates for the 
+#'    \item "estimates" - returns point estimates for the parameters.
+#'    \item "precision" - returns variability / uncertainty estimates for the 
 #'        parameters.
-#'    \item \dQuote{intervals} - returns interval estimates for the parameters. 
-#'    \item\dQuote{all} – returns all of the above in a table.}
-#'
+#'    \item "intervals" - returns interval estimates for the parameters. 
+#'    \item "all" - returns all of the above in a table.}
 #' @param keep.only character string determining which central tendency statistic to use 
 #'      for the estimate when multiple are present. Only applicable to Bayesian which
 #'      has Mean, Median and  Mode; and Bootstrap which has Mean and Median as options.   
 #' 
-#' The values available for return from the StandardOutputObject depend on the 
-#' estimation method used and how these are populated – either directly from the
-#' estimation task output or subsequently via other methods e.g. bootstrapping. 
-#' The function will provide suitable names for the columns depending on the 
-#' methods used. So for example, although the argument for \dQuote{what} accepts 
-#' \dQuote{precision} this may mean SE assuming Normality, Bootstrap SE, SD from MCMC 
-#' or SAEM estimation methods.
-#' 
-#' @return If only returning \dQuote{estimates} or \dQuote{precision} then a named vector of 
-#' real values. If returning \dQuote{intervalEstimates} or \dQuote{All} then a data frame 
-#' containing one row for each parameter. Columns are \dQuote{Estimate}, \dQuote{Precision}, 
-#' \dQuote{Lower}, \dQuote{Upper}, \dQuote{Shrinkage}
+#' @return If only returning "estimates" or "precision" then a named vector of 
+#' real values. If returning "intervalEstimates" or "All" then a data frame 
+#' containing one row for each parameter. Columns are "Estimate", "Precision", 
+#' "Lower", "Upper", "Shrinkage"
 #' 
 #' @examples getPopulationParameters(object, type="all", what="all")
 #'
