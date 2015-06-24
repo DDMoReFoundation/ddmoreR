@@ -45,6 +45,13 @@
 #' @export
 getPopulationParameters <- function(SOObject, type="all", what="all", keep.only=NULL) {
   
+  if (!(type %in% c("structural", "variability", "all"))) {
+      stop('Parameter "type" must be one of: "structural", "variability" or "all".')
+  } 
+  if (!(what %in% c("estimates", "precision", "intervals", "all"))) {
+      stop('Parameter "what" must be one of: "estimates", "precision", "intervals" or "all".')
+  }
+
   stopifnot(isS4(SOObject) & class(SOObject) == "StandardOutputObject")
 
   # Examine what objects exist in Population Estimates
