@@ -204,10 +204,13 @@ setMethod(f="as.data",
 				  stop("Path to input data must be specified")
 			  } else {
 				  rawData <- read.NONMEMDataSet(inputDataPath)
+
+          # Convert all column headers to upper case 
+          names(rawData) <- toupper(names(rawData))
+
           # Checks for Column format
 				  rawData[["ID"]] <- as.numeric(rawData[["ID"]]) 
 				  rawData[["TIME"]] <- as.numeric(rawData[["TIME"]]) 
-          names(rawData) <- toupper(names(rawData))
 
           # Reorder data frame to have ID and TIME column as first two. 
           ID.col = names(rawData) == "ID"
