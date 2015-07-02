@@ -43,8 +43,10 @@ setClass("StandardOutputObject",
     Estimation = "Estimation",
     ModelDiagnostic = "ModelDiagnostic",
     Simulation = "Simulation",
-    OptimalDesign = "OptimalDesign"
-    ), 
+    OptimalDesign = "OptimalDesign",
+	# The absolute path to the XML file that was parsed to create this SO
+	.pathToSourceXML = "character"
+    ),
   # Set Default Values to blank instances of the subclasses
   prototype = list(
     ToolSettings = list(),

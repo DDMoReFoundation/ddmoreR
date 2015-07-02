@@ -64,7 +64,7 @@ getPopulationParameters <- function(SOObject, type="all", what="all", keep.only=
     what='estimates'
   }
   
-  # Cycle tough estimates present, parsing as necessary
+  # Cycle through estimates present, parsing as necessary
   estimateTypes <- names(SOObject@Estimation@PopulationEstimates)
   estimates.output.list <- list()
   
@@ -72,7 +72,7 @@ getPopulationParameters <- function(SOObject, type="all", what="all", keep.only=
   
     if (estimateType == "MLE") {
       
-      out <- getMLEPopulationParameters(SOObject, what=what)      
+      out <- getMLEPopulationParameters(SOObject, what=what)
       estimates.output.list[["MLE"]] <- out
       
     }
@@ -92,6 +92,8 @@ getPopulationParameters <- function(SOObject, type="all", what="all", keep.only=
   }
   
   if (type == "structural") {
+
+	structParams <- .deriveStructuralParametersFromAssociatedMDL(SOObject)
     
     # Only return the structural parameters for each type of estimate
     for (df.name in names(estimates.output.list)) {
@@ -100,9 +102,8 @@ getPopulationParameters <- function(SOObject, type="all", what="all", keep.only=
 
           keep.idx <- sapply(names(estimates.output.list[[df.name]]), 
               FUN = function(x) {
-                      x %in% c("POP_CL", "POP_V", "POP_KA", 
-                               "POP_TLAG", "BETA_CL_WT", "BETA_V_WT")
-                      })
+                  x %in% structParams
+              })
           
           estimates.output.list[[df.name]] <- estimates.output.list[[df.name]][keep.idx]
 
@@ -110,9 +111,8 @@ getPopulationParameters <- function(SOObject, type="all", what="all", keep.only=
 
           keep.idx <- sapply(estimates.output.list[[df.name]]["Parameter"], 
               FUN = function(x) {
-                      x %in% c("POP_CL", "POP_V", "POP_KA", 
-                               "POP_TLAG", "BETA_CL_WT", "BETA_V_WT")
-                      })
+				  x %in% structParams
+              })
         
           estimates.output.list[[df.name]] <- estimates.output.list[[df.name]][keep.idx, ]
         
@@ -122,14 +122,30 @@ getPopulationParameters <- function(SOObject, type="all", what="all", keep.only=
   
   if (type == "variability") {
     
+	variabilityParams <- .deriveVariabilityParametersFromAssociatedMDL(SOObject)
+	
     # Only return the variability parameters for each type of estimate
     for (df.name in names(estimates.output.list)) {
+		
+		if (is.vector(estimates.output.list[[df.name]])) {
+			
+			keep.idx <- sapply(names(estimates.output.list[[df.name]]), 
+				FUN = function(x) {
+					x %in% variabilityParams
+				})
+			
+			estimates.output.list[[df.name]] <- estimates.output.list[[df.name]][keep.idx]
+			
+		} else {
     
-        keep.idx <- sapply(estimates.output.list[[df.name]]["Parameter"], FUN = function(x) {
-                  x %in% c("PPV_CL", "PPV_V", "PPV_KA", "PPV_TLAG",
-                           "RUV_PROP", "RUV_ADD", "CORR_PPV_CL_V")
-                  })
-        estimates.output.list[[df.name]] <- estimates.output.list[[df.name]][keep.idx, ]
+			keep.idx <- sapply(estimates.output.list[[df.name]]["Parameter"],
+				FUN = function(x) {
+					x %in% variabilityParams
+				})
+		
+	        estimates.output.list[[df.name]] <- estimates.output.list[[df.name]][keep.idx, ]
+		
+		}
     }
   }
   
@@ -380,6 +396,31 @@ getBootstrapPopulationParameters <- function(SOObject, what="all", keep.only=NUL
   return(Bootstrap.output)
   
 }
+
+
+.readParameterObjectFromAssociatedMDL <- function(SOObject) {
+	
+	mdlFile <- sub(x=SOObject@.pathToSourceXML, pattern="\\.SO\\.xml$", replacement=".mdl")
+	if (!file.exists(mdlFile)) {
+		stop("getPopulationParameters() for this SO object expects MDL file at ", mdlFile, ", perhaps it has been moved or deleted")
+	}
+	
+	parObjs <- getParameterObjects(mdlFile)
+	if (length(parObjs) > 1) {
+		stop("More than one parameter object found in MDL file ", mdlFile)
+	}
+	
+	parObjs[[1]]
+}
+
+.deriveStructuralParametersFromAssociatedMDL <- function(SOObject) {
+	names(.readParameterObjectFromAssociatedMDL(SOObject)@STRUCTURAL)
+}
+
+.deriveVariabilityParametersFromAssociatedMDL <- function(SOObject) {
+	names(.readParameterObjectFromAssociatedMDL(SOObject)@VARIABILITY)
+}
+
 
 
 # ---------------------------------------------------------------------------------------

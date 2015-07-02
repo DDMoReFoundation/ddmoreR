@@ -17,6 +17,8 @@
 #' @include StandardOutputObject.R xmlParsers.R 
 LoadSOObject <- function(file) {
 	
+	file <- file_path_as_absolute(file)
+	
 	root <- validateAndLoadXMLSOFile(file)
 	soBlocks <- root[names(root) == "SOBlock"]
 	
@@ -35,6 +37,9 @@ LoadSOObject <- function(file) {
 	setwd(dirname(file))
 	
 	SOObject <- createSOObjectFromXMLSOBlock(soBlocks[[1]])
+	
+	# Populate the (hidden) slot specifying the XML file from which this SO was parsed
+	SOObject@.pathToSourceXML <- file
 
 	# Print out any errors in the SO Object to the R console to make it obvious if execution failed
 	if (length(SOObject@TaskInformation$Messages$Errors) > 0) {
@@ -70,6 +75,8 @@ LoadSOObject <- function(file) {
 #' @export
 #' @include StandardOutputObject.R xmlParsers.R 
 LoadSOObjects <- function(file) {
+	
+	file <- file_path_as_absolute(file)
 
 	root <- validateAndLoadXMLSOFile(file)
 	soBlocks <- root[names(root) == "SOBlock"]
@@ -88,21 +95,27 @@ LoadSOObjects <- function(file) {
 	old.wd <- getwd()
 	setwd(dirname(file))
 
-  # Fetch List of SOBlock elements
-  SOBlockList <- root[names(root) == "SOBlock"]
-  soObjNames <- make.names(lapply(SOBlockList, function(soBlock) {
-	# Use the blkId as the name of the SOBlock in the named list, for want of a better name
-	# (the default is "SOBlock" which is repeated for all elements)
-	xmlAttrs(soBlock)[["blkId"]]
-  }))
+	# Fetch List of SOBlock elements
+	SOBlockList <- root[names(root) == "SOBlock"]
+	soObjNames <- make.names(lapply(SOBlockList, function(soBlock) {
+		# Use the blkId as the name of the SOBlock in the named list, for want of a better name
+		# (the default is "SOBlock" which is repeated for all elements)
+		xmlAttrs(soBlock)[["blkId"]]
+	}))
 
-  SOObjectList <- lapply(SOBlockList, createSOObjectFromXMLSOBlock)
+	SOObjectList <- lapply(SOBlockList, createSOObjectFromXMLSOBlock)
+  
+	# Populate the (hidden) slot specifying the XML file from which this SO was parsed
+	SOObjectList <- lapply(SOObjectList, function(SOObject) {
+		SOObject@.pathToSourceXML <- file
+		SOObject
+	})
 
-  # Reset Working directory 
-  setwd(old.wd)
+	# Reset Working directory
+	setwd(old.wd)
 
-  names(SOObjectList) <- soObjNames
-  SOObjectList
+	names(SOObjectList) <- soObjNames
+	SOObjectList
 }
 
 # Check that the .SO.xml file exists; if so then parse the XML document and return a reference to the root node.
