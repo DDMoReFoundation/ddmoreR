@@ -175,6 +175,7 @@ mergeByPosition <- function(df1, df2, msg='') {
 
   # merge all unique columns between df1 and df2
   unique.names.df2 = setdiff(names(df2),c("ID","TIME"))
+  unique.names.df2 = setdiff(unique.names.df2, names(df1))
   mergedDf = cbind(df1, df2[, unique.names.df2], deparse.level = 0)
   # Update column names
   #names(mergedDf) <- c(names(df1), unique.names.df2)
@@ -260,7 +261,7 @@ setMethod(f="as.data",
           # input data and recompare.
           if (nrow(df1) > nrow(df2)) {
             df1 <- df1[!is.na(df1[['DV']]), ]
-            print(paste0("Removed dose rows in raw data and predictions slot of SO to enable merge with residuals data.\n", 
+            cat(paste0("\nRemoved dose rows in raw data and predictions slot of SO to enable merge with residuals data.\n", 
               "Residuals data does not currently contain dose rows in output from Nonmem executions."))
           }
           if (nrow(df1) != nrow(df2)) {
