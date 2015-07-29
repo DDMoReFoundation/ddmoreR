@@ -209,42 +209,55 @@ getMLEPopulationParameters <- function(SOObject, what="all"){
   MLE.output <- MLE.output[c("Parameter", "MLE")]
   
   if (what %in% c("all", "precision")) {
+
     se <- SOObject@Estimation@PrecisionPopulationEstimates$MLE$StandardError$data  
     rse <- SOObject@Estimation@PrecisionPopulationEstimates$MLE$RelativeStandardError$data
+
     if (is.null(se)) {
-      stop("Section Estimation:PrecisionPopulationEstimates$MLE$StandardError not found in SO Object")
+      warning(paste0("Section Estimation:PrecisionPopulationEstimates$MLE$StandardError not ",
+        "found in SO Object.\n  Omitting standard error precision values for MLE section in returned output."))
+    } else {
+
+      # Temporary fix for inconsistency of column names between SO and the spec 
+      colnames(se)[colnames(se)=="parameter"]   <- "Parameter"
+
+      # Reformat row names to support merge
+      rownames(se) <- se[['Parameter']] 
+
+      MLE.output <- row.merge.cbind(MLE.output, se["SE"])
+
     }
     if (is.null(rse)) {
-      stop("Section Estimation:PrecisionPopulationEstimates$MLE$RelativeStandardError not found in SO Object")
+      warning(paste0("Section Estimation:PrecisionPopulationEstimates$MLE$RelativeStandardError not ",
+        "found in SO Object.\n  Omitting relative standard error precision values for MLE section in returned output."))
+    } else {
+
+      # Temporary fix for inconsistency of column names between SO and the spec 
+      colnames(rse)[colnames(rse)=="parameter"]   <- "Parameter"
+
+      # Reformat row names to support merge
+      rownames(rse) <- rse[['Parameter']] 
+
+      MLE.output <- row.merge.cbind(MLE.output, rse["RSE"])
     }
-
-    # Temporary fix for inconsistency of column names between SO and the spec 
-    colnames(se)[colnames(se)=="parameter"]   <- "Parameter"
-    colnames(rse)[colnames(rse)=="parameter"]   <- "Parameter"
-
-    # Reformat row names to support merge
-    rownames(se) <- se[['Parameter']] 
-    rownames(rse) <- rse[['Parameter']] 
-
-    MLE.output <- row.merge.cbind(MLE.output, se["SE"])
-    MLE.output <- row.merge.cbind(MLE.output, rse["RSE"])
   } 
   
   if (what %in% c("all", "intervals")) {
     CIs <- SOObject@Estimation@PrecisionPopulationEstimates$MLE$AsymptoticCI$data  
     
     if (is.null(CIs)) {
-      stop("Section Estimation:PrecisionPopulationEstimates$MLE$AsymptoticCI not found in SO Object")
+      warning(paste0("Section Estimation:PrecisionPopulationEstimates$MLE$AsymptoticCI not ",
+        "found in SO Object.\n  Omitting interval values for MLE section in returned output."))
+    } else {
+      # Temporary fix for inconsistency of column names between SO and the spec 
+      colnames(CIs)[colnames(CIs)=="parameter"]   <- "Parameter"
+
+      # Reformat row names to support merge
+      rownames(CIs) <- CIs[['Parameter']]
+
+      # Append Confidence Interval information for parameters
+      MLE.output <- row.merge.cbind(MLE.output, CIs[c("CI", "LowerBound", "UpperBound")])
     }
-
-    # Temporary fix for inconsistency of column names between SO and the spec 
-    colnames(CIs)[colnames(CIs)=="parameter"]   <- "Parameter"
-
-    # Reformat row names to support merge
-    rownames(CIs) <- CIs[['Parameter']]
-
-    # Append Confidence Interval information for parameters
-    MLE.output <- row.merge.cbind(MLE.output, CIs[c("CI", "LowerBound", "UpperBound")])
   } 
 
   # Remove row names as they are also stored in 'Parameter' column
@@ -311,37 +324,39 @@ getBayesianPopulationParameters <- function(SOObject, what="all", keep.only=NULL
   if (what %in% c("all", "precision")) {
     sdp <- SOObject@Estimation@PrecisionPopulationEstimates$Bayesian$StandardDeviationPosterior$data  
     if (is.null(sdp)) {
-      stop("Section Estimation:PrecisionPopulationEstimates$Bayesian$StandardDeviationPosterior not found in SO Object")
+      warning(paste0("Section Estimation:PrecisionPopulationEstimates$Bayesian$StandardDeviationPosterior not ",
+        "found in SO Object.\n  Omitting precision values for Bayesian section in returned output."))
+    } else {
+      # Temporary fix for inconsistency of column names between SO and the spec 
+      colnames(sdp)[colnames(sdp)=="parameter"]   <- "Parameter"
+
+      # Reformat row names to support merge by row
+      rownames(sdp) <- sdp[['Parameter']] 
+      Bayesian.output <- row.merge.cbind(Bayesian.output, sdp["SDP"])
     }
-
-    # Temporary fix for inconsistency of column names between SO and the spec 
-    colnames(sdp)[colnames(sdp)=="parameter"]   <- "Parameter"
-
-    # Reformat row names to support merge by row
-    rownames(sdp) <- sdp[['Parameter']] 
-    Bayesian.output <- row.merge.cbind(Bayesian.output, sdp["SDP"])
-
   } 
   
   # Append Confidence Interval information for parameters
   if (what %in% c("all", "intervals")) {
     CIs <- SOObject@Estimation@PrecisionPopulationEstimates$Bayesian$PercentilesCI$data 
     if (is.null(CIs)) {
-      stop("Section Estimation:PrecisionPopulationEstimates$MLE$AsymptoticCI not found in SO Object")
-    }
+      warning(paste0("Section Estimation:PrecisionPopulationEstimates$MLE$AsymptoticCI not ",
+        "found in SO Object.\n  Omitting interval values for Bayesian section in returned output."))
+    } else {
     
-    # Manipulate into data frame
-    CI.output <- as.data.frame(t(CIs)[-1, ])
-    colnames(CI.output) <- paste("Perc_", CIs[["Percentile"]], sep="")
-    CI.output["Parameter"] <- setdiff(rownames(CI.output), "Percentile")
-    CI.output <- CI.output[c("Parameter", paste("Perc_", CIs[["Percentile"]], sep=""))]
-    
-    # Temporary fix for inconsistency of column names between SO and the spec 
-    colnames(CI.output)[colnames(CI.output)=="parameter"]   <- "Parameter"
+      # Manipulate into data frame
+      CI.output <- as.data.frame(t(CIs)[-1, ])
+      colnames(CI.output) <- paste("Perc_", CIs[["Percentile"]], sep="")
+      CI.output["Parameter"] <- setdiff(rownames(CI.output), "Percentile")
+      CI.output <- CI.output[c("Parameter", paste("Perc_", CIs[["Percentile"]], sep=""))]
+      
+      # Temporary fix for inconsistency of column names between SO and the spec 
+      colnames(CI.output)[colnames(CI.output)=="parameter"]   <- "Parameter"
 
-    # Reformat row names to support merge by row
-    rownames(CI.output) <- CI.output[["Parameter"]]
-    Bayesian.output <- row.merge.cbind(Bayesian.output, CI.output[setdiff(colnames(CI.output), "Parameter")])
+      # Reformat row names to support merge by row
+      rownames(CI.output) <- CI.output[["Parameter"]]
+      Bayesian.output <- row.merge.cbind(Bayesian.output, CI.output[setdiff(colnames(CI.output), "Parameter")])
+    }
   } 
 
   if (!is.null(keep.only)) {
@@ -407,40 +422,43 @@ getBootstrapPopulationParameters <- function(SOObject, what="all", keep.only=NUL
   if (what %in% c("all", "precision")) {
     precision.stats <- SOObject@Estimation@PrecisionPopulationEstimates$Bootstrap$PrecisionEstimates$data  
     if (is.null(precision.stats)) {
-      stop("Section Estimation:PrecisionPopulationEstimates$Bootstrap$PrecisionEstimates not found in SO Object")
+      warning(paste0("Section Estimation:PrecisionPopulationEstimates$Bootstrap$PrecisionEstimates not ",
+        "found in SO Object.\n  Omitting precision values for Bootstrap section in returned output."))
+    } else{
+      # Temporary fix for inconsistency of column names between SO and the spec 
+      colnames(precision.stats)[colnames(precision.stats)=="parameter"]   <- "Parameter"
+
+      # Reformat row names to support merge by row
+      rownames(precision.stats) <- precision.stats[['Parameter']] 
+      Bootstrap.output <- row.merge.cbind(Bootstrap.output, 
+        precision.stats[setdiff(colnames(precision.stats), "Parameter")])      
     }
 
-    # Temporary fix for inconsistency of column names between SO and the spec 
-    colnames(precision.stats)[colnames(precision.stats)=="parameter"]   <- "Parameter"
-
-    # Reformat row names to support merge by row
-    rownames(precision.stats) <- precision.stats[['Parameter']] 
-    Bootstrap.output <- row.merge.cbind(Bootstrap.output, 
-      precision.stats[setdiff(colnames(precision.stats), "Parameter")])
   } 
-  
   
   # Append Confidence Interval information for parameters
   if (what %in% c("all", "intervals")) {
     perc <- SOObject@Estimation@PrecisionPopulationEstimates$Bootstrap$Percentiles$data 
     if (is.null(perc)) {
-      stop("Section Estimation:PrecisionPopulationEstimates$MLE$AsymptoticCI not found in SO Object")
+      warning(paste0("Section Estimation:PrecisionPopulationEstimates$MLE$AsymptoticCI not ",
+        "found in SO Object.\n  Omitting intervals values for Bootstrap section in returned output."))
+    } else {
+      # Manipulate into data frame
+      percentiles.output <- as.data.frame(t(perc)[-1, ])
+      colnames(percentiles.output) <- paste("Perc_", perc[["Percentile"]], sep="")
+      percentiles.output["Parameter"] <- setdiff(rownames(percentiles.output), "Percentile")
+      percentiles.output <- percentiles.output[c("Parameter", paste("Perc_", perc[["Percentile"]], sep=""))]
+      rownames(percentiles.output) <- NULL
+
+      # Temporary fix for inconsistency of column names between SO and the spec 
+      colnames(percentiles.output)[colnames(percentiles.output)=="parameter"]   <- "Parameter"
+
+      # Reformat row names to support merge by row
+      rownames(percentiles.output) <- percentiles.output[['Parameter']] 
+      Bootstrap.output <- row.merge.cbind(Bootstrap.output, 
+        percentiles.output[setdiff(colnames(percentiles.output), "Parameter")])      
     }
     
-    # Manipulate into data frame
-    percentiles.output <- as.data.frame(t(perc)[-1, ])
-    colnames(percentiles.output) <- paste("Perc_", perc[["Percentile"]], sep="")
-    percentiles.output["Parameter"] <- setdiff(rownames(percentiles.output), "Percentile")
-    percentiles.output <- percentiles.output[c("Parameter", paste("Perc_", perc[["Percentile"]], sep=""))]
-    rownames(percentiles.output) <- NULL
-
-    # Temporary fix for inconsistency of column names between SO and the spec 
-    colnames(percentiles.output)[colnames(percentiles.output)=="parameter"]   <- "Parameter"
-
-    # Reformat row names to support merge by row
-    rownames(percentiles.output) <- percentiles.output[['Parameter']] 
-    Bootstrap.output <- row.merge.cbind(Bootstrap.output, 
-      percentiles.output[setdiff(colnames(percentiles.output), "Parameter")])
   } 
 
   if (!is.null(keep.only)) {
@@ -461,11 +479,11 @@ getBootstrapPopulationParameters <- function(SOObject, what="all", keep.only=NUL
 
 
 .readParameterObjectFromAssociatedMDL <- function(SOObject) {
-	
-	mdlFile <- sub(x=SOObject@.pathToSourceXML, pattern="\\.SO\\.xml$", replacement=".mdl")
-	if (!file.exists(mdlFile)) {
-		stop("getPopulationParameters() for this SO object expects MDL file at ", mdlFile, ", perhaps it has been moved or deleted")
-	}
+  
+  mdlFile <- sub(x=SOObject@.pathToSourceXML, pattern="\\.SO\\.xml$", replacement=".mdl")
+  if (!file.exists(mdlFile)) {
+    stop("getPopulationParameters() for this SO object expects MDL file at ", mdlFile, ", perhaps it has been moved or deleted")
+  }
 	
 	parObjs <- getParameterObjects(mdlFile)
 	if (length(parObjs) > 1) {
