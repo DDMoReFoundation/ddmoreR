@@ -155,11 +155,12 @@ setMethod("read", "mogObj", function(object, sourceDir=getwd(), deriveVariables=
 #' \code{read.csv()} using appropriate parameters as determined from this pre-processing.
 #
 #' @param filePath - path to the CSV file to be read in
+#' @param colNames - Column names to use in returned rawData if given (default=NULL).  
 #' @return A data frame (data.frame) containing a representation of the data in the file
 #' 
 #' @export
 #' @seealso R base function \code{read.csv}
-read.NONMEMDataSet <- function(filePath) {
+read.NONMEMDataSet <- function(filePath, colNames=NULL) {
 	
 	if (!file.exists(filePath)) {
 		stop("Specified data file ", filePath, " does not exist.")
@@ -175,8 +176,10 @@ read.NONMEMDataSet <- function(filePath) {
 	# skip past any non-alphabetical characters)
 	headerRow <- sub('[^A-Za-z]*', '', potentialHeaderRows[[firstDataRow - 1]])
 	
-	# Read the comma-delimited column names from the row that has been assumed to be the header row
-	colNames <- strsplit(gsub(pattern="\\s*", replacement="", x=headerRow), split=",", fixed=TRUE)[[1]]
+  if (is.null(colNames)) {
+  	# Read the comma-delimited column names from the row that has been assumed to be the header row
+  	colNames <- strsplit(gsub(pattern="\\s*", replacement="", x=headerRow), split=",", fixed=TRUE)[[1]]    
+  }
 	
 	# Now actually read in the CSV file, using appropriate parameters as determined above
 	read.csv(filePath, header=FALSE, col.names=colNames, na.strings=".", stringsAsFactors=FALSE, skip=firstDataRow-1) # handle comment.char, if we know what it is?

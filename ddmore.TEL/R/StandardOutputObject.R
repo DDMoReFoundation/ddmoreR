@@ -134,8 +134,21 @@ setMethod(f="readRawData",
 }
 )
 
+#' Utility to fetch column names from MDL file
+#'
+.readColumnNamesFromAssociatedMDL <- function(SOObject) {
+  
+  # Look up MDL file, which is for now assumed to be i the same folder and shares the same name.
+  mdlFile <- sub(x=SOObject@.pathToSourceXML, pattern="\\.SO\\.xml$", replacement=".mdl")
+  if (!file.exists(mdlFile)) {
+    stop("as.xpdb() and as.data() expected an MDL file at ", mdlFile, ", perhaps it has been moved or deleted")
+  }
+  
+  parObjs <- getMDLObjects(mdlFile)[[1]]
+  colNames <- names(x@DATA_INPUT_VARIABLES)
 
-
+  colNames
+}
 
 #' mergeByPosition
 #'
@@ -206,7 +219,15 @@ setMethod(f="as.data",
 			  if (missing(inputDataPath)){
 				  stop("Path to input data must be specified")
 			  } else {
+
+          # Read data in and examine file header. If no ID and TIME in header, fetch
+          # column names based on the mdl file.
 				  rawData <- read.NONMEMDataSet(inputDataPath)
+
+          if (any(!(c("ID", "TIME", "DV") %in% names(rawData)))) {
+            colNames <- .readColumnNamesFromAssociatedMDL(SOObject)
+            rawData <- read.NONMEMDataSet(inputDataPath, colNames=colNames)
+          }
 
           # Convert all column headers to upper case 
           names(rawData) <- toupper(names(rawData))
