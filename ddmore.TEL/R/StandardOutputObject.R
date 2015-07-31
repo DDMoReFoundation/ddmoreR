@@ -138,17 +138,18 @@ setMethod(f="readRawData",
 #'
 .readColumnNamesFromAssociatedMDL <- function(SOObject) {
   
-  # Look up MDL file, which is for now assumed to be i the same folder and shares the same name.
+  # Look up MDL file, which is for now assumed to be in the same folder and shares the same name.
   mdlFile <- sub(x=SOObject@.pathToSourceXML, pattern="\\.SO\\.xml$", replacement=".mdl")
   if (!file.exists(mdlFile)) {
     stop("as.xpdb() and as.data() expected an MDL file at ", mdlFile, ", perhaps it has been moved or deleted")
   }
   
   parObjs <- getMDLObjects(mdlFile)[[1]]
-  colNames <- names(x@DATA_INPUT_VARIABLES)
+  colNames <- names(parObjs@DATA_INPUT_VARIABLES)
 
   colNames
 }
+
 
 #' mergeByPosition
 #'
