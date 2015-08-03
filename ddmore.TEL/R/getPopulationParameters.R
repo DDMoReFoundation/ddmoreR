@@ -186,14 +186,14 @@ row.merge.cbind <- function(x, y, colNames) {
     # Input checking for x dataframe 
     if (is.null(x[["Parameter"]])) {
       stop("'Parameter' column not found in SO, cannot merge data frames by parameter values." )
-    }  else if (rownames(x) != x[["Parameter"]]) {
+    }  else if (any(rownames(x) != x[["Parameter"]])) {
       rownames(x) <- x[['Parameter']] 
     } 
 
     # Input checking for y dataframe
     if (is.null(y[["Parameter"]])) {
       stop("'Parameter' column not found in SO, cannot merge data frames by parameter values." )
-    }  else if (rownames(y) != y[["Parameter"]]) {
+    }  else if (any(rownames(y) != y[["Parameter"]])) {
       rownames(y) <- y[['Parameter']] 
     } 
 
@@ -415,13 +415,9 @@ getBootstrapPopulationParameters <- function(SOObject, what="all", keep.only=NUL
       warning(paste0("Section Estimation:PrecisionPopulationEstimates$Bootstrap$PrecisionEstimates not ",
         "found in SO Object.\n  Omitting precision values for Bootstrap section in returned output."))
     } else{
-      # Temporary fix for inconsistency of column names between SO and the spec 
-      colnames(precision.stats)[colnames(precision.stats)=="parameter"]   <- "Parameter"
 
-      # Reformat row names to support merge by row
-      rownames(precision.stats) <- precision.stats[['Parameter']] 
-      Bootstrap.output <- row.merge.cbind(Bootstrap.output, 
-        precision.stats[setdiff(colnames(precision.stats), "Parameter")])      
+      Bootstrap.output <- row.merge.cbind(Bootstrap.output, precision.stats, 
+        colNames=setdiff(colnames(precision.stats), "Parameter"))      
     }
 
   } 
@@ -439,7 +435,6 @@ getBootstrapPopulationParameters <- function(SOObject, what="all", keep.only=NUL
       percentiles.output["Parameter"] <- setdiff(rownames(percentiles.output), "Percentile")
       percentiles.output <- percentiles.output[c("Parameter", paste("Perc_", perc[["Percentile"]], sep=""))]
       rownames(percentiles.output) <- NULL
-
 
       Bootstrap.output <- row.merge.cbind(Bootstrap.output, percentiles.output, 
         colNames=setdiff(colnames(percentiles.output), "Parameter"))      

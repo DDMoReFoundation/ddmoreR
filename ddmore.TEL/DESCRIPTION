@@ -29,7 +29,6 @@ Collate:
     'conversion.R'
     'createMogObj.R'
     'server.R'
-    'prepare.R'
     'import.R'
     'execute.R'
     'getDataObjects.R'
