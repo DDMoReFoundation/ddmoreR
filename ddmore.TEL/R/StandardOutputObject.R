@@ -283,7 +283,7 @@ setMethod(f="as.data",
           # input data and recompare.
           if (nrow(df1) > nrow(df2)) {
             df1 <- df1[!is.na(df1[['DV']]), ]
-            cat(paste0("\nRemoved dose rows in raw data and predictions slot of SO to enable merge with residuals data.\n", 
+            message(paste0("\nRemoved dose rows in raw data and predictions slot of SO to enable merge with residuals data.\n", 
               "Residuals data does not currently contain dose rows in output from Nonmem executions."))
           }
           if (nrow(df1) != nrow(df2)) {
