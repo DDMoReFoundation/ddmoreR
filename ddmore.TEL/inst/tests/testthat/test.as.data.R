@@ -43,3 +43,80 @@ test_that("as.data correctly merges raw input data with SO data", {
   )
 
 })
+
+context("Testing as.data can read machine generated SO and extract header information from associated mdl file.")
+
+test_that("as.data correctly merges raw input data with SO data", {
+
+  # Note: these tests require the local servers to be running in order to parse the mdl file.
+
+  # Clear workspace. 
+  rm(list=ls())
+
+  # Setup paths to files
+  csvFilePath = system.file("tests/data/warfarin_infusion.csv", package = "DDMoRe.TEL")
+  xml.data.path = system.file("tests/data/PharmMLSO/MachineGenerated/UseCase9.SO.xml",  
+    package = "DDMoRe.TEL")
+  expected.data.path = system.file("tests/data/PharmMLSO/MachineGenerated/UseCase9.SO.as.data.txt",  
+    package = "DDMoRe.TEL")
+
+  # Load in SO
+  SOObject = LoadSOObject(xml.data.path)
+
+  # Test for fetching Raw Data from an input file and combining with SO data 
+  MyDataFrame = as.data(SOObject, inputDataPath=csvFilePath)
+
+  # Test no empty data frame is returned 
+  expect_true(
+    nrow(MyDataFrame) > 0 , 
+    info = "Data Frame should not be empty"
+  )
+  
+  # Test data frame values are as expected
+  expectedValues = dget(expected.data.path)
+ 
+  expect_true(
+    all.equal(expectedValues, MyDataFrame), 
+    info = "Data Frame should contain correct values"
+  )
+
+})
+
+
+context("Testing as.data can deal with duplicate column names in SO slots.")
+
+test_that("as.data correctly merges raw input data with SO data", {
+
+  # Note: these tests require the local servers to be running in order to parse the mdl file.
+
+  # Clear workspace. 
+  rm(list=ls())
+
+  # Setup paths to files
+  csvFilePath = system.file("tests/data/warfarin_conc.csv", package = "DDMoRe.TEL")
+  xml.data.path = system.file("tests/data/PharmMLSO/MachineGenerated/UseCase1_FOCEI.SO.xml",  
+    package = "DDMoRe.TEL")
+  expected.data.path = system.file("tests/data/PharmMLSO/MachineGenerated/UseCase1_FOCEI.SO.as.data.txt",  
+    package = "DDMoRe.TEL")
+
+  # Load in SO
+  SOObject = LoadSOObject(xml.data.path)
+
+  # Test for fetching Raw Data from an input file and combining with SO data 
+  MyDataFrame = as.data(SOObject, inputDataPath=csvFilePath)
+
+  # Test no empty data frame is returned 
+  expect_true(
+    nrow(MyDataFrame) > 0 , 
+    info = "Data Frame should not be empty"
+  )
+  
+  # Test data frame values are as expected
+  expectedValues = dget(expected.data.path)
+ 
+  expect_true(
+    all.equal(expectedValues, MyDataFrame), 
+    info = "Data Frame should contain correct values"
+  )
+
+})
