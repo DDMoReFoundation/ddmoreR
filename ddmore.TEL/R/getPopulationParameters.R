@@ -464,28 +464,7 @@ getBootstrapPopulationParameters <- function(SOObject, what="all", keep.only=NUL
 }
 
 
-.readParameterObjectFromAssociatedMDL <- function(SOObject) {
-  
-  mdlFile <- sub(x=SOObject@.pathToSourceXML, pattern="\\.SO\\.xml$", replacement=".mdl")
-  if (!file.exists(mdlFile)) {
-    stop("getPopulationParameters() for this SO object expects MDL file at ", mdlFile, ", perhaps it has been moved or deleted")
-  }
-	
-	parObjs <- getParameterObjects(mdlFile)
-	if (length(parObjs) > 1) {
-		stop("More than one parameter object found in MDL file ", mdlFile)
-	}
-	
-	parObjs[[1]]
-}
 
-.deriveStructuralParametersFromAssociatedMDL <- function(SOObject) {
-	names(.readParameterObjectFromAssociatedMDL(SOObject)@STRUCTURAL)
-}
-
-.deriveVariabilityParametersFromAssociatedMDL <- function(SOObject) {
-	names(.readParameterObjectFromAssociatedMDL(SOObject)@VARIABILITY)
-}
 
 
 

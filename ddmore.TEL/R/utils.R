@@ -320,3 +320,48 @@ parent.folder <- function(f) {
   
   return(dat)
 }
+
+
+#' Utilities to extract parts of the mdl file that shares the same name as the current SO.xml 
+#' 
+.getMdlInfoFromSO <- function(SOObject, what="MDL") {
+
+  # Look up MDL file, which is for now assumed to be in the same folder and shares the same name.
+  mdlFile <- sub(x=SOObject@.pathToSourceXML, pattern="\\.SO\\.xml$", replacement=".mdl")
+  if (!file.exists(mdlFile)) {
+    stop("as.xpdb() and as.data() expected an MDL file at ", mdlFile, ", perhaps it has been moved or deleted")
+  }
+ 
+  if (tolower(what) == "parameter") {
+    objs <- getParameterObjects(mdlFile)[[1]]
+  } else if (tolower(what) == "mdl") {
+    objs <- getMDLObjects(mdlFile)[[1]]
+  } else {
+    stop("Value for what not recognised, must be one of ('mdl', 'parameter')")
+  }
+
+  if (length(objs) > 1) {
+    stop("More than one object found in MDL file ", mdlFile)
+  }
+
+  return(objs)
+}
+
+
+#' Utility to fetch column names from MDL file
+#'
+.deriveColumnNamesFromAssociatedMDL <- function(SOObject) {
+  
+  MDLObjs <- .getMdlInfoFromSO(SOObject, what="mdl")
+  colNames <- names(MDLObjs@DATA_INPUT_VARIABLES)
+
+  colNames
+}
+
+.deriveStructuralParametersFromAssociatedMDL <- function(SOObject) {
+  names(.getMdlInfoFromSO(SOObject, what="parameter")@STRUCTURAL)
+}
+
+.deriveVariabilityParametersFromAssociatedMDL <- function(SOObject) {
+  names(.getMdlInfoFromSO(SOObject, what="parameter")@VARIABILITY)
+}
