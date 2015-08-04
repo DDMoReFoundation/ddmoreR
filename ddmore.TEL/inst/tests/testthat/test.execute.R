@@ -12,7 +12,7 @@ test_that("TEL.monitor with default import flags results in non-null result for 
     # Given
     serverMock <- list(
         poll = function(...) {
-            submission$fisJobStatus <- 'COMPLETED'
+            submission$fisJob <- list(id="MOCK_ID", status ='COMPLETED')
             submission
         },
         submitJob = function(...) {
@@ -35,7 +35,8 @@ test_that("TEL.monitor with default import flags results in non-null result for 
     
     submission <- list()
     submission$start <- date()
-    submission$requestID <- "MOCK_ID"
+    submission$fisJob <- list()
+    submission$fisJob$id <- "MOCK_ID"
     submission$status <- "Submitted"
     # when
     result = TEL.monitor(
@@ -51,7 +52,7 @@ test_that("TEL.monitor with disabled import results in non-null result for succe
     # Given
     serverMock <- list(
         poll = function(...) {
-            submission$fisJobStatus <- 'COMPLETED'
+            submission$fisJob <- list(id="MOCK_ID", status ='COMPLETED')
             submission
         },
         submitJob = function(...) {
@@ -78,7 +79,8 @@ test_that("TEL.monitor with disabled import results in non-null result for succe
     
     submission <- list()
     submission$start <- date()
-    submission$requestID <- "MOCK_ID"
+    submission$fisJob <- list()
+    submission$fisJob$id <- "MOCK_ID"
     submission$status <- "Submitted"
     # when
     result = TEL.monitor(
@@ -94,7 +96,7 @@ test_that("TEL.monitor results in error for failed job", {
     # Given
     serverMock <- list(
         poll = function(...) {
-            submission$fisJobStatus <- 'FAILED'
+            submission$fisJob <- list(id="MOCK_ID", status ='FAILED')
             submission
         },
         submitJob = function(...) {
@@ -102,7 +104,7 @@ test_that("TEL.monitor results in error for failed job", {
         },
         getJob = function(...) {
             message("getJob")
-            list(jobId = "MOCK_ID", status = 'COMPLETED')
+            list(jobId = "MOCK_ID", status = 'FAILED')
         },
         getJobs = function(...) {
             message("getJobs")
@@ -121,7 +123,8 @@ test_that("TEL.monitor results in error for failed job", {
     
     submission <- list()
     submission$start <- date()
-    submission$requestID <- "MOCK_ID"
+    submission$fisJob <- list()
+    submission$fisJob$id <- "MOCK_ID"
     submission$status <- "Submitted"
     
     #then

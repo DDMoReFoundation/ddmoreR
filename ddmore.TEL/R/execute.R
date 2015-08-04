@@ -180,7 +180,7 @@ setGeneric("execute", function(x, target = NULL,
         if (wait) {
             result <-
                 TEL.monitor(
-                    submission, importDirectory = file.path(submission$sourceDirectory, subfolder), clearUp, importSO, importMultipleSO, HOST, PORT
+                    submission, importDirectory = file.path(submission$parameters$sourceDirectory, subfolder), clearUp, importSO, importMultipleSO, HOST, PORT
                 )
         } else {
             result <- submission
@@ -222,9 +222,9 @@ TEL.monitor <-
         if (is.null(importDirectory)) {
             stop('Illegal Argument: target directory was null.')
         }
-        if (!("requestID" %in% names(submission)) ||
-            is.null(submission$requestID)) {
-            stop("Illegal Argument: submission's requestID element must be set and can't be NULL.")
+        if (!("fisJob" %in% names(submission)) ||
+            is.null(submission$fisJob)) {
+            stop("Illegal Argument: submission's fisJob element must be set and can't be NULL.")
         }
         
         # FIXME: This is to enable mocking of functions responsible for integration with FIS REST API.
@@ -242,16 +242,14 @@ TEL.monitor <-
         }
         
         message(sprintf('-- %s', submission$start))
-        message(sprintf('Job %s progress:', submission$requestID))
+        message(sprintf('Job %s progress:', submission$fisJob$id))
         message(submission$status)
         
         submission <- SERVER$poll(submission, HOST = HOST, PORT = PORT)
         result <- NULL
-        if (submission$fisJobStatus == "COMPLETED") {
+        if (submission$fisJob$status == "COMPLETED") {
             submission$status = "Importing Results"
             message(submission$status)
-            submission$job <-
-                SERVER$getJob(submission$requestID, HOST = HOST, PORT = PORT)
             submission <-
                 TEL$importFiles(submission, target = importDirectory, clearUp = clearUp)
             if (importMultipleSO) {
@@ -270,8 +268,8 @@ TEL.monitor <-
         
         if (submission$status == "Failed") {
             stop(
-                "Execution of model ", submission$modelFile, " failed.\n  The contents of the working directory ",
-                submission$workingDirectory, " may be useful for tracking down the cause of the failure."
+                "Execution of model ", submission$parameters$modelFile, " failed.\n  The contents of the working directory ",
+                submission$parameters$workingDirectory, " may be useful for tracking down the cause of the failure."
             )
         }
         

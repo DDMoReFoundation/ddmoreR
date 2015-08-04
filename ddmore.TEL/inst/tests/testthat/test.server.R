@@ -26,9 +26,10 @@ test_that("TEL.poll should poll untill Job status is COMPLETED", {
     
     submission <- list()
     submission$start <- date()
-    submission$requestID <- "MOCK_ID"
+    submission$fisJob <- list()
+    submission$fisJob$id <- "MOCK_ID"
+    submission$fisJob$status <- "NEW"
     submission$status <- "Submitted"
-    submission$fisJobStatus <- ""
     # when
     result = TEL.poll(submission, server = serverMock)
     
@@ -36,7 +37,7 @@ test_that("TEL.poll should poll untill Job status is COMPLETED", {
     
     expect_true(!is.null(result), info = "Result should not be null.")
     expect_equal(class(result)[[1]],"list", info  = "Result should be of type list.")
-    expect_equal(result$fisJobStatus,"COMPLETED", info  = "FIS Job status property should be 'COMPLETED'.")
+    expect_equal(result$fisJob$status,"COMPLETED", info  = "FIS Job status property should be 'COMPLETED'.")
 })
 
 test_that("TEL.poll should poll untill Job status is FAILED", {
@@ -56,9 +57,10 @@ test_that("TEL.poll should poll untill Job status is FAILED", {
     
     submission <- list()
     submission$start <- date()
-    submission$requestID <- "MOCK_ID"
+    submission$fisJob <- list()
+    submission$fisJob$id <- "MOCK_ID"
+    submission$fisJob$status <- "NEW"
     submission$status <- "Submitted"
-    submission$fisJobStatus <- ""
     # when
     result = TEL.poll(submission, server = serverMock)
     
@@ -66,5 +68,5 @@ test_that("TEL.poll should poll untill Job status is FAILED", {
     
     expect_true(!is.null(result), info = "Result should not be null.")
     expect_equal(class(result)[[1]],"list", info = "Result should be of type list.")
-    expect_equal(result$fisJobStatus,"FAILED", info = "FIS Job status property should be 'FAILED'.")
+    expect_equal(result$fisJob$status,"FAILED", info = "FIS Job status property should be 'FAILED'.")
 })

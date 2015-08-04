@@ -5,22 +5,14 @@
 #' them into a suitable results subdirectory alongside the original MDL file.
 #' 
 #' @param submission Named list containing information relating to the
-#'        submission of an execution request:
+#'        submission of a job:
 #'        \itemize{
-#'          \item{\code{executionType}}
-#'            - Identifying the target software to use for the execution.
-#'          \item{\code{modelFile}}
-#'            - MDL file that was executed.
-#'          \item{\code{sourceDirectory}}
-#'            - The directory in which the MDL file lives.
-#'          \item{\code{workingDirectory}}
-#'            - The location used for the execution of the job, within the
-#'              system temporary directory.
+#'          \item{\code{parameters}}
+#'            - Input parameters used to submit job.
 #'          \item{\code{status}}
 #'            - The status of the execution of the model file. If not "COMPLETED"
 #'              then this import into Standard Output object will not work.
-#'          \item{\code{requestId}} - Unique identifier for the submission request.
-#'          \item{\code{job}} - structure returned from \link{TEL.getJob}
+#'          \item{\code{fisJob}} - structure returned from \link{TEL.getJob}
 #'        }
 #' @param target (Optional) Specify the path of a directory, into which to copy the results. Default
 #'        is a timestamped subdirectory of the input model source directory.
@@ -42,28 +34,22 @@ TEL.importFiles <- function(submission, target=file.path(submission$sourceDirect
     if(is.null(submission)) {
         stop("Illegal Argument: submission can't be NULL.")
     }
-    if(!("job" %in% names(submission)) || is.null(submission$job)) {
-        stop("Illegal Argument: submission's 'job' element must be set and can't be NULL.")
+    if(!("parameters" %in% names(submission)) || is.null(submission$parameters)) {
+        stop("Illegal Argument: submission's 'parameters' element must be set and can't be NULL.")
     }
-    if(!("id" %in% names(submission$job)) || is.null(submission$job$id)) {
-        stop("Illegal Argument: job's id element must be set and can't be NULL.")
+    if(!("fisJob" %in% names(submission)) || is.null(submission$fisJob)) {
+        stop("Illegal Argument: submission's 'fisJob' element must be set and can't be NULL.")
+    }
+    if(!("id" %in% names(submission$fisJob)) || is.null(submission$fisJob$id)) {
+        stop("Illegal Argument: fisJob's id element must be set and can't be NULL.")
     }
     if(is.null(target)) {
         stop("Illegal Argument: target must be set and can't be NULL.")
     }
 	
-	jobID <- submission$requestID
-	modelfile <- submission$modelFile
-	jobDirectory <- submission$workingDirectory
-	
-	# FIXME: verify if the following logic is correct and if it is needed, 
-	# if so make it caller's responsibility since it violates SRP
-	if (nchar(modelfile) == 0 || nchar(jobDirectory) == 0) {
-		# Model file and/or job directory not specified, so get them from Framework Integration service
-		job = submission$job
-		modelfile <- job$controlFile
-		jobDirectory <- job$workingDirectory
-	}
+	jobID <- submission$fisJob$id
+	modelfile <- submission$parameters$modelFile
+	jobDirectory <- submission$parameters$workingDirectory
 	
 	workingFolder = file.path(jobDirectory) # should be FIS working directory not MIF working directory
 	
@@ -141,11 +127,13 @@ TEL.importFiles <- function(submission, target=file.path(submission$sourceDirect
 #' of class \linkS4class{StandardOutputObject}, or a list thereof.
 #' 
 #' @param submission Named list containing information relating to the
-#'        submission of an execution request:
+#'        submission of a job:
 #'        \itemize{
 #'          \item{\code{executionType}}
 #'            - Identifying the target software to use for the execution.
-#'          \item{\code{modelFile}}
+#'          \item{\code{parameters}}
+#'            - Input parameters used to submit job.
+#'          \item{\code{parameters$modelFile}}
 #'            - MDL file that was executed; any leading path will be stripped off,
 #'              and the .mdl file extension replaced with .SO.xml, to derive the
 #'              filename of the Standard Output XML file. If \code{submission$job}
@@ -153,19 +141,13 @@ TEL.importFiles <- function(submission, target=file.path(submission$sourceDirect
 #'              then the \code{job$controlFile} is used instead of the \code{modelFile}
 #'              since this will include any relative file path prefix on the control
 #'              file i.e. if the model file references its data file via a relative path.
-#'          \item{\code{sourceDirectory}}
-#'            - The directory in which the MDL file lives.
 #'          \item{\code{resultsDir}}
 #'            - The directory into which the result files from the execution
 #'              were copied.
-#'          \item{\code{workingDirectory}}
-#'            - The location used for the execution of the job, within the
-#'              system temporary directory.
 #'          \item{\code{status}}
 #'            - The status of the execution of the model file. If not "COMPLETED"
 #'              then this import into Standard Output object will not work.
-#'          \item{\code{requestId}} - Unique identifier for the submission request.
-#'          \item{\code{job}} - structure returned from \link{TEL.getJob}
+#'          \item{\code{fisJob}} - structure returned from \link{TEL.getJob}
 #'        }
 #' @param multiple Whether multiple SOBlocks are expected in the SO XML results file.
 #'        Default is FALSE. Note that if FALSE and multiple SOBlocks are encountered,
@@ -184,17 +166,20 @@ TEL.importSO <- function(submission, multiple=FALSE) {
     if(is.null(submission)) {
       stop("Illegal Argument: submission can't be NULL.")
     }
-    if(!("modelFile" %in% names(submission)) || is.null(submission$modelFile)) {
-      stop("Illegal Argument: submission's 'modelFile' element must be set and can't be NULL.")
+    if(!("parameters" %in% names(submission)) || is.null(submission$parameters)) {
+        stop("Illegal Argument: submission's 'parameters' element must be set and can't be NULL.")
+    }
+    if(!("modelFile" %in% names(submission$parameters)) || is.null(submission$parameters$modelFile)) {
+      stop("Illegal Argument: parameters's 'modelFile' element must be set and can't be NULL.")
     }
     if(!("resultsDir" %in% names(submission)) || is.null(submission$resultsDir)) {
       stop("Illegal Argument: submission's 'resultsDir' element must be set and can't be NULL.")
     }
 
-	soXMLFileName <- paste0(file_path_sans_ext(basename(submission$modelFile)), ".SO.xml")
-	if (!is.null(submission$job)) { # Should always be the case, if called as part of \link{TEL.monitor})
+	soXMLFileName <- paste0(file_path_sans_ext(basename(submission$parameters$modelFile)), ".SO.xml")
+	if (!is.null(submission$fisJob)) { # Should always be the case, if called as part of \link{TEL.monitor})
 		# Take into account the fact that the control file, and thus the SO XML file, might be in a subdirectory
-		soXMLFilePath <- file.path(submission$resultsDir, dirname(submission$job$controlFile), soXMLFileName)
+		soXMLFilePath <- file.path(submission$resultsDir, dirname(submission$fisJob$executionFile), soXMLFileName)
 	} else {
 		soXMLFilePath <- file.path(submission$resultsDir, soXMLFileName)
 	}
@@ -208,8 +193,8 @@ TEL.importSO <- function(submission, multiple=FALSE) {
 	}
 	else {
 		stop(
-			"No Standard Output results file produced from execution of model ", submission$modelFile,
-			".\n  The contents of the working directory ", submission$workingDirectory,
+			"No Standard Output results file produced from execution of model ", submission$parameters$modelFile,
+			".\n  The contents of the working directory ", submission$parameters$workingDirectory,
 			" may be useful for tracking down the cause of the failure."
 		)
 	}
