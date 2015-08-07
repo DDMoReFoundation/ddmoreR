@@ -68,9 +68,9 @@ test_that("Expected output Mog to have been created", {
 
 test_that("Expected output Mog to have been written out as JSON", {
 			
-	skeletonJsonFileOutput <- file.path(tempdir(), "skeleton.output.json")
+	skeletonJsonFileOutput <<- file.path(tempdir(), "skeleton.output.json")
 	
-	write(mySkeletonOutputMog, skeletonJsonFileOutput)
+	writeLines(.generateJSON(mySkeletonOutputMog), skeletonJsonFileOutput)
 	
 	expect_true(file.exists(skeletonJsonFileOutput), info="Output JSON file should exist")
 	
@@ -78,6 +78,8 @@ test_that("Expected output Mog to have been written out as JSON", {
 	
 })
 
+stopifnot(file.exists(skeletonJsonFileOutput))
+    
 test_that("Checking that output JSON-as-nested-lists could be parsed", {
 	expect_true(is.list(skeletonJsonAsNestedListsOutput), info="JSON-as-nested-lists should be a list")
 	expect_true(is.list(skeletonJsonAsNestedListsOutput[[1]]), info="JSON-as-nested-lists should be a list of lists")

@@ -1,0 +1,8 @@
+{
+    "url":"mock-url",
+    "operationalUrl":"mock-operationalUrl",
+    "startupScript":"mock-startupScript",
+    "jobStatusPollingDelay":1,
+    "startupPollingMax":60,
+    "startupPollingDelay":1
+}

@@ -97,15 +97,17 @@ test_that("Expected output Mog to have been created", {
 
 test_that("Expected output Mog to have been written out as JSON", {
 
-	jsonFileOutput <- file.path(tempdir(), "FullyPopulated.output.json")
+	jsonFileOutput <<- file.path(tempdir(), "FullyPopulated.output.json")
 	
-	write(myOutputMog, jsonFileOutput)
+	writeLines(.generateJSON(myOutputMog), jsonFileOutput)
 	
 	expect_true(file.exists(jsonFileOutput), info="Output JSON file should exist")
 	
 	jsonAsNestedListsOutput <<- rjson:::fromJSON(file=jsonFileOutput)
 
 })
+
+stopifnot(file.exists(jsonFileOutput))
 
 test_that("Checking that output JSON-as-nested-lists could be parsed", {
 	expect_true(is.list(jsonAsNestedListsOutput), info="JSON-as-nested-lists should be a list")
@@ -117,8 +119,14 @@ jsonAsNestedListsOutput <- jsonAsNestedListsOutput[[1]]
 
 # Compares the attributes of an item within a block
 compareAttributesOfElementOfBlock <- function(objName, blockName, elemNo, inputAttributes, outputAttributes) {
-	#cat(paste("Comparing attributes for:", objName, blockName, elemNo, "\n"))
-	
+    if(is.null(inputAttributes) || is.null(outputAttributes)) {
+        message(paste("Warning one of the attributes of",blockName,"is null.\n"))
+        test_that(paste("Both blocks", blockName, " should be null, since one of them is"), {
+            expect_true(is.null(inputAttributes)&&is.null(outputAttributes))
+        })
+        return(NULL)
+        #return at this point to remove warnings from output
+    }
 	test_that(paste("Comparing the names of the attributes of item", elemNo, "in the input and output nested-list representations of block:", blockName), {
 		expect_equal(length(outputAttributes), length(inputAttributes))
 		expect_equal(length(names(inputAttributes)), length(inputAttributes)) # Ensure the attributes are named
@@ -146,7 +154,15 @@ compareAttributesOfElementOfBlock <- function(objName, blockName, elemNo, inputA
 compareNestedListsRepresentationOfBlock <- function(objName, blockName, inputBlockAsNestedList, outputBlockAsNestedList) {
 	
 	cat(paste0("\nComparing block name ", objName, "::", blockName, "...\n"))
-	
+    
+    if(is.null(inputBlockAsNestedList) || is.null(outputBlockAsNestedList)) {
+        message(paste("Warning one of the blocks",blockName,"is null.\n"))
+        test_that(paste("Both blocks", blockName, " should be null, since one of them is"), {
+            expect_true(is.null(inputBlockAsNestedList)&&is.null(outputBlockAsNestedList))
+        })
+        return(NULL)
+        #return at this point to remove warnings from output
+    }
 	test_that(paste("Same number of items expected for input and output nested-list representations of block:", blockName), {
 		expect_equal(length(outputBlockAsNestedList), length(inputBlockAsNestedList))
 	})
@@ -186,7 +202,7 @@ compareNestedListsRepresentationOfTopLevelObject <- function(objName) {
 	})
 
 	lapply(inputObjBlockNames, function(blockName) {
-		
+		message(paste("Comparing blocks",blockName, ".\n"))
 		if (blockName == 'identifier') {
 			test_that(paste('Comparing the identifiers for the input and output nested-list representations of object:', objName), {
 				expect_equal(outputObjAsNestedLists[['identifier']], inputObjAsNestedLists[['identifier']])

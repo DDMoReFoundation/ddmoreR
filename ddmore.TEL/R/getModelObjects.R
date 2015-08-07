@@ -13,9 +13,7 @@
 #' @param name (Optional) Specifies the model object item, by name, to be retrieved
 #'        by getModelObjects. If multiple model objects exist in the .mdl file then
 #'        using the name argument allows the user to target a specific model object.
-#' @param HOST (Optional) Hostname of the server running the FIS service; defaults
-#'        to "localhost".
-#' @param PORT (Optional) Port of the server running the FIS service, defaults to 9010.
+#' @param fisServer FISServer instance.
 #' @return List of S4 Objects of class \code{mdlObj}. If name is specified, only the 
 #'          single specified object is returned.
 #' 
@@ -35,12 +33,12 @@
 #'
 #' @include telClasses.R
 
-setGeneric("getModelObjects", function(file, object, name, HOST='localhost', PORT='9010') { 
+setGeneric("getModelObjects", function(file, object, name, fisServer = TEL.getServer()) { 
 	# create object in R from parser:
 	if (!missing(name)) {
-		res <- .parseMDLFile(file, name=name, type="mdlobj", HOST=HOST, PORT=PORT)
+		res <- .parseMDLFile(file, name=name, type="mdlobj", fisServer = fisServer)
 	} else{
-		res <- .parseMDLFile(file, type="mdlobj", HOST=HOST, PORT=PORT)
+		res <- .parseMDLFile(file, type="mdlobj", fisServer = fisServer)
 	}
 	return(res)
 })
@@ -48,7 +46,7 @@ setGeneric("getModelObjects", function(file, object, name, HOST='localhost', POR
 #' @rdname getModelObjects-methods
 #' @aliases getModelObjects,mogObj,mogObj-method
 setMethod("getModelObjects", signature=signature(object="mogObj"),
-  function(file, object, name, HOST="localhost", PORT="9010") {
+  function(file, object, name, fisServer = TEL.getServer()) {
     return(x@mdlObj)
 })
 

@@ -5,12 +5,32 @@ require("methods")
 require("testthat")
 
 rm(list = ls())
+setClass(
+    "MockFISServer",
+    contains = "FISServer"
+)
+createMockFISServer <-
+    function(url = "http://localhost:9010", operationalUrl = "http://localhost:9011",
+             startupScript = "MOCK",
+             jobStatusPollingDelay = 20, startupPollingMax = 60, startupPollingDelay = 1) {
+        new(
+            "MockFISServer",
+            url = url,
+            operationalUrl = operationalUrl,
+            startupScript = startupScript,
+            jobStatusPollingDelay = jobStatusPollingDelay,
+            startupPollingMax = startupPollingMax,
+            startupPollingDelay = startupPollingDelay
+        )
+    }
 
+
+mockServer<- createMockFISServer(jobStatusPollingDelay=1)
+TEL.setServer(mockServer)
 context("Monitoring job")
 
 test_that("TEL.monitor with default import flags results in non-null result for successful job", {
-    # Given
-    serverMock <- list(
+    telMock <- list(
         poll = function(...) {
             submission$fisJob <- list(id="MOCK_ID", status ='COMPLETED')
             submission
@@ -18,12 +38,6 @@ test_that("TEL.monitor with default import flags results in non-null result for 
         submitJob = function(...) {
             message("submitJob")
         },
-        getJob = function(...) {
-            list(jobId = "MOCK_ID", status = 'COMPLETED')
-        }
-    )
-    
-    telMock <- list(
         importFiles = function(...) {
             submission$resultsDir <- "mock/result/dir"
             submission
@@ -40,7 +54,7 @@ test_that("TEL.monitor with default import flags results in non-null result for 
     submission$status <- "Submitted"
     # when
     result = TEL.monitor(
-        submission, importDirectory = "mock/path", server = serverMock, tel = telMock
+        submission, importDirectory = "mock/path", fisServer = mockServer, tel = telMock
     )
     
     #then
@@ -49,8 +63,7 @@ test_that("TEL.monitor with default import flags results in non-null result for 
 })
 
 test_that("TEL.monitor with disabled import results in non-null result for successful job", {
-    # Given
-    serverMock <- list(
+    telMock <- list(
         poll = function(...) {
             submission$fisJob <- list(id="MOCK_ID", status ='COMPLETED')
             submission
@@ -58,16 +71,6 @@ test_that("TEL.monitor with disabled import results in non-null result for succe
         submitJob = function(...) {
             message("submitJob")
         },
-        getJob = function(...) {
-            message("getJob")
-            list(jobId = "MOCK_ID", status = 'COMPLETED')
-        },
-        getJobs = function(...) {
-            message("getJobs")
-        }
-    )
-    
-    telMock <- list(
         importFiles = function(...) {
             submission$resultsDir <- "mock/result/dir"
             submission
@@ -84,7 +87,7 @@ test_that("TEL.monitor with disabled import results in non-null result for succe
     submission$status <- "Submitted"
     # when
     result = TEL.monitor(
-        submission, importDirectory = "mock/path", importSO = FALSE, server = serverMock, tel = telMock
+        submission, importDirectory = "mock/path", importSO = FALSE, fisServer = mockServer, tel = telMock
     )
     
     #then
@@ -93,8 +96,7 @@ test_that("TEL.monitor with disabled import results in non-null result for succe
 })
 
 test_that("TEL.monitor results in error for failed job", {
-    # Given
-    serverMock <- list(
+    telMock <- list(
         poll = function(...) {
             submission$fisJob <- list(id="MOCK_ID", status ='FAILED')
             submission
@@ -102,16 +104,6 @@ test_that("TEL.monitor results in error for failed job", {
         submitJob = function(...) {
             message("submitJob")
         },
-        getJob = function(...) {
-            message("getJob")
-            list(jobId = "MOCK_ID", status = 'FAILED')
-        },
-        getJobs = function(...) {
-            message("getJobs")
-        }
-    )
-    
-    telMock <- list(
         importFiles = function(...) {
             message("TEL.importFiles")
         },
@@ -130,7 +122,7 @@ test_that("TEL.monitor results in error for failed job", {
     #then
     expect_error(
         TEL.monitor(
-            submission, importDirectory = "mock/path", server = serverMock, tel = telMock
+            submission, importDirectory = "mock/path", fisServer = mockServer, tel = telMock
         ), info = "Failed job should result in error."
     )
 })

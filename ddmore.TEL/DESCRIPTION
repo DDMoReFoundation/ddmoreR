@@ -43,5 +43,6 @@ Collate:
     'startingValues.r'
     'subset.R'
     'update.r'
+    'FISServer.R'
 Suggests:
     testthat

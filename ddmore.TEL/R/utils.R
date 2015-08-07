@@ -365,3 +365,11 @@ parent.folder <- function(f) {
 .deriveVariabilityParametersFromAssociatedMDL <- function(SOObject) {
   names(.getMdlInfoFromSO(SOObject, what="parameter")@VARIABILITY)
 }
+
+
+#' Utility function to check function arguments
+.precondition.checkArgument <- function(condition, argument, message) {
+    if(!condition) {
+        stop(sprintf("Illegal Argument %s. %s", argument, message))
+    }
+}

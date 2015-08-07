@@ -20,9 +20,7 @@
 #'        be deleted upon successful job completion. Default is false, since this
 #'        directory may contain useful information in the event that a job failed
 #'        to execute successfully.
-#' @param HOST (Optional) Hostname of the server running the FIS service. Default
-#'        is localhost.
-#' @param PORT (Optional) Port of the server running the FIS service. Default is 9010.
+#' @param fisServer FISServer instance.
 #' @return The results from executing the MDL file, in the form of an object of
 #'         class \linkS4class{StandardOutputObject}.
 #' 
@@ -44,11 +42,11 @@
 #' @include StandardOutputObject.R
 setGeneric("estimate", function(x, target=NULL,
 	addargs=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), wait=TRUE, clearUp=FALSE,
-	HOST='localhost', PORT='9010') {
+	fisServer=TEL.getServer()) {
   
 	execute(x=x, target=target,
 			addargs=addargs, subfolder=subfolder, wait=wait, clearUp=clearUp,
-			HOST=HOST, PORT=PORT)
+			fisServer=fisServer)
 })
 
 #' @rdname estimate-methods
@@ -56,7 +54,7 @@ setGeneric("estimate", function(x, target=NULL,
 setMethod("estimate", signature=signature(x="mogObj"), 
 	function(x, target=NULL,
 			 addargs=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), wait=TRUE, clearUp=FALSE,
-			 HOST='localhost', PORT='9010') {
+			 fisServer=TEL.getServer()) {
 
     # First write out MOG to MDL.
     # TODO: This will write out to the current directory - probably not what is desired!
@@ -66,7 +64,7 @@ setMethod("estimate", signature=signature(x="mogObj"),
     # Now call the generic method using the mdl file
 	execute(x="output.mdl", target=target,
 			addargs=addargs, subfolder=subfolder, wait=wait, clearUp=clearUp,
-			HOST=HOST, PORT=PORT)
+			fisServer=fisServer)
   })
   
 
@@ -109,9 +107,7 @@ setMethod("estimate", signature=signature(x="mogObj"),
 #'        Mutually exclusive with the \code{importSO} parameter (which would be
 #'        used for the specific case where it is known that only one SOBlock will
 #'        be present in the Standard Output results). Default is false.
-#' @param HOST (Optional) Hostname of the server running the FIS service. Default
-#'        is localhost.
-#' @param PORT (Optional) Port of the server running the FIS service. Default is 9010.
+#' @param fisServer FISServer instance.
 #' @return The results from executing the MDL file, in the form of an object of
 #'         class \linkS4class{StandardOutputObject}, or a list thereof, depending
 #'         on the parameters \code{importSO} and  \code{importMultipleSO}
@@ -133,7 +129,8 @@ setGeneric("execute", function(x, target = NULL,
                                    TRUE, clearUp = FALSE,
                                extraInputFileExts = NULL, extraInputFiles = NULL, importSO = TRUE, importMultipleSO =
                                    FALSE,
-                               HOST = 'localhost', PORT = '9010', ...) {
+                               fisServer, ...) {
+    .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FIS Server instance is required.")
     if (is.null(target)) {
         stop(
             'Parameter \"target\" not specified. Possible target tool specifiers might include \"NONMEM\", \"PsN\", \"MONOLIX\".'
@@ -150,11 +147,6 @@ setGeneric("execute", function(x, target = NULL,
     # FIXME: This is to enable mocking of functions responsible for integration with FIS REST API.
     # To be removed after 'testthat' upgrade and introducing global FIS Server instance
     inargs <- list(...)
-    if (!is.null(inargs) && !is.null(inargs$server)) {
-        SERVER = inargs$server
-    } else {
-        SERVER = .SERVER
-    }
     if (!is.null(inargs) && !is.null(inargs$tel)) {
         TEL = inargs$tel
     } else {
@@ -168,11 +160,11 @@ setGeneric("execute", function(x, target = NULL,
     }
     
     submission <-
-        SERVER$submitJob(
+        TEL$submitJob(
             executionType = target, workingDirectory = workingDirectory,
             modelfile = absoluteModelFilePath, extraInputFileExts = extraInputFileExts, extraInputFiles =
                 extraInputFiles,
-            addargs = addargs, HOST = HOST, PORT = PORT
+            addargs = addargs, fisServer = fisServer
         )
     
     result <- NULL
@@ -180,7 +172,7 @@ setGeneric("execute", function(x, target = NULL,
         if (wait) {
             result <-
                 TEL.monitor(
-                    submission, importDirectory = file.path(submission$parameters$sourceDirectory, subfolder), clearUp, importSO, importMultipleSO, HOST, PORT
+                    submission, importDirectory = file.path(submission$parameters$sourceDirectory, subfolder), clearUp, importSO, importMultipleSO, fisServer = fisServer
                 )
         } else {
             result <- submission
@@ -205,6 +197,7 @@ setGeneric("execute", function(x, target = NULL,
 #' For other params see execute function.
 #'
 #' @param importDirectory a directory where the result files should be imported into.
+#' @param fisServer FISServer instance.
 #' 
 #' For the rest of the parameters see \code{execute} function
 #'
@@ -215,7 +208,8 @@ setGeneric("execute", function(x, target = NULL,
 TEL.monitor <-
     function(submission = NULL, importDirectory = NULL, clearUp = FALSE, importSO =
                  TRUE, importMultipleSO = FALSE,
-             HOST = 'localhost', PORT = '9010', ...) {
+             fisServer = TEL.getServer(), ...) {
+        .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FIS Server instance is required.")
         if (is.null(submission)) {
             stop('Illegal Argument: submission object was null.')
         }
@@ -230,11 +224,6 @@ TEL.monitor <-
         # FIXME: This is to enable mocking of functions responsible for integration with FIS REST API.
         # To be removed after 'testthat' upgrade and introducing global FIS Server instance
         inargs <- list(...)
-        if (!is.null(inargs) && !is.null(inargs$server)) {
-            SERVER = inargs$server
-        } else {
-            SERVER = .SERVER
-        }
         if (!is.null(inargs) && !is.null(inargs$tel)) {
             TEL = inargs$tel
         } else {
@@ -245,7 +234,7 @@ TEL.monitor <-
         message(sprintf('Job %s progress:', submission$fisJob$id))
         message(submission$status)
         
-        submission <- SERVER$poll(submission, HOST = HOST, PORT = PORT)
+        submission <- TEL$poll(submission, fisServer = fisServer)
         result <- NULL
         if (submission$fisJob$status == "COMPLETED") {
             submission$status = "Importing Results"
@@ -286,7 +275,7 @@ setMethod("execute", signature=signature(x="mogObj"),
     function(x, target=NULL,
                     addargs=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), wait=TRUE, clearUp=FALSE,
                     extraInputFileExts=NULL, extraInputFiles=NULL, importSO=TRUE, importMultipleSO=FALSE,
-                    HOST='localhost', PORT='9010') {
+                    fisServer = TEL.getServer()) {
 
     # First write out MOG to MDL.
     # TODO: This will write out to the current directory - probably not what is desired!
@@ -298,7 +287,7 @@ setMethod("execute", signature=signature(x="mogObj"),
             addargs=addargs, subfolder=subfolder, wait=wait, clearUp=clearUp,
             extraInputFileExts=extraInputFileExts,extraInputFiles=extraInputFiles,
             importSO=importSO,importMultipleSO=importMultipleSO,
-            HOST=HOST, PORT=PORT)
+            fisServer = fisServer)
   })
 
 ################################################################################

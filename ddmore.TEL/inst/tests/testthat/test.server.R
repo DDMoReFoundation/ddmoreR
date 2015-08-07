@@ -4,8 +4,29 @@ library("DDMoRe.TEL")
 require("methods")
 require("testthat")
 rm(list = ls())
+setClass(
+    "MockFISServer",
+    contains = "FISServer"
+)
+createMockFISServer <-
+    function(url = "http://localhost:9010", operationalUrl = "http://localhost:9011",
+             startupScript = "MOCK",
+             jobStatusPollingDelay = 20, startupPollingMax = 60, startupPollingDelay = 1) {
+        new(
+            "MockFISServer",
+            url = url,
+            operationalUrl = operationalUrl,
+            startupScript = startupScript,
+            jobStatusPollingDelay = jobStatusPollingDelay,
+            startupPollingMax = startupPollingMax,
+            startupPollingDelay = startupPollingDelay
+        )
+    }
 
-TEL.setJobPollingDelay(1)
+
+mockServer<- createMockFISServer(jobStatusPollingDelay=1)
+TEL.setServer(mockServer)
+
 context("Server Integration")
 
 
@@ -13,17 +34,15 @@ test_that("TEL.poll should poll untill Job status is COMPLETED", {
     # Given
     pollCount <- 0
     pollMax <- 1
-    serverMock <- list(
-        getJob = function(...) {
-            if (pollCount < pollMax) {
-                pollCount <<- pollCount + 1
-                list(jobId = "MOCK_ID", status = 'RUNNING')
-            } else {
-                list(jobId = "MOCK_ID", status = 'COMPLETED')
-            }
-        }
-    )
-    
+    setMethod("getJob", signature = signature("MockFISServer"),
+              function(fisServer, jobID) {
+                  if (pollCount < pollMax) {
+                      pollCount <<- pollCount + 1
+                      list(jobId = "MOCK_ID", status = 'RUNNING')
+                  } else {
+                      list(jobId = "MOCK_ID", status = 'COMPLETED')
+                  }
+              })
     submission <- list()
     submission$start <- date()
     submission$fisJob <- list()
@@ -31,7 +50,7 @@ test_that("TEL.poll should poll untill Job status is COMPLETED", {
     submission$fisJob$status <- "NEW"
     submission$status <- "Submitted"
     # when
-    result = TEL.poll(submission, server = serverMock)
+    result = TEL.poll(submission)
     
     #then
     
@@ -44,17 +63,15 @@ test_that("TEL.poll should poll untill Job status is FAILED", {
     # Given
     pollCount <- 0
     pollMax <- 1
-    serverMock <- list(
-        getJob = function(...) {
-            if (pollCount < pollMax) {
-                pollCount <<- pollCount + 1
-                list(jobId = "MOCK_ID", status = 'RUNNING')
-            } else {
-                list(jobId = "MOCK_ID", status = 'FAILED')
-            }
-        }
-    )
-    
+    setMethod("getJob", signature = signature("MockFISServer"),
+              function(fisServer, jobID) {
+                  if (pollCount < pollMax) {
+                      pollCount <<- pollCount + 1
+                      list(jobId = "MOCK_ID", status = 'RUNNING')
+                  } else {
+                      list(jobId = "MOCK_ID", status = 'FAILED')
+                  }
+              })
     submission <- list()
     submission$start <- date()
     submission$fisJob <- list()
@@ -62,7 +79,7 @@ test_that("TEL.poll should poll untill Job status is FAILED", {
     submission$fisJob$status <- "NEW"
     submission$status <- "Submitted"
     # when
-    result = TEL.poll(submission, server = serverMock)
+    result = TEL.poll(submission)
     
     #then
     
