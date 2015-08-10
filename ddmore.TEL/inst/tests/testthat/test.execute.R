@@ -31,98 +31,176 @@ context("Monitoring job")
 
 test_that("TEL.monitor with default import flags results in non-null result for successful job", {
     telMock <- list(
-        poll = function(...) {
+        submitJobStep = function(submission, fisServer, ...) {
+            log.debug("submitJob")
+            submission$fisJob <- list(id="MOCK_ID", status ='NEW')
+            return(submission)
+        },
+        pollStep = function(submission, fisServer, ...) {
+            log.debug("pollStep")
             submission$fisJob <- list(id="MOCK_ID", status ='COMPLETED')
-            submission
+            return(submission)
         },
-        submitJob = function(...) {
-            message("submitJob")
-        },
-        importFiles = function(...) {
+        importFilesStep = function(submission, fisServer, ...) {
+            log.debug("importFilesStep")
+            if(list(...)$mockParam != "mock") {
+                message("'mockParam' is not set")
+                stop("Missing extra parameter 'mockParam'")
+            }
+            submission$status <- "importing"
             submission$resultsDir <- "mock/result/dir"
-            submission
+            return(submission)
         },
-        importSO = function(...) {
-            new("StandardOutputObject")
+        importSOStep = function(submission, fisServer, ...) {
+            log.debug("importSOStep")
+            submission$so <- "mockSO"
+            return(submission)
+        },
+        clearUpStep = function(submission, fisServer, ...) {
+            log.debug("clearUpStep")
+            return(submission)
         }
     )
     
     submission <- list()
     submission$start <- date()
-    submission$fisJob <- list()
-    submission$fisJob$id <- "MOCK_ID"
-    submission$status <- "Submitted"
+    submission$status <- "New"
+    submission$parameters <- list()
+    submission$parameters$modelFile <- "MOCK_MODEL"
+    submission$parameters$workingDirectory <- "MOCK_WORKING_DIR"
     # when
-    result = TEL.monitor(
-        submission, importDirectory = "mock/path", fisServer = mockServer, tel = telMock
-    )
-    
-    #then
-    expect_true(!is.null(result), info = "Result should not be null.")
-    expect_equal(class(result)[[1]], "StandardOutputObject", info  = "Result should be of type Standard Output Object.")
-})
-
-test_that("TEL.monitor with disabled import results in non-null result for successful job", {
-    telMock <- list(
-        poll = function(...) {
-            submission$fisJob <- list(id="MOCK_ID", status ='COMPLETED')
-            submission
-        },
-        submitJob = function(...) {
-            message("submitJob")
-        },
-        importFiles = function(...) {
-            submission$resultsDir <- "mock/result/dir"
-            submission
-        },
-        importSO = function(...) {
-            new("StandardOutputObject")
-        }
-    )
-    
-    submission <- list()
-    submission$start <- date()
-    submission$fisJob <- list()
-    submission$fisJob$id <- "MOCK_ID"
-    submission$status <- "Submitted"
-    # when
-    result = TEL.monitor(
-        submission, importDirectory = "mock/path", importSO = FALSE, fisServer = mockServer, tel = telMock
+    result = TEL.performExecutionWorkflow(
+        submission, fisServer = mockServer, workflowSteps = telMock, mockParam = "mock"
     )
     
     #then
     expect_true(!is.null(result), info = "Result should not be null.")
     expect_equal(class(result)[[1]],"list", info  = "Result should be of type list.")
+    expect_true("so" %in% names(result), info  = "so element should be set on the result list")
 })
 
-test_that("TEL.monitor results in error for failed job", {
+test_that("TEL.monitor without import results in non-null result but empty 'so' attribute", {
     telMock <- list(
-        poll = function(...) {
-            submission$fisJob <- list(id="MOCK_ID", status ='FAILED')
+        submitJobStep = function(submission, fisServer, ...) {
+            log.debug("submitJob")
+            submission$fisJob <- list(id="MOCK_ID", status ='NEW')
             submission
         },
-        submitJob = function(...) {
-            message("submitJob")
+        pollStep = function(submission, fisServer, ...) {
+            log.debug("pollStep")
+            submission$fisJob <- list(id="MOCK_ID", status ='COMPLETED')
+            submission
         },
-        importFiles = function(...) {
-            message("TEL.importFiles")
+        importFilesStep = function(submission, fisServer, ...) {
+            log.debug("importFilesStep")
+            submission$status <- "importing"
+            submission$resultsDir <- "mock/result/dir"
+            submission
         },
-        importSO = function(...) {
-            message("importSO")
-            "SO"
+        clearUpStep = function(submission, fisServer, ...) {
+            log.debug("clearUpStep")
+            submission
         }
     )
     
     submission <- list()
     submission$start <- date()
-    submission$fisJob <- list()
-    submission$fisJob$id <- "MOCK_ID"
-    submission$status <- "Submitted"
+    submission$status <- "New"
+    submission$parameters <- list()
+    submission$parameters$modelFile <- "MOCK_MODEL"
+    submission$parameters$workingDirectory <- "MOCK_WORKING_DIR"
+    # when
+    result = TEL.performExecutionWorkflow(
+        submission, fisServer = mockServer, workflowSteps = telMock
+    )
     
     #then
+    expect_true(!is.null(result), info = "Result should not be null.")
+    expect_equal(class(result)[[1]],"list", info  = "Result should be of type list.")
+    expect_false("so" %in% names(result), info  = "so element should NOT be set on the result list")
+})
+
+test_that("TEL.monitor results in error for failed job", {
+    telMock <- list(
+        submitJobStep = function(submission, fisServer, ...) {
+            log.debug("submitJob")
+            submission$fisJob <- list(id="MOCK_ID", status ='NEW')
+            submission
+        },
+        pollStep = function(submission, fisServer, ...) {
+            log.debug("pollStep")
+            submission$fisJob <- list(id="MOCK_ID", status ='FAILED')
+            submission
+        },
+        importFilesStep = function(submission, fisServer, ...) {
+            log.debug("importFilesStep")
+            submission$status <- "importing"
+            submission$resultsDir <- "mock/result/dir"
+            submission
+        },
+        importSOStep = function(submission, fisServer, ...) {
+            log.debug("importSOStep")
+            submission$so <- new("StandardOutputObject")
+            submission
+        },
+        clearUpStep = function(submission, fisServer, ...) {
+            log.debug("clearUpStep")
+            submission
+        }
+    )
+    
+    submission <- list()
+    submission$start <- date()
+    submission$status <- "New"
+    submission$parameters <- list()
+    submission$parameters$modelFile <- "MOCK_MODEL"
+    submission$parameters$workingDirectory <- "MOCK_WORKING_DIR"
+    #then
     expect_error(
-        TEL.monitor(
-            submission, importDirectory = "mock/path", fisServer = mockServer, tel = telMock
+        TEL.performExecutionWorkflow(
+            submission, fisServer = mockServer, workflowSteps = telMock
+        ), info = "Failed job should result in error."
+    )
+})
+
+test_that("TEL.monitor results in error if any step throws error.", {
+    telMock <- list(
+        submitJobStep = function(submission, fisServer, ...) {
+            log.debug("submitJob")
+            submission$fisJob <- list(id="MOCK_ID", status ='NEW')
+            submission
+        },
+        pollStep = function(submission, fisServer, ...) {
+            log.debug("pollStep")
+            submission$fisJob <- list(id="MOCK_ID", status ='COMPLETED')
+            submission
+        },
+        importFilesStep = function(submission, fisServer, ...) {
+            log.debug("importFilesStep")
+            stop("Mock error")
+        },
+        importSOStep = function(submission, fisServer, ...) {
+            log.debug("importSOStep")
+            submission$so <- new("StandardOutputObject")
+            submission
+        },
+        clearUpStep = function(submission, fisServer, ...) {
+            log.debug("clearUpStep")
+            submission
+        }
+    )
+    
+    submission <- list()
+    submission$start <- date()
+    submission$status <- "New"
+    submission$parameters <- list()
+    submission$parameters$modelFile <- "MOCK_MODEL"
+    submission$parameters$workingDirectory <- "MOCK_WORKING_DIR"
+
+    #then
+    expect_error(
+        TEL.performExecutionWorkflow(
+            submission, fisServer = mockServer, workflowSteps = telMock
         ), info = "Failed job should result in error."
     )
 })

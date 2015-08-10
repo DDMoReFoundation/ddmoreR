@@ -30,7 +30,7 @@ TEL.setServer(mockServer)
 context("Server Integration")
 
 
-test_that("TEL.poll should poll untill Job status is COMPLETED", {
+test_that("TEL.pollStep should poll untill Job status is COMPLETED", {
     # Given
     pollCount <- 0
     pollMax <- 1
@@ -50,7 +50,7 @@ test_that("TEL.poll should poll untill Job status is COMPLETED", {
     submission$fisJob$status <- "NEW"
     submission$status <- "Submitted"
     # when
-    result = TEL.poll(submission)
+    result = TEL.pollStep(submission, fisServer = mockServer)
     
     #then
     
@@ -79,7 +79,7 @@ test_that("TEL.poll should poll untill Job status is FAILED", {
     submission$fisJob$status <- "NEW"
     submission$status <- "Submitted"
     # when
-    result = TEL.poll(submission)
+    result = TEL.pollStep(submission, fisServer = mockServer)
     
     #then
     

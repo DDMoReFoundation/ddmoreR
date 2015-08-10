@@ -1,5 +1,5 @@
 ################################################################################
-#' Import result files.
+#' TEL.importFilesStep.
 #' 
 #' Retrieve the result files generated from an execution of an MDL file and copy
 #' them into a suitable results subdirectory alongside the original MDL file.
@@ -9,17 +9,15 @@
 #'        \itemize{
 #'          \item{\code{parameters}}
 #'            - Input parameters used to submit job.
+#'          \item{\code{parameters$importDirectory}}
+#'            - the path of a directory, into which to copy the results. Default
+#'              is a timestamped subdirectory of the input model source directory.
 #'          \item{\code{status}}
 #'            - The status of the execution of the model file. If not "COMPLETED"
 #'              then this import into Standard Output object will not work.
 #'          \item{\code{fisJob}} - structure returned from \link{TEL.getJob}
 #'        }
-#' @param target (Optional) Specify the path of a directory, into which to copy the results. Default
-#'        is a timestamped subdirectory of the input model source directory.
-#' @param clearUp (Optional) Logical dictating if the job working directory should
-#'        be deleted upon successful job completion. Default is false, since this
-#'        directory may contain useful information in the event that a job failed
-#'        to execute successfully.
+#' @param fisServer - FISServer instance
 #' @return The 'submission' named list, augmented with a \code{resultsDir} element
 #'         specifying the directory into which the result files from the execution
 #'         were copied, as specified by the \code{target} input argument.
@@ -29,8 +27,7 @@
 #' @export
 #' 
 #' @include StandardOutputObject.R
-
-TEL.importFiles <- function(submission, target=file.path(submission$sourceDirectory, format(Sys.time(), "%Y%b%d%H%M%S")), clearUp=FALSE) {
+TEL.importFilesStep <- function(submission, fisServer, ... ) {
     if(is.null(submission)) {
         stop("Illegal Argument: submission can't be NULL.")
     }
@@ -43,14 +40,15 @@ TEL.importFiles <- function(submission, target=file.path(submission$sourceDirect
     if(!("id" %in% names(submission$fisJob)) || is.null(submission$fisJob$id)) {
         stop("Illegal Argument: fisJob's id element must be set and can't be NULL.")
     }
-    if(is.null(target)) {
-        stop("Illegal Argument: target must be set and can't be NULL.")
+    if(!("importDirectory" %in% names(submission$parameters)) || is.null(submission$parameters$importDirectory)) {
+        stop("Illegal Argument: importDirectory must be set and can't be NULL.")
     }
+    submission$status = "Importing Results"
 	
 	jobID <- submission$fisJob$id
 	modelfile <- submission$parameters$modelFile
 	jobDirectory <- submission$parameters$workingDirectory
-	
+	target <- submission$parameters$importDirectory
 	workingFolder = file.path(jobDirectory) # should be FIS working directory not MIF working directory
 	
 	if (file.exists(workingFolder) == FALSE) {
@@ -110,17 +108,15 @@ TEL.importFiles <- function(submission, target=file.path(submission$sourceDirect
 		
         submission$resultsDir <- target
 		
-		if (clearUp==TRUE) {
-			unlink(workingFolder, recursive=TRUE)
-		}		
 		message('Done.\n')
 		
-		submission
+		return(submission)
 	}
 }
 
-
 ################################################################################
+#' TEL.importSOStep
+#' 
 #' Import results as Standard Output object(s)
 #' 
 #' Import the results retrieved from an execution of an MDL file, into an object
@@ -141,6 +137,10 @@ TEL.importFiles <- function(submission, target=file.path(submission$sourceDirect
 #'              then the \code{job$controlFile} is used instead of the \code{modelFile}
 #'              since this will include any relative file path prefix on the control
 #'              file i.e. if the model file references its data file via a relative path.
+#'          \item{\code{parameters$importMultipleSO}}
+#'            - Whether multiple SOBlocks are expected in the SO XML results file.
+#'              Default is FALSE. Note that if FALSE and multiple SOBlocks are encountered,
+#'              an error will be thrown.
 #'          \item{\code{resultsDir}}
 #'            - The directory into which the result files from the execution
 #'              were copied.
@@ -149,10 +149,7 @@ TEL.importFiles <- function(submission, target=file.path(submission$sourceDirect
 #'              then this import into Standard Output object will not work.
 #'          \item{\code{fisJob}} - structure returned from \link{TEL.getJob}
 #'        }
-#' @param multiple Whether multiple SOBlocks are expected in the SO XML results file.
-#'        Default is FALSE. Note that if FALSE and multiple SOBlocks are encountered,
-#'        an error will be thrown.
-#' @return Object of class \linkS4class{StandardOutputObject}, or if \code{multiple}
+#' @return submission named list with 'so' element being an object of class \linkS4class{StandardOutputObject}, or if \code{multiple}
 #'         is TRUE, then a list of such objects.
 #' 
 #' @author mwise
@@ -161,8 +158,7 @@ TEL.importFiles <- function(submission, target=file.path(submission$sourceDirect
 #' 
 #' @include LoadSOObject.R
 #' @include StandardOutputObject.R
-
-TEL.importSO <- function(submission, multiple=FALSE) {
+TEL.importSOStep <- function(submission, fisServer, ...) {
     if(is.null(submission)) {
       stop("Illegal Argument: submission can't be NULL.")
     }
@@ -175,7 +171,8 @@ TEL.importSO <- function(submission, multiple=FALSE) {
     if(!("resultsDir" %in% names(submission)) || is.null(submission$resultsDir)) {
       stop("Illegal Argument: submission's 'resultsDir' element must be set and can't be NULL.")
     }
-
+    multiple <- ifelse("importMultipleSO" %in% submission$parameters, submission$parameters$importMultipleSO, FALSE)
+    
 	soXMLFileName <- paste0(file_path_sans_ext(basename(submission$parameters$modelFile)), ".SO.xml")
 	if (!is.null(submission$fisJob)) { # Should always be the case, if called as part of \link{TEL.monitor})
 		# Take into account the fact that the control file, and thus the SO XML file, might be in a subdirectory
@@ -184,11 +181,12 @@ TEL.importSO <- function(submission, multiple=FALSE) {
 		soXMLFilePath <- file.path(submission$resultsDir, soXMLFileName)
 	}
 
+	so <- NULL
 	if (class(soXMLFilePath) == "character" && file.exists(soXMLFilePath)) {
 		if (multiple) {
-			LoadSOObjects(soXMLFilePath)
+		    so <- LoadSOObjects(soXMLFilePath)
 		} else {
-			LoadSOObject(soXMLFilePath)
+		    so <- LoadSOObject(soXMLFilePath)
 		}
 	}
 	else {
@@ -198,15 +196,6 @@ TEL.importSO <- function(submission, multiple=FALSE) {
 			" may be useful for tracking down the cause of the failure."
 		)
 	}
-
+	submission$so <- so
+    return(submission)
 }
-
-
-#
-# What follows enables mocking of TEL functions during tests, will be removed once testthat has been upgraded.
-#
-if(!exists(".TEL")) {
-    .TEL<-list()
-}
-.TEL$importFiles = TEL.importFiles
-.TEL$importSO = TEL.importSO

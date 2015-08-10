@@ -44,5 +44,6 @@ Collate:
     'subset.R'
     'update.r'
     'FISServer.R'
+    'jobExecution.R'
 Suggests:
     testthat

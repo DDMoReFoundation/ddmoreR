@@ -24,7 +24,7 @@ validity.FISServer <- function(object)
 #'
 #' @slot url a URL of FIS instance.
 #' @slot operationalUrl a URL of FIS instance's operational HTTP endpoints.
-#' @param startupScript path to a startup script that should be used to startup fis
+#' @slot startupScript path to a startup script that should be used to startup fis
 #' @slot jobStatusPollingDelay what should be delay between subsequent retrievals of job status. (in seconds)
 #' @slot startupPollingMax how many times package should check if FIS has started up before reporting failure.
 #' @slot startupPollingDelay what should be the delay between subsequent checks if FIS has started up. (in seconds)
@@ -80,7 +80,7 @@ createFISServer <-
     }
 
 ##############################################################
-#' createFISServer
+#' createFISServerFromProperties
 #'
 #' Function to create an object of class FIServer from properties read from an external JSON-formatted file
 #'
@@ -92,7 +92,7 @@ createFISServer <-
 #'
 #' @export
 #' @docType methods
-#' @rdname createFISServer
+#' @rdname createFISServerFromProperties
 createFISServerFromProperties <- function(propertiesFile) {
     .precondition.checkArgument(!is.null(propertiesFile),"propertiesFile", "Properties file must be set." )
     .precondition.checkArgument(file.exists(propertiesFile),"propertiesFile", paste("File", propertiesFile,"does not exist." ))
@@ -107,9 +107,9 @@ createFISServerFromProperties <- function(propertiesFile) {
 }
 
 ##############################################################
-#' is.fisServerObj
+#' is.FISServer
 #'
-#' Determines if an object is of class "fisServerObj"
+#' Determines if an object is of class "FISServer"
 #'
 #' @usage is.FISServer(object)
 #'
