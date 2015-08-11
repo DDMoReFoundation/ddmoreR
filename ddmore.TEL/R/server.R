@@ -7,32 +7,35 @@ TEL.server.env <- new.env()
 ################################################################################
 #' TEL.getServer
 #'
-#' Gets a handle on FIS Server instance
+#' Gets a handle on FIS Server instance.
 #' 
-#' If non exists, it will create an instance using default values.
+#' @seealso \code{TEL.setServer}
+#' @seealso \code{createFISServer}
 #' 
 #' @return FISServer instance
-#'
+#' @export
 TEL.getServer <- function() {
     if(!"fisServer" %in% ls(TEL.server.env)) {
         stop("FIS Server instance not configured")
     }
     return(TEL.server.env$fisServer)
 }
-
+################################################################################
+#' TEL.setServer
+#'
+#' Sets a handle to default FIS Server instance
+#' 
+#' @seealso \code{TEL.getServer}
+#' @seealso \code{createFISServer}
+#' 
+#' @return FISServer instance
+#' @export
 TEL.setServer <- function(fisServer) {
     .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FIS Server instance is required.")
     if("fisServer" %in% ls(TEL.server.env)) {
         warning(sprintf("One FIS Server instance is already configured pointing to %s. ", TEL.server.env$fisServer@url))
     }
     assign("fisServer", fisServer, envir = TEL.server.env)
-}
-
-TEL.initSEEFISServerInstance <- function(startupScript = file.path(TEL.checkConfiguration(), "startup.bat")) {
-    if(!file.exists(startupScript)) {
-        stop(paste("Services startup script", startupScript," does not exist."))
-    }
-    TEL.setServer(createFISServer(startupScript=startupScript))
 }
 
 ################################################################################
@@ -45,7 +48,7 @@ TEL.initSEEFISServerInstance <- function(startupScript = file.path(TEL.checkConf
 #' the MDL IDE within SEE; if the R console is not running within SEE in that
 #' setup then this function is a no-op.
 #' 
-#'
+#' @export
 TEL.startServer <- 
     function(fisServer) {
     .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FIS Server instance is required.")
@@ -200,4 +203,36 @@ TEL.checkConfiguration <-
 		stop("The DDMoRe.TEL package is not loaded. The FIS and MIF servers must be started manually.")
 	}
     
+  }
+
+################################################################################
+#' TEL.getJobs
+#' 
+#' Get list of jobs being executed by FIS.
+#' 
+#' @param fisServer FISServer instance.
+#' 
+#' @return list of FISJob object
+#' @export
+#'
+TEL.getJobs <- function(fisServer = TEL.getServer()) {
+    .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "Server instance required.")
+    getJobs(fisServer)
+}
+
+################################################################################
+#' TEL.getJob
+#' 
+#' Get state of the job with a given Id.
+#' 
+#' @param jobId job's id.
+#' @param fisServer FISServer instance.
+#' 
+#' @return FISJob object
+#' @export
+#'
+TEL.getJob <- function(jobId = NULL, fisServer = TEL.getServer()) {
+    .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "Server instance required.")
+    .precondition.checkArgument(!is.null(jobId), "jobId", "Job id must be specified required.")
+    getJob(fisServer, jobId)
 }

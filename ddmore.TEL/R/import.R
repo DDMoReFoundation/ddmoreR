@@ -37,7 +37,7 @@ TEL.importFilesStep <- function(submission, fisServer, ... ) {
     if(!("fisJob" %in% names(submission)) || is.null(submission$fisJob)) {
         stop("Illegal Argument: submission's 'fisJob' element must be set and can't be NULL.")
     }
-    if(!("id" %in% names(submission$fisJob)) || is.null(submission$fisJob$id)) {
+    if(is.null(submission$fisJob@id)) {
         stop("Illegal Argument: fisJob's id element must be set and can't be NULL.")
     }
     if(!("importDirectory" %in% names(submission$parameters)) || is.null(submission$parameters$importDirectory)) {
@@ -45,7 +45,7 @@ TEL.importFilesStep <- function(submission, fisServer, ... ) {
     }
     submission$status = "Importing Results"
 	
-	jobID <- submission$fisJob$id
+	jobID <- submission$fisJob@id
 	modelfile <- submission$parameters$modelFile
 	jobDirectory <- submission$parameters$workingDirectory
 	target <- submission$parameters$importDirectory
@@ -176,7 +176,7 @@ TEL.importSOStep <- function(submission, fisServer, ...) {
 	soXMLFileName <- paste0(file_path_sans_ext(basename(submission$parameters$modelFile)), ".SO.xml")
 	if (!is.null(submission$fisJob)) { # Should always be the case, if called as part of \link{TEL.monitor})
 		# Take into account the fact that the control file, and thus the SO XML file, might be in a subdirectory
-		soXMLFilePath <- file.path(submission$resultsDir, dirname(submission$fisJob$executionFile), soXMLFileName)
+		soXMLFilePath <- file.path(submission$resultsDir, dirname(submission$fisJob@executionFile), soXMLFileName)
 	} else {
 		soXMLFilePath <- file.path(submission$resultsDir, soXMLFileName)
 	}

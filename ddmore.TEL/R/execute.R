@@ -147,17 +147,12 @@ setGeneric("execute", function(x, target = NULL,
         stop(paste('Illegal Argument: file ', x, ' does not exist.'))
     }
     
-    # Create a working folder in which FIS will create the Archive for conversion and execution
-    workingDirectory <- tempfile("TEL.job",tempdir())
-    if (!file.exists(workingDirectory)) {
-        dir.create(workingDirectory)
-    }
     inargs <- list(...)
     submission <- TEL.prepareSubmissionStep(
-            executionType = target, workingDirectory = workingDirectory,
+            executionType = target, workingDirectory = tempfile("TEL.job",tempdir()),
             modelfile = absoluteModelFilePath, extraInputFileExts = extraInputFileExts, 
             extraInputFiles = extraInputFiles, outputSubFolderName = subfolder,
-            addargs = addargs, fisServer = fisServer, 
+            commandParameters = addargs, fisServer = fisServer, 
             extraParams = inargs
         )
     submission <- TEL.performExecutionWorkflow(submission, fisServer = fisServer, workflowSteps = .buildWorkflow(params = inargs))
@@ -219,7 +214,7 @@ TEL.performExecutionWorkflow <-
                         message(submission$status)
                         previousStatus <- submission$status
                     }
-                    if (submission$fisJob$status %in% c("FAILED", "CANCELLED")) {
+                    if (submission$fisJob@status %in% c("FAILED", "CANCELLED")) {
                         submission$status <- SUBMISSION_FAILED
                     }
                     if(submission$status==SUBMISSION_FAILED) {
@@ -230,6 +225,7 @@ TEL.performExecutionWorkflow <-
             }, error = function(err) {
                 submission$status <- SUBMISSION_FAILED
                 submission$error <- err
+                log.debug(err)
                 submission
             }
         )

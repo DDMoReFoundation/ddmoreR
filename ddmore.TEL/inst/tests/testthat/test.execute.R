@@ -29,16 +29,16 @@ mockServer<- createMockFISServer(jobStatusPollingDelay=1)
 TEL.setServer(mockServer)
 context("Monitoring job")
 
-test_that("TEL.monitor with default import flags results in non-null result for successful job", {
+test_that("TEL.performExecutionWorkflow with default import flags results in non-null result for successful job", {
     telMock <- list(
         submitJobStep = function(submission, fisServer, ...) {
             log.debug("submitJob")
-            submission$fisJob <- list(id="MOCK_ID", status ='NEW')
+            submission$fisJob <- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id="MOCK_ID", status ='NEW'))
             return(submission)
         },
         pollStep = function(submission, fisServer, ...) {
             log.debug("pollStep")
-            submission$fisJob <- list(id="MOCK_ID", status ='COMPLETED')
+            submission$fisJob <- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id="MOCK_ID", status ='COMPLETED'))
             return(submission)
         },
         importFilesStep = function(submission, fisServer, ...) {
@@ -79,16 +79,16 @@ test_that("TEL.monitor with default import flags results in non-null result for 
     expect_true("so" %in% names(result), info  = "so element should be set on the result list")
 })
 
-test_that("TEL.monitor without import results in non-null result but empty 'so' attribute", {
+test_that("TEL.performExecutionWorkflow without import results in non-null result but empty 'so' attribute", {
     telMock <- list(
         submitJobStep = function(submission, fisServer, ...) {
             log.debug("submitJob")
-            submission$fisJob <- list(id="MOCK_ID", status ='NEW')
+            submission$fisJob <- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id="MOCK_ID", status ='NEW'))
             submission
         },
         pollStep = function(submission, fisServer, ...) {
             log.debug("pollStep")
-            submission$fisJob <- list(id="MOCK_ID", status ='COMPLETED')
+            submission$fisJob <- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id="MOCK_ID", status ='COMPLETED'))
             submission
         },
         importFilesStep = function(submission, fisServer, ...) {
@@ -120,16 +120,16 @@ test_that("TEL.monitor without import results in non-null result but empty 'so' 
     expect_false("so" %in% names(result), info  = "so element should NOT be set on the result list")
 })
 
-test_that("TEL.monitor results in error for failed job", {
+test_that("TEL.performExecutionWorkflow results in error for failed job", {
     telMock <- list(
         submitJobStep = function(submission, fisServer, ...) {
             log.debug("submitJob")
-            submission$fisJob <- list(id="MOCK_ID", status ='NEW')
+            submission$fisJob <- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id="MOCK_ID", status ='NEW'))
             submission
         },
         pollStep = function(submission, fisServer, ...) {
             log.debug("pollStep")
-            submission$fisJob <- list(id="MOCK_ID", status ='FAILED')
+            submission$fisJob <- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id="MOCK_ID", status ='FAILED'))
             submission
         },
         importFilesStep = function(submission, fisServer, ...) {
@@ -163,16 +163,16 @@ test_that("TEL.monitor results in error for failed job", {
     )
 })
 
-test_that("TEL.monitor results in error if any step throws error.", {
+test_that("TEL.performExecutionWorkflow results in error if any step throws error.", {
     telMock <- list(
         submitJobStep = function(submission, fisServer, ...) {
             log.debug("submitJob")
-            submission$fisJob <- list(id="MOCK_ID", status ='NEW')
+            submission$fisJob <- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id="MOCK_ID", status ='NEW'))
             submission
         },
         pollStep = function(submission, fisServer, ...) {
             log.debug("pollStep")
-            submission$fisJob <- list(id="MOCK_ID", status ='COMPLETED')
+            submission$fisJob <- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id="MOCK_ID", status ='COMPLETED'))
             submission
         },
         importFilesStep = function(submission, fisServer, ...) {

@@ -16,7 +16,7 @@ TEL.submitJobStep <- function( submission, fisServer=TEL.getServer(), ...) {
     # Submit
     submission$fisJob <- submitJob(fisServer, .buildSubmissionJob(submission$parameters))
 
-    if (!is.null(submission$fisJob)&&!is.null(submission$fisJob$id)) {
+    if (!is.null(submission$fisJob)&&!is.null(submission$fisJob@id)) {
         submission$status <- 'Submitted'
     } else {
         submission$status <- 'Failed'
@@ -35,7 +35,7 @@ TEL.submitJobStep <- function( submission, fisServer=TEL.getServer(), ...) {
 #' @param workingDirectory Directory, normally within the system temporary directory,
 #'        into which the model file and any data files are expected to have been
 #'        copied, and within which the target software will execute the job.
-#' @param modelfile Path-less filename, or absolute path, to the model file to be
+#' @param modelfile absolute path to the model file to be
 #'        executed. Note that relative paths are currently not supported.
 #' @param extraInputFileExts (Optional) A vector of file extensions (excluding the
 #'        dot) that will be used in identifying additional files, from the same
@@ -47,6 +47,7 @@ TEL.submitJobStep <- function( submission, fisServer=TEL.getServer(), ...) {
 #'        (to the model file), to any additional files to be included in the execution.
 #'        Used as an alternative, and/or in conjunction with, extraInputFileExts.
 #'        Default is null/empty.
+#' @param commandParameters (Optional) additional command-line parameters for third-party tool
 #' @param ... (Optional) Additional parameters that should be attached to submission.
 #' 
 #' @return \code{submission} named list containing information relating to the
@@ -75,25 +76,29 @@ TEL.submitJobStep <- function( submission, fisServer=TEL.getServer(), ...) {
 #'             - An absolute path to the model file.
 #'             
 TEL.prepareSubmissionStep <- function( executionType=NULL, workingDirectory = NULL, modelfile = NULL, extraInputFileExts=NULL, 
-                                       extraInputFiles=NULL, addargs=NULL, outputSubFolderName = NULL, fisServer=TEL.getServer(), extraParams = list() ) {
+                                       extraInputFiles=list(), commandParameters=NULL, outputSubFolderName = NULL, fisServer=TEL.getServer(), extraParams = list() ) {
     .precondition.checkArgument(!is.null(executionType),'executionType', " Must be set and can't be NULL.")
     .precondition.checkArgument(!is.null(modelfile), 'modelfile', "Must be set and can't be NULL.")
     .precondition.checkArgument(!is.null(workingDirectory), 'workingDirectory',"Must be set and can't be NULL.")
+    .precondition.checkArgument(!is.null(outputSubFolderName), 'outputSubFolderName',"Must be set and can't be NULL.")
     if (!TEL.serverRunning(fisServer)) {
         stop("Server(s) is/are not running, unable to submit job. Server health details have been made available in the TEL.serverHealthDetails object.")
     }
     
-    absoluteModelFilePath <- normalizePath(modelfile)
+    if (!file.exists(modelfile)) {
+        stop(paste('Illegal Argument: file ', modelfile, ' does not exist.'))
+    }
     
-    if (!file.exists(absoluteModelFilePath)) {
-        stop(paste('Illegal Argument: file ', absoluteModelFilePath, ' does not exist.'))
+    # Create a working folder in which FIS will create the Archive for conversion and execution
+    if (!file.exists(workingDirectory)) {
+        dir.create(workingDirectory)
     }
     
     submission <- list()
     submission$start <- date()
     
     # Parent folder of the model file is the source directory
-    sourceDirectory <- parent.folder(absoluteModelFilePath)
+    sourceDirectory <- parent.folder(modelfile)
     
     # Resolve the extraInputFileExts against files in the model file's directory
     # and add these files to the existing vector of extraInputFiles
@@ -108,12 +113,12 @@ TEL.prepareSubmissionStep <- function( executionType=NULL, workingDirectory = NU
     submission$status <- 'New'
     
     parameters <- extraParams
-    parameters$modelFile <- absoluteModelFilePath
+    parameters$modelFile <- modelfile
     parameters$sourceDirectory <- sourceDirectory
     parameters$executionType <- executionType
     parameters$workingDirectory <- workingDirectory
     parameters$extraInputFiles <- as.list(extraInputFiles)
-    parameters$commandParameters <- addargs
+    parameters$commandParameters <- commandParameters
     parameters$importDirectory <- file.path(parameters$sourceDirectory, outputSubFolderName)
     
     submission$parameters <- parameters
@@ -134,15 +139,14 @@ TEL.prepareSubmissionStep <- function( executionType=NULL, workingDirectory = NU
 #'          \item{\code{commandParameters}} - Command parameters for Third Party Tool.
 #'        }
 #'
-#' @return \code{job} named list representing FIS' job.
+#' @return \code{job} FISJob instance.
 #'
 .buildSubmissionJob <- function(parameters) {
-    submittedJob <- list()
-    submittedJob$executionType <- parameters$executionType
-    submittedJob$executionFile <- parameters$modelFile
-    submittedJob$workingDirectory <- parameters$workingDirectory
-    submittedJob$extraInputFiles <- parameters$extraInputFiles
-    submittedJob$commandParameters <- parameters$commandParameters
+    submittedJob <- createFISJob(executionType = parameters$executionType, 
+                                 executionFile = parameters$modelFile, 
+                                 workingDirectory = parameters$workingDirectory, 
+                                extraInputFiles = parameters$extraInputFiles, 
+                                commandParameters = parameters$commandParameters)
     return(submittedJob)
 }
 
@@ -173,13 +177,13 @@ TEL.pollStep <- function(submission, fisServer=TEL.getServer(), ...) {
         stop("Illegal Argument: submission's fisJob element must be set and can't be NULL. Was the job submitted?")
     }
     
-    message(sprintf('Job %s progress:', submission$fisJob$id))
+    message(sprintf('Job %s progress:', submission$fisJob@id))
     message("Running [ ", appendLF=FALSE )
-    while (submission$fisJob$status != 'COMPLETED' && submission$fisJob$status != 'FAILED' ) {
+    while (submission$fisJob@status != 'COMPLETED' && submission$fisJob@status != 'FAILED' ) {
         message(".", appendLF=FALSE)
-        job = getJob(fisServer, jobID = submission$fisJob$id);
+        job = getJob(fisServer, jobID = submission$fisJob@id);
         if(is.null(job)) {
-            stop(sprintf("Illegal State: job with id %s doesn't exist.",submission$fisJob$id))
+            stop(sprintf("Illegal State: job with id %s doesn't exist.",submission$fisJob@id))
         }
         submission$fisJob <- job
         Sys.sleep(fisServer@jobStatusPollingDelay)

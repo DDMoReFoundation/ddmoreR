@@ -59,7 +59,7 @@ setClass(
 #' @param taskObj An object of class taskObj
 #' @param mogName (Optional) The name to assign to the new mogObj
 #'
-#' @return An S4 Object of class "fisServer".
+#' @return An S4 Object of class "FISServer".
 #'
 #' @export
 #' @docType methods
@@ -88,7 +88,7 @@ createFISServer <-
 #'
 #' @param propertiesFile Path to a properties file in json format
 #'
-#' @return An S4 Object of class "fisServer".
+#' @return An S4 Object of class "FISServer".
 #'
 #' @export
 #' @docType methods
@@ -163,8 +163,10 @@ setGeneric(
 setMethod("getJobs", signature = signature("FISServer"),
           function(fisServer) {
               jobsURL <- sprintf('%s/jobs', fisServer@url)
-              jobs <- fromJSON(httpGET(jobsURL))
-              return(jobs)
+              response <- httpGET(jobsURL)
+              log.debug(sprintf("Received from FIS Server: %s", response))
+              jobs <- fromJSON(response)
+              return(lapply(jobs, function(x) { createFISJobFromNamedList(x) }))
           })
 
 
@@ -190,8 +192,9 @@ setMethod("getJob", signature = signature("FISServer"),
                   stop("Illegal Argument: jobID can't be null")
               }
               jobsURL = sprintf('%s/jobs/%s', fisServer@url, jobID)
-              
-              return(fromJSON(httpGET(jobsURL)))
+              response <- httpGET(jobsURL)
+              log.debug(sprintf("Received from FIS Server: %s", response))
+              return(createFISJobFromNamedList(fromJSON(response)))
           })
 
 
@@ -216,19 +219,21 @@ setMethod("submitJob", signature = signature("FISServer"),
               if (is.null(job)) {
                   stop("Illegal Argument: job list can't be null")
               }
-              json <- toJSON(job)
+              json <- .fisJobToJSON(job)
               h <- basicTextGatherer()
               submitURL <- sprintf('%s/jobs', fisServer@url)
               httpheader <-
                   c(Accept = "application/json; charset=UTF-8",
                     "Content-Type" = "application/json")
+              log.debug(sprintf("Sending to FIS Server: %s", json))
               curlRet <-
                   RCurl:::curlPerform(
                       url = submitURL, postfields = json, httpheader = httpheader, writefunction =
                           h$update
                   )
               response <- fromJSON(h$value())
-              return(response)
+              log.debug(sprintf("Received from FIS Server: %s", response))
+              return(createFISJobFromNamedList(response))
           })
 
 ################################################################################

@@ -38,16 +38,14 @@ test_that("TEL.pollStep should poll untill Job status is COMPLETED", {
               function(fisServer, jobID) {
                   if (pollCount < pollMax) {
                       pollCount <<- pollCount + 1
-                      list(jobId = "MOCK_ID", status = 'RUNNING')
+                      createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id = "MOCK_ID", status = 'RUNNING'))
                   } else {
-                      list(jobId = "MOCK_ID", status = 'COMPLETED')
+                      createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id = "MOCK_ID", status = 'COMPLETED'))
                   }
               })
     submission <- list()
     submission$start <- date()
-    submission$fisJob <- list()
-    submission$fisJob$id <- "MOCK_ID"
-    submission$fisJob$status <- "NEW"
+    submission$fisJob <- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id =  "MOCK_ID", status = "NEW"))
     submission$status <- "Submitted"
     # when
     result = TEL.pollStep(submission, fisServer = mockServer)
@@ -56,7 +54,7 @@ test_that("TEL.pollStep should poll untill Job status is COMPLETED", {
     
     expect_true(!is.null(result), info = "Result should not be null.")
     expect_equal(class(result)[[1]],"list", info  = "Result should be of type list.")
-    expect_equal(result$fisJob$status,"COMPLETED", info  = "FIS Job status property should be 'COMPLETED'.")
+    expect_equal(result$fisJob@status,"COMPLETED", info  = "FIS Job status property should be 'COMPLETED'.")
 })
 
 test_that("TEL.poll should poll untill Job status is FAILED", {
@@ -67,16 +65,14 @@ test_that("TEL.poll should poll untill Job status is FAILED", {
               function(fisServer, jobID) {
                   if (pollCount < pollMax) {
                       pollCount <<- pollCount + 1
-                      list(jobId = "MOCK_ID", status = 'RUNNING')
+                      createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id = "MOCK_ID", status = 'RUNNING'))
                   } else {
-                      list(jobId = "MOCK_ID", status = 'FAILED')
+                      createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id = "MOCK_ID", status = 'FAILED'))
                   }
               })
     submission <- list()
     submission$start <- date()
-    submission$fisJob <- list()
-    submission$fisJob$id <- "MOCK_ID"
-    submission$fisJob$status <- "NEW"
+    submission$fisJob <- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id =  "MOCK_ID", status = "NEW"))
     submission$status <- "Submitted"
     # when
     result = TEL.pollStep(submission, fisServer = mockServer)
@@ -85,5 +81,5 @@ test_that("TEL.poll should poll untill Job status is FAILED", {
     
     expect_true(!is.null(result), info = "Result should not be null.")
     expect_equal(class(result)[[1]],"list", info = "Result should be of type list.")
-    expect_equal(result$fisJob$status,"FAILED", info = "FIS Job status property should be 'FAILED'.")
+    expect_equal(result$fisJob@status,"FAILED", info = "FIS Job status property should be 'FAILED'.")
 })
