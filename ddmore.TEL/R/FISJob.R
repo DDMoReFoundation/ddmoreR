@@ -144,7 +144,6 @@ is.FISJob <- function(obj) {
 #' @return json character vector
 .fisJobToJSON <- function(fisJob) {
             .precondition.checkArgument(is.FISJob(fisJob),"fisJob", "Must be of type FISJob." )
-              tmp <- lapply(slotNames(fisJob), function(slotName) { slot(fisJob, slotName) } )
-              names(tmp) <- slotNames(fisJob)
+              tmp <- .convertObjectToNamedList(fisJob)
               return(toJSON(.removeNullEntries(tmp)))
           }

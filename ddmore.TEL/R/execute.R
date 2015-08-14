@@ -1,12 +1,4 @@
 ################################################################################
-#' Static Variables
-################################################################################
-#'Failed Submission status string
-SUBMISSION_FAILED <- "Failed"
-#'Failed Submission status string
-SUBMISSION_COMPLETED <- "Completed"
-
-################################################################################
 #' Estimate
 #'
 #' Submits a MDL file or MOG object (class \linkS4class{mogObj}) to the target
@@ -185,12 +177,17 @@ setGeneric("execute", function(x, target = NULL,
 #' 
 #' Function performing a workflow involved in execution of a Job in FIS. 
 #' 
+#' If execution fails, the submission object together with the error (if any) that provoked the failure is available
+#' as '.telFailedSubmission' global variable.
+#' 
 #' @param submission a list representing a job that holds all parameters required for successful submission of a job.
 #' @param fisServer FISServer instance.
 #' @param workflowSteps a list of workflow steps to be executed during execution.
 #' 
 #'
 #' @seealso \code{TEL.prepareSubmissionStep}
+#' 
+#' @include jobExecution.R
 #' 
 #' @export
 #' 
@@ -205,19 +202,11 @@ TEL.performExecutionWorkflow <-
         submission <- tryCatch(
             {
                 message(submission$status)
-                previousStatus <- submission$status
                 for(stepFunction in workflowSteps) {
                     submission <- do.call(what = stepFunction, 
                                                args = list("submission" = submission, "fisServer" = fisServer, "..." = ...)
                                                )
-                    if(previousStatus != submission$status) {
-                        message(submission$status)
-                        previousStatus <- submission$status
-                    }
-                    if (submission$fisJob@status %in% c("FAILED", "CANCELLED")) {
-                        submission$status <- SUBMISSION_FAILED
-                    }
-                    if(submission$status==SUBMISSION_FAILED) {
+                    if(submission$status == SUBMISSION_FAILED) {
                         break
                     }
                 }
@@ -236,7 +225,7 @@ TEL.performExecutionWorkflow <-
         message(submission$status)
         message(sprintf('-- %s', submission$end))
         if (submission$status == SUBMISSION_FAILED) {
-            failedSubmission <<- submission
+            .telFailedSubmission <<- submission
             stop(
                 "Execution of model ", submission$parameters$modelFile, " failed.\n  The contents of the working directory ",
                 submission$parameters$workingDirectory, " may be useful for tracking down the cause of the failure."

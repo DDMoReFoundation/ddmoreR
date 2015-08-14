@@ -216,9 +216,7 @@ setGeneric(
 )
 setMethod("submitJob", signature = signature("FISServer"),
           function(fisServer, job) {
-              if (is.null(job)) {
-                  stop("Illegal Argument: job list can't be null")
-              }
+              .precondition.checkArgument(is.FISJob(job), "job", "FISJob instance required.")
               json <- .fisJobToJSON(job)
               h <- basicTextGatherer()
               submitURL <- sprintf('%s/jobs', fisServer@url)

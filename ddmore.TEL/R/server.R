@@ -204,11 +204,27 @@ TEL.checkConfiguration <-
 	}
     
   }
+################################################################################
+#' TEL.submitJob
+#' 
+#' Submits a given job to FIS. Wrapper for \code{submitJob(FISServer)} method.
+#' 
+#' @param fisJob FISJob instance.
+#' @param fisServer FISServer instance.
+#' 
+#' @return submitted FISJob
+#' @export
+#'
+TEL.submitJob <- function(fisJob, fisServer = TEL.getServer()) {
+    .precondition.checkArgument(is.FISJob(fisJob), "fisJob", "FISJob instance required.")
+    .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FISServer instance required.")
+    submitJob(fisServer, fisJob)
+}
 
 ################################################################################
 #' TEL.getJobs
 #' 
-#' Get list of jobs being executed by FIS.
+#' Get list of jobs being executed by FIS. Wrapper for \code{getJobs(FISServer)} method.
 #' 
 #' @param fisServer FISServer instance.
 #' 
@@ -223,7 +239,7 @@ TEL.getJobs <- function(fisServer = TEL.getServer()) {
 ################################################################################
 #' TEL.getJob
 #' 
-#' Get state of the job with a given Id.
+#' Get state of the job with a given Id. Wrapper for \code{getJob(FISServer, jobId)} method.
 #' 
 #' @param jobId job's id.
 #' @param fisServer FISServer instance.
@@ -233,6 +249,45 @@ TEL.getJobs <- function(fisServer = TEL.getServer()) {
 #'
 TEL.getJob <- function(jobId = NULL, fisServer = TEL.getServer()) {
     .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "Server instance required.")
-    .precondition.checkArgument(!is.null(jobId), "jobId", "Job id must be specified required.")
+    .precondition.checkArgument(!is.null(jobId), "jobId", "Job id must be specified.")
     getJob(fisServer, jobId)
+}
+
+################################################################################
+#' TEL.printJobs
+#' 
+#' Print jobs with a given statuses. 
+#' 
+#' @param fisServer FISServer instance.
+#' @param status FISJob statuses that should be included in the printout.
+#' 
+#' @return data.frame with jobs data
+#' @export
+#'
+TEL.printJobs <- function(fisServer = TEL.getServer(), statuses = c('NEW', 'RUNNING', 'CANCELLING', 'FAILED', 'COMPLETED', 'CANCELLED')) {
+    .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "Server instance required.")
+    .precondition.checkArgument(!is.null(statuses), "statuses", "Can't be null.")
+    jobs <- getJobs(fisServer)
+    tresult <- lapply(jobs, function(x) { .convertObjectToNamedList(x) })
+    #We need to post-process the named lists so list elements are correctly displayed
+    tresult <- lapply(tresult, 
+                      function(x) { 
+                            lapply(x, function(y) { 
+                                if(length(y)==0) {
+                                    if(is.numeric(y)) {
+                                        return(0)
+                                    } else {
+                                        return("")
+                                    }
+                                } else {
+                                    if(is.list(y)){
+                                        return(paste(y, collapse=","))
+                                    }
+                                    return(y)
+                                }
+                            })
+                        }
+                        )
+    df <- do.call(rbind.data.frame, tresult)
+    return(df[df$status %in% statuses,])
 }

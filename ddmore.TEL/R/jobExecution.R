@@ -1,40 +1,23 @@
 ################################################################################
-#' TEL.submitJobStep
-#'
-#' Submits a job to the TEL server.
-#' 
-#' @param submission named list representing a submission.
-#' @param fisServer FISServer instance.
-#' 
-#' @return \code{submission} input submission with additional 'fisJob' element representing a job running on FIS.
-#' 
-#' @export
-#' 
-TEL.submitJobStep <- function( submission, fisServer=TEL.getServer(), ...) {
-    .precondition.checkArgument(!is.null(submission),'submission', " Must be set and can't be NULL.")
-    
-    # Submit
-    submission$fisJob <- submitJob(fisServer, .buildSubmissionJob(submission$parameters))
-
-    if (!is.null(submission$fisJob)&&!is.null(submission$fisJob@id)) {
-        submission$status <- 'Submitted'
-    } else {
-        submission$status <- 'Failed'
-        stop(paste("Failed to submit job.\n  Server returned:", response$status, response$error, "\n ", response$exception, ":", response$message))
-    }
-
-    submission
-}
+#' Static Variables
+################################################################################
+#'Failed Submission status string
+SUBMISSION_FAILED <- "Failed"
+#'Failed Submission status string
+SUBMISSION_COMPLETED <- "Completed"
 
 ################################################################################
 #' TEL.prepareSubmissionStep
 #'
+#' INTERNAL, this function is to be used by \code{TEL.performExecutionWorkflow}.
+#' 
 #' Submits a job to the TEL server.
 #' @param executionType Identifies the target software to use to execute this job.
 #'        E.g. NONMEM, MONOLIX.
 #' @param workingDirectory Directory, normally within the system temporary directory,
 #'        into which the model file and any data files are expected to have been
 #'        copied, and within which the target software will execute the job.
+#'        TODO this parameter is scheduled for removal 
 #' @param modelfile absolute path to the model file to be
 #'        executed. Note that relative paths are currently not supported.
 #' @param extraInputFileExts (Optional) A vector of file extensions (excluding the
@@ -127,8 +110,10 @@ TEL.prepareSubmissionStep <- function( executionType=NULL, workingDirectory = NU
 
 ################################################################################
 #' .buildSubmissionJob
+#' 
+#' INTERNAL, this function is to be used by \code{TEL.performExecutionWorkflow}.
 #'
-#' Builds a list representing a job to be submitted from parameters list
+#' Helper function that creates a \code{FISJob} from list of submission parameters
 #'
 #' @param parameters named list with the following elements:
 #'        \itemize{
@@ -139,7 +124,7 @@ TEL.prepareSubmissionStep <- function( executionType=NULL, workingDirectory = NU
 #'          \item{\code{commandParameters}} - Command parameters for Third Party Tool.
 #'        }
 #'
-#' @return \code{job} FISJob instance.
+#' @return \code{FISJob} instance.
 #'
 .buildSubmissionJob <- function(parameters) {
     submittedJob <- createFISJob(executionType = parameters$executionType, 
@@ -151,7 +136,37 @@ TEL.prepareSubmissionStep <- function( executionType=NULL, workingDirectory = NU
 }
 
 ################################################################################
+#' TEL.submitJobStep
+#'
+#' INTERNAL, this function is to be used by \code{TEL.performExecutionWorkflow}.
+#' 
+#' Submits a job to the TEL server.
+#' 
+#' @param submission named list representing a submission.
+#' @param fisServer FISServer instance.
+#' 
+#' @return \code{submission} input submission with additional 'fisJob' element representing a job running on FIS.
+#' 
+TEL.submitJobStep <- function( submission, fisServer=TEL.getServer(), ...) {
+    .precondition.checkArgument(!is.null(submission),'submission', " Must be set and can't be NULL.")
+    
+    # Submit
+    submission$fisJob <- submitJob(fisServer, .buildSubmissionJob(submission$parameters))
+    
+    if (!is.null(submission$fisJob)&&!is.null(submission$fisJob@id)) {
+        submission$status <- 'Submitted'
+        message(submission$status)
+    } else {
+        submission$status <- 'Failed'
+        stop(paste("Failed to submit job.\n  Server returned:", response$status, response$error, "\n ", response$exception, ":", response$message))
+    }
+    submission
+}
+
+################################################################################
 #' TEL.pollStep
+#' 
+#' INTERNAL, this function is to be used by \code{TEL.performExecutionWorkflow}.
 #'
 #' Continously polls the TEL server (at roughly 20 second intervals) for a
 #' specified execution request jobID, until the TEL server either reports the
@@ -163,11 +178,10 @@ TEL.prepareSubmissionStep <- function( executionType=NULL, workingDirectory = NU
 #'        \itemize{
 #'          \item{\code{fisJob}} - A job returned by FIS during submission.
 #'        }
-#' @param fisServer FISServer instance.
+#' @param fisServer \code{FISServer} instance.
 #' 
 #' @return Updated \code{submission} named list augmented with the \code{status}
 #'         of the job and final FIS job state
-#' @export
 #'
 TEL.pollStep <- function(submission, fisServer=TEL.getServer(), ...) {
     if(is.null(submission)) {
@@ -179,7 +193,7 @@ TEL.pollStep <- function(submission, fisServer=TEL.getServer(), ...) {
     
     message(sprintf('Job %s progress:', submission$fisJob@id))
     message("Running [ ", appendLF=FALSE )
-    while (submission$fisJob@status != 'COMPLETED' && submission$fisJob@status != 'FAILED' ) {
+    while (!submission$fisJob@status %in% c('COMPLETED', 'FAILED', 'CANCELLED')) {
         message(".", appendLF=FALSE)
         job = getJob(fisServer, jobID = submission$fisJob@id);
         if(is.null(job)) {
@@ -189,12 +203,17 @@ TEL.pollStep <- function(submission, fisServer=TEL.getServer(), ...) {
         Sys.sleep(fisServer@jobStatusPollingDelay)
     }
     message(" ]")
+    if (submission$fisJob@status %in% c("FAILED", "CANCELLED")) {
+        submission$status <- SUBMISSION_FAILED
+    }
     submission
 }
 
 ################################################################################
 #' TEL.clearUpStep
 #'
+#' INTERNAL, this function is to be used by \code{TEL.performExecutionWorkflow}.
+#' 
 #' Clears up Job working directories. 
 #' 
 #' @param submission Named list containing information relating to the
@@ -203,12 +222,10 @@ TEL.pollStep <- function(submission, fisServer=TEL.getServer(), ...) {
 #'        \itemize{
 #'          \item{\code{fisJob}} - A job returned by FIS during submission.
 #'        }
-#' @param fisServer FISServer instance.
+#' @param fisServer \code{FISServer} instance.
 #' 
 #' @return Updated \code{submission} named list.
 #' 
-#' @export
-#'
 TEL.clearUpStep <- function(submission, fisServer=TEL.getServer(), ...) {
     workingFolder <- file.path(submission$parameters$workingDirectory)
     if (clearUp==TRUE) {
@@ -217,23 +234,141 @@ TEL.clearUpStep <- function(submission, fisServer=TEL.getServer(), ...) {
     submission
 }
 
-#' TEL.getNotImportedJobIDs
-#'
-#' @param fisServer FISServer instance.
+################################################################################
+#' TEL.importFilesStep.
 #' 
-#' Gets the IDs of the jobs that have completed but haven't been imported (assuming clearUp=TRUE)
-#
-TEL.getNotImportedJobIDs <- function(fisServer=TEL.getServer()) {
-	
-	jobs <- getJobs(fisServer)
-	
-	notImported <- list()
-	
-	for (job in jobs) {
-		if (job$status == "COMPLETED" && file.exists(job$workingDirectory)) {
-			notImported <- c( notImported, job$id )
-		}
-	}
-	
-	notImported
+#' INTERNAL, this function is to be used by \code{TEL.performExecutionWorkflow}.
+#' This is a wrapper function for \code{importJobResultFiles}.
+#' 
+#' Import result files for Model submission.
+#' 
+#' 
+#' @param submission Named list containing information relating to the
+#'        submission of a job:
+#'        \itemize{
+#'          \item{\code{parameters}}
+#'            - Input parameters used to submit job.
+#'          \item{\code{parameters$importDirectory}}
+#'            - the path of a directory, into which to copy the results. Default
+#'              is a timestamped subdirectory of the input model source directory.
+#'          \item{\code{status}}
+#'            - The status of the execution of the model file. If not "COMPLETED"
+#'              then this import into Standard Output object will not work.
+#'          \item{\code{fisJob}} - structure returned from \link{TEL.getJob}
+#'        }
+#' @param fisServer - FISServer instance
+#' @return The 'submission' named list.
+#'
+#' @seealso \code{TEL.performExecutionWorkflow}
+#' @seealso \code{importJobResultFiles}
+#' @author mwise, mrogalski
+#' 
+TEL.importFilesStep <- function(submission, fisServer, ... ) {
+    if(is.null(submission)) {
+        stop("Illegal Argument: submission can't be NULL.")
+    }
+    if(!("parameters" %in% names(submission)) || is.null(submission$parameters)) {
+        stop("Illegal Argument: submission's 'parameters' element must be set and can't be NULL.")
+    }
+    if(!("fisJob" %in% names(submission)) || is.null(submission$fisJob)) {
+        stop("Illegal Argument: submission's 'fisJob' element must be set and can't be NULL.")
+    }
+    if(is.null(submission$fisJob@id)) {
+        stop("Illegal Argument: fisJob's id element must be set and can't be NULL.")
+    }
+    if(!("importDirectory" %in% names(submission$parameters)) || is.null(submission$parameters$importDirectory)) {
+        stop("Illegal Argument: importDirectory must be set and can't be NULL.")
+    }
+    submission$status = "Importing Results"
+    message(submission$status)
+    importJobResultFiles(submission$fisJob, targetDirectory = submission$parameters$importDirectory, fisServer = fisServer)
+    return(submission)
+}
+
+################################################################################
+#' TEL.importSOStep
+#' 
+#' INTERNAL, this function is to be used by \code{TEL.performExecutionWorkflow}.
+#' This is a wrapper function for \code{LoadSOObjects}.
+#' 
+#' Import results as Standard Output object(s)
+#' 
+#' Import the results retrieved from an execution of an MDL file, into an object
+#' of class \linkS4class{StandardOutputObject}, or a list thereof.
+#' 
+#' FIXME This function returns \code{list} of \code{StandardOutputObject} or single 
+#' \code{StandardOutputObject} depending on the value of the \code{submission$parameters$importMultipleSO} flag.
+#' 
+#' @param submission Named list containing information relating to the
+#'        submission of a job:
+#'        \itemize{
+#'          \item{\code{executionType}}
+#'            - Identifying the target software to use for the execution.
+#'          \item{\code{parameters}}
+#'            - Input parameters used to submit job.
+#'          \item{\code{parameters$modelFile}}
+#'            - MDL file that was executed; any leading path will be stripped off,
+#'              and the .mdl file extension replaced with .SO.xml, to derive the
+#'              filename of the Standard Output XML file. If \code{submission$job}
+#'              is available (which it will be if called as part of \link{TEL.monitor})
+#'              then the \code{job$controlFile} is used instead of the \code{modelFile}
+#'              since this will include any relative file path prefix on the control
+#'              file i.e. if the model file references its data file via a relative path.
+#'          \item{\code{parameters$importMultipleSO}}
+#'            - Whether multiple SOBlocks are expected in the SO XML results file.
+#'              Default is FALSE. Note that if FALSE and multiple SOBlocks are encountered,
+#'              an error will be thrown.
+#'          \item{\code{status}}
+#'            - The status of the execution of the model file. If not "COMPLETED"
+#'              then this import into Standard Output object will not work.
+#'          \item{\code{fisJob}} - structure returned from \link{TEL.getJob}
+#'        }
+#' @return submission named list with 'so' element being an object of class \linkS4class{StandardOutputObject}, or if \code{multiple}
+#'         is TRUE, then a list of such objects.
+#' 
+#' @author mwise, mrogalski
+#' 
+#' @include LoadSOObject.R
+#' @include StandardOutputObject.R
+TEL.importSOStep <- function(submission, fisServer, ...) {
+    if(is.null(submission)) {
+        stop("Illegal Argument: submission can't be NULL.")
+    }
+    if(!("parameters" %in% names(submission)) || is.null(submission$parameters)) {
+        stop("Illegal Argument: submission's 'parameters' element must be set and can't be NULL.")
+    }
+    if(!("modelFile" %in% names(submission$parameters)) || is.null(submission$parameters$modelFile)) {
+        stop("Illegal Argument: parameters's 'modelFile' element must be set and can't be NULL.")
+    }
+    if(!("importDirectory" %in% names(submission$parameters)) || is.null(submission$parameters$importDirectory)) {
+        stop("Illegal Argument: submission's 'resultsDir' element must be set and can't be NULL.")
+    }
+    multiple <- ifelse("importMultipleSO" %in% submission$parameters, submission$parameters$importMultipleSO, FALSE)
+    
+    soXMLFileName <- paste0(file_path_sans_ext(basename(submission$parameters$modelFile)), ".SO.xml")
+    if (!is.null(submission$fisJob)) { # Should always be the case, if called as part of \link{TEL.monitor})
+        # Take into account the fact that the control file, and thus the SO XML file, might be in a subdirectory
+        soXMLFilePath <- file.path(submission$parameters$importDirectory, dirname(submission$fisJob@executionFile), soXMLFileName)
+    } else {
+        soXMLFilePath <- file.path(submission$parameters$importDirectory, soXMLFileName)
+    }
+    log.debug(sprintf("Reading in SO from XML file %s",soXMLFilePath))
+    
+    so <- NULL
+    if (class(soXMLFilePath) == "character" && file.exists(soXMLFilePath)) {
+        if (multiple) {
+            so <- LoadSOObjects(soXMLFilePath)
+        } else {
+            so <- LoadSOObject(soXMLFilePath)
+        }
+    }
+    else {
+        stop(
+            "No Standard Output results file produced from execution of model ", submission$parameters$modelFile,
+            ".\n  The contents of the working directory ", submission$parameters$workingDirectory,
+            " may be useful for tracking down the cause of the failure."
+        )
+    }
+    submission$so <- so
+    return(submission)
 }

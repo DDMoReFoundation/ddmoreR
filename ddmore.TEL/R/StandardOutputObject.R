@@ -88,6 +88,18 @@ createSOObject <- function(...) {
   return(SO)
 }
 
+##############################################################
+#' is.SOObject
+#'
+#' Determines if an object is of class "StandardOutputObject"
+#'
+#' @usage is.SOObject(object)
+#'
+#' @return TRUE or FALSE
+#' @export
+is.SOObject <- function(obj) {
+    is(obj,"StandardOutputObject")
+}
 
 # ========================== #
 # Reader for RawData files   #

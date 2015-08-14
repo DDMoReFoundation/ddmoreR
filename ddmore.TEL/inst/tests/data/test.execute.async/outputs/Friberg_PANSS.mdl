@@ -1,0 +1,187 @@
+# Version: 1.0.5 (alpha) Build Number: 1036 Build ID: 2015-02-06_12-42-54
+### Data object
+Friberg_PANSS_CPT2009_dat = dataobj{
+
+   	DECLARED_VARIABLES{Y}
+   	
+   	DATA_INPUT_VARIABLES{
+      ID: {type=categorical, use=id}
+      TIME: {type=continuous, use=idv}
+      DV: {type=continuous, use=dv, define=Y}
+      STUD: {use=covariate} # Study number, 1st digit indicates phase'
+      DDUR: {use=covariate} # Duration of current episode
+      HOSP: {type=categorical, use=covariate} # Patient Hospitalised at time of observation (no=0, yes=1)
+      US: {type=categorical, use=covariate} # Study performed in US (no=0, yes=1)
+      AUC: {type=continuous, units="ug/L*h", use=covariate}
+      MDV: {type=categorical, use=mdv}
+   }# end DATA_INPUT_VARIABLES
+
+
+   SOURCE{
+   		file="PANSS_Friberg2009_simdata_2.csv"
+        inputformat=nonmemFormat
+        ignore="@"
+   }# end SOURCE
+   
+} # end data object
+
+
+### Parameter object
+Friberg_PANSS_CPT2009_par = parobj{
+
+      DECLARED_VARIABLES{ETA_PAN0 ETA_PMAX}
+      
+      STRUCTURAL{
+      PAN0_II : {value=94}
+      PAN0_III : {value=90.5}
+      PAN0_CHRON : {value=-0.0339}
+      TVPMAX : {value=0.0859}
+      PMAX_PHASEIII : {value=0.688} 
+      TP : {value=13.2,lo=0} 
+      POW : {value=1.24,lo=0}
+      pop_AUC50 : {value=82} 
+      EMAX : {value=0.191}
+      THETA_HOSP : {value=-0.145}
+      THETA_US : {value=0.623}
+      pop_error : {value=3.52}
+   }# end STRUCTURAL
+
+   VARIABILITY{
+
+      omega_PAN0 : {value= 167 ,type= VAR}
+      omega_PMAX: {value=0.0249, type=VAR}
+      omega_AUC50 : {value= 21.7 ,type= VAR}
+      omega_W: {value=0.196, type=VAR}
+      
+      COV_PPV_PAN0_PMAX : { params=[ETA_PAN0, ETA_PMAX], value = -0.395, type =COV} 
+   		
+      eps: {value=1, type=VAR, fix=true}
+   }# end VARIABILITY
+
+} # end of parameter object
+
+### Model object
+Friberg_PANSS_CPT2009_mdl = mdlobj{
+	IDV { TIME }
+
+   VARIABILITY_LEVELS{
+	ID : { level=2, type=parameter }
+	DV : { level=1, type=observation }
+	}
+   
+   STRUCTURAL_PARAMETERS{
+      PAN0_II        # baseline PANSS phaseII studies
+      PAN0_III       # baseline PANSS phaseIII studies
+      PAN0_CHRON     # proportional difference in PAN0 for chronic patients
+      TVPMAX         # Maximum placebo effect phase_II
+      PMAX_PHASEIII  # Proportional difference in PMAX for patients in Phase III
+      TP             # Time to achieve PMAX
+      POW            # Power parameter in the Weibull function
+      pop_AUC50      # Asenapine AUC to achieve half of EMAX
+      EMAX           # Maximum asenapine effect at day42
+      THETA_HOSP     # Difference in residual error for hospitalized patients
+      THETA_US       # Difference in residual error in US-based studies
+      pop_error      # Typical_residual_error
+   }# end STRUCTURAL_PARAMETERS
+
+   VARIABILITY_PARAMETERS{
+      omega_PAN0
+      omega_PMAX
+      omega_AUC50
+      omega_W
+      eps
+   }# end VARIABILITY_PARAMETERS
+   
+   COVARIATES{
+    DDUR
+    STUD
+    HOSP
+    US
+    AUC
+    
+    DDU = 1 when DDUR > 2 otherwise 0  # duration of current episode
+    PHASE = 1 when STUD > 30 otherwise 0
+   }
+
+   GROUP_VARIABLES{
+    #baseline PANSS		
+     pop_PAN0 = PAN0_II*(1+PAN0_CHRON*DDU) when PHASE==0   # for phase II
+     otherwise   PAN0_III*(1+PAN0_CHRON*DDU)   # for phase III
+   
+    #maximum placebo response
+     pop_PMAX = TVPMAX*(1+PMAX_PHASEIII*PHASE)
+   
+    # Difference in the residual error for non-hospitalised patients
+     CHOSP = 1 + THETA_HOSP when HOSP == 0 otherwise 1
+   
+    #Error 
+    pop_W = CHOSP*(pop_error*(1 + THETA_US*US))
+   }# end GROUP_VARIABLES
+
+
+   RANDOM_VARIABLE_DEFINITION(level=ID){
+      eta_PAN0 ~ Normal(mean=0, var=omega_PAN0)
+      eta_PMAX ~ Normal(mean=0, var=omega_PMAX)
+      eta_AUC50 ~ Normal(mean=0, var=omega_AUC50)
+      eta_W ~ Normal(mean=0, var=omega_W)   
+   }# end RANDOM_VARIABLE_DEFINITION
+   
+   RANDOM_VARIABLE_DEFINITION(level=DV){
+      eps_SIGMA ~ Normal(mean=0, var=eps, level=DV)
+   }
+
+   INDIVIDUAL_VARIABLES{
+     PAN0 : {type=general, pop = pop_PAN0, ranEff=eta_PAN0}
+     PMAX : {type=general, pop = pop_PMAX, ranEff=eta_PMAX}  
+     AUC50 : {type=linear, trans=log, pop = pop_AUC50, ranEff=eta_AUC50}
+     W = pop_W*exp(eta_W)  ## Might want to look at whether we can use general.
+   }# end INDIVIDUAL_VARIABLES
+
+
+   MODEL_PREDICTION{
+    # placebo model
+    PMOD = PMAX*(1-exp(-(TIME/TP)^ POW))  
+   
+    # time-course parameter for asenapine response
+    FT = 1 when TIME>42 otherwise TIME/42
+    
+    # Asenapine effect
+    EFF = EMAX*AUC/(AUC50+AUC) * FT 
+    
+    # Define drug effect at times greater than 0 
+    EMOD = EFF when (TIME>0 && AUC>0) otherwise 0    
+    	    
+    #Total PANSS score 
+     PANSS_total = PAN0*(1-PMOD)*(1-EMOD)
+   }# end MODEL_PREDICTION
+
+ 
+   OBSERVATION{
+
+      
+      Y : {type=continuous, error=additiveError(additive=W),
+      	eps=eps_SIGMA, prediction=PANSS_total}
+      	
+   }# end OBSERVATION
+
+
+} # end of model object
+
+Friberg_PANSS_CPT2009_task = taskobj{
+      ESTIMATE {
+         target=NMTRAN_CODE
+         cov=true
+         algo=["FOCEI"] 
+      }# end ESTIMATE
+
+}# end of task object
+
+
+Friberg_PANSS_CPT2009_mog = mogobj {
+        OBJECTS{
+		Friberg_PANSS_CPT2009_dat
+		Friberg_PANSS_CPT2009_mdl
+		Friberg_PANSS_CPT2009_par
+		Friberg_PANSS_CPT2009_task
+	}
+}

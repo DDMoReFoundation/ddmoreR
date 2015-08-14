@@ -373,6 +373,12 @@ parent.folder <- function(f) {
   names(.getMdlInfoFromSO(SOObject, what="parameter")@VARIABILITY)
 }
 
+.convertObjectToNamedList <- function(obj) {
+    tmp <- lapply(slotNames(obj), function(slotName) { slot(obj, slotName) } )
+    names(tmp) <- slotNames(obj)
+    tmp
+}
+
 
 #' Utility function to check function arguments
 .precondition.checkArgument <- function(condition, argument, message) {

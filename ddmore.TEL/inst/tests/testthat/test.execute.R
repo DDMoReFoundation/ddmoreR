@@ -48,7 +48,6 @@ test_that("TEL.performExecutionWorkflow with default import flags results in non
                 stop("Missing extra parameter 'mockParam'")
             }
             submission$status <- "importing"
-            submission$resultsDir <- "mock/result/dir"
             return(submission)
         },
         importSOStep = function(submission, fisServer, ...) {
@@ -94,7 +93,6 @@ test_that("TEL.performExecutionWorkflow without import results in non-null resul
         importFilesStep = function(submission, fisServer, ...) {
             log.debug("importFilesStep")
             submission$status <- "importing"
-            submission$resultsDir <- "mock/result/dir"
             submission
         },
         clearUpStep = function(submission, fisServer, ...) {
@@ -130,12 +128,12 @@ test_that("TEL.performExecutionWorkflow results in error for failed job", {
         pollStep = function(submission, fisServer, ...) {
             log.debug("pollStep")
             submission$fisJob <- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id="MOCK_ID", status ='FAILED'))
+            submission$status <- 'Failed'
             submission
         },
         importFilesStep = function(submission, fisServer, ...) {
             log.debug("importFilesStep")
             submission$status <- "importing"
-            submission$resultsDir <- "mock/result/dir"
             submission
         },
         importSOStep = function(submission, fisServer, ...) {
