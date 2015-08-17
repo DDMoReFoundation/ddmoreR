@@ -14,9 +14,7 @@
 #'        retrieved by getTaskPropertiesObjects. If multiple task properties objects
 #'        exist in the .mdl file then using the name argument allows the user to target
 #'        a specific task properties object.
-#' @param HOST (Optional) Hostname of the server running the FIS service; defaults
-#'        to "localhost".
-#' @param PORT (Optional) Port of the server running the FIS service, defaults to 9010.
+#' @param fisServer FISServer instance.
 #' @return List of S4 Objects of class \code{taskObj}. If name is specified, only the 
 #'         single specified object is returned.
 #' 
@@ -32,12 +30,12 @@
 #'
 #' @include telClasses.R
 
-setGeneric("getTaskPropertiesObjects", function(file, object, name, HOST='localhost', PORT='9010') { 
+setGeneric("getTaskPropertiesObjects", function(file, object, name, fisServer = TEL.getServer()) { 
   # create object in R from parser:
   if (!missing(name)) {
-	  res <- .parseMDLFile(file, name=name, type="taskobj", HOST=HOST, PORT=PORT)
+	  res <- .parseMDLFile(file, name=name, type="taskobj", fisServer = fisServer)
   } else{
-	  res <- .parseMDLFile(file, type="taskobj", HOST=HOST, PORT=PORT)
+	  res <- .parseMDLFile(file, type="taskobj", fisServer = fisServer)
   }
   return(res)
 })
@@ -45,7 +43,7 @@ setGeneric("getTaskPropertiesObjects", function(file, object, name, HOST='localh
 #' @rdname getTaskPropertiesObjects-methods
 #' @aliases getTaskPropertiesObjects,mogObj,mogObj-method
 setMethod("getTaskPropertiesObjects", signature=signature(object="mogObj"),
-  function(file, object, name, HOST="localhost", PORT="9010") {
+  function(file, object, name, fisServer = TEL.getServer()) {
     return(x@taskObj)
 })
 

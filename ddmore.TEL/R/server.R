@@ -3,12 +3,40 @@
 # all FIS integration properties (ports, urls, polling settings, etc.) and this instance will be passed
 # to execute (and other) functions
 TEL.server.env <- new.env()
-# Delay between FIS job status checks (in seconds)
-TEL.server.env$JOB_STATUS_POLLING_DELAY <- 20
-# Number of times FIS will be polled during startup after which FIS startup will be considered as failed
-TEL.server.env$SERVER_STARTUP_POLLING_MAX <- 60
-# Delay between FIS job status checks (in seconds)
-TEL.server.env$SERVER_STARTUP_POLLING_DELAY <- 1
+
+################################################################################
+#' TEL.getServer
+#'
+#' Gets a handle on FIS Server instance.
+#' 
+#' @seealso \code{TEL.setServer}
+#' @seealso \code{createFISServer}
+#' 
+#' @return FISServer instance
+#' @export
+TEL.getServer <- function() {
+    if(!"fisServer" %in% ls(TEL.server.env)) {
+        stop("FIS Server instance not configured")
+    }
+    return(TEL.server.env$fisServer)
+}
+################################################################################
+#' TEL.setServer
+#'
+#' Sets a handle to default FIS Server instance
+#' 
+#' @seealso \code{TEL.getServer}
+#' @seealso \code{createFISServer}
+#' 
+#' @return FISServer instance
+#' @export
+TEL.setServer <- function(fisServer) {
+    .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FIS Server instance is required.")
+    if("fisServer" %in% ls(TEL.server.env)) {
+        warning(sprintf("One FIS Server instance is already configured pointing to %s. ", TEL.server.env$fisServer@url))
+    }
+    assign("fisServer", fisServer, envir = TEL.server.env)
+}
 
 ################################################################################
 #' TEL.startServer
@@ -19,35 +47,29 @@ TEL.server.env$SERVER_STARTUP_POLLING_DELAY <- 1
 #' This is automatically called as part of launching the TEL.R console within
 #' the MDL IDE within SEE; if the R console is not running within SEE in that
 #' setup then this function is a no-op.
-#'
+#' 
+#' @export
 TEL.startServer <- 
-    function() {
-
-    see.home <- TEL.checkConfiguration()
-    
-    startupScriptName = "startup.bat"
-    startupScript <- file.path(see.home, startupScriptName)
-    
-    if(!file.exists(startupScript)) {
-        stop(paste("Services startup script", startupScript," does not exist."))
-    }
-    
+    function(fisServer) {
+    .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FIS Server instance is required.")
     message("Starting servers [ ", appendLF=FALSE)
-    if (!TEL.serverRunning()) {
-      startupScriptStdErr <- file.path(see.home, paste0(".",startupScriptName, ".stderr"))
-      startupScriptStdOut <- file.path(see.home, paste0(".",startupScriptName, ".stdout"))
-      system2(startupScript,'/B', wait=F, stdout=startupScriptStdOut, stderr=startupScriptStdErr)  # /B argument suppresses the display of the command windows
+    if (!TEL.serverRunning(fisServer)) {
+      startupScriptDir <- dirname(fisServer@startupScript)
+      startupScriptName <- basename(fisServer@startupScript)
+      startupScriptStdErr <- file.path(startupScriptDir, paste0(".",startupScriptName, ".stderr"))
+      startupScriptStdOut <- file.path(startupScriptDir, paste0(".",startupScriptName, ".stdout"))
+      system2(fisServer@startupScript,'/B', wait=F, stdout=startupScriptStdOut, stderr=startupScriptStdErr)  # /B argument suppresses the display of the command windows
       count = 0
-      while ( count < TEL.server.env$SERVER_STARTUP_POLLING_MAX && !TEL.serverRunning() ) {
-        Sys.sleep(TEL.server.env$SERVER_STARTUP_POLLING_DELAY)
+      while ( count < fisServer@startupPollingMax && !TEL.serverRunning(fisServer) ) {
+        Sys.sleep(fisServer@startupPollingDelay)
         count <- count+1
         message(".", appendLF=FALSE)
         flush.console()
       }
       message(" ]", appendLF=FALSE)
       message() # Append a newline
-      if (!TEL.serverRunning()) {
-      	healthStatuses <- TEL.serverHealthcheck()
+      if (!TEL.serverRunning(fisServer)) {
+      	healthStatuses <- TEL.serverHealthcheck(fisServer)
         stop(paste("Failure!", healthStatuses, sep="\n"))
       }
       message("Success!")
@@ -65,17 +87,16 @@ TEL.startServer <-
 #' As a side effect, populates a TEL.serverHealthDetails global object so that the
 #' user can access the health statuses of the individual server components.
 #'
-#' @param HOST Hostname of the server running the FIS service. Defaults to localhost.
-#' @param OPERATIONAL_PORT Operational (as opposed to Service) port of the server
-#'						   running the FIS service. Defaults to 9011.
+#' @param fisServer FISServer instance.
+#' 
 #' @return True if the server is running, false if the server is not running.
 #' 
 #' @export
 #' 
 TEL.serverRunning <- 
-  function(HOST='localhost', OPERATIONAL_PORT=9011) {
+  function(fisServer) {
 
-	healthStatuses <- TEL.serverHealthcheck(HOST, OPERATIONAL_PORT)
+	healthStatuses <- health(fisServer)
 	
 	# Make the server health details available to the user
 	TEL.serverHealthDetails <<- healthStatuses
@@ -83,72 +104,20 @@ TEL.serverRunning <-
 	(healthStatuses[[1]] == 'UP') && # Status of FIS itself
 		all(lapply(healthStatuses[-1], function(srvStatus) { srvStatus$status }) == 'UP')
   }
-
-################################################################################
-#' TEL.serverHealthcheck
-#'
-#' Queries the health of FIS and its dependent servers.
-#' 
-#' @param HOST Hostname of the server running the FIS service. Defaults to localhost.
-#' @param OPERATIONAL_PORT Operational (as opposed to Service) port of the server
-#'						   running the FIS service. Defaults to 9011.
-#' @return a named list detailing the status of FIS and its dependent services, i.e.:
-#' $status
-#' [1] "UP"
-#' $ctsHealth
-#' $ctsHealth$status
-#' [1] "UP"
-#' $mifHealth
-#' $mifHealth$status
-#' [1] "UP"
-#' $db
-#' $db$status
-#' [1] "UP"
-#' $db$database
-#' [1] "H2"
-#' $db$hello
-#' [1] 1
-#'
-#' @export
-#' 
-TEL.serverHealthcheck <-
-  function (HOST='localhost', OPERATIONAL_PORT=9011) {
-
-	healthcheckUrl <- sprintf('http://%s:%s/health', HOST, OPERATIONAL_PORT)
-
-	# Some explanation of this HTTP call and response handling.
-	# We use getURL() rather than postForm() to ensure that a non-OK HTTP Status (i.e. the 503 Service
-	# Unavailable returned from FIS if a component e.g. CTS is down) doesn't throw an error and we can
-	# still access the JSON response data.
-	# In fact, the HTTP status code doesn't actually seem to be available using getURL() - it is with
-	# postForm() - but this is probably ok since I don't think we need it if we have the JSON statuses.
-	tryCatch(
-		{
-			response <- RCurl:::getURL(healthcheckUrl)
-			return(fromJSON(response))
-		}, error = function(e) {
-			return(list(status='DOWN', error=conditionMessage(e)))
-		}
-	)
-	
-}
   
 ################################################################################
 #' TEL.stopServer
 #'
 #' Stops the TEL server.
 #' 
-#' @param HOST Hostname of the server running the FIS service. Defaults to localhost.
-#' @param PORT Port of the server running the FIS service. Defaults to 9010.
+#' @param fisServer FISServer instance.
 #' @param dontWait (Internal usage only) Defaults to FALSE; only the R console
 #' 				   termination should call this with TRUE
 #'
 TEL.stopServer <-
-  function(HOST='localhost', PORT=9010, dontWait = FALSE) {
+  function(fisServer, dontWait = FALSE) {
     message("Stopping server...")
-	shutdownURL = sprintf('http://%s:%s/shutdown', HOST, PORT)
-	ret = RCurl:::postForm(shutdownURL, style="HTTPPOST", shutdown="yes")
-	if (ret[1]=="OK") {
+	if (shutdown(fisServer)) {
 		# The servers might report themselves as not running immediately but they still
 		# take a few seconds to actually shut down; put in a pause to avoid the user
 		# attempting to restart the servers while they haven't fully shut down
@@ -169,15 +138,12 @@ TEL.stopServer <-
 #' 
 #' This is automatically called when the TEL.R console is terminated.
 #' 
-#' @param HOST Hostname of the server running the FIS service. Defaults to localhost.
-#' @param PORT Port of the server running the FIS service. Defaults to 9010.
-#' @param OPERATIONAL_PORT Operational (as opposed to Service) port of the server
-#'						   running the FIS service. Defaults to 9011.
+#' @param fisServer FISServer instance.
 #' 
 #' @export
 #'
-q <- function(HOST='localhost', PORT=9010, OPERATIONAL_PORT=9011) {
-	TEL.safeStop(HOST, PORT, OPERATIONAL_PORT, dontWait=TRUE);
+q <- function(fisServer=TEL.getServer()) {
+	TEL.safeStop(fisServer, dontWait=TRUE);
 	base:::q()
 }
 
@@ -186,17 +152,14 @@ q <- function(HOST='localhost', PORT=9010, OPERATIONAL_PORT=9011) {
 #'
 #' Checks that the TEL server is running and if so, stops it.
 #' 
-#' @param HOST Hostname of the server running the FIS service. Defaults to localhost.
-#' @param PORT Port of the server running the FIS service. Defaults to 9010.
-#' @param OPERATIONAL_PORT Operational (as opposed to Service) port of the server
-#'						   running the FIS service. Defaults to 9011.
+#' @param fisServer FISServer instance.
 #' @param dontWait (Internal usage only) Defaults to FALSE; only the R console
 #' 				   termination should call this with TRUE
 #'
 TEL.safeStop <-
-  function(HOST='localhost', PORT=9010, OPERATIONAL_PORT=9011, dontWait = FALSE) {
-    if (TEL.serverRunning(HOST, OPERATIONAL_PORT)) {
-      TEL.stopServer(HOST, PORT, dontWait)
+  function(fisServer, dontWait = FALSE) {
+    if (TEL.serverRunning(fisServer)) {
+      TEL.stopServer(fisServer, dontWait)
     }
   }
 
@@ -240,248 +203,109 @@ TEL.checkConfiguration <-
 		stop("The DDMoRe.TEL package is not loaded. The FIS and MIF servers must be started manually.")
 	}
     
-}
-
+  }
 ################################################################################
 #' TEL.submitJob
-#'
-#' Submits a job to the TEL server.
 #' 
-#' @param executionType Identifies the target software to use to execute this job.
-#'        E.g. NONMEM, MONOLIX.
-#' @param workingDirectory Directory, normally within the system temporary directory,
-#'        into which the model file and any data files are expected to have been
-#'        copied, and within which the target software will execute the job.
-#' @param modelfile Path-less filename, or absolute path, to the model file to be
-#'        executed. Note that relative paths are currently not supported.
-#' @param extraInputFileExts (Optional) A vector of file extensions (excluding the
-#'        dot) that will be used in identifying additional files, from the same
-#'        directory as the model file and having the same base name as the model file,
-#'        to be included in the execution. Default is null/empty.
-#'        Primarily used by PsN e.g. to provide the .lst file for a PsN execution of
-#'        an already-executed NONMEM run.
-#' @param extraInputFiles (Optional) A vector of paths, either absolute or relative
-#'        (to the model file), to any additional files to be included in the execution.
-#'        Used as an alternative, and/or in conjunction with, extraInputFileExts.
-#'        Default is null/empty.
-#' @param addargs (Optional) Additional arguments to be passed to the target software.
-#' @param HOST (Optional) Hostname of the server running the FIS service. Defaults
-#'        to localhost.
-#' @param PORT (Optional) Port of the server running the FIS service. Defaults to 9010.
-#' @param OPERATIONAL_PORT (Optional) Operational (as opposed to Service) port of the
-#'        server running the FIS service. Defaults to 9011.
+#' Submits a given job to FIS. Wrapper for \code{submitJob(FISServer)} method.
 #' 
-#' @return \code{submission} named list containing information relating to the
-#'         submission of the execution request:
-#'         \itemize{
-#'           \item{\code{executionType}}
-#'             - Identifying the target software to use for the execution.
-#'           \item{\code{modelFile}}
-#'             - MDL file that was executed, without any leading path.
-#'           \item{\code{sourceDirectory}}
-#'             - The absolute path to the directory in which the MDL file lives.
-#'           \item{\code{workingDirectory}}
-#'             - The location used for the execution of the job, normally within
-#'               the system temporary directory.
-#'           \item{\code{status}}
-#'             - The status of the execution of the model file, i.e. 'NEW'.
-#'           \item{\code{requestId}} - Unique identifier for the submission request.
-#'         }
+#' @param fisJob FISJob instance.
+#' @param fisServer FISServer instance.
 #' 
+#' @return submitted FISJob
 #' @export
-#' 
-TEL.submitJob <- function( executionType=NULL, workingDirectory, modelfile, extraInputFileExts=NULL, extraInputFiles=NULL, addargs=NULL, HOST='localhost', PORT=9010, OPERATIONAL_PORT=9011 ) {
-    if(is.null(executionType)) {
-        stop("Illegal Argument: executionType must be set and can't be NULL.")
-    }
-    if(is.null(modelfile)) {
-        stop("Illegal Argument: modelfile must be set and can't be NULL.")
-    }
-    if(is.null(workingDirectory)) {
-        stop("Illegal Argument: workingDirectory must be set and can't be NULL.")
-    }
-    if (!TEL.serverRunning(HOST, OPERATIONAL_PORT)) {
-        stop("Server(s) is/are not running, unable to submit job. Server health details have been made available in the TEL.serverHealthDetails object.")
-    }
-
-    absoluteModelFilePath <- normalizePath(modelfile)
-    
-    if (!file.exists(absoluteModelFilePath)) {
-      stop(paste('Illegal Argument: file ', absoluteModelFilePath, ' does not exist.'))
-    }
-
-    submission <- list()
-    submission$start <- date()
-
-    # Parent folder of the model file is the source directory
-    sourceDirectory <- parent.folder(absoluteModelFilePath)
-
-    # Resolve the extraInputFileExts against files in the model file's directory
-    # and add these files to the existing vector of extraInputFiles
-    for (fileExt in extraInputFileExts) {
-        fileName <- paste0(file_path_sans_ext(basename(modelfile)), ".", fileExt)
-        filePath <- file.path(sourceDirectory, fileName)
-        if ( file.exists(filePath) && !file.info(filePath)$isdir ) {
-            extraInputFiles <- c(extraInputFiles, fileName)
-        }
-    }
-
-    submission$executionType <- executionType
-    submission$modelFile <- absoluteModelFilePath
-    submission$sourceDirectory <- sourceDirectory
-    submission$workingDirectory <- workingDirectory
-
-    submission$fisJobStatus <- ''
-    submission$status <- ''
-
-    # Build form
-    parameters <- list(command=executionType, workingDirectory=workingDirectory, executionFile=absoluteModelFilePath, extraInputFiles=as.list(extraInputFiles), commandParameters=addargs)
-
-    json <- toJSON(parameters)
-    formParams=sprintf('%s%s','submissionRequest=',json)
-
-    # Submit
-
-    h <- basicTextGatherer()
-
-    submitURL <- sprintf('http://%s:%s/submit', HOST, PORT)
-
-    curlRet <- RCurl:::curlPerform(url=submitURL, postfields=formParams, writefunction=h$update)
-
-    response <- fromJSON(h$value())
-
-    if (!is.null(response$requestID)) {
-        submission$requestID <- response$requestID
-        submission$status <- 'Submitted'
-    } else {
-        submission$status <- 'Failed'
-        stop(paste("Failed to submit job.\n  Server returned:", response$status, response$error, "\n ", response$exception, ":", response$message))
-    }
-
-    submission
+#'
+TEL.submitJob <- function(fisJob, fisServer = TEL.getServer()) {
+    .precondition.checkArgument(is.FISJob(fisJob), "fisJob", "FISJob instance required.")
+    .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FISServer instance required.")
+    submitJob(fisServer, fisJob)
 }
 
 ################################################################################
-#' TEL.poll
-#'
-#' Continously polls the TEL server (at roughly 20 second intervals) for a
-#' specified execution request jobID, until the TEL server either reports the
-#' job as having completed successfully or as having failed.
-#' 
-#' @param submission Named list containing information relating to the
-#'        submission of the execution request. The only items required by
-#'        this function are:
-#'        \itemize{
-#'          \item{\code{requestID}} - Unique identifier of the submission request.
-#'        }
-#' @param HOST Hostname of the server running the FIS service. Defaults to localhost.
-#' @param PORT Port of the server running the FIS service. Defaults to 9010.
-#' 
-#' @return Updated \code{submission} named list augmented with the \code{status}
-#'         of the job.
-#' @export
-#'
-TEL.poll <- function(submission, HOST='localhost', PORT=9010, ...) {
-    if(is.null(submission)) {
-        stop("Illegal Argument: submission can't be null")
-    }
-    if(!("requestID" %in% names(submission)) || is.null(submission$requestID)) {
-        stop("Illegal Argument: submission's requestID element must be set and can't be NULL.")
-    }
-    
-    # FIXME: This is to enable mocking of server integration, to be removed after testthat upgrade
-    # and introducing global Server class instance
-    inargs <- list(...)
-    if(!is.null(inargs) && !is.null(inargs$server)) {
-        SERVER = inargs$server
-    } else {
-        SERVER = .SERVER
-    }
-    message("Running [ ", appendLF=FALSE )
-    while (submission$fisJobStatus != 'COMPLETED' && submission$fisJobStatus != 'FAILED' ) {
-        message(".", appendLF=FALSE)
-        job = SERVER$getJob(submission$requestID, HOST, PORT);
-        if(is.null(job)) {
-            stop(sprintf("Illegal State: job with id %s doesn't exist.",submission$requestID))
-        }
-        submission$fisJobStatus <- job$status
-        Sys.sleep(TEL.server.env$JOB_STATUS_POLLING_DELAY)
-    }
-    message(" ]")
-    submission
-}
-
 #' TEL.getJobs
-#'
-#' Gets all jobs
 #' 
+#' Get list of jobs being executed by FIS. Wrapper for \code{getJobs(FISServer)} method.
+#' 
+#' @param fisServer FISServer instance.
+#' 
+#' @return list of FISJob object
 #' @export
-#' 
-TEL.getJobs <- function(HOST='localhost', PORT=9010) {
-	
-	jobsURL <- sprintf('http://%s:%s/jobs', HOST, PORT)
-	
-	jobs <- fromJSON(httpGET(jobsURL))
-	
-	jobs
-}
-
-#' TEL.getNotImportedJobIDs
 #'
-#' Gets the IDs of the jobs that have completed but haven't been imported (assuming clearUp=TRUE)
-#
-TEL.getNotImportedJobIDs <- function(HOST='localhost', PORT=9010) {
-	
-	jobs <- TEL.getJobs()
-	
-	notImported <- list()
-	
-	for (job in jobs) {
-		if (job$status == "COMPLETED" && file.exists(job$workingDirectory)) {
-			notImported <- c( notImported, job$id )
-		}
-	}
-	
-	notImported
+TEL.getJobs <- function(fisServer = TEL.getServer()) {
+    .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "Server instance required.")
+    getJobs(fisServer)
 }
 
+################################################################################
 #' TEL.getJob
-#'
-#' Gets a FIS job
 #' 
-#' @param jobID id of a FIS job
+#' Get state of the job with a given Id. Wrapper for \code{getJob(FISServer, jobId)} method.
 #' 
+#' @param jobId job's id.
+#' @param fisServer FISServer instance.
+#' 
+#' @return FISJob object
 #' @export
-TEL.getJob <- function(jobID, HOST='localhost', PORT=9010) {
-    if(is.null(jobID)) {
-        stop("Illegal Argument: jobID can't be null")
-    }
-    jobsURL = sprintf('http://%s:%s/jobs/%s', HOST, PORT, jobID)
-	
-    fromJSON(httpGET(jobsURL))
+#'
+TEL.getJob <- function(jobId = NULL, fisServer = TEL.getServer()) {
+    .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FISServer instance required.")
+    .precondition.checkArgument(!is.null(jobId), "jobId", "Job id must be specified.")
+    getJob(fisServer, jobId)
 }
 
-#' TEL.setJobPollingDelay
-#'
-#' Sets FIS Job status polling delay
+################################################################################
+#' TEL.cancelJob
 #' 
-#' @param delay a delay between job status polls, must be greater than zero. 
+#' Cancels a given job. Wrapper for \code{cancelJob(FISServer, jobId)} method.
 #' 
+#' @param job FISJob instance.
+#' @param fisServer FISServer instance.
+#' 
+#' @return FISJob object
 #' @export
-TEL.setJobPollingDelay <- function(delay = 20) {
-    if(is.null(delay)) {
-      error("Illegal Argument: Delay may not be null")
-    } else if(delay <= 0) {
-      error("Illegal Argument: Delay must be greater than zero")
-    }
-    TEL.server.env$JOB_STATUS_POLLING_DELAY <- delay
+#'
+TEL.cancelJob <- function(job = NULL, fisServer = TEL.getServer()) {
+    .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FISServer instance required.")
+    .precondition.checkArgument(is.FISJob(job), "job", "FISJob instance required.")
+    cancelJob(fisServer, job)
 }
 
-#
-# SERVER instance which is used by FIS integration functions, will be replaced by Server class instance.
-#
-.SERVER = list()
-.SERVER$submitJob = TEL.submitJob
-.SERVER$poll = TEL.poll
-.SERVER$getJobs = TEL.getJobs
-.SERVER$getJob = TEL.getJob
+
+################################################################################
+#' TEL.printJobs
+#' 
+#' Print jobs with a given statuses. 
+#' 
+#' @param fisServer FISServer instance.
+#' @param status FISJob statuses that should be included in the printout.
+#' 
+#' @return data.frame with jobs data
+#' @export
+#'
+TEL.printJobs <- function(fisServer = TEL.getServer(), statuses = c('NEW', 'RUNNING', 'CANCELLING', 'FAILED', 'COMPLETED', 'CANCELLED')) {
+    .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "Server instance required.")
+    .precondition.checkArgument(!is.null(statuses), "statuses", "Can't be null.")
+    jobs <- getJobs(fisServer)
+    tresult <- lapply(jobs, function(x) { .convertObjectToNamedList(x) })
+    #We need to post-process the named lists so list elements are correctly displayed
+    tresult <- lapply(tresult, 
+                      function(x) { 
+                            lapply(x, function(y) { 
+                                if(length(y)==0) {
+                                    if(is.numeric(y)) {
+                                        return(0)
+                                    } else {
+                                        return("")
+                                    }
+                                } else {
+                                    if(is.list(y)){
+                                        return(paste(y, collapse=","))
+                                    }
+                                    return(y)
+                                }
+                            })
+                        }
+                        )
+    df <- do.call(rbind.data.frame, tresult)
+    return(df[df$status %in% statuses,])
+}

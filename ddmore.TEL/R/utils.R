@@ -1,3 +1,10 @@
+################################################################################
+# Package-local variables
+ddmore.tel.utils <- new.env()
+# is debug log level enabled
+ddmore.tel.utils$debug <- FALSE
+
+
 
 ################################################################################
 #' Override of the standard message() function.
@@ -364,4 +371,30 @@ parent.folder <- function(f) {
 
 .deriveVariabilityParametersFromAssociatedMDL <- function(SOObject) {
   names(.getMdlInfoFromSO(SOObject, what="parameter")@VARIABILITY)
+}
+
+.convertObjectToNamedList <- function(obj) {
+    tmp <- lapply(slotNames(obj), function(slotName) { slot(obj, slotName) } )
+    names(tmp) <- slotNames(obj)
+    tmp
+}
+
+
+#' Utility function to check function arguments
+.precondition.checkArgument <- function(condition, argument, message) {
+    if(!condition) {
+        stop(sprintf("Illegal Argument %s. %s", argument, message))
+    }
+}
+
+#' logs debug message to output stream
+log.debug <- function(message) {
+    if(ddmore.tel.utils$debug) {
+        message(sprintf("DEBUG: %s", message))
+    }
+}
+
+#' sets debug mode
+.setDebugMode <- function(debug = FALSE) {
+    ddmore.tel.utils$debug <- debug
 }

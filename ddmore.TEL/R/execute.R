@@ -12,17 +12,11 @@
 #' @param subfolder (Optional) Specify the name of a subfolder, within the directory
 #'        containing the model file, in which to store the results. Default
 #'        is a timestamped folder.
-#' @param wait (Optional) Logical dictating if the function should continuously
-#'        poll for results until the job either finishes successfully or fails,
-#'        or whether to 'fire and forget' the submission request and manually
-#'        collect the results later on. Default is true.
 #' @param clearUp (Optional) Logical dictating if the job working directory should
 #'        be deleted upon successful job completion. Default is false, since this
 #'        directory may contain useful information in the event that a job failed
 #'        to execute successfully.
-#' @param HOST (Optional) Hostname of the server running the FIS service. Default
-#'        is localhost.
-#' @param PORT (Optional) Port of the server running the FIS service. Default is 9010.
+#' @param fisServer FISServer instance.
 #' @return The results from executing the MDL file, in the form of an object of
 #'         class \linkS4class{StandardOutputObject}.
 #' 
@@ -43,20 +37,20 @@
 #' @include telClasses.R
 #' @include StandardOutputObject.R
 setGeneric("estimate", function(x, target=NULL,
-	addargs=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), wait=TRUE, clearUp=FALSE,
-	HOST='localhost', PORT='9010') {
+	addargs=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), clearUp=FALSE,
+	fisServer=TEL.getServer()) {
   
 	execute(x=x, target=target,
-			addargs=addargs, subfolder=subfolder, wait=wait, clearUp=clearUp,
-			HOST=HOST, PORT=PORT)
+			addargs=addargs, subfolder=subfolder, clearUp=clearUp,
+			fisServer=fisServer)
 })
 
 #' @rdname estimate-methods
 #' @aliases estimate,mogObj,mogObj-method
 setMethod("estimate", signature=signature(x="mogObj"), 
 	function(x, target=NULL,
-			 addargs=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), wait=TRUE, clearUp=FALSE,
-			 HOST='localhost', PORT='9010') {
+			 addargs=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), clearUp=FALSE,
+			 fisServer=TEL.getServer()) {
 
     # First write out MOG to MDL.
     # TODO: This will write out to the current directory - probably not what is desired!
@@ -65,8 +59,8 @@ setMethod("estimate", signature=signature(x="mogObj"),
     
     # Now call the generic method using the mdl file
 	execute(x="output.mdl", target=target,
-			addargs=addargs, subfolder=subfolder, wait=wait, clearUp=clearUp,
-			HOST=HOST, PORT=PORT)
+			addargs=addargs, subfolder=subfolder, clearUp=clearUp,
+			fisServer=fisServer)
   })
   
 
@@ -83,14 +77,6 @@ setMethod("estimate", signature=signature(x="mogObj"),
 #' @param subfolder (Optional) Specify the name of a subfolder, within the directory
 #'        containing the model file, in which to store the results. Default
 #'        is a timestamped folder.
-#' @param wait (Optional) Logical dictating if the function should continuously
-#'        poll for results until the job either finishes successfully or fails,
-#'        or whether to 'fire and forget' the submission request and manually
-#'        collect the results later on. Default is true.
-#' @param clearUp (Optional) Logical dictating if the job working directory should
-#'        be deleted upon successful job completion. Default is false, since this
-#'        directory may contain useful information in the event that a job failed
-#'        to execute successfully.
 #' @param extraInputFileExts (Optional) A vector of file extensions (excluding the
 #'        dot) that will be used in identifying additional files, from the same
 #'        directory as the model file and having the same base name as the model
@@ -101,39 +87,41 @@ setMethod("estimate", signature=signature(x="mogObj"),
 #'        (to the model file), to any additional files to be included in the execution.
 #'        Used as an alternative, and/or in conjunction with, extraInputFileExts.
 #'        Default is null/empty.
-#' @param importSO (Optional) Whether to create and return a Standard Output
+#' @param clearUp (Optional Advanced) Logical dictating if the job working directory should
+#'        be deleted upon successful job completion. Default is false, since this
+#'        directory may contain useful information in the event that a job failed
+#'        to execute successfully.
+#' @param importSO (Optional Advanced) Whether to create and return a Standard Output
 #'        Object representing the results of the execution. Mutually exclusive
 #'        with the \code{importMultipleSO} parameter. Default is true.
-#' @param importMultipleSO (Optional) Whether to create and return a list of
+#' @param importMultipleSO (Optional Advanced) Whether to create and return a list of
 #'        Standard Output Objects representing the results of the execution.
 #'        Mutually exclusive with the \code{importSO} parameter (which would be
 #'        used for the specific case where it is known that only one SOBlock will
 #'        be present in the Standard Output results). Default is false.
-#' @param HOST (Optional) Hostname of the server running the FIS service. Default
-#'        is localhost.
-#' @param PORT (Optional) Port of the server running the FIS service. Default is 9010.
+#' @param fisServer FISServer instance.
 #' @return The results from executing the MDL file, in the form of an object of
 #'         class \linkS4class{StandardOutputObject}, or a list thereof, depending
 #'         on the parameters \code{importSO} and  \code{importMultipleSO}
-#' 
 #' @author Jonathan Chard, Matthew Wise
 #' 
-#' @seealso \code{TEL.prepareWorkingFolder}
-#' @seealso \code{TEL.submitJob}
-#' @seealso \code{TEL.poll}
-#' @seealso \code{TEL.importFiles}
+#' @seealso \code{TEL.prepareSubmissionStep}
+#' @seealso \code{TEL.submitJobStep}
+#' @seealso \code{TEL.pollStep}
+#' @seealso \code{TEL.importFilesStep}
+#' @seealso \code{TEL.importSOStep}
 #' 
 #' @include server.R
-#' @include prepare.R
+#' @include FISServer.R
+#' @include jobExecution.R
 #' @include import.R
 #' @include telClasses.R
 #' @include StandardOutputObject.R
 setGeneric("execute", function(x, target = NULL,
-                               addargs = NULL, subfolder = format(Sys.time(), "%Y%b%d%H%M%S"), wait =
-                                   TRUE, clearUp = FALSE,
-                               extraInputFileExts = NULL, extraInputFiles = NULL, importSO = TRUE, importMultipleSO =
-                                   FALSE,
-                               HOST = 'localhost', PORT = '9010', ...) {
+                               addargs = NULL, subfolder = format(Sys.time(), "%Y%b%d%H%M%S"),
+                               extraInputFileExts = NULL, extraInputFiles = NULL,
+                               fisServer = TEL.getServer(), ...) {
+    .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FIS Server instance is required.")
     if (is.null(target)) {
         stop(
             'Parameter \"target\" not specified. Possible target tool specifiers might include \"NONMEM\", \"PsN\", \"MONOLIX\".'
@@ -147,148 +135,108 @@ setGeneric("execute", function(x, target = NULL,
         stop(paste('Illegal Argument: file ', x, ' does not exist.'))
     }
     
-    # FIXME: This is to enable mocking of functions responsible for integration with FIS REST API.
-    # To be removed after 'testthat' upgrade and introducing global FIS Server instance
     inargs <- list(...)
-    if (!is.null(inargs) && !is.null(inargs$server)) {
-        SERVER = inargs$server
-    } else {
-        SERVER = .SERVER
-    }
-    if (!is.null(inargs) && !is.null(inargs$tel)) {
-        TEL = inargs$tel
-    } else {
-        TEL = .TEL
-    }
-    
-    # Create a working folder in which FIS will create the Archive for conversion and execution
-    workingDirectory <- tempfile("TEL.job",tempdir())
-    if (!file.exists(workingDirectory)) {
-        dir.create(workingDirectory)
-    }
-    
-    submission <-
-        SERVER$submitJob(
-            executionType = target, workingDirectory = workingDirectory,
-            modelfile = absoluteModelFilePath, extraInputFileExts = extraInputFileExts, extraInputFiles =
-                extraInputFiles,
-            addargs = addargs, HOST = HOST, PORT = PORT
+    submission <- TEL.prepareSubmissionStep(
+            executionType = target, workingDirectory = tempfile("TEL.job",tempdir()),
+            modelfile = absoluteModelFilePath, extraInputFileExts = extraInputFileExts, 
+            extraInputFiles = extraInputFiles, outputSubFolderName = subfolder,
+            commandParameters = addargs, fisServer = fisServer, 
+            extraParams = inargs
         )
-    
-    result <- NULL
-    if (submission$status == "Submitted") {
-        if (wait) {
-            result <-
-                TEL.monitor(
-                    submission, importDirectory = file.path(submission$sourceDirectory, subfolder), clearUp, importSO, importMultipleSO, HOST, PORT
-                )
-        } else {
-            result <- submission
-        }
-    } else {
-        stop("Submission of execution request was unsuccessful.")
-    }
-    
-    result
+    submission <- TEL.performExecutionWorkflow(submission, fisServer = fisServer, workflowSteps = .buildWorkflow(params = inargs))
+    return(submission$so)
 })
 
 ################################################################################
-#' Monitor
-#' 
-#' Function performing monitoring and import of FIS job results. 
-#' 
-#' Note: This method will be refactored in the future to resolve SRP violation 
-#' and also so the import of the results happens even if a job fails 
-#' (SO may still be available in such case)
+#' .buildWorkflow
+#' Builds execution workflow based on a named list of parameters.
 #'
-#' @param submission a list representing a job that was submitted to FIS.
-#' For other params see execute function.
+#' @param clearUp see \code{execute} function
+#' @param importSO see \code{execute} function
 #'
-#' @param importDirectory a directory where the result files should be imported into.
+#' @return a list of steps for execution
+.buildWorkflow <- function( params ) {
+    workflow <- list()
+    workflow <- c(workflow,TEL.submitJobStep)
+    workflow <- c(workflow,TEL.pollStep)
+    workflow <- c(workflow,TEL.importFilesStep)
+    if(!is.null(params$clearUp) && params$clearUp) {
+        workflow <- c(workflow,TEL.clearUpStep)
+    }
+    if(is.null(params$importSO) || params$importSO) {
+        workflow <- c(workflow,TEL.importSOStep)
+    }
+    workflow
+}
+################################################################################
+#' TEL.performSyncExecutionWorkflow
 #' 
-#' For the rest of the parameters see \code{execute} function
+#' Function performing a workflow involved in execution of a Job in FIS. 
+#' 
+#' If execution fails, the submission object together with the error (if any) that provoked the failure is available
+#' as '.telFailedSubmission' global variable.
+#' 
+#' @param submission a list representing a job that holds all parameters required for successful submission of a job.
+#' @param fisServer FISServer instance.
+#' @param workflowSteps a list of workflow steps to be executed during execution.
+#' 
 #'
-#' @seealso \code{execute}
+#' @seealso \code{TEL.prepareSubmissionStep}
+#' 
+#' @include jobExecution.R
 #' 
 #' @export
 #' 
-TEL.monitor <-
-    function(submission = NULL, importDirectory = NULL, clearUp = FALSE, importSO =
-                 TRUE, importMultipleSO = FALSE,
-             HOST = 'localhost', PORT = '9010', ...) {
-        if (is.null(submission)) {
-            stop('Illegal Argument: submission object was null.')
-        }
-        if (is.null(importDirectory)) {
-            stop('Illegal Argument: target directory was null.')
-        }
-        if (!("requestID" %in% names(submission)) ||
-            is.null(submission$requestID)) {
-            stop("Illegal Argument: submission's requestID element must be set and can't be NULL.")
-        }
-        
-        # FIXME: This is to enable mocking of functions responsible for integration with FIS REST API.
-        # To be removed after 'testthat' upgrade and introducing global FIS Server instance
-        inargs <- list(...)
-        if (!is.null(inargs) && !is.null(inargs$server)) {
-            SERVER = inargs$server
-        } else {
-            SERVER = .SERVER
-        }
-        if (!is.null(inargs) && !is.null(inargs$tel)) {
-            TEL = inargs$tel
-        } else {
-            TEL = .TEL
-        }
+TEL.performExecutionWorkflow <-
+    function(submission = NULL,
+             fisServer = TEL.getServer(), workflowSteps = list(), ...) {
+        .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FIS Server instance is required.")
+        .precondition.checkArgument(!is.null(submission), "submission", "Object is required.")
+        .precondition.checkArgument(("parameters" %in% names(submission)) && !is.null(submission$parameters),"submission$parameters", "Element must be set and can't be NULL.")
         
         message(sprintf('-- %s', submission$start))
-        message(sprintf('Job %s progress:', submission$requestID))
-        message(submission$status)
-        
-        submission <- SERVER$poll(submission, HOST = HOST, PORT = PORT)
-        result <- NULL
-        if (submission$fisJobStatus == "COMPLETED") {
-            submission$status = "Importing Results"
-            message(submission$status)
-            submission$job <-
-                SERVER$getJob(submission$requestID, HOST = HOST, PORT = PORT)
-            submission <-
-                TEL$importFiles(submission, target = importDirectory, clearUp = clearUp)
-            if (importMultipleSO) {
-                result <- TEL$importSO(submission, multiple = TRUE)
-            } else if (importSO) {
-                result <- TEL$importSO(submission)
+        submission <- tryCatch(
+            {
+                message(submission$status)
+                for(stepFunction in workflowSteps) {
+                    submission <- do.call(what = stepFunction, 
+                                               args = list("submission" = submission, "fisServer" = fisServer, "..." = ...)
+                                               )
+                    if(submission$status == SUBMISSION_FAILED) {
+                        break
+                    }
+                }
+                submission
+            }, error = function(err) {
+                submission$status <- SUBMISSION_FAILED
+                submission$error <- err
+                log.debug(err)
+                submission
             }
-            submission$status <- "Completed"
-        } else {
-            submission$status <- "Failed"
-        }
-        
-        message(submission$status)
+        )
         submission$end <- date()
+        if(submission$status!=SUBMISSION_FAILED) {
+            submission$status <- SUBMISSION_COMPLETED
+        }
+        message(submission$status)
         message(sprintf('-- %s', submission$end))
-        
-        if (submission$status == "Failed") {
+        if (submission$status == SUBMISSION_FAILED) {
+            .telFailedSubmission <<- submission
             stop(
-                "Execution of model ", submission$modelFile, " failed.\n  The contents of the working directory ",
-                submission$workingDirectory, " may be useful for tracking down the cause of the failure."
+                "Execution of model ", submission$parameters$modelFile, " failed.\n  The contents of the working directory ",
+                submission$parameters$workingDirectory, " may be useful for tracking down the cause of the failure."
             )
         }
-        
-        if (is.null(result)) {
-            submission
-        } else {
-            result
-        }
+        return(submission)
     }
 
 
 #' @seealso \code{execute}
 setMethod("execute", signature=signature(x="mogObj"), 
     function(x, target=NULL,
-                    addargs=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), wait=TRUE, clearUp=FALSE,
+                    addargs=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), clearUp=FALSE,
                     extraInputFileExts=NULL, extraInputFiles=NULL, importSO=TRUE, importMultipleSO=FALSE,
-                    HOST='localhost', PORT='9010') {
+                    fisServer = TEL.getServer()) {
 
     # First write out MOG to MDL.
     # TODO: This will write out to the current directory - probably not what is desired!
@@ -297,10 +245,10 @@ setMethod("execute", signature=signature(x="mogObj"),
     
     # Now call the generic method using the mdl file
     execute(x="output.mdl", target=target,
-            addargs=addargs, subfolder=subfolder, wait=wait, clearUp=clearUp,
+            addargs=addargs, subfolder=subfolder, clearUp=clearUp,
             extraInputFileExts=extraInputFileExts,extraInputFiles=extraInputFiles,
             importSO=importSO,importMultipleSO=importMultipleSO,
-            HOST=HOST, PORT=PORT)
+            fisServer = fisServer)
   })
 
 ################################################################################

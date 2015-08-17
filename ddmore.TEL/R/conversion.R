@@ -33,22 +33,21 @@ MODEL_PREDICTION_SUBBLOCKS <- c(".DEQ", ".COMPARTMENT")
 #'        .mdl file then using the name argument allows the user to target a specific object.
 #' @param type String specifying the type of object(s) to extract. Possible values are
 #'        \code{dataobj}, \code{parobj}, \code{mdlobj}, \code{taskobj} and \code{mogobj}.
-#' @param HOST Hostname of the server running the FIS service. Defaults to localhost.
-#' @param PORT Port of the server running the FIS service. Defaults to 9010.
+#' @param fisServer FISServer instance.
 #' @return A list of parsed objects which are contained in the MDL file, that match
 #'         the specified criteria. If name is specified, only the single specified object is returned.
 #' 
 #' @usage .parseMDLFile('Warfarin-ODE-latest.mdl', type='dataobj')
 #' 
 #' @include telClasses.R
-.parseMDLFile <- function(f, name, type, HOST='localhost', PORT='9010') {
-
+.parseMDLFile <- function(f, name, type, fisServer) {
+    .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FIS Server instance is required.")
   if (!type%in%c(MOG_OBJECT_TYPES, "mogObj")) {
     stop(paste0("Type specified is not one of \"", paste(MOG_OBJECT_TYPES, collapse="\", \""), "\" or \"mogobj\""))
   }
   
   # Call parser and read in the JSON data
-  raw <- .parseMDLFile0(f, HOST, PORT);
+  raw <- .parseMDLFile0(f, fisServer);
 
   if (!missing(name)) {
   
@@ -73,15 +72,10 @@ MODEL_PREDICTION_SUBBLOCKS <- c(".DEQ", ".COMPARTMENT")
 }
 
 
-.parseMDLFile0 <- function(f, HOST='localhost', PORT='9010') {
-	
+.parseMDLFile0 <- function(f, fisServer) {
+    .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FIS Server instance is required.")
 	if (file_ext(f) == MDL_FILE_EXT) {
-		
-		# Call parser and read in the JSON data:
-		cmd <- URLencode(paste0("http://", HOST, ":", PORT, "/readmdl?fileName=", normalizePath(f, winslash="/")))
-		
-		json <- httpGET(cmd)
-		
+		json <- readMDL(fisServer, f)
 	} else if (file_ext(f) == JSON_FILE_EXT) { # For testing purposes
 		json <- readLines(f, warn=FALSE)[[1]]
 	} else {
@@ -285,8 +279,7 @@ MODEL_PREDICTION_SUBBLOCKS <- c(".DEQ", ".COMPARTMENT")
 #'
 #' @param object Instance of R class \link{\code{mogObj}}.
 #' @param f File path to the .mdl file (optionally without the .mdl extension) that will be created.
-#' @param HOST Hostname of the server running the FIS service. Defaults to localhost.
-#' @param PORT Port of the server running the FIS service. Defaults to 9010.
+#' @param fisServer FISServer instance.
 #'
 #' @export
 #' 
@@ -294,114 +287,119 @@ MODEL_PREDICTION_SUBBLOCKS <- c(".DEQ", ".COMPARTMENT")
 #' @rdname write-methods
 #' @include telClasses.R
 
-setGeneric("write", function(object, f, HOST='localhost', PORT='9010') { 
+setGeneric("write", function(object, f, fisServer=TEL.getServer()) { 
   standardGeneric("write")
 })
 
 #' @rdname write-methods
 #' @aliases write,mogObj,mogObj-method
-setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') {
+setMethod("write", "mogObj", function(object, f, fisServer=TEL.getServer()) {
+    .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FIS Server instance is required.")
+    json <- .generateJSON(object)
 
+    .write.mclobj0(json, f, fisServer = fisServer)
+})
+
+.generateJSON <- function(object) {
     if (!validity.mogObj(object)) {
         stop("Object is not a valid MOG Object")
     }
     m = object
-	
-	# See comment in .createParObj function re the extra transformation required on VARIABILITY slot
+    
+    # See comment in .createParObj function re the extra transformation required on VARIABILITY slot
     # (the transformation here is the reverse of that in .createParObj function)
     parObjAsList <- .removeNullEntries(list(
-	  DECLARED_VARIABLES = translateNamedListIntoList(m@parObj@DECLARED_VARIABLES),
-      STRUCTURAL = translateNamedListIntoList(m@parObj@STRUCTURAL),
-      VARIABILITY = addExtraLayerOfNesting(m@parObj@VARIABILITY),
-	  # TODO: TBC - These two slots need to be populated
-      PRIOR_PARAMETERS = m@parObj@PRIOR_PARAMETERS,
-	  TARGET_CODE = m@parObj@TARGET_CODE,
-      identifier = "parobj"
-	))
-
-	if (length(m@parObj@VARIABILITY) > 0) { # trap the empty-list condition
-		lapply(1:length(m@parObj@VARIABILITY), function(i) {
-			elemName <- names(m@parObj@VARIABILITY)[[i]]
-			# Strip off the redundant count from the end of 'special' variability parameter elements
-			elemName <- gsub("^(same|diag|matrix)_.*$", "\\1", elemName, fixed=FALSE)
-			names(parObjAsList$VARIABILITY[[i]]) <<- elemName
-		})
-	}
-	# Clear the top-level names of the list elements as these names have been moved onto the individual
-	# sub-elements (we have added an extra layer of nesting to the VARIABILITY list)
-	names(parObjAsList$VARIABILITY) <- NULL
+        DECLARED_VARIABLES = translateNamedListIntoList(m@parObj@DECLARED_VARIABLES),
+        STRUCTURAL = translateNamedListIntoList(m@parObj@STRUCTURAL),
+        VARIABILITY = addExtraLayerOfNesting(m@parObj@VARIABILITY),
+        # TODO: TBC - These two slots need to be populated
+        PRIOR_PARAMETERS = m@parObj@PRIOR_PARAMETERS,
+        TARGET_CODE = m@parObj@TARGET_CODE,
+        identifier = "parobj"
+    ))
+    
+    if (length(m@parObj@VARIABILITY) > 0) { # trap the empty-list condition
+        lapply(1:length(m@parObj@VARIABILITY), function(i) {
+            elemName <- names(m@parObj@VARIABILITY)[[i]]
+            # Strip off the redundant count from the end of 'special' variability parameter elements
+            elemName <- gsub("^(same|diag|matrix)_.*$", "\\1", elemName, fixed=FALSE)
+            names(parObjAsList$VARIABILITY[[i]]) <<- elemName
+        })
+    }
+    # Clear the top-level names of the list elements as these names have been moved onto the individual
+    # sub-elements (we have added an extra layer of nesting to the VARIABILITY list)
+    names(parObjAsList$VARIABILITY) <- NULL
     
     dataObjAsList <- .removeNullEntries(list(
         SOURCE = .removeNullEntries(m@dataObj@SOURCE), # removeNullEntries() required since ignoreChar etc. might not be specified
-		DECLARED_VARIABLES = translateNamedListIntoList(m@dataObj@DECLARED_VARIABLES),
+        DECLARED_VARIABLES = translateNamedListIntoList(m@dataObj@DECLARED_VARIABLES),
         DATA_INPUT_VARIABLES = translateNamedListIntoList(m@dataObj@DATA_INPUT_VARIABLES),
         DATA_DERIVED_VARIABLES = translateNamedListIntoList(m@dataObj@DATA_DERIVED_VARIABLES),
-		TARGET_CODE = m@parObj@TARGET_CODE,
+        TARGET_CODE = m@parObj@TARGET_CODE,
         identifier = "dataobj"
     ))
     
     # Enclose the file name in double quotes ready for writing back to MDL
-	dataObjAsList$SOURCE$file <- add_quotes(dataObjAsList$SOURCE$file)
+    dataObjAsList$SOURCE$file <- add_quotes(dataObjAsList$SOURCE$file)
     # Similarly for the Ignore character
     dataObjAsList$SOURCE$ignore <- add_quotes(dataObjAsList$SOURCE$ignore)
     
     mdlObjAsList <- .removeNullEntries(list(
-		IDV = translateNamedListIntoList(m@mdlObj@IDV),
-		COVARIATES = translateNamedListIntoList(m@mdlObj@COVARIATES),
-		VARIABILITY_LEVELS = translateNamedListIntoList(m@mdlObj@VARIABILITY_LEVELS),
+        IDV = translateNamedListIntoList(m@mdlObj@IDV),
+        COVARIATES = translateNamedListIntoList(m@mdlObj@COVARIATES),
+        VARIABILITY_LEVELS = translateNamedListIntoList(m@mdlObj@VARIABILITY_LEVELS),
         STRUCTURAL_PARAMETERS = translateNamedListIntoList(m@mdlObj@STRUCTURAL_PARAMETERS),
         VARIABILITY_PARAMETERS = translateNamedListIntoList(m@mdlObj@VARIABILITY_PARAMETERS),
         RANDOM_VARIABLE_DEFINITION = translateNamedListIntoList(m@mdlObj@RANDOM_VARIABLE_DEFINITION),
         INDIVIDUAL_VARIABLES = translateNamedListIntoList(m@mdlObj@INDIVIDUAL_VARIABLES),
-		MODEL_PREDICTION = .parseModelPredictionNamedListIntoJSON(m@mdlObj@MODEL_PREDICTION),
+        MODEL_PREDICTION = .parseModelPredictionNamedListIntoJSON(m@mdlObj@MODEL_PREDICTION),
         OBSERVATION = translateNamedListIntoList(m@mdlObj@OBSERVATION),
-		GROUP_VARIABLES = translateNamedListIntoList(m@mdlObj@GROUP_VARIABLES),
-		MODEL_OUTPUT_VARIABLES = translateNamedListIntoList(m@mdlObj@MODEL_OUTPUT_VARIABLES),
-		# TODO: TBC - These three slots need to be populated
-		ESTIMATION = m@mdlObj@ESTIMATION,
-		SIMULATION = m@mdlObj@SIMULATION,
-		TARGET_CODE = m@mdlObj@TARGET_CODE,
+        GROUP_VARIABLES = translateNamedListIntoList(m@mdlObj@GROUP_VARIABLES),
+        MODEL_OUTPUT_VARIABLES = translateNamedListIntoList(m@mdlObj@MODEL_OUTPUT_VARIABLES),
+        # TODO: TBC - These three slots need to be populated
+        ESTIMATION = m@mdlObj@ESTIMATION,
+        SIMULATION = m@mdlObj@SIMULATION,
+        TARGET_CODE = m@mdlObj@TARGET_CODE,
         identifier = "mdlobj"
     ))
     
     taskObjAsList <- .removeNullEntries(list(
         ESTIMATE = m@taskObj@ESTIMATE,
-		# TODO: TBC - These six slots need to be populated
-		SIMULATE = m@taskObj@SIMULATE,
-		EVALUATE = m@taskObj@EVALUATE,
-		OPTIMISE = m@taskObj@OPTIMISE,
-		DATA = m@taskObj@DATA,
-		MODEL = m@taskObj@MODEL,
-		TARGET_CODE = m@taskObj@TARGET_CODE,
+        # TODO: TBC - These six slots need to be populated
+        SIMULATE = m@taskObj@SIMULATE,
+        EVALUATE = m@taskObj@EVALUATE,
+        OPTIMISE = m@taskObj@OPTIMISE,
+        DATA = m@taskObj@DATA,
+        MODEL = m@taskObj@MODEL,
+        TARGET_CODE = m@taskObj@TARGET_CODE,
         identifier = "taskobj"
     ))
-
-	dataObjName <- m@dataObj@name
-	parObjName <- m@parObj@name
-	mdlObjName <- m@mdlObj@name
-	taskObjName <- m@taskObj@name
-	mogDefinitionName <- if (length(m@name) == 0 || m@name == '') "outputMog" else m@name
     
-	allObjsAsList <- list(
-		dataObjAsList, parObjAsList, mdlObjAsList, taskObjAsList,
-		# The mog definition object
-		list(
-			identifier = "mogobj",
-			OBJECTS = setNames(
-				vector("list", 4), # Creates an empty list of length 4
-				list(dataObjName, parObjName, mdlObjName, taskObjName)
-			)
-		)
-	)
-	names(allObjsAsList) <- c(dataObjName, parObjName, mdlObjName, taskObjName, mogDefinitionName)
-	
+    dataObjName <- m@dataObj@name
+    parObjName <- m@parObj@name
+    mdlObjName <- m@mdlObj@name
+    taskObjName <- m@taskObj@name
+    mogDefinitionName <- if (length(m@name) == 0 || m@name == '') "outputMog" else m@name
+    
+    allObjsAsList <- list(
+        dataObjAsList, parObjAsList, mdlObjAsList, taskObjAsList,
+        # The mog definition object
+        list(
+            identifier = "mogobj",
+            OBJECTS = setNames(
+                vector("list", 4), # Creates an empty list of length 4
+                list(dataObjName, parObjName, mdlObjName, taskObjName)
+            )
+        )
+    )
+    names(allObjsAsList) <- c(dataObjName, parObjName, mdlObjName, taskObjName, mogDefinitionName)
+    
     json <- toJSON(list(allObjsAsList))
+    return(json)
+}
 
-    .write.mclobj0(json, f, HOST, PORT)
-})
-
-.write.mclobj0 <- function(json, f, HOST='localhost', PORT='9010') {
-
+.write.mclobj0 <- function(json, f, fisServer) {
+    .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FIS Server instance is required.")
     fullPath <- normalizePath(f, winslash="/", mustWork=FALSE)
 	
 	if (file_ext(f) == MDL_FILE_EXT) {
@@ -412,7 +410,7 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
 		)), reserved=TRUE) # ensures that & characters etc. get encoded too
 		
 		# Call parser and post the JSON data:
-		cmd <- URLencode(paste0("http://", HOST, ":", PORT, "/writemdl"))
+		cmd <- URLencode(getWriteMDLUrl(fisServer))
 		
 		postfield <- sprintf('%s%s','writeRequest=',wreq)
 		
@@ -426,8 +424,6 @@ setMethod("write", "mogObj", function(object, f, HOST='localhost', PORT='9010') 
 		# Don't print out the JSON-format return status
 		invisible(retStatus)
 		
-	} else if (file_ext(f) == JSON_FILE_EXT) { # For testing purposes
-		writeLines(json, f)
 	} else {
 		stop(paste("The file extension for the file being written out from R objects should be .mdl; the filename was", f))
 	}
@@ -567,14 +563,13 @@ addExtraLayerOfNesting <- function(l) {
 #' Converts an MDL file into a PharmML file.
 #' 
 #' @param f Path to the .mdl file to be converted.
-#' @param HOST Hostname of the server running the FIS service. Defaults to localhost.
-#' @param PORT Port of the server running the FIS service. Defaults to 9010.
+#' @param fisServer FISServer instance.
 #' @return Path to the generated .xml PharmML file.
 #' 
 #' @export
-as.PharmML <- function(f, HOST='localhost', PORT='9010') {
-	
-	cmd <- URLencode(paste0("http://", HOST, ":", PORT, "/convertmdl"))
+as.PharmML <- function(f, fisServer = TEL.getServer()) {
+    .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FIS Server instance is required.")
+	cmd <- URLencode(getMDLToPharmMLURL(fisServer))
 	
 	if (!file.exists(f)) {
 		stop("Error, MDL file \"", f, "\" does not exist.");

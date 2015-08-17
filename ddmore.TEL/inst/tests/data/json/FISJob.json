@@ -1,0 +1,1 @@
+{"id":"0a10dcb4-81fd-45a9-9251-f753f08bb7a7","executionType":"NONMEM","commandParameters":"","workingDirectory":"C:\\path\\Temp\\RtmpO0JTs6\\TEL.job23c461f131b8","executionFile":"Friberg_PANSS.xml","extraInputFiles":[],"submitTime":"2015-08-10T14:10:07.266+01:00","status":"COMPLETED","resultsIncludeRegex":".*","resultsExcludeRegex":"(nonmem.exe|temp_dir)","version":3}

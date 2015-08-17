@@ -10,8 +10,7 @@
 #'
 #' @param x File path or URL of the .mdl file containing the task object.
 #'
-#' @param HOST hostname of the server running the FIS service, defaults to localhost
-#' @param PORT port of the server running the FIS service, defaults to 9010
+#' @param fisServer FISServer instance.
 #'
 #' @return A list of objects of class "dataObj", "parObj", "taskObj" and "mdlObj". 
 #'          If name is specified, only the single specified object is returned.
@@ -37,8 +36,8 @@
 #' myThamMOG@dataobj$DESIGN <- myDesignBlock
 #' myThamMOG@taskobj <- mySimulationTaskObject
 #'
-#' @include telClasses.R
-setGeneric("getMDLObjects", function(x, name, HOST='localhost', PORT='9010') { 
+#' @include telClasses.R, FISServer.R
+getMDLObjects <- function(x, name, fisServer=TEL.getServer()) { 
   
   if(!is.character(x)){stop("x must be a string containing either the file name or URL of the MDL file")}
   if(!missing(name)){
@@ -46,7 +45,7 @@ setGeneric("getMDLObjects", function(x, name, HOST='localhost', PORT='9010') {
   }
   
   # Call parser and read in the JSON data
-  raw <- .parseMDLFile0(x, HOST, PORT);
+  raw <- .parseMDLFile0(x, fisServer=fisServer);
   
   allObjs <- list()
   sapply(MOG_OBJECT_TYPES, function(mog_object_type) {
@@ -77,5 +76,5 @@ setGeneric("getMDLObjects", function(x, name, HOST='localhost', PORT='9010') {
   # Otherwise return a list of all the objects
   return(allObjs)
   
-})
+}
 

@@ -27,9 +27,8 @@ try( test_package(packageName,
   paste("testReport", packageName, ".xml", sep = "")    )))
 )
 
-message("Saving test report to", getwd())
+message("Saving test report to ", getwd())
+message("Saving warnings to ", getwd())
 
-
-
-
+warnings(file = file.path(getwd(),"testWarnings.log"), append=TRUE)
 
