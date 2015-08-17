@@ -223,7 +223,7 @@ setMethod(f="as.data",
           # column names based on the mdl file.
 				  rawData <- read.NONMEMDataSet(inputDataPath)
 
-          if (any(!(c("ID", "TIME", "DV") %in% names(rawData)))) {
+          if (any(!(c("ID", "TIME") %in% names(rawData)))) {
             colNames <- .deriveColumnNamesFromAssociatedMDL(SOObject)
             rawData <- read.NONMEMDataSet(inputDataPath, colNames=colNames)
           }
