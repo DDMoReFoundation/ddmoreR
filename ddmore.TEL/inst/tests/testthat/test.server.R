@@ -86,7 +86,6 @@ test_that("TEL.pollStep should poll untill Job status is FAILED", {
     expect_equal(result$status,"Failed", info = "Submission's 'status' element should be 'Failed'.")
 })
 
-.setDebugMode(TRUE)
 context("TEL.printJobs")
 # Given
 setMethod("getJobs", signature = signature("MockFISServer"),
@@ -122,4 +121,19 @@ test_that("TEL.printJobs should print COMPLETED jobs if COMPLETED status specifi
 test_that("TEL.printJobs should print FAILED jobs if FAILED status specified", {
     failedJobs <- TEL.printJobs(statuses=c("FAILED"))
     expect_equal(nrow(failedJobs), 1, info = "Unexpected number of FAILED jobs.")
+})
+
+context("TEL.cancelJob")
+# Given
+setMethod("cancelJob", signature = signature("MockFISServer"),
+          function(fisServer, job) {
+              job@status <- 'CANCELLING'
+              job
+          })
+
+test_that("TEL.cancelJob should result in job with CANCELLING state", {
+        fisJob <- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id =  "MOCK_ID_RUNNING_1", workingDirectory = "/mock/working/dir", status = "RUNNING"))
+        # then
+        cancelledJob <- TEL.cancelJob(fisJob)
+        expect_equal(cancelledJob@status, 'CANCELLING', info = "Invalid job status returned.")
 })

@@ -204,7 +204,7 @@ setMethod("getJob", signature = signature("FISServer"),
 #' Gets a FIS job
 #'
 #' @param fisServer FISServer instance.
-#' @param job named list representing job to be sent off to FIS
+#' @param job FISJob instance
 #'
 #' @export
 setGeneric(
@@ -218,7 +218,8 @@ setMethod("submitJob", signature = signature("FISServer"),
           function(fisServer, job) {
               .precondition.checkArgument(is.FISJob(job), "job", "FISJob instance required.")
               json <- .fisJobToJSON(job)
-              h <- basicTextGatherer()
+              respContent <- basicTextGatherer()
+              respHeader <- basicHeaderGatherer()
               submitURL <- sprintf('%s/jobs', fisServer@url)
               httpheader <-
                   c(Accept = "application/json; charset=UTF-8",
@@ -227,13 +228,54 @@ setMethod("submitJob", signature = signature("FISServer"),
               curlRet <-
                   RCurl:::curlPerform(
                       url = submitURL, postfields = json, httpheader = httpheader, writefunction =
-                          h$update
+                          respContent$update, headerFunction = respHeader$update
                   )
-              response <- fromJSON(h$value())
-              log.debug(sprintf("Received from FIS Server: %s", response))
+              if(respHeader$value()['status']!=200) {
+                  stop(sprintf("Could not submit job. Error: %s", respContent$value()))
+              }
+              log.debug(sprintf("Received from FIS Server: %s", respContent$value()))
+              response <- fromJSON(respContent$value())
               return(createFISJobFromNamedList(response))
           })
 
+################################################################################
+#' cancelJob
+#'
+#' Cancels a FIS job
+#'
+#' @param fisServer FISServer instance.
+#' @param job FISJob instance
+#'
+#' @export
+setGeneric(
+    name = "cancelJob",
+    def = function(fisServer, job)
+    {
+        standardGeneric("cancelJob")
+    }
+)
+setMethod("cancelJob", signature = signature("FISServer"),
+          function(fisServer, job) {
+              .precondition.checkArgument(is.FISJob(job), "job", "FISJob instance required.")
+              .precondition.checkArgument(length(job@id)>0, "job@id", "FISJob must have id specified.")
+              respContent <- basicTextGatherer()
+              respHeader <- basicHeaderGatherer()
+              submitURL <- sprintf('%s/cmd/jobs/cancel/%s', fisServer@url, job@id)
+              httpheader <-
+                  c(Accept = "application/json; charset=UTF-8")
+              log.debug(sprintf("Sending cancellation request to: %s", submitURL))
+              curlRet <-
+                  RCurl:::curlPerform(
+                      url = submitURL, postfields = "", httpheader = httpheader, writefunction =
+                          respContent$update, headerFunction = respHeader$update
+                  )
+              if(respHeader$value()['status']!=200) {
+                  stop(sprintf("Could not cancel job %s. Error: %s", job@id, respContent$value()))
+              }
+              log.debug(sprintf("Received from FIS Server: %s", respContent$value()))
+              response <- fromJSON(respContent$value())
+              return(createFISJobFromNamedList(response))
+          })
 ################################################################################
 #' readMDL
 #'

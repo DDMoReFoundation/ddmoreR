@@ -248,10 +248,28 @@ TEL.getJobs <- function(fisServer = TEL.getServer()) {
 #' @export
 #'
 TEL.getJob <- function(jobId = NULL, fisServer = TEL.getServer()) {
-    .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "Server instance required.")
+    .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FISServer instance required.")
     .precondition.checkArgument(!is.null(jobId), "jobId", "Job id must be specified.")
     getJob(fisServer, jobId)
 }
+
+################################################################################
+#' TEL.cancelJob
+#' 
+#' Cancels a given job. Wrapper for \code{cancelJob(FISServer, jobId)} method.
+#' 
+#' @param job FISJob instance.
+#' @param fisServer FISServer instance.
+#' 
+#' @return FISJob object
+#' @export
+#'
+TEL.cancelJob <- function(job = NULL, fisServer = TEL.getServer()) {
+    .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FISServer instance required.")
+    .precondition.checkArgument(is.FISJob(job), "job", "FISJob instance required.")
+    cancelJob(fisServer, job)
+}
+
 
 ################################################################################
 #' TEL.printJobs
