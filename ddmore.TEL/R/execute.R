@@ -12,10 +12,6 @@
 #' @param subfolder (Optional) Specify the name of a subfolder, within the directory
 #'        containing the model file, in which to store the results. Default
 #'        is a timestamped folder.
-#' @param wait (Optional) Logical dictating if the function should continuously
-#'        poll for results until the job either finishes successfully or fails,
-#'        or whether to 'fire and forget' the submission request and manually
-#'        collect the results later on. Default is true.
 #' @param clearUp (Optional) Logical dictating if the job working directory should
 #'        be deleted upon successful job completion. Default is false, since this
 #'        directory may contain useful information in the event that a job failed
@@ -41,11 +37,11 @@
 #' @include telClasses.R
 #' @include StandardOutputObject.R
 setGeneric("estimate", function(x, target=NULL,
-	addargs=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), wait=TRUE, clearUp=FALSE,
+	addargs=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), clearUp=FALSE,
 	fisServer=TEL.getServer()) {
   
 	execute(x=x, target=target,
-			addargs=addargs, subfolder=subfolder, wait=wait, clearUp=clearUp,
+			addargs=addargs, subfolder=subfolder, clearUp=clearUp,
 			fisServer=fisServer)
 })
 
@@ -53,7 +49,7 @@ setGeneric("estimate", function(x, target=NULL,
 #' @aliases estimate,mogObj,mogObj-method
 setMethod("estimate", signature=signature(x="mogObj"), 
 	function(x, target=NULL,
-			 addargs=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), wait=TRUE, clearUp=FALSE,
+			 addargs=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), clearUp=FALSE,
 			 fisServer=TEL.getServer()) {
 
     # First write out MOG to MDL.
@@ -63,7 +59,7 @@ setMethod("estimate", signature=signature(x="mogObj"),
     
     # Now call the generic method using the mdl file
 	execute(x="output.mdl", target=target,
-			addargs=addargs, subfolder=subfolder, wait=wait, clearUp=clearUp,
+			addargs=addargs, subfolder=subfolder, clearUp=clearUp,
 			fisServer=fisServer)
   })
   
@@ -238,7 +234,7 @@ TEL.performExecutionWorkflow <-
 #' @seealso \code{execute}
 setMethod("execute", signature=signature(x="mogObj"), 
     function(x, target=NULL,
-                    addargs=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), wait=TRUE, clearUp=FALSE,
+                    addargs=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), clearUp=FALSE,
                     extraInputFileExts=NULL, extraInputFiles=NULL, importSO=TRUE, importMultipleSO=FALSE,
                     fisServer = TEL.getServer()) {
 
@@ -249,7 +245,7 @@ setMethod("execute", signature=signature(x="mogObj"),
     
     # Now call the generic method using the mdl file
     execute(x="output.mdl", target=target,
-            addargs=addargs, subfolder=subfolder, wait=wait, clearUp=clearUp,
+            addargs=addargs, subfolder=subfolder, clearUp=clearUp,
             extraInputFileExts=extraInputFileExts,extraInputFiles=extraInputFiles,
             importSO=importSO,importMultipleSO=importMultipleSO,
             fisServer = fisServer)
