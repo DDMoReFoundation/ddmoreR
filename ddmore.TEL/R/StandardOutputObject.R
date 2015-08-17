@@ -189,7 +189,7 @@ mergeByPosition <- function(df1, df2, msg='') {
 # ============================= #
 #' as.data
 #'
-#'  Method to Fetch all relevant data and return a merged data.frame onject.
+#'  Method to Fetch all relevant data and return a merged data.frame object.
 #'
 #' @include read.R
 #' @export
@@ -238,8 +238,17 @@ setMethod(f="as.data",
 			  # Test to see if data rows are the same, if not remove dose rows from the 
 			  # input data and recompare.
 			  if (nrow(rawData) > nrow(SOObject@Estimation@Predictions$data)) {
-				  rawData <- rawData[!is.na(rawData[['DV']]), ]
-			  }
+          
+            # Detect Dose rows via MDV column if present
+            if ("MDV" %in% names(rawData)) {
+              rawData <- rawData[rawData[['MDV']] != 1, ]
+            } else {
+              # Else detect dose rows via missing values in DV
+              rawData <- rawData[!is.na(rawData[['DV']]), ]
+            }
+
+          }
+          
 			  if (nrow(rawData) != nrow(SOObject@Estimation@Predictions$data)) {
 				  print(paste("Number of Rows in Raw Data: ", nrow(rawData)))
 				  print(paste("Number of Rows in Predictions: ", nrow(SOObject@Estimation@Predictions$data)))
@@ -263,7 +272,7 @@ setMethod(f="as.data",
 				  df2 <- SOObject@Estimation@Residuals$ResidualTable$data
 
           #### Additional check to compare rows of data as Residuals does not include dose rows at current 
-          #### Therfore need to remove the rows in rawData and Predictions to make merge possible
+          #### Therefore need to remove the rows in rawData and Predictions to make merge possible
 
           # Test to see if data rows are the same, if not remove dose rows from the 
           # input data and recompare.
