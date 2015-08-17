@@ -254,9 +254,9 @@ setMethod(f="as.data",
             # Detect Dose rows via MDV column if present
             if ("MDV" %in% names(rawData)) {
               rawData <- rawData[rawData[['MDV']] != 1, ]
-            } else {
-              # Else detect dose rows via missing values in DV
-              rawData <- rawData[!is.na(rawData[['DV']]), ]
+            } else if ("AMT" %in% names(rawData))  {
+              # Else detect dose rows via AMT column if present
+              rawData <- rawData[ rawData[['AMT']] > 0, ]
             }
 
           }
