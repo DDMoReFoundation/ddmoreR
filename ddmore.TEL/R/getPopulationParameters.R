@@ -28,15 +28,17 @@
 #'    \item "precision" - returns variability / uncertainty estimates for the 
 #'        parameters.
 #'    \item "intervals" - returns interval estimates for the parameters. 
-#'    \item "all" - returns all of the above in a table.}
+#'    \item "all" - returns all of the above in a table if they are present in the SOObject (default).}
 #' @param keep.only character string determining which central tendency statistic to use 
 #'      for the estimate when multiple are present. Only applicable to Bayesian which
 #'      has Mean, Median and  Mode; and Bootstrap which has Mean and Median as options.   
 #' 
-#' @return If only returning "estimates" or "precision" then a named vector of 
-#' real values. If returning "intervalEstimates" or "All" then a data frame 
-#' containing one row for each parameter. Columns are "Estimate", "Precision", 
-#' "Lower", "Upper", "Shrinkage"
+#' @return If only returning estimates by setting \code{what="estimates"} then a named vector of 
+#' real values is returned to fascilitate the outputs use with the \code{update} method. 
+#' If what is set to "intervals", "precision" or "all" then a data frame 
+#' containing one row for each parameter is returned. The columns of which will be the parameter 
+#' names, estimate values, then followed by the statistics specified e.g. precision values, 
+#' interval values or both
 #' 
 #' @examples getPopulationParameters(object, type="all", what="all")
 #'
