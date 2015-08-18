@@ -57,7 +57,7 @@ message <- function (..., domain = NULL, appendLF = TRUE, file=stdout())
 #' Can take a single element that contains a single <Definition> and <Table> elements as its children.
 #' Or can take a list of elements, who each have <Definition> and <Table> elements as their children.
 #'
-#' @param listObject either a single or multiple SO elements that have the necesarry Definition-Table element combination.
+#' @param listObject either a single or multiple SO elements that have the necessary Definition-Table element combination.
 #' @param title A character vector to be printed at the start of the output
 #' @param headings A list of names to print alongside the elements given, must be one for each element in listObject.
 #'
