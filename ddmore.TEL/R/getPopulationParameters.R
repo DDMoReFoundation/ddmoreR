@@ -268,6 +268,10 @@ getMLEPopulationParameters <- function(SOObject, what="all"){
     }
   } 
 
+  # Sort the data frame by parameters names. Merge will do this anyway be default, but its possible to 
+  # have no merge operations performed due to missing SO sections. This is added for consistency in output. 
+  MLE.output = MLE.output[with(MLE.output, order(Parameter)),]
+
   # Remove row names as they are also stored in 'Parameter' column
   rownames(MLE.output) <- NULL
 
@@ -363,6 +367,10 @@ getBayesianPopulationParameters <- function(SOObject, what="all", keep.only=NULL
     Bayesian.output <- Bayesian.output[-(drop.indicies+1)]
   }
 
+  # Sort the data frame by parameters names. Merge will do this anyway be default, but its possible to 
+  # have no merge operations performed due to missing SO sections. This is added for consistency in output. 
+  Bayesian.output <- Bayesian.output[with(Bayesian.output, order(Parameter)),]
+
   # Remove row names as they are also stored in 'Parameter' column
   rownames(Bayesian.output) <- NULL
   
@@ -452,6 +460,10 @@ getBootstrapPopulationParameters <- function(SOObject, what="all", keep.only=NUL
     drop.indicies <- grep(tolower(keep.only), tolower(names(Bootstrap.output))[2:3], invert = TRUE)
     Bootstrap.output <- Bootstrap.output[-(drop.indicies+1)]
   }
+
+  # Sort the data frame by parameters names. Merge will do this anyway be default, but its possible to 
+  # have no merge operations performed due to missing SO sections. This is added for consistency in output. 
+  Bootstrap.output = Bootstrap.output[with(Bootstrap.output, order(Parameter)),]
 
   # Remove row names as they are also stored in 'Parameter' column
   rownames(Bootstrap.output) <- NULL
