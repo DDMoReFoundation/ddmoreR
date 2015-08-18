@@ -71,6 +71,7 @@ TEL.startServer <-
       if (!TEL.serverRunning(fisServer)) {
       	healthStatuses <- TEL.serverHealthcheck(fisServer)
         stop(paste("Failure!", healthStatuses, sep="\n"))
+        stop(paste("Server was unable to start. Refer to", startupScriptStdErr, " and ", startupScriptStdOut, "for details."))
       }
       message("Success!")
     } else {
