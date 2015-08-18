@@ -262,8 +262,8 @@ setMethod(f="as.data",
           }
           
 			  if (nrow(rawData) != nrow(SOObject@Estimation@Predictions$data)) {
-				  print(paste("Number of Rows in Raw Data: ", nrow(rawData)))
-				  print(paste("Number of Rows in Predictions: ", nrow(SOObject@Estimation@Predictions$data)))
+				  message(paste("Number of Rows in Raw Data: ", nrow(rawData)))
+				  message(paste("Number of Rows in Predictions: ", nrow(SOObject@Estimation@Predictions$data)))
 				  stop("Number of non-dose rows in raw data is different to those in SO Predictions")
 			  }
 			  
@@ -294,8 +294,8 @@ setMethod(f="as.data",
               "Residuals data does not currently contain dose rows in output from Nonmem executions."))
           }
           if (nrow(df1) != nrow(df2)) {
-            print(paste("Number of Rows in Raw Data + Predictions: ", nrow(df1)))
-            print(paste("Number of Rows in Residuals: ", nrow(df2)))
+            message(paste("Number of Rows in Raw Data + Predictions: ", nrow(df1)))
+            message(paste("Number of Rows in Residuals: ", nrow(df2)))
             stop("Number of non-dose rows in raw data + Predictions slot is different to those in SO Residuals")
           }
 
