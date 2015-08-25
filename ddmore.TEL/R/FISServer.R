@@ -67,7 +67,7 @@ setClass(
 createFISServer <-
     function(url = "http://localhost:9010", operationalUrl = "http://localhost:9011",
              startupScript = NULL,
-             jobStatusPollingDelay = 20, startupPollingMax = 60, startupPollingDelay = 1) {
+             jobStatusPollingDelay = 20, startupPollingMax = 120, startupPollingDelay = 1) {
         new(
             "FISServer",
             url = url,

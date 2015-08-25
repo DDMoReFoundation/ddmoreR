@@ -22,7 +22,7 @@ test_that("createFISServer creates a valid object with defaults", {
     expect_true(instance@operationalUrl == "http://localhost:9011", info = "operationalUrl was incorrect")
     expect_true(instance@startupScript == "MOCK", info = "startupScript was incorrect")
     expect_true(instance@jobStatusPollingDelay == 20, info = "jobStatusPollingDelay was incorrect")
-    expect_true(instance@startupPollingMax == 60, info = "startupPollingMax was incorrect")
+    expect_true(instance@startupPollingMax == 120, info = "startupPollingMax was incorrect")
     expect_true(instance@startupPollingDelay == 1, info = "startupPollingDelay was incorrect")
     
 })
