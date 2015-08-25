@@ -420,7 +420,7 @@ test_that("Test getPopulationParameters returns correct statistics using bootstr
   # Bootstrap
   # --------------
   Bootstrap <- output[["Bootstrap"]]
-  expect_true(all(colnames(Bootstrap) == c("Parameter", "Mean")),
+  expect_true(all(colnames(Bootstrap) == c("Parameter", "Mean", "Perc_2.5", "Perc_5", "Perc_95", "Perc_97.5")),
            info = "Bootstrap should have correct column names.")
 
   expect_true(all(Bootstrap[["Parameter"]] == PARAMETERS),
@@ -442,8 +442,6 @@ test_that("Test getPopulationParameters returns correct statistics using bootstr
   expect_true(all.equal(expectedValues, Bootstrap[2:4]), info = "Values in dataframe should be as expected.")
 
  })
-
-
 
 test_that("Test getPopulationParameters returns correct statistics using UPDRS1_CNS_ZINNIA.SO.xml sample data.", {
   
