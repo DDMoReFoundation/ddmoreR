@@ -481,6 +481,37 @@ getBootstrapPopulationParameters <- function(SOObject, what="all", keep.only=NUL
 
 # TODO: Need to know whether these lower level functions are still necessary
 
+
+# # ============================= #
+# # Higher Level Getter Functions #
+# # ============================= #
+# #' getEstimationInfo
+# #'
+# #' This function acts on an object of class StandardOutputObject 
+# #' and is a wrapper to getLikelihood and getSoftwareMessages presenting information
+# #' to the user about the estimation process including any warnings, errors from 
+# #' the log and, depending on the target software and estimation method, values 
+# #' such as Objective Function Value (OFV), -2*log-likelihood, Information criteria
+# #' such as AIC, DIC, BIC. 
+# #'
+# #' @param object an object of class StandardOutputObject, the output from an 
+# #' estimation task.
+# #'
+# #' @return A named list.
+# #'
+# #' @examples getEstimationInfo(object)
+# #'
+# #' @seealso getLikelihood, getSoftwareMessages
+# #'
+# #' @export 
+# getEstimationInfo <- function(SOObject){
+  
+#   likelihood <- getLikelihood(SOObject)
+#   messages <- getSoftwareMessages(SOObject)
+
+#   invisible(list(Likelihood=likelihood, Messages=messages))
+# }
+
 # ================ #
 # Getter Methods   #
 # ================ #
