@@ -19,8 +19,6 @@ Depends:
     XML(>= 3.98-1.1),
     stringr(>= 0.6.2)
 Collate:
-    'FISJob.R'
-    'FISServer.R'
     'xmlParsers.R'
     'utils.R'
     'telClasses.R'
@@ -31,12 +29,9 @@ Collate:
     'conversion.R'
     'createMogObj.R'
     'server.R'
-    'prepare.R'
-    'jobExecution.R'
     'import.R'
     'execute.R'
     'getDataObjects.R'
-    'telClasses.R,'
     'getMDLObjects.R'
     'getModelObjects.R'
     'getParameterObjects.R'
@@ -48,5 +43,8 @@ Collate:
     'startingValues.r'
     'subset.R'
     'update.r'
+    'FISServer.R'
+    'FISJob.R'
+    'jobExecution.R'
 Suggests:
     testthat
