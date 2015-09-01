@@ -103,7 +103,7 @@ test_that("cancelJob returns cancelled job that was returned from FIS", {
     expect_equal(cancelled@id,"0a10dcb4-81fd-45a9-9251-f753f08bb7a7", info = "Job ID was incorrect.")
 })
 
-test_that("submitJob throws error for non 200 HTTP response status", {
+test_that("cancelJob throws error for non 200 HTTP response status", {
     .httpPost <- function(url, body = "", headers= c()) {
         response <- list()
         response$header <- list()
