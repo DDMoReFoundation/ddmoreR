@@ -1,3 +1,9 @@
+# Usage:
+#
+# Source this file from the test script to run tests from R IDE.
+# N.B. add 'source' function call after any rm(list=ls()) calls.
+#
+
 ##
 ## Load in the R files so that the workflow functions can be modified on-the-fly,
 ## rather than having to re-build the DDMoRE.TEL package every time a change is made.
@@ -20,8 +26,14 @@ if (is.null(sys.frame(1)$ofile)) {
 	stop("There is a known intermittent problem loading in the R scripts after loading in libraries; try re-running that source() command again.")
 }
 
-scripts.dir <- paste0(dirname(sys.frame(1)$ofile), "/ddmore.TEL/R/")
-
+location <- normalizePath(dirname(file.path(sys.frame(1)$ofile)))
+print(sprintf("DDMoRe TEL R project root: %s", location))
+scripts.dir <- paste0(location, "/ddmore.TEL/R/")
+libPath <- file.path(location, ".lib")
+print(sprintf("DDMoRe TEL R source files location: %s", scripts.dir))
+print(sprintf("DDMoRe TEL R libraries directory: %s", libPath))
+.libPaths(libPath)
+          
 script.files = c(
     "telClasses", "createMogObj",
     "utils", "import", "execute", "conversion", "read", "update",

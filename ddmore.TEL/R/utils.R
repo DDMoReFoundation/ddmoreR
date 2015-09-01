@@ -398,3 +398,41 @@ log.debug <- function(message) {
 .setDebugMode <- function(debug = FALSE) {
     ddmore.tel.utils$debug <- debug
 }
+
+#'
+#' Performs HTTP Post request.
+#' 
+#' It is a wrapper function for RCurl:::curlPerform
+#'
+#' This function stops only if the RCurl fails.
+#'
+#'@param url - where the request should be sent to
+#'@param body - content of the request
+#'@param headers - headers of the request
+#'
+#'@return a named list representing http response:
+#'        \itemize{
+#'          \item{\code{header}} - Response's HTTP headers.
+#'          \item{\code{body}} - Response's body.
+#'        }
+#'
+.httpPost <- function(url, body = "", headers= c()) {
+    .precondition.checkArgument(length(url)>0, "url", "Should be non empty string.")
+    respContentCollector <- basicTextGatherer()
+    respHeaderCollector <- basicHeaderGatherer()
+    log.debug(sprintf("Performing POST request to [%s]. Headers [%s] body [%s]", url, paste(headers, collapse=','), body))
+    curlRet <-
+        RCurl:::curlPerform(
+            url = url, postfields = body, httpheader = headers, writefunction =
+                respContentCollector$update, headerFunction = respHeaderCollector$update
+        )
+    if(curlRet!=0) {
+        #RCurl should always return zero (as per documentation) and non-zero should never happen (RCurl should already throw an exception)
+        stop("Internal Error. RCurl returned non-zero value.")
+    }
+    response <- list()
+    response$header <- respHeaderCollector$value()
+    response$body <- respContentCollector$value()
+    log.debug(sprintf("Received from FIS Server response: header [%s], body [%s]", paste(response$header, collapse=','), response$body))
+    return(response)
+}
