@@ -1,12 +1,12 @@
 library("DDMoRe.TEL")
 library("XML")
 require("methods")
+require("testthat")
 
 clearTestVariables <- function() {
     rm(list=ls())
 }
 clearTestVariables()
-
 
 context("FIS Server's createFISServer.")
 
@@ -119,6 +119,46 @@ test_that("cancelJob throws error for non 200 HTTP response status", {
         cancelJob(instance, fisJob), info = "The cancellation should fail."
     )
 })
+
+context("FIS Server's MDLToPharmML")
+test_that("MDLToPharmML returns the PharmML result path that was returned by FIS", {
+    .httpPost <- function(url, body = "", headers= c()) {
+        response <- list()
+        response$header <- list()
+        response$header['status'] <- 200
+        response$body <- "MOCK-FILE-PATH"
+        return(response)
+    }
+    assignInNamespace('.httpPost', .httpPost, ns="DDMoRe.TEL")
+    instance <- createFISServerFromProperties(propertiesFile=system.file("tests/data/json/FISServerProperties.json", package = "DDMoRe.TEL"))
+    
+    filePath <- tempfile()
+    file.create(filePath)
+    result <- MDLToPharmML(instance, filePath)
+    
+    expect_equal(result,"MOCK-FILE-PATH", info = "Returned file path was incorrect.")
+})
+
+test_that("MDLToPharmML throws error for non 200 HTTP response status", {
+    .httpPost <- function(url, body = "", headers= c()) {
+        response <- list()
+        response$header <- list()
+        response$header['status'] <- 400
+        response$body <- list()
+        response$body$message <- "This is the error message from FIS."
+        return(response)
+    }
+    assignInNamespace('.httpPost', .httpPost, ns="DDMoRe.TEL")
+    instance <- createFISServerFromProperties(propertiesFile=system.file("tests/data/json/FISServerProperties.json", package = "DDMoRe.TEL"))
+    
+    filePath <- tempfile()
+    file.create(filePath)
+    
+    expect_error(
+        MDLToPharmML(instance, filePath), info = "The conversion should fail."
+    )
+})
+
 
 # Both are needed - first works in dev environment, where the package scripts are just sourced, the latter 
 # works during ANT build where DDMoRe package is loaded

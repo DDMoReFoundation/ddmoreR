@@ -132,17 +132,45 @@ setMethod("getWriteMDLUrl", signature = signature("FISServer"),
               return(sprintf('%s/writemdl', fisServer@url))
           })
 
+################################################################################
+#' MDLToPharmML
+#'
+#' Converts MDL to PharmML
+#' 
+#' Internal method, users should use as.PharmML function.
+#'
+#' @param fisServer FISServer instance.
+#' @param filePath absolute path to an MDL file that should be converted
+#' 
+#' @return a path to the result PharmML file
+#'
 setGeneric(
-    name = "getMDLToPharmML",
-    def = function(fisServer)
+    name = "MDLToPharmML",
+    def = function(fisServer, filePath)
     {
-        standardGeneric("getMDLToPharmML")
+        standardGeneric("MDLToPharmML")
     }
 )
-setMethod("getMDLToPharmML", signature = signature("FISServer"),
-          function(fisServer) {
-              return(sprintf('%s/convertmdl', fisServer@url))
+setMethod("MDLToPharmML", signature = signature("FISServer"),
+          function(fisServer, filePath) {
+              .precondition.checkArgument(!is.null(filePath), "filePath", sprintf("MDL file %s must be specified.",filePath))
+              .precondition.checkArgument(file.exists(filePath), "filePath", sprintf("MDL file %s must exist.",filePath))
+              body <- URLencode(paste0(
+                  "fileName=", normalizePath(filePath, winslash="/"),
+                  "&outputDir=", normalizePath(tempdir())
+              ))
+              url <- sprintf('%s/convertmdl', fisServer@url)
+              response <- .httpPost(url = url, body = body)
+              
+              if(response$header['status']!=200) {
+                  # in case of error, the body contains JSON representation of the exception
+                  log.debug(response$body)
+                  exception <- fromJSON(response$body)
+                  stop(sprintf("Failed to convert MDL to PharmML. Error: %s.", exception$message))
+              }
+              return(response$body)
           })
+
 
 ################################################################################
 #' getJobs
