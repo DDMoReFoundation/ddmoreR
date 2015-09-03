@@ -156,7 +156,7 @@ setMethod("MDLToPharmML", signature = signature("FISServer"),
               .precondition.checkArgument(!is.null(filePath), "filePath", sprintf("MDL file %s must be specified.",filePath))
               .precondition.checkArgument(file.exists(filePath), "filePath", sprintf("MDL file %s must exist.",filePath))
               body <- URLencode(paste0(
-                  "fileName=", normalizePath(filePath, winslash="/"),
+                  "filePath=", normalizePath(filePath, winslash="/"),
                   "&outputDir=", normalizePath(tempdir())
               ))
               url <- sprintf('%s/convertmdl', fisServer@url)
@@ -312,7 +312,7 @@ setMethod("readMDL", signature = signature("FISServer"),
               # Call parser and read in the JSON data:
               cmd <-
                   URLencode(sprintf(
-                      '%s/readmdl?fileName=%s', fisServer@url, normalizePath(filePath, winslash = "/")
+                      '%s/readmdl?filePath=%s', fisServer@url, normalizePath(filePath, winslash = "/")
                   ))
               
               json <- httpGET(cmd)
