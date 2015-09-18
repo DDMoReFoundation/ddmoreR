@@ -32,7 +32,6 @@
 #' @rdname estimate-methods
 #' 
 #' @include server.R
-#' @include prepare.R
 #' @include import.R
 #' @include telClasses.R
 #' @include StandardOutputObject.R
