@@ -182,9 +182,6 @@ getPopulationParameters <- function(SOObject, type="all", what="all", keep.only=
 #'
 row.merge.cbind <- function(x, y, colNames) {
 
-    # TODO: Temporary fix for inconsistency of column names between SO and the spec 
-    colnames(y)[colnames(y)=="parameter"]   <- "Parameter"
-
     # Input checking for x dataframe 
     if (is.null(x[["Parameter"]])) {
       stop("'Parameter' column not found in SO, cannot merge data frames by parameter values." )
