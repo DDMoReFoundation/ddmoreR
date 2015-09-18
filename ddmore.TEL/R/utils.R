@@ -4,7 +4,14 @@ ddmore.tel.utils <- new.env()
 # is debug log level enabled
 ddmore.tel.utils$debug <- FALSE
 
-
+#' Utility function to test whether a slot in the SO is empty or not.
+#'
+#' The default at current for an empyt slot in the SO is a list of length 0, though 
+#' settting to NULL could be a future option. 
+#'
+is.empty <- function(slot) {
+  return(length(slot) == 0)
+}
 
 ################################################################################
 #' Override of the standard message() function.
