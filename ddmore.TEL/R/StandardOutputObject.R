@@ -195,6 +195,71 @@ mergeByPosition <- function(df1, df2, msg='') {
   return(mergedDf)
 }
 
+#' checkDoseRows
+#'
+#' @param df1 dataframe The current data frame on the left.
+#' @param df2 dataframe The data frame of values being merged on the right. 
+#' @param label1 character string label for df1, the current data frame. 
+#' @param label2 character string label for df2, the data frame that is being merged in. 
+#' @param extraInfo character string for any additional information to be reported to the user. 
+#'
+#' @return Returns a potentially modified df1 data frame with all dose rows removed if required.
+#' 
+#' There may be extra rows present in the raw data or parts of the SO object that are not 
+#' present in other slots of the SO. In order to merge these all together into a single 
+#' data frame for Xpose, these extra dose rows need to be identified and dropped if a slot 
+#' does not have them. 
+#'
+#' Dose rows are identified by the following algorithm:
+#' \enumerate{
+#'   \item If df1 has more rows than df2, then dose rows may be present in df1. 
+#'   \item If \code{MDV} column is present, drop all rows in df1 where \code{MDV != 1}
+#'   \item Else, if \code{AMT} column is present, drop all rows in df1 where \code{AMT > 0}
+#'   \item After attempting to drop dose rows, recompare rows numbers of df1 and df2. If 
+#'          they are not the same, through an error. 
+#' }  
+#'    
+checkDoseRows <- function(df1, df2, label1, label2, extraInfo=NULL) {
+
+  rowsDropped = FALSE
+
+  # Test to see if data rows are the same, if not remove dose rows from the 
+  # input data (df1) and recompare.
+  if (nrow(df1) > nrow(df2)) {
+    # Detect Dose rows via MDV column if present
+    if ("MDV" %in% names(df1)) {
+      df1 <- df1[df1[['MDV']] != 1, ]
+      rowsDropped = TRUE
+
+    } else if ("AMT" %in% names(df1))  {
+      # Else detect dose rows via AMT column if present
+      df1 <- df1[ df1[['AMT']] > 0, ]
+      rowsDropped = TRUE
+    }
+  }
+
+  if (nrow(df1) != nrow(df2)) {
+    # Print out information to aid debugging
+    message(paste("Source data frame:", label1, nrow(df1)))
+    message(paste("Number of Rows in source data frame: ", nrow(df1)))
+    
+    message(paste("Target data frame:", label2, nrow(df2)))
+    message(paste("Number of Rows in source data frame: ", nrow(df2)))
+
+    stop(paste("Number of non-dose rows differs when attempting to merge in", label2))
+  }
+
+  # Provide feedback if df1 was modified 
+  if (rowsDropped) {
+    message(paste("\nRemoved dose rows in", label1, "slot of SO to enable merge with", label2, "data.\n"))
+    if (!missing(extraInfo)) {
+      message(extraInfo) 
+    }     
+  }
+
+  return(df1)
+}
+
 
 # ============================= #
 # Convert to single Data Frame  #
@@ -219,7 +284,7 @@ setMethod(f="as.data",
 				  stop("Path to input data must be specified")
 			  } else {
 
-          # Read data in and examine file header. If no ID, TIME or DV in header, fetch
+          # Read data in and examine file header. If no ID or TIME in header, fetch
           # column names based on the mdl file.
 				  rawData <- read.NONMEMDataSet(inputDataPath)
 
@@ -247,57 +312,34 @@ setMethod(f="as.data",
           names(rawData) <- c(c("ID", "TIME"), remaining.names) 
 			  }
 			  
-			  # Test to see if data rows are the same, if not remove dose rows from the 
-			  # input data and recompare.
-			  if (nrow(rawData) > nrow(SOObject@Estimation@Predictions$data)) {
-          
-            # Detect Dose rows via MDV column if present
-            if ("MDV" %in% names(rawData)) {
-              rawData <- rawData[rawData[['MDV']] != 1, ]
-            } else if ("AMT" %in% names(rawData))  {
-              # Else detect dose rows via AMT column if present
-              rawData <- rawData[ rawData[['AMT']] > 0, ]
-            }
+        mergedDataFrame <- rawData
 
-          }
+        if (!is.empty(SOObject@Estimation@Predictions)) {
           
-			  if (nrow(rawData) != nrow(SOObject@Estimation@Predictions$data)) {
-				  message(paste("Number of Rows in Raw Data: ", nrow(rawData)))
-				  message(paste("Number of Rows in Predictions: ", nrow(SOObject@Estimation@Predictions$data)))
-				  stop("Number of non-dose rows in raw data is different to those in SO Predictions")
-			  }
-			  
-			  mergedDataFrame <- rawData
-			  
-			  if (!is.null(SOObject@Estimation@Predictions)) {
-				  # Fetch and merge Predictions 
-				  df1 <- mergedDataFrame
-				  df2 <- SOObject@Estimation@Predictions$data
-				  mergedDataFrame <- mergeByPosition(df1, df2, 'predictions')
-			  } else {
-				  warning("No Estimation::Predictions found in the SO; the resulting data frame will not contain these")
-			  }
-			  
-			  if (!is.null(SOObject@Estimation@Residuals)) {
+          df1 <- mergedDataFrame
+          df2 <- SOObject@Estimation@Predictions$data
+
+          # Test to see if data rows are the same, if not remove dose rows from the 
+          # input data (df1) and recompare.
+          df1 = checkDoseRows(df1, df2, label1="rawData", label2="Predictions")
+
+          # Fetch and merge Predictions 
+          df1 <- mergedDataFrame
+          df2 <- SOObject@Estimation@Predictions$data
+          mergedDataFrame <- mergeByPosition(df1, df2, 'predictions')
+        } else {
+          warning("No Estimation::Predictions found in the SO; the resulting data frame will not contain these")
+        }
+          
+			  if (!is.empty(SOObject@Estimation@Residuals)) {
 				  # Fetch and merge Residuals 
 				  df1 <- mergedDataFrame
 				  df2 <- SOObject@Estimation@Residuals$ResidualTable$data
 
-          #### Additional check to compare rows of data as Residuals does not include dose rows at current 
-          #### Therefore need to remove the rows in rawData and Predictions to make merge possible
-
           # Test to see if data rows are the same, if not remove dose rows from the 
-          # input data and recompare.
-          if (nrow(df1) > nrow(df2)) {
-            df1 <- df1[!is.na(df1[['DV']]), ]
-            message(paste0("\nRemoved dose rows in raw data and predictions slot of SO to enable merge with residuals data.\n", 
-              "Residuals data does not currently contain dose rows in output from Nonmem executions."))
-          }
-          if (nrow(df1) != nrow(df2)) {
-            message(paste("Number of Rows in Raw Data + Predictions: ", nrow(df1)))
-            message(paste("Number of Rows in Residuals: ", nrow(df2)))
-            stop("Number of non-dose rows in raw data + Predictions slot is different to those in SO Residuals")
-          }
+          # input data (df1) and recompare.
+          df1 = checkDoseRows(df1, df2, label1="rawData+Predictions", label2="Residuals", 
+            extraInfo="Residuals data does not currently contain dose rows in output from Nonmem executions.")
 
 				  mergedDataFrame <- mergeByPosition(df1, df2, 'residuals')
 			  } else {
