@@ -132,17 +132,45 @@ setMethod("getWriteMDLUrl", signature = signature("FISServer"),
               return(sprintf('%s/writemdl', fisServer@url))
           })
 
+################################################################################
+#' MDLToPharmML
+#'
+#' Converts MDL to PharmML
+#' 
+#' Internal method, users should use as.PharmML function.
+#'
+#' @param fisServer FISServer instance.
+#' @param filePath absolute path to an MDL file that should be converted
+#' 
+#' @return a path to the result PharmML file
+#'
 setGeneric(
-    name = "getMDLToPharmML",
-    def = function(fisServer)
+    name = "MDLToPharmML",
+    def = function(fisServer, filePath)
     {
-        standardGeneric("getMDLToPharmML")
+        standardGeneric("MDLToPharmML")
     }
 )
-setMethod("getMDLToPharmML", signature = signature("FISServer"),
-          function(fisServer) {
-              return(sprintf('%s/convertmdl', fisServer@url))
+setMethod("MDLToPharmML", signature = signature("FISServer"),
+          function(fisServer, filePath) {
+              .precondition.checkArgument(!is.null(filePath), "filePath", sprintf("MDL file %s must be specified.",filePath))
+              .precondition.checkArgument(file.exists(filePath), "filePath", sprintf("MDL file %s must exist.",filePath))
+              body <- URLencode(paste0(
+                  "filePath=", normalizePath(filePath, winslash="/"),
+                  "&outputDir=", normalizePath(tempdir())
+              ))
+              url <- sprintf('%s/convertmdl', fisServer@url)
+              response <- .httpPost(url = url, body = body)
+              
+              if(response$header['status']!=200) {
+                  # in case of error, the body contains JSON representation of the exception
+                  log.debug(response$body)
+                  exception <- fromJSON(response$body)
+                  stop(sprintf("Failed to convert MDL to PharmML. Error: %s.", exception$message))
+              }
+              return(response$body)
           })
+
 
 ################################################################################
 #' getJobs
@@ -218,24 +246,15 @@ setMethod("submitJob", signature = signature("FISServer"),
           function(fisServer, job) {
               .precondition.checkArgument(is.FISJob(job), "job", "FISJob instance required.")
               json <- .fisJobToJSON(job)
-              respContent <- basicTextGatherer()
-              respHeader <- basicHeaderGatherer()
               submitURL <- sprintf('%s/jobs', fisServer@url)
-              httpheader <-
-                  c(Accept = "application/json; charset=UTF-8",
-                    "Content-Type" = "application/json")
-              log.debug(sprintf("Sending to FIS Server: %s", json))
-              curlRet <-
-                  RCurl:::curlPerform(
-                      url = submitURL, postfields = json, httpheader = httpheader, writefunction =
-                          respContent$update, headerFunction = respHeader$update
-                  )
-              if(respHeader$value()['status']!=200) {
-                  stop(sprintf("Could not submit job. Error: %s", respContent$value()))
+              httpheader <-c(Accept = "application/json; charset=UTF-8",
+                             "Content-Type" = "application/json")
+              response <- .httpPost(url = submitURL, body=json, headers = httpheader )
+              if(response$header['status']!=200) {
+                  stop(sprintf("Could not submit job. Error: %s", body))
               }
-              log.debug(sprintf("Received from FIS Server: %s", respContent$value()))
-              response <- fromJSON(respContent$value())
-              return(createFISJobFromNamedList(response))
+              bodyAsList <- fromJSON(response$body)
+              return(createFISJobFromNamedList(bodyAsList))
           })
 
 ################################################################################
@@ -258,24 +277,17 @@ setMethod("cancelJob", signature = signature("FISServer"),
           function(fisServer, job) {
               .precondition.checkArgument(is.FISJob(job), "job", "FISJob instance required.")
               .precondition.checkArgument(length(job@id)>0, "job@id", "FISJob must have id specified.")
-              respContent <- basicTextGatherer()
-              respHeader <- basicHeaderGatherer()
-              submitURL <- sprintf('%s/cmd/jobs/cancel/%s', fisServer@url, job@id)
-              httpheader <-
-                  c(Accept = "application/json; charset=UTF-8")
-              log.debug(sprintf("Sending cancellation request to: %s", submitURL))
-              curlRet <-
-                  RCurl:::curlPerform(
-                      url = submitURL, postfields = "", httpheader = httpheader, writefunction =
-                          respContent$update, headerFunction = respHeader$update
-                  )
-              if(respHeader$value()['status']!=200) {
-                  stop(sprintf("Could not cancel job %s. Error: %s", job@id, respContent$value()))
+              cancelURL <- sprintf('%s/cmd/jobs/cancel/%s', fisServer@url, job@id)
+              
+              response <- .httpPost(url = cancelURL, body="", headers=c(Accept = "application/json; charset=UTF-8"))
+              
+              if(response$header['status']!=200) {
+                  stop(sprintf("Could not cancel job %s. Error: %s", job@id, body))
               }
-              log.debug(sprintf("Received from FIS Server: %s", respContent$value()))
-              response <- fromJSON(respContent$value())
-              return(createFISJobFromNamedList(response))
+              bodyAsList <- fromJSON(response$body)
+              return(createFISJobFromNamedList(bodyAsList))
           })
+
 ################################################################################
 #' readMDL
 #'
@@ -300,7 +312,7 @@ setMethod("readMDL", signature = signature("FISServer"),
               # Call parser and read in the JSON data:
               cmd <-
                   URLencode(sprintf(
-                      '%s/readmdl?fileName=%s', fisServer@url, normalizePath(filePath, winslash = "/")
+                      '%s/readmdl?filePath=%s', fisServer@url, normalizePath(filePath, winslash = "/")
                   ))
               
               json <- httpGET(cmd)

@@ -57,7 +57,7 @@ SUBMISSION_COMPLETED <- "Completed"
 #'             - Additional command line parameters for the third party tool.
 #'           \item{\code{parameters$executionFile}}
 #'             - An absolute path to the model file.
-#'             
+#'             }
 TEL.prepareSubmissionStep <- function( executionType=NULL, workingDirectory = NULL, modelfile = NULL, extraInputFileExts=NULL, 
                                        extraInputFiles=list(), commandParameters=NULL, outputSubFolderName = NULL, fisServer=TEL.getServer(), extraParams = list() ) {
     .precondition.checkArgument(!is.null(executionType),'executionType', " Must be set and can't be NULL.")

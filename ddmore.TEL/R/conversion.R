@@ -569,25 +569,12 @@ addExtraLayerOfNesting <- function(l) {
 #' @export
 as.PharmML <- function(f, fisServer = TEL.getServer()) {
     .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FIS Server instance is required.")
-	cmd <- URLencode(getMDLToPharmMLURL(fisServer))
+    .precondition.checkArgument(file.exists(f), "f", sprintf("MDL file %s must exist.",f))
 	
-	if (!file.exists(f)) {
-		stop("Error, MDL file \"", f, "\" does not exist.");
+	resultFile <- MDLToPharmML(fisServer, f)
+	
+	if (!file.exists(resultFile)) {
+		stop("Failed to convert MDL to PharmML; PharmML file path returned from the conversion service was \"", resultFile, "\" but this file does not exist.");
 	}
-	
-	postfield <- URLencode(paste0(
-		"fileName=", normalizePath(f, winslash="/"),
-		"&outputDir=", normalizePath(tempdir())
-	))
-	
-	h = basicTextGatherer()
-	RCurl:::curlPerform(url = cmd, postfields = postfield, writefunction = h$update)
-	retVal <- h$value()
-
-	if (is.null(retVal) || nchar(retVal) <= 1) {
-		stop("Failed to convert MDL to PharmML; no PharmML file path was returned from the conversion service.")
-	} else if (!file.exists(retVal)) {
-		stop("Failed to convert MDL to PharmML; PharmML file path returned from the conversion service was \"", retVal, "\" but this file does not exist.");
-	}
-	retVal
+	return(resultFile)
 }
