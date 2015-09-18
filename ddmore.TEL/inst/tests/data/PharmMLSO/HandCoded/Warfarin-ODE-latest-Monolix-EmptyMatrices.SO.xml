@@ -127,7 +127,7 @@
                 </CorrelationMatrix> 
                 <StandardError> 
                    <ds:Definition> 
-                      <ds:Column columnId="parameter" columnType="undefined" valueType="id" columnNum="1"/> 
+                      <ds:Column columnId="Parameter" columnType="undefined" valueType="id" columnNum="1"/> 
                       <ds:Column columnId="SE" columnType="undefined" valueType="real" columnNum="2"/> 
                    </ds:Definition>
                    <ds:Table>
@@ -148,7 +148,7 @@
                  </StandardError>
                  <RelativeStandardError> 
                    <ds:Definition> 
-                      <ds:Column columnId="parameter" columnType="undefined" valueType="id" columnNum="1"/> 
+                      <ds:Column columnId="Parameter" columnType="undefined" valueType="id" columnNum="1"/> 
                       <ds:Column columnId="RSE" columnType="undefined" valueType="real" columnNum="2"/> 
                    </ds:Definition>
                    <ds:Table>
