@@ -10,7 +10,7 @@ ddmore.tel.utils$debug <- FALSE
 #' settting to NULL could be a future option. 
 #'
 is.empty <- function(slot) {
-  return(length(slot) == 0)
+  return(is.null(slot) || length(slot) == 0)
 }
 
 ################################################################################

@@ -20,8 +20,8 @@
 #'
 #' @param SOObject an object of class StandardOutputObject, the output from an 
 #'    estimation task.
-#' @param type character string determining which parameters to return. 
-#'    Options are "structural", "variability", "all" (default).
+#' @param block character string determining which parameters to return. 
+#'    Options are "STRUCTURAL", "VARIABILITY" and "all" (default).
 #' @param what character vector determining what values to return:
 #'  \itemize{
 #'    \item "estimates" - returns point estimates for the parameters.
@@ -40,32 +40,45 @@
 #' names, estimate values, then followed by the statistics specified e.g. precision values, 
 #' interval values or both
 #' 
-#' @examples getPopulationParameters(object, type="all", what="all")
+#' @examples getPopulationParameters(object, block="ALL", what="all")  
 #'
 #' @seealso getPopulationEstimates, getPrecisionPopulationEstimates
 #'
 #' @export
-getPopulationParameters <- function(SOObject, type="all", what="all", keep.only=NULL) {
+getPopulationParameters <- function(SOObject, block="all", what="all", keep.only=NULL, ...) {
   
-  if (!(type %in% c("structural", "variability", "all"))) {
-      stop('Parameter "type" must be one of: "structural", "variability" or "all".')
+  # Parameter deprecation warning
+  extraParams = list(...)
+  if ('type' %in% names(extraParams)) {
+    block = extraParams[['type']]
+    message('The "type" parameter has been renamed to "block" for clarity. At current using both is possible though using "type" may become deprecated in the future.')
+  }
+
+  # Error checking  #
+  # --------------- #
+  if (!(tolower(block) %in% c("structural", "variability", "all"))) {
+      stop('Parameter "block" must be one of: "STRUCTURAL", "VARIABILITY" or "ALL".')
   } 
-  if (!(what %in% c("estimates", "precision", "intervals", "all"))) {
+  block = tolower(block)
+
+  if (!(tolower(what) %in% c("estimates", "precision", "intervals", "all"))) {
       stop('Parameter "what" must be one of: "estimates", "precision", "intervals" or "all".')
   }
+  what = tolower(what)
 
   stopifnot(isS4(SOObject) & class(SOObject) == "StandardOutputObject")
 
-  # Examine what objects exist in Population Estimates
-  if (is.null(SOObject@Estimation@PopulationEstimates) || length(SOObject@Estimation@PopulationEstimates) == 0 ) {
-    stop("Section Estimation:PopulationEstimates not found in SO Object")
+  # Assert that objects exist in SO if they are asked for
+  if (is.empty(SOObject@Estimation@PopulationEstimates) && what == "estimates") {
+    stop("Tried to fetch the parameter estimates, however section Estimation:PopulationEstimates was not found in the SO Object")
+  }
+  if (is.empty(SOObject@Estimation@PrecisionPopulationEstimates) && what == "precision") {
+    stop("Tried to fetch the parameter precision values, however section Estimation:PrecisionPopulationEstimates was not found in the SO Object")
+  }
+  if (is.empty(SOObject@Estimation@IndividualEstimates) && what == "intervals") {
+    stop("Tried to fetch the parameter interval values, however section Estimation:IndividualEstimates was not found in the SO Object")
   }
 
-  if (is.null(SOObject@Estimation@PrecisionPopulationEstimates) || length(SOObject@Estimation@PrecisionPopulationEstimates) == 0 ) {
-    message("Section Estimation:PrecisionPopulationEstimates not found in SO Object. \nOutput will only contain values for the point estimates. ")
-    what='estimates'
-  }
-  
   # Cycle through estimates present, parsing as necessary
   estimateTypes <- names(SOObject@Estimation@PopulationEstimates)
   estimates.output.list <- list()
@@ -93,7 +106,7 @@ getPopulationParameters <- function(SOObject, type="all", what="all", keep.only=
   
   }
   
-  if (type == "structural") {
+  if (block == "structural") {
 
 	structParams <- .deriveStructuralParametersFromAssociatedMDL(SOObject)
     
@@ -122,7 +135,7 @@ getPopulationParameters <- function(SOObject, type="all", what="all", keep.only=
     }
   }
   
-  if (type == "variability") {
+  if (block == "variability") {
     
 	variabilityParams <- .deriveVariabilityParametersFromAssociatedMDL(SOObject)
 	
