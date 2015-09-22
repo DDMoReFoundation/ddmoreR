@@ -321,11 +321,9 @@ setMethod(f="as.data",
 
           # Test to see if data rows are the same, if not remove dose rows from the 
           # input data (df1) and recompare.
-          df1 = checkDoseRows(df1, df2, label1="rawData", label2="Predictions")
+          df1 <- checkDoseRows(df1, df2, label1="rawData", label2="Predictions")
 
           # Fetch and merge Predictions 
-          df1 <- mergedDataFrame
-          df2 <- SOObject@Estimation@Predictions$data
           mergedDataFrame <- mergeByPosition(df1, df2, 'predictions')
         } else {
           warning("No Estimation::Predictions found in the SO; the resulting data frame will not contain these")
