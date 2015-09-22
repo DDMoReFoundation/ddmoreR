@@ -50,6 +50,11 @@ LoadSOObject <- function(file) {
 		message("\nThe following WARNINGs were raised during the job execution:", file=stderr())
 		for (e in (SOObject@TaskInformation$Messages$Warnings)) { message(paste0(" ", e$Name, ": ", str_trim(e$Content)), file=stderr()) }
 	}
+	# Also print out any information messages
+	if (length(SOObject@TaskInformation$Messages$Info) > 0) {
+		message("\nThe following MESSAGEs were raised during the job execution:", file=stderr())
+		for (e in (SOObject@TaskInformation$Messages$Info)) { message(paste0(" ", e$Name, ": ", str_trim(e$Content)), file=stderr()) }
+	}
 	message("") # Extra line break
 	
 	# Reset Working directory 
