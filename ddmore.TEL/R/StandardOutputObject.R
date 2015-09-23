@@ -260,6 +260,24 @@ checkDoseRows <- function(df1, df2, label1, label2, extraInfo=NULL) {
   return(df1)
 }
 
+#' mergeCheckColumnNames 
+#' 
+#' Utility to merge two dataframes but print out a warning if duplicate column names are detected
+mergeCheckColumnNames <- function(df1, df2) {
+
+  # Check column names
+  duplicateNames = setdiff(intersect(names(df1), names(df2)), "ID")
+  duplicateNamesIdx = sapply(duplicateNames, FUN=function(x) grep(x, names(df2)))
+
+  if (length(duplicateNames) > 0 ) {
+    warning(paste("The following duplicate column names were detected and will be dropped from the output: ", 
+            paste(duplicateNames, collapse="\n      "), sep="\n      "))
+    df2 <- df2[-duplicateNamesIdx]
+  }
+
+  mergedDataFrame <- merge(df1, df2)
+
+}
 
 # ============================= #
 # Convert to single Data Frame  #
@@ -348,7 +366,7 @@ setMethod(f="as.data",
 				  # IndividualEstimates, Estimates
 				  df1 <- mergedDataFrame
 				  df2 <- SOObject@Estimation@IndividualEstimates$Estimates$Mean$data
-				  mergedDataFrame <- merge(df1, df2)
+				  mergedDataFrame <- mergeCheckColumnNames(df1, df2)
 			  } else {
 				  warning("No Estimation::IndividualEstimates::Estimates::Mean found in the SO; the resulting data frame will not contain these")
 			  }
@@ -357,7 +375,7 @@ setMethod(f="as.data",
 				  # IndividualEstimates, RandomEffects
 				  df1 <- mergedDataFrame
 				  df2 <- SOObject@Estimation@IndividualEstimates$RandomEffects$EffectMean$data
-				  mergedDataFrame <- merge(df1, df2)
+				  mergedDataFrame <- mergeCheckColumnNames(df1, df2)
 			  } else {
 				  warning("No Estimation::IndividualEstimates::RandomEffects::EffectMean found in the SO; the resulting data frame will not contain these")
 			  }
