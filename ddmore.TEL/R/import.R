@@ -25,9 +25,9 @@ importJobResultFiles <- function(fisJob, targetDirectory = NULL, fisServer = TEL
         dir.create(targetDirectory)
     }
     
-    all.regular.files <- list.files(fisJob@workingDirectory, pattern="^[^.].*")
+    all.regular.files <- list.files(fisJob@workingDirectory, pattern=".*", all.files=TRUE, no..=TRUE)
     files.to.copy <- paste0(fisJob@workingDirectory, "/", all.regular.files) # Turn the filenames into full paths
-    
+    log.debug(paste0("Copying result files [", paste(files.to.copy, collapse=",") ,"] to ",targetDirectory))
     file.copy(files.to.copy, targetDirectory, recursive=TRUE)
     
     message('Done.\n')
