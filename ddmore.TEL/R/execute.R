@@ -201,7 +201,7 @@ TEL.performExecutionWorkflow <-
                     submission <- do.call(what = stepFunction, 
                                                args = list("submission" = submission, "fisServer" = fisServer, "..." = ...)
                                                )
-                    if(submission$status == SUBMISSION_FAILED) {
+                    if(submission$status == SUBMISSION_CANCELLED) {
                         break
                     }
                 }
@@ -214,21 +214,33 @@ TEL.performExecutionWorkflow <-
             }
         )
         submission$end <- date()
-        if(submission$status!=SUBMISSION_FAILED) {
-            submission$status <- SUBMISSION_COMPLETED
-        }
+        submission <- .setFinalSubmissionStatus(submission)
         message(submission$status)
         message(sprintf('-- %s', submission$end))
         if (submission$status == SUBMISSION_FAILED) {
             .telFailedSubmission <<- submission
             stop(
                 "Execution of model ", submission$parameters$modelFile, " failed.\n  The contents of the working directory ",
-                submission$parameters$workingDirectory, " may be useful for tracking down the cause of the failure."
+                submission$parameters$importDirectory, " may be useful for tracking down the cause of the failure."
             )
         }
         return(submission)
     }
-
+    
+#'
+#' Ensures that the submission has correct final status set
+#'
+.setFinalSubmissionStatus <- function(submission) {
+    if(!"status" %in% names(submission) || is.null(submission$status) || !submission$status %in% c(SUBMISSION_FAILED, SUBMISSION_COMPLETED, SUBMISSION_CANCELLED)) {
+        if (!"fisJob" %in% names(submission) || submission$fisJob@status %in% c("FAILED")) {
+            submission$status <- SUBMISSION_FAILED
+        } else {
+            submission$status <- SUBMISSION_COMPLETED
+        }
+    }
+	return(submission)
+}
+	
 
 #' @seealso \code{execute}
 setMethod("execute", signature=signature(x="mogObj"), 
