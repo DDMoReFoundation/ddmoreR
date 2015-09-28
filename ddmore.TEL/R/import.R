@@ -26,9 +26,22 @@ importJobResultFiles <- function(fisJob, targetDirectory = NULL, fisServer = TEL
     }
     
     all.regular.files <- list.files(fisJob@workingDirectory, pattern=".*", all.files=TRUE, no..=TRUE)
+    exclusionPattern <- sprintf("^(?!(%s))", str_replace_all(FIS_JOB_METADATA_DIR, "\\.", "\\\\."))
+    all.regular.files <- all.regular.files[grepl(exclusionPattern, all.regular.files, perl=TRUE)]
     files.to.copy <- paste0(fisJob@workingDirectory, "/", all.regular.files) # Turn the filenames into full paths
     log.debug(paste0("Copying result files [", paste(files.to.copy, collapse=",") ,"] to ",targetDirectory))
     file.copy(files.to.copy, targetDirectory, recursive=TRUE)
+    
+    # copying std out and error stream files
+    stdOutFile<-getStdOutFile(fisJob)
+    stdErrFile<-getStdErrFile(fisJob)
+    
+    if(file.exists(stdOutFile)) {
+        file.copy(stdOutFile, file.path(targetDirectory,basename(stdOutFile)))
+    }
+    if(file.exists(stdErrFile)) {
+        file.copy(stdErrFile, file.path(targetDirectory,basename(stdErrFile)))
+    }
     
     message('Done.\n')
     return(fisJob)
