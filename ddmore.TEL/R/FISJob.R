@@ -1,7 +1,9 @@
 #
 # Author: mrogalski
 ################################################################################
-
+#### Global Settings
+#Name of the FIS job metadata directory
+FIS_JOB_METADATA_DIR<-".fis"
 
 #### FIS Job class
 
@@ -133,6 +135,46 @@ createFISJobFromNamedList <- function(namedList) {
 is.FISJob <- function(obj) {
     is(obj,"FISJob")
 }
+
+##############################################################
+#' getStdOutFile
+#'
+#' Resolves location of a file containing standard output stream of third-party tool
+#'
+#' @usage getStdOutFile(object)
+#'
+#' @return path to the STD OUT file
+setGeneric(
+    name = "getStdOutFile",
+    def = function(fisJob)
+    {
+        standardGeneric("getStdOutFile")
+    }
+)
+setMethod("getStdOutFile", signature = signature("FISJob"),
+          function(fisJob) {
+              return(file.path(fisJob@workingDirectory, sprintf("%s/stdout",FIS_JOB_METADATA_DIR)))
+          })
+
+##############################################################
+#' getStdErrFile
+#'
+#' Resolves location of a file containing standard error stream of third-party tool
+#'
+#' @usage getStdErrFile(object)
+#'
+#' @return path to the STD ERR file
+setGeneric(
+    name = "getStdErrFile",
+    def = function(fisJob)
+    {
+        standardGeneric("getStdErrFile")
+    }
+)
+setMethod("getStdErrFile", signature = signature("FISJob"),
+          function(fisJob) {
+              return(file.path(fisJob@workingDirectory, sprintf("%s/stderr",FIS_JOB_METADATA_DIR)))
+          })
 
 ##############################################################
 #' .fisJobToJSON

@@ -3,6 +3,8 @@
 ################################################################################
 #'Failed Submission status string
 SUBMISSION_FAILED <- "Failed"
+#'Cancelled Submission status string
+SUBMISSION_CANCELLED <- "Cancelled"
 #'Failed Submission status string
 SUBMISSION_COMPLETED <- "Completed"
 
@@ -203,8 +205,8 @@ TEL.pollStep <- function(submission, fisServer=TEL.getServer(), ...) {
         Sys.sleep(fisServer@jobStatusPollingDelay)
     }
     message(" ]")
-    if (submission$fisJob@status %in% c("FAILED", "CANCELLED")) {
-        submission$status <- SUBMISSION_FAILED
+    if (submission$fisJob@status %in% c("CANCELLED")) {
+        submission$status <- SUBMISSION_CANCELLED
     }
     submission
 }

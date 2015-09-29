@@ -83,7 +83,7 @@ test_that("TEL.pollStep should poll untill Job status is FAILED", {
     expect_true(!is.null(result), info = "Result should not be null.")
     expect_equal(class(result)[[1]],"list", info = "Result should be of type list.")
     expect_equal(result$fisJob@status,"FAILED", info = "FIS Job status property should be 'FAILED'.")
-    expect_equal(result$status,"Failed", info = "Submission's 'status' element should be 'Failed'.")
+    expect_false(result$status=="Failed", info = "Submission's 'status' element should not be 'Failed'.")
 })
 
 context("TEL.printJobs")
