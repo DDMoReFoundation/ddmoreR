@@ -1,9 +1,7 @@
 #' Tests functions involved in task execution
-
 library("DDMoRe.TEL")
 require("methods")
 require("testthat")
-
 rm(list = ls())
 setClass(
     "MockFISServer",
@@ -30,6 +28,7 @@ TEL.setServer(mockServer)
 context("Monitoring job")
 
 test_that("TEL.performExecutionWorkflow with default import flags results in non-null result for successful job", {
+    completedJob <- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id="MOCK_ID", status ='COMPLETED'))
     telMock <- list(
         submitJobStep = function(submission, fisServer, ...) {
             log.debug("submitJob")
@@ -38,7 +37,7 @@ test_that("TEL.performExecutionWorkflow with default import flags results in non
         },
         pollStep = function(submission, fisServer, ...) {
             log.debug("pollStep")
-            submission$fisJob <- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id="MOCK_ID", status ='COMPLETED'))
+            submission$fisJob <- completedJob
             return(submission)
         },
         importFilesStep = function(submission, fisServer, ...) {
@@ -79,25 +78,26 @@ test_that("TEL.performExecutionWorkflow with default import flags results in non
 })
 
 test_that("TEL.performExecutionWorkflow without import results in non-null result but empty 'so' attribute", {
+    completedJob <<- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id="MOCK_ID", status ='COMPLETED'))
     telMock <- list(
         submitJobStep = function(submission, fisServer, ...) {
             log.debug("submitJob")
             submission$fisJob <- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id="MOCK_ID", status ='NEW'))
-            submission
+            return(submission)
         },
         pollStep = function(submission, fisServer, ...) {
             log.debug("pollStep")
-            submission$fisJob <- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id="MOCK_ID", status ='COMPLETED'))
-            submission
+            submission$fisJob <- completedJob
+            return(submission)
         },
         importFilesStep = function(submission, fisServer, ...) {
             log.debug("importFilesStep")
             submission$status <- "importing"
-            submission
+            return(submission)
         },
         clearUpStep = function(submission, fisServer, ...) {
             log.debug("clearUpStep")
-            submission
+            return(submission)
         }
     )
     
@@ -128,7 +128,6 @@ test_that("TEL.performExecutionWorkflow results in error for failed job", {
         pollStep = function(submission, fisServer, ...) {
             log.debug("pollStep")
             submission$fisJob <- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id="MOCK_ID", status ='FAILED'))
-            submission$status <- 'Failed'
             submission
         },
         importFilesStep = function(submission, fisServer, ...) {
@@ -201,4 +200,47 @@ test_that("TEL.performExecutionWorkflow results in error if any step throws erro
             submission, fisServer = mockServer, workflowSteps = telMock
         ), info = "Failed job should result in error."
     )
+})
+
+test_that("Final status of submission is correctly set - no FISJob", {
+    submission <- list()
+    result <- .setFinalSubmissionStatus(submission)
+    expect_equal(result$status, SUBMISSION_FAILED, "Submission with no status should result in SUBMISSION_FAILED final status")
+    
+    submission$status <- NULL
+    result <- .setFinalSubmissionStatus(submission)
+    expect_equal(result$status, SUBMISSION_FAILED, "Submission with NULL should result in SUBMISSION_FAILED final status")
+    
+    submission$status <- "Some random status"
+    result <- .setFinalSubmissionStatus(submission)
+    expect_equal(result$status, SUBMISSION_FAILED, "Submission with some randome status should result in SUBMISSION_FAILED final status")
+    
+})
+
+test_that("Final status of submission is correctly set - FISJob is present", {
+    submission <- list()
+    submission$fisJob <- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id="MOCK_ID", status ='FAILED'))
+    result <- .setFinalSubmissionStatus(submission)
+    expect_equal(result$status, SUBMISSION_FAILED, "Submission with no status and job with status Failed should result in SUBMISSION_FAILED final status")
+    
+    submission$status <- NULL
+    result <- .setFinalSubmissionStatus(submission)
+    expect_equal(result$status, SUBMISSION_FAILED, "Submission with NULL and job with status Failed  should result in SUBMISSION_FAILED final status")
+    
+    submission$status <- "Some random status"
+    result <- .setFinalSubmissionStatus(submission)
+    expect_equal(result$status, SUBMISSION_FAILED, "Submission with some randome status and job with status Failed should result in SUBMISSION_FAILED final status")
+    
+    submission <- list()
+    submission$fisJob <- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id="MOCK_ID", status ='COMPLETED'))
+    result <- .setFinalSubmissionStatus(submission)
+    expect_equal(result$status, SUBMISSION_COMPLETED, "Submission with no status and job with status Completed should result in SUBMISSION_COMPLETED final status")
+    
+    submission$status <- NULL
+    result <- .setFinalSubmissionStatus(submission)
+    expect_equal(result$status, SUBMISSION_COMPLETED, "Submission with NULL and job with status Completed should result in SUBMISSION_COMPLETED final status")
+    
+    submission$status <- "Some random status"
+    result <- .setFinalSubmissionStatus(submission)
+    expect_equal(result$status, SUBMISSION_COMPLETED, "Submission with some randome status and job with status Completed should result in SUBMISSION_COMPLETED final status")
 })
