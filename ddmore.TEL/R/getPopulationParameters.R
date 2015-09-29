@@ -248,16 +248,18 @@ getMLEPopulationParameters <- function(SOObject, what="all"){
     rse <- SOObject@Estimation@PrecisionPopulationEstimates$MLE$RelativeStandardError$data
 
     if (is.null(se)) {
-      warning(paste0("Section Estimation:PrecisionPopulationEstimates$MLE$StandardError not ",
-        "found in SO Object.\n  Omitting standard error precision values for MLE section in returned output."))
+      warning(paste0("Tried to fetch the parameter precision values, however section ",
+        "Estimation:PrecisionPopulationEstimates$MLE$StandardError was not found in the SO Object\n", 
+        "Omitting standard error precision values for MLE section in returned output."))
     } else {
 
       MLE.output <- row.merge.cbind(MLE.output, se, colNames="SE")
 
     }
     if (is.null(rse)) {
-      warning(paste0("Section Estimation:PrecisionPopulationEstimates$MLE$RelativeStandardError not ",
-        "found in SO Object.\n  Omitting relative standard error precision values for MLE section in returned output."))
+      warning(paste0("Tried to fetch the parameter precision values, however section ",
+        "Estimation:PrecisionPopulationEstimates$MLE$RelativeStandardError was not found in the SO Object\n", 
+        "Omitting relative standard error precision values for MLE section in returned output."))
     } else {
 
       # Append Precision information for parameters
@@ -269,8 +271,9 @@ getMLEPopulationParameters <- function(SOObject, what="all"){
     CIs <- SOObject@Estimation@PrecisionPopulationEstimates$MLE$AsymptoticCI$data  
     
     if (is.null(CIs)) {
-      warning(paste0("Section Estimation:PrecisionPopulationEstimates$MLE$AsymptoticCI not ",
-        "found in SO Object.\n  Omitting interval values for MLE section in returned output."))
+      warning(paste0("Tried to fetch the parameter interval values, however section ", 
+        "PrecisionPopulationEstimates$MLE$AsymptoticCI was not found in the SO Object\n",
+        "Omitting interval values for MLE section in returned output.")) 
     } else {
 
       # Append Confidence Interval information for parameters
@@ -342,8 +345,9 @@ getBayesianPopulationParameters <- function(SOObject, what="all", keep.only=NULL
   if (what %in% c("all", "precision")) {
     sdp <- SOObject@Estimation@PrecisionPopulationEstimates$Bayesian$StandardDeviationPosterior$data  
     if (is.null(sdp)) {
-      warning(paste0("Section Estimation:PrecisionPopulationEstimates$Bayesian$StandardDeviationPosterior not ",
-        "found in SO Object.\n  Omitting precision values for Bayesian section in returned output."))
+      warning(paste0("Tried to fetch the parameter precision values, however section ",
+        "Estimation:PrecisionPopulationEstimates$Bayesian$StandardDeviationPosterior was not found in the SO Object\n", 
+        "Omitting precision values for Bayesian section in returned output."))
     } else {
 
       Bayesian.output <- row.merge.cbind(Bayesian.output, sdp, colNames="SDP")
@@ -354,8 +358,9 @@ getBayesianPopulationParameters <- function(SOObject, what="all", keep.only=NULL
   if (what %in% c("all", "intervals")) {
     CIs <- SOObject@Estimation@PrecisionPopulationEstimates$Bayesian$PercentilesCI$data 
     if (is.null(CIs)) {
-      warning(paste0("Section Estimation:PrecisionPopulationEstimates$MLE$AsymptoticCI not ",
-        "found in SO Object.\n  Omitting interval values for Bayesian section in returned output."))
+      warning(paste0("Tried to fetch the parameter precision values, however section ",
+        "Estimation:PrecisionPopulationEstimates$Bayesian$PercentilesCI was not found in the SO Object\n", 
+        "Omitting interval values for Bayesian section in returned output."))
     } else {
     
       # Manipulate into data frame
@@ -432,8 +437,9 @@ getBootstrapPopulationParameters <- function(SOObject, what="all", keep.only=NUL
   if (what %in% c("all", "precision")) {
     precision.stats <- SOObject@Estimation@PrecisionPopulationEstimates$Bootstrap$PrecisionEstimates$data  
     if (is.null(precision.stats)) {
-      warning(paste0("Section Estimation:PrecisionPopulationEstimates$Bootstrap$PrecisionEstimates not ",
-        "found in SO Object.\n  Omitting precision values for Bootstrap section in returned output."))
+      warning(paste0("Tried to fetch the parameter precision values, however section ",
+        "Estimation:PrecisionPopulationEstimates$Bootstrap$PrecisionEstimates was not found in the SO Object\n", 
+        "Omitting precision values for Bootstrap section in returned output."))
     } else{
 
       Bootstrap.output <- row.merge.cbind(Bootstrap.output, precision.stats, 
@@ -446,8 +452,9 @@ getBootstrapPopulationParameters <- function(SOObject, what="all", keep.only=NUL
   if (what %in% c("all", "intervals")) {
     perc <- SOObject@Estimation@PrecisionPopulationEstimates$Bootstrap$Percentiles$data 
     if (is.null(perc)) {
-      warning(paste0("Section Estimation:PrecisionPopulationEstimates$MLE$AsymptoticCI not ",
-        "found in SO Object.\n  Omitting intervals values for Bootstrap section in returned output."))
+      warning(paste0("Tried to fetch the parameter precision values, however section ",
+        "Estimation:PrecisionPopulationEstimates$Bootstrap$Percentiles was not found in the SO Object\n", 
+        "Omitting interval values for Bootstrap section in returned output."))
     } else {
       # Manipulate into data frame
       percentiles.output <- as.data.frame(t(perc)[-1, ])
