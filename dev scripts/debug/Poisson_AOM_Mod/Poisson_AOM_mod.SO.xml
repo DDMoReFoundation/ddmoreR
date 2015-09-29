@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SO id="i1" implementedBy="MJS" writtenVersion="0.2" xmlns="http://www.pharmml.org/so/0.2/StandardisedOutput" xmlns:ct="http://www.pharmml.org/pharmml/0.6/CommonTypes" xmlns:ds="http://www.pharmml.org/pharmml/0.6/Dataset" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.pharmml.org/so/0.2/StandardisedOutput">
+	<SOBlock blkId="Poisson_AOM_mod">
+		<RawResults>
+			<DataFile oid="d1">
+				<ct:Description>NONMEM results file</ct:Description>
+				<ds:path>Poisson_AOM_mod.lst</ds:path>
+			</DataFile>
+			<DataFile oid="d2">
+				<ct:Description>NONMEM Raw output file</ct:Description>
+				<ds:path>Poisson_AOM_mod.ext</ds:path>
+			</DataFile>
+			<DataFile oid="d3">
+				<ct:Description>patab</ct:Description>
+				<ds:path>patab</ds:path>
+			</DataFile>
+		</RawResults>
+		<TaskInformation>
+			<Message type="INFORMATION">
+				<Toolname>
+					<ct:String>NONMEM</ct:String>
+				</Toolname>
+				<Name>
+					<ct:String>minimization_successful</ct:String>
+				</Name>
+				<Content>
+					<ct:String>1</ct:String>
+				</Content>
+				<Severity>
+					<ct:Int>1</ct:Int>
+				</Severity>
+			</Message>
+			<Message type="INFORMATION">
+				<Toolname>
+					<ct:String>NONMEM</ct:String>
+				</Toolname>
+				<Name>
+					<ct:String>covariance_step_run</ct:String>
+				</Name>
+				<Content>
+					<ct:String>1</ct:String>
+				</Content>
+				<Severity>
+					<ct:Int>1</ct:Int>
+				</Severity>
+			</Message>
+			<Message type="WARNING">
+				<Toolname>
+					<ct:String>NONMEM</ct:String>
+				</Toolname>
+				<Name>
+					<ct:String>covariance_step_successful</ct:String>
+				</Name>
+				<Content>
+					<ct:String>0</ct:String>
+				</Content>
+				<Severity>
+					<ct:Int>1</ct:Int>
+				</Severity>
+			</Message>
+			<Message type="INFORMATION">
+				<Toolname>
+					<ct:String>NONMEM</ct:String>
+				</Toolname>
+				<Name>
+					<ct:String>covariance_step_warnings</ct:String>
+				</Name>
+				<Content>
+					<ct:String>0</ct:String>
+				</Content>
+				<Severity>
+					<ct:Int>1</ct:Int>
+				</Severity>
+			</Message>
+			<Message type="INFORMATION">
+				<Toolname>
+					<ct:String>NONMEM</ct:String>
+				</Toolname>
+				<Name>
+					<ct:String>rounding_errors</ct:String>
+				</Name>
+				<Content>
+					<ct:String>0</ct:String>
+				</Content>
+				<Severity>
+					<ct:Int>1</ct:Int>
+				</Severity>
+			</Message>
+			<Message type="INFORMATION">
+				<Toolname>
+					<ct:String>NONMEM</ct:String>
+				</Toolname>
+				<Name>
+					<ct:String>hessian_reset</ct:String>
+				</Name>
+				<Content>
+					<ct:String>0</ct:String>
+				</Content>
+				<Severity>
+					<ct:Int>1</ct:Int>
+				</Severity>
+			</Message>
+			<Message type="WARNING">
+				<Toolname>
+					<ct:String>NONMEM</ct:String>
+				</Toolname>
+				<Name>
+					<ct:String>zero_gradients</ct:String>
+				</Name>
+				<Content>
+					<ct:String>1</ct:String>
+				</Content>
+				<Severity>
+					<ct:Int>1</ct:Int>
+				</Severity>
+			</Message>
+			<Message type="WARNING">
+				<Toolname>
+					<ct:String>NONMEM</ct:String>
+				</Toolname>
+				<Name>
+					<ct:String>final_zero_gradients</ct:String>
+				</Name>
+				<Content>
+					<ct:String>1</ct:String>
+				</Content>
+				<Severity>
+					<ct:Int>1</ct:Int>
+				</Severity>
+			</Message>
+			<Message type="WARNING">
+				<Toolname>
+					<ct:String>NONMEM</ct:String>
+				</Toolname>
+				<Name>
+					<ct:String>estimate_near_boundary</ct:String>
+				</Name>
+				<Content>
+					<ct:String>1</ct:String>
+				</Content>
+				<Severity>
+					<ct:Int>1</ct:Int>
+				</Severity>
+			</Message>
+			<Message type="INFORMATION">
+				<Toolname>
+					<ct:String>NONMEM</ct:String>
+				</Toolname>
+				<Name>
+					<ct:String>s_matrix_singular</ct:String>
+				</Name>
+				<Content>
+					<ct:String>0</ct:String>
+				</Content>
+				<Severity>
+					<ct:Int>1</ct:Int>
+				</Severity>
+			</Message>
+			<Message type="INFORMATION">
+				<Toolname>
+					<ct:String>NONMEM</ct:String>
+				</Toolname>
+				<Name>
+					<ct:String>significant_digits</ct:String>
+				</Name>
+				<Content>
+					<ct:String>3.7</ct:String>
+				</Content>
+				<Severity>
+					<ct:Int>1</ct:Int>
+				</Severity>
+			</Message>
+			<Message type="INFORMATION">
+				<Toolname>
+					<ct:String>nmoutput2so</ct:String>
+				</Toolname>
+				<Name>
+					<ct:String>nmoutput2so_version</ct:String>
+				</Name>
+				<Content>
+					<ct:String>This SOBlock was created with nmoutput2so version 4.4.4</ct:String>
+				</Content>
+				<Severity>
+					<ct:Int>0</ct:Int>
+				</Severity>
+			</Message>
+			<RunTime>
+				<ct:Real>0</ct:Real>
+			</RunTime>
+		</TaskInformation>
+		<Estimation>
+			<PopulationEstimates>
+				<MLE>
+					<ds:Definition>
+						<ds:Column columnId="POP_BASE_PDV" columnNum="1" columnType="undefined" valueType="real"/>
+						<ds:Column columnId="IIV_BAS2" columnNum="2" columnType="undefined" valueType="real"/>
+					</ds:Definition>
+					<ds:Table>
+						<ds:Row>
+							<ct:Real>0.292627</ct:Real>
+							<ct:Real>0.00007</ct:Real>
+						</ds:Row>
+					</ds:Table>
+				</MLE>
+			</PopulationEstimates>
+			<IndividualEstimates>
+				<Estimates>
+					<Mean>
+						<ds:Definition>
+							<ds:Column columnId="ID" columnNum="1" columnType="id" valueType="string"/>
+							<ds:Column columnId="LAMB" columnNum="2" columnType="undefined" valueType="real"/>
+						</ds:Definition>
+						<ds:Table>
+							<ds:Row>
+								<ct:String>1</ct:String>
+								<ct:Real>0.29263</ct:Real>
+							</ds:Row>
+						</ds:Table>
+					</Mean>
+					<Median>
+						<ds:Definition>
+							<ds:Column columnId="ID" columnNum="1" columnType="id" valueType="string"/>
+							<ds:Column columnId="LAMB" columnNum="2" columnType="undefined" valueType="real"/>
+						</ds:Definition>
+						<ds:Table>
+							<ds:Row>
+								<ct:String>1</ct:String>
+								<ct:Real>0.29263</ct:Real>
+							</ds:Row>
+						</ds:Table>
+					</Median>
+				</Estimates>
+				<RandomEffects>
+					<EffectMean>
+						<ds:Definition>
+							<ds:Column columnId="ID" columnNum="1" columnType="id" valueType="string"/>
+							<ds:Column columnId="ETA_IIV_BAS2" columnNum="2" columnType="undefined" valueType="real"/>
+						</ds:Definition>
+						<ds:Table>
+							<ds:Row>
+								<ct:String>1</ct:String>
+								<ct:Real>0.00000032184</ct:Real>
+							</ds:Row>
+						</ds:Table>
+					</EffectMean>
+					<EffectMedian>
+						<ds:Definition>
+							<ds:Column columnId="ID" columnNum="1" columnType="id" valueType="string"/>
+							<ds:Column columnId="ETA_IIV_BAS2" columnNum="2" columnType="undefined" valueType="real"/>
+						</ds:Definition>
+						<ds:Table>
+							<ds:Row>
+								<ct:String>1</ct:String>
+								<ct:Real>0.00000032184</ct:Real>
+							</ds:Row>
+						</ds:Table>
+					</EffectMedian>
+				</RandomEffects>
+			</IndividualEstimates>
+			<Likelihood>
+				<Deviance>108.363913524544</Deviance>
+			</Likelihood>
+		</Estimation>
+	</SOBlock>
+</SO>

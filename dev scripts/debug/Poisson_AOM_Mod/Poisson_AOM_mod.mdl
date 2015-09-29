@@ -1,0 +1,89 @@
+# nt2mdl 2.021 beta Nick Holford n.holford@auckland.ac.nz
+
+
+Poisson_dat = dataobj{
+
+   DECLARED_VARIABLES{Y}
+
+   DATA_INPUT_VARIABLES{
+      ID: {use=id, type=categorical}
+      TIME: {use=idv, type=continuous, units="h"}
+      DV: {use=dv, type=continuous, define=Y}
+   }# end DATA_INPUT_VARIABLES
+  
+   SOURCE{
+      file="Count.csv"
+      inputformat=nonmemFormat
+      ignore="#"
+   }# end SOURCE
+} # end data object
+
+Poisson_par = parobj{
+
+   STRUCTURAL{
+      POP_BASE_PDV: {value=0.7, lo=0}
+   }# end STRUCTURAL
+
+   VARIABILITY{
+      IIV_BAS2: {value= .7, type=VAR}
+
+   }# end VARIABILITY
+
+} # end of parameter object
+
+Poisson_mdl = mdlobj{
+
+   IDV{TIME}
+
+   VARIABILITY_LEVELS{
+      ID: {type=parameter, level=2}
+      DV: {type=observation, level=1}
+     }# end VARIABILITY_LEVELS
+
+   STRUCTURAL_PARAMETERS{
+      POP_BASE_PDV
+   }# end STRUCTURAL_PARAMETERS
+
+   VARIABILITY_PARAMETERS{
+      IIV_BAS2
+   }# end VARIABILITY_PARAMETERS
+
+
+   RANDOM_VARIABLE_DEFINITION (level=ID) {
+      eta_IIV_BAS2 ~ Normal(mean=0, var=IIV_BAS2)
+   }# end RANDOM_VARIABLE_DEFINITION (level=ID)
+
+   RANDOM_VARIABLE_DEFINITION (level=DV) {
+   }# end RANDOM_VARIABLE_DEFINITION (level=DV)
+
+   INDIVIDUAL_VARIABLES{
+      LAMB : { type = linear, trans = log, pop = POP_BASE_PDV, ranEff = eta_IIV_BAS2 }
+   }# end INDIVIDUAL_VARIABLES
+
+  OBSERVATION{
+	  Y : { type = count, distn = ~ Poisson(lambda = LAMB), link = identity }
+
+   }# end ESTIMATION
+
+} # end of model object
+
+Poisson_task = taskobj{
+
+   ESTIMATE {
+      target = NMTRAN_CODE
+      cov = true
+      algo = [ "FOCE" ]
+   } #end ESTIMATE sub block
+
+}# end of task object
+
+#Modelling object group
+
+Poisson_mog=mogobj{
+	OBJECTS{
+		dObj=Poisson_dat
+		pObj=Poisson_par
+		mObj=Poisson_mdl
+		tObj=Poisson_task
+	}
+}
