@@ -113,7 +113,13 @@ createFISJobFromNamedList <- function(namedList) {
     if(!is.null(namedList$executionFile)) fisJob@executionFile <- namedList$executionFile
     if(!is.null(namedList$workingDirectory)) fisJob@workingDirectory <- namedList$workingDirectory
     if(!is.null(namedList$commandParameters)) fisJob@commandParameters <- namedList$commandParameters
-    if(!is.null(namedList$extraInputFiles)) fisJob@extraInputFiles <- namedList$extraInputFiles
+    if(!is.null(namedList$extraInputFiles)) {
+        if(typeof(namedList$extraInputFiles)=="list") {
+            fisJob@extraInputFiles <- namedList$extraInputFiles
+        } else {
+            fisJob@extraInputFiles <- as.list(namedList$extraInputFiles)
+        }
+    }
     if(!is.null(namedList$resultsIncludeRegex)) fisJob@resultsIncludeRegex <- namedList$resultsIncludeRegex
     if(!is.null(namedList$resultsExcludeRegex)) fisJob@resultsExcludeRegex <- namedList$resultsExcludeRegex
     if(!is.null(namedList$id)) fisJob@id <- namedList$id
