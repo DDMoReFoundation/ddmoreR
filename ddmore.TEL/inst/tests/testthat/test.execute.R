@@ -202,45 +202,57 @@ test_that("TEL.performExecutionWorkflow results in error if any step throws erro
     )
 })
 
-test_that("Final status of submission is correctly set - no FISJob", {
+
+test_that("Final status of submission - fail on no or NULL submission's status", {
     submission <- list()
-    result <- .setFinalSubmissionStatus(submission)
-    expect_equal(result$status, SUBMISSION_FAILED, "Submission with no status should result in SUBMISSION_FAILED final status")
+    expect_error(.setFinalSubmissionStatus(submission), info = "Submission with no status should result in error")
     
     submission$status <- NULL
-    result <- .setFinalSubmissionStatus(submission)
-    expect_equal(result$status, SUBMISSION_FAILED, "Submission with NULL should result in SUBMISSION_FAILED final status")
+    expect_error(.setFinalSubmissionStatus(submission), info = "Submission with NULL status should result in error")
+})
+
+test_that("Final status of submission is correctly set - no FISJob", {
+    submission <- list()
     
     submission$status <- "Some random status"
     result <- .setFinalSubmissionStatus(submission)
-    expect_equal(result$status, SUBMISSION_FAILED, "Submission with some randome status should result in SUBMISSION_FAILED final status")
+    expect_equal(result$status, SUBMISSION_FAILED, "Submission with some random status should result in SUBMISSION_FAILED final status")
     
 })
 
 test_that("Final status of submission is correctly set - FISJob is present", {
     submission <- list()
     submission$fisJob <- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id="MOCK_ID", status ='FAILED'))
-    result <- .setFinalSubmissionStatus(submission)
-    expect_equal(result$status, SUBMISSION_FAILED, "Submission with no status and job with status Failed should result in SUBMISSION_FAILED final status")
-    
-    submission$status <- NULL
-    result <- .setFinalSubmissionStatus(submission)
-    expect_equal(result$status, SUBMISSION_FAILED, "Submission with NULL and job with status Failed  should result in SUBMISSION_FAILED final status")
-    
+
     submission$status <- "Some random status"
     result <- .setFinalSubmissionStatus(submission)
-    expect_equal(result$status, SUBMISSION_FAILED, "Submission with some randome status and job with status Failed should result in SUBMISSION_FAILED final status")
+    expect_equal(result$status, SUBMISSION_FAILED, "Submission with some random status and job with status Failed should result in SUBMISSION_FAILED final status")
     
     submission <- list()
     submission$fisJob <- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id="MOCK_ID", status ='COMPLETED'))
-    result <- .setFinalSubmissionStatus(submission)
-    expect_equal(result$status, SUBMISSION_COMPLETED, "Submission with no status and job with status Completed should result in SUBMISSION_COMPLETED final status")
-    
-    submission$status <- NULL
-    result <- .setFinalSubmissionStatus(submission)
-    expect_equal(result$status, SUBMISSION_COMPLETED, "Submission with NULL and job with status Completed should result in SUBMISSION_COMPLETED final status")
-    
+
     submission$status <- "Some random status"
     result <- .setFinalSubmissionStatus(submission)
-    expect_equal(result$status, SUBMISSION_COMPLETED, "Submission with some randome status and job with status Completed should result in SUBMISSION_COMPLETED final status")
+    expect_equal(result$status, SUBMISSION_COMPLETED, "Submission with some random status and job with status Completed should result in SUBMISSION_COMPLETED final status")
+})
+
+test_that("TEL.verifySOStep  - results in unmodified submission status if SO doesn't contain error messages", {
+    submission <- list()
+    submission$fisJob <- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id="MOCK_ID", status ='COMPLETED'))
+    submission$so <- createSOObject()
+    submission$status <- "Some status"
+    result <- TEL.verifySOStep(submission)
+    expect_equal(result$status, "Some status", "Submission with SO that doesn't contain error messages, should result in unchanged submission status.")
+    
+})
+
+test_that("TEL.verifySOStep  - results in SUBMISSION_COMPLETED_WITH_ERRORS if SO contains error messages", {
+    submission <- list()
+    submission$fisJob <- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id="MOCK_ID", status ='COMPLETED'))
+    submission$so <- createSOObject()
+    submission$status <- SUBMISSION_COMPLETED
+    submission$so@TaskInformation$Messages$Errors <- list("First Error", "Second Error")
+    result <- TEL.verifySOStep(submission)
+    expect_equal(result$status, SUBMISSION_COMPLETED_WITH_ERRORS, "Submission with SO that contains error messages, should result in SUBMISSION_COMPLETED_WITH_ERRORS status.")
+    
 })

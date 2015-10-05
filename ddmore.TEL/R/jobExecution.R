@@ -2,11 +2,22 @@
 #' Static Variables
 ################################################################################
 #'Failed Submission status string
-SUBMISSION_FAILED <- "Failed"
+SUBMISSION_FAILED <- "FAILED"
 #'Cancelled Submission status string
-SUBMISSION_CANCELLED <- "Cancelled"
+SUBMISSION_CANCELLED <- "CANCELLED"
 #'Failed Submission status string
-SUBMISSION_COMPLETED <- "Completed"
+SUBMISSION_COMPLETED <- "COMPLETED"
+#'Submission status for a job that fails but due to domain-level result checks
+SUBMISSION_COMPLETED_WITH_ERRORS <- "COMPLETED_WITH_ERRORS"
+#' list holding the statuses recognized by the framework
+#' label - user-readable string
+#' final - flag indicating if the state is final or not.
+SUBMISSION_STATUSES <- list()
+SUBMISSION_STATUSES[[ SUBMISSION_FAILED ]] <- list(label = "Failed", final = TRUE)
+SUBMISSION_STATUSES[[ SUBMISSION_CANCELLED ]] <- list(label = "Cancelled", final = TRUE)
+SUBMISSION_STATUSES[[ SUBMISSION_COMPLETED ]] <- list(label = "Completed", final = TRUE)
+SUBMISSION_STATUSES[[ SUBMISSION_COMPLETED_WITH_ERRORS ]] <- list(label = "Failed", final = TRUE)
+
 
 ################################################################################
 #' TEL.prepareSubmissionStep
@@ -373,4 +384,39 @@ TEL.importSOStep <- function(submission, fisServer, ...) {
     }
     submission$so <- so
     return(submission)
+}
+
+################################################################################
+#' TEL.verifySOStep
+#'
+#' INTERNAL, this function is to be used by \code{TEL.performExecutionWorkflow}.
+#' 
+#' Checks SO if it represents a successful TPT execution.
+#' 
+#' If there are any errors found in the TaskInformation block of the SO then the submission status is set to SUBMISSION_COMPLETED_WITH_ERRORS.
+#' Otherwise the status of the submission is not modified.
+#' 
+#' @param submission Named list containing information relating to the
+#'        submission of the execution request. The only items required by
+#'        this function are:
+#'        \itemize{
+#'          \item{\code{fisJob}} - A job returned by FIS during submission.
+#'          \item{\code{so}} - SO from the job's execution.
+#'        }
+#' @param fisServer \code{FISServer} instance.
+#' 
+#' @return Updated \code{submission} named list.
+#' 
+TEL.verifySOStep <- function(submission, fisServer=TEL.getServer(), ...) {
+    .precondition.checkArgument(!is.null(submission),'submission', " Must be set and can't be NULL.")
+    .precondition.checkArgument(!("fisJob" %in% names(submission)) || is.FISJob(submission$fisJob), "submission$fisJob", "Must be set and of type FISJob.")
+    .precondition.checkArgument(!("so" %in% names(submission)) || is.SOObject(submission$so), "submission$so", "Must be set and be of type StandardOutputObject.")
+    if(submission$status == SUBMISSION_FAILED) {
+        return(submission)
+    }
+    if(length(submission$so@TaskInformation$Messages$Errors)>0) {
+        submission$status <- SUBMISSION_COMPLETED_WITH_ERRORS
+    }
+    
+    submission
 }
