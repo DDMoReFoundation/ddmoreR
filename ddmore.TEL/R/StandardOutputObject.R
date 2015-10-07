@@ -436,20 +436,28 @@ setMethod(f="as.xpdb",
             myXpdb@Prefs@Xvardef$wres <- "WRES"
             myXpdb@Prefs@Xvardef$iwres <- "IWRES"
 
-			# Below are the hard-coded column definitions for the Warfarin-latest-ODE model.
-			# These are slightly different to the default ones that are assigned; so this
-			# may give rise to errors such as "ETAs are not properly set in the database"
-			# for certain plots.
-			# TODO: Need to determine if we do need to override the column names here (in
-			# some generic manner), or whether we leave it up to the user to set them in
-			# the Xpose object as and when required.
+      			# Below are the hard-coded column definitions for the Warfarin-latest-ODE model.
+      			# These are slightly different to the default ones that are assigned; so this
+      			# may give rise to errors such as "ETAs are not properly set in the database"
+      			# for certain plots.
 #            myXpdb@Prefs@Xvardef$parms <- c("V","CL","KA","TLAG")
 #            myXpdb@Prefs@Xvardef$covariates <- "logtWT"
 #            myXpdb@Prefs@Xvardef$ranpar <- c("ETA_V","ETA_CL","ETA_KA","ETA_TLAG")
-            
+                        
+            # TODO: Temporary workaround is to find model parameters from MDL file to populate 
+            # The Xvardef slot of the xpdb object
+            obj <- .getMdlInfoFromSO(SOObject, what='Model')
+            params = names(obj@INDIVIDUAL_VARIABLES)
+            covariates = names(obj@COVARIATES)
+            randpar = names(obj@RANDOM_VARIABLE_DEFINITION)
+
+            myXpdb@Prefs@Xvardef$parms <- params
+            myXpdb@Prefs@Xvardef$covariates <- covariates
+            myXpdb@Prefs@Xvardef$ranpar <- randpar
+
             ## Ideally would also update xpdb@Prefs@Labels (variable labels for plots)
             #myXpdb@Prefs@Labels
-			myXpdb@Prefs@Labels$OCC <- NA
+			      myXpdb@Prefs@Labels$OCC <- NA
             
             #####################################################
 
