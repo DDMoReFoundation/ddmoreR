@@ -164,6 +164,7 @@ setGeneric("execute", function(x, target = NULL,
     }
     if(is.null(params$importSO) || params$importSO) {
         workflow <- c(workflow,TEL.importSOStep)
+        workflow <- c(workflow,TEL.verifySOStep)
     }
     workflow
 }
@@ -215,7 +216,7 @@ TEL.performExecutionWorkflow <-
         )
         submission$end <- date()
         submission <- .setFinalSubmissionStatus(submission)
-        message(submission$status)
+        message(SUBMISSION_STATUSES[[submission$status]]$label)
         message(sprintf('-- %s', submission$end))
         if (submission$status == SUBMISSION_FAILED) {
             .telFailedSubmission <<- submission
@@ -228,10 +229,14 @@ TEL.performExecutionWorkflow <-
     }
     
 #'
-#' Ensures that the submission has correct final status set
+#' Ensures that the submission has correct predefined (one of SUBMISSION_FAILED, SUBMISSION_CANCELLED, SUBMISSION_COMPLETED, SUBMISSION_COMPLETED_WITH_ERRORS) final status set. 
+#'
+#' The use of the submission$status is optional by the *Step functions, and they are free to to use it if there is a need and set these to free-style text. 
+#' 
 #'
 .setFinalSubmissionStatus <- function(submission) {
-    if(!"status" %in% names(submission) || is.null(submission$status) || !submission$status %in% c(SUBMISSION_FAILED, SUBMISSION_COMPLETED, SUBMISSION_CANCELLED)) {
+    .precondition.checkArgument("status" %in% names(submission) && !is.null(submission$status) , "submission$status", "Is required and should be not-null.")
+    if(!submission$status %in% names(SUBMISSION_STATUSES) || !SUBMISSION_STATUSES[[submission$status]]$final) {
         if (!"fisJob" %in% names(submission) || submission$fisJob@status %in% c("FAILED")) {
             submission$status <- SUBMISSION_FAILED
         } else {
