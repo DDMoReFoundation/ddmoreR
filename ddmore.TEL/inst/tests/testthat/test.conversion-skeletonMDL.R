@@ -18,38 +18,39 @@ skeletonJsonAsNestedLists <- rjson:::fromJSON(file=skeletonJsonFile)
 
 test_that("Checking that JSON-format text representing the MDL could be parsed", {
     expect_true(is.list(skeletonJsonAsNestedLists), info="JSON-as-nested-lists should be a list")
-    expect_true(is.list(skeletonJsonAsNestedLists[[1]]), info="JSON-as-nested-lists should be a list of lists")
-    expect_equal(length(skeletonJsonAsNestedLists[[1]]), 5, info="Should be 5 main elements in the JSON-as-nested-lists")
+	expect_true(length(skeletonJsonAsNestedLists) == 5, info="JSON-as-nested-lists should be a list containing 5 elements")
 })
-
-skeletonJsonAsNestedLists <- skeletonJsonAsNestedLists[[1]]
 
 test_that("Expected dataObj to have been created from the JSON-format text representing the MDL", {
 	
-	mySkeletonDataObj <<- DDMoRe.TEL:::.extractTypeObject(skeletonJsonAsNestedLists, "dataobj")[[1]]
+	mySkeletonDataObj <<- DDMoRe.TEL:::.extractTypeObjects(skeletonJsonAsNestedLists, "dataObj")[[1]]
 	
 	expect_true(isS4(mySkeletonDataObj), info="dataObj should be an S4 class")
+	expect_true(class(mySkeletonDataObj) == "dataObj", info="dataObj should be the correct class type")
 })
 
 test_that("Expected parObj to have been created from the JSON-format text representing the MDL", {
 	
-	mySkeletonParObj <<- DDMoRe.TEL:::.extractTypeObject(skeletonJsonAsNestedLists, "parobj")[[1]]
+	mySkeletonParObj <<- DDMoRe.TEL:::.extractTypeObjects(skeletonJsonAsNestedLists, "parObj")[[1]]
 	
 	expect_true(isS4(mySkeletonParObj), info="parObj should be an S4 class")
+	expect_true(class(mySkeletonParObj) == "parObj", info="parObj should be the correct class type")
 })
 
 test_that("Expected mdlObj to have been created from the JSON-format text representing the MDL", {
 			
-	mySkeletonMdlObj <<- DDMoRe.TEL:::.extractTypeObject(skeletonJsonAsNestedLists, "mdlobj")[[1]]
+	mySkeletonMdlObj <<- DDMoRe.TEL:::.extractTypeObjects(skeletonJsonAsNestedLists, "mdlObj")[[1]]
 	
 	expect_true(isS4(mySkeletonMdlObj), info="mdlObj should be an S4 class")
+	expect_true(class(mySkeletonMdlObj) == "mdlObj", info="mdlObj should be the correct class type")
 })
 
 test_that("Expected taskObj to have been created from the JSON-format text representing the MDL", {
 			
-	mySkeletonTaskObj <<- DDMoRe.TEL:::.extractTypeObject(skeletonJsonAsNestedLists, "taskobj")[[1]]
+	mySkeletonTaskObj <<- DDMoRe.TEL:::.extractTypeObjects(skeletonJsonAsNestedLists, "taskObj")[[1]]
 	
 	expect_true(isS4(mySkeletonTaskObj), info="taskObj should be an S4 class")
+	expect_true(class(mySkeletonTaskObj) == "taskObj", info="taskObj should be the correct class type")
 })
 
 test_that("Expected output Mog to have been created", {
@@ -82,25 +83,28 @@ stopifnot(file.exists(skeletonJsonFileOutput))
     
 test_that("Checking that output JSON-as-nested-lists could be parsed", {
 	expect_true(is.list(skeletonJsonAsNestedListsOutput), info="JSON-as-nested-lists should be a list")
-	expect_true(is.list(skeletonJsonAsNestedListsOutput[[1]]), info="JSON-as-nested-lists should be a list of lists")
-	expect_equal(length(skeletonJsonAsNestedListsOutput[[1]]), 5, info="Should be 5 main elements in the JSON-as-nested-lists")
+	expect_true(length(skeletonJsonAsNestedListsOutput) == 5, info="JSON-as-nested-lists should be a list containing 5 elements")
 })
 
-skeletonJsonAsNestedListsOutput <- skeletonJsonAsNestedListsOutput[[1]]
-
-test_that("Expected nested list representing the dataObj in the output Mog to be empty apart from its identifier", {
-	expect_equal(skeletonJsonAsNestedListsOutput$skeleton_data, list(identifier="dataobj"))
+test_that("Checking the content of the nested list representing the dataObj in the output Mog", {
+	expect_equal(skeletonJsonAsNestedListsOutput[[1]], list(name="skeleton_data", type="dataObj", blocks=list()))
 })
 
-test_that("Expected nested list representing the parObj in the output Mog to be empty apart from its identifier", {
-	expect_equal(skeletonJsonAsNestedListsOutput$skeleton_par, list(identifier="parobj"))
+test_that("Checking the content of the nested list representing the parObj in the output Mog", {
+	expect_equal(skeletonJsonAsNestedListsOutput[[2]], list(name="skeleton_par", type="parObj", blocks=list()))
 })
 
-test_that("Expected nested list representing the mdlObj in the output Mog to be empty apart from its identifier", {
-	expect_equal(skeletonJsonAsNestedListsOutput$skeleton_mdl, list(identifier="mdlobj"))
+test_that("Checking the content of the nested list representing the mdlObj in the output Mog", {
+	expect_equal(skeletonJsonAsNestedListsOutput[[3]], list(name="skeleton_mdl", type="mdlObj", blocks=list()))
 })
 
-test_that("Expected nested list representing the taskObj in the output Mog to be empty apart from its identifier", {
-	expect_equal(skeletonJsonAsNestedListsOutput$skeleton_task, list(identifier="taskobj"))
+test_that("Checking the content of the nested list representing the taskObj in the output Mog", {
+	expect_equal(skeletonJsonAsNestedListsOutput[[4]], list(name="skeleton_task", type="taskObj", blocks=list()))
 })
+
+# TODO: Implement this test
+#test_that("Checking the content of the nested list representing the mogObj in the output Mog", {
+#	expect_equal(skeletonJsonAsNestedListsOutput[[5]], list(name="skeleton_mog", blocks=list(), type="mogObj"))
+#})
+
 

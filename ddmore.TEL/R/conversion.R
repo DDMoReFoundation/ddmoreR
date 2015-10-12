@@ -2,7 +2,7 @@
 MDL_FILE_EXT <- 'mdl'
 JSON_FILE_EXT <- 'json'
 
-MOG_OBJECT_TYPES <- c("dataobj", "parobj", "mdlobj", "taskobj")
+MOG_OBJECT_TYPES <- c("dataObj", "parObj", "mdlObj", "taskObj")
 
 # This used to include ".PKMACRO" too; add this back in if "PKMACRO" is re-introduced into the MDL syntax,
 # and also update the R doc on the MODEL_PREDICTION slot in the class definition of mdlObj accordingly.
@@ -16,10 +16,10 @@ MODEL_PREDICTION_SUBBLOCKS <- c(".DEQ", ".COMPARTMENT")
 #' all objects from that MDL file of a specified type. Optionally a name can be specified
 #' too to target a specific object. The recognised types are:
 #' \itemize{
-#'   \item \code{dataobj} -> Returns S4 object(s) of Data Object class \code{\linkS4class{dataObj}}.
-#'   \item \code{parobj} -> Returns S4 object(s) of Parameter Object class \code{\linkS4class{parObj}}.
-#'   \item \code{mdlobj} -> Returns S4 object(s) of Model Object class \code{\linkS4class{mdlObj}}.
-#'   \item \code{taskobj} -> Returns S4 object(s) of Task Properties Object class \code{\linkS4class{taskObj}}.
+#'   \item \code{dataObj} -> Returns S4 object(s) of Data Object class \code{\linkS4class{dataObj}}.
+#'   \item \code{parObj} -> Returns S4 object(s) of Parameter Object class \code{\linkS4class{parObj}}.
+#'   \item \code{mdlObj} -> Returns S4 object(s) of Model Object class \code{\linkS4class{mdlObj}}.
+#'   \item \code{taskObj} -> Returns S4 object(s) of Task Properties Object class \code{\linkS4class{taskObj}}.
 #' }
 #' 
 #' This function is not intended for use by the user. The functions
@@ -28,22 +28,22 @@ MODEL_PREDICTION_SUBBLOCKS <- c(".DEQ", ".COMPARTMENT")
 #' MDL file in a unified list, should be used instead.
 #'
 #' @param f Path to the .mdl file containing the objects.
-#' @param name (Optional) Specifies the dataobj/parobj/mdlobj/taskobj/mogobj object,
+#' @param name (Optional) Specifies the dataObj/parObj/mdlObj/taskObj object,
 #'        by name, to be retrieved. If multiple objects of a particular type exist in the
 #'        .mdl file then using the name argument allows the user to target a specific object.
 #' @param type String specifying the type of object(s) to extract. Possible values are
-#'        \code{dataobj}, \code{parobj}, \code{mdlobj}, \code{taskobj} and \code{mogobj}.
+#'        \code{dataObj}, \code{parObj}, \code{mdlObj}, \code{taskObj}.
 #' @param fisServer FISServer instance.
 #' @return A list of parsed objects which are contained in the MDL file, that match
 #'         the specified criteria. If name is specified, only the single specified object is returned.
 #' 
-#' @usage .parseMDLFile('Warfarin-ODE-latest.mdl', type='dataobj')
+#' @usage .parseMDLFile('Warfarin-ODE-latest.mdl', type='dataObj')
 #' 
 #' @include telClasses.R
 .parseMDLFile <- function(f, name, type, fisServer) {
     .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FIS Server instance is required.")
-  if (!type%in%c(MOG_OBJECT_TYPES, "mogObj")) {
-    stop(paste0("Type specified is not one of \"", paste(MOG_OBJECT_TYPES, collapse="\", \""), "\" or \"mogobj\""))
+  if (!missing(type) && !type%in%c(MOG_OBJECT_TYPES)) {
+    stop(paste0("Type specified is not one of \"", paste(MOG_OBJECT_TYPES, collapse="\", \""), "\""))
   }
   
   # Call parser and read in the JSON data
@@ -51,17 +51,14 @@ MODEL_PREDICTION_SUBBLOCKS <- c(".DEQ", ".COMPARTMENT")
 
   if (!missing(name)) {
   
-    res <- .extractNamedObject(raw, name, type)
+    res <- .extractNamedObject(raw, name)
 	if (length(res) == 0) {
 	  stop(paste0("No object named \"", name, "\" of type \"", type, "\" found in the parsed MDL file"))
 	}
-
-	# res is currently returned as a list with one element. This will return the element itself instead 
-	res <- res[[1]]
     
   } else {
 	  
-    res <- .extractTypeObject(raw, type)
+    res <- .extractTypeObjects(raw, type)
 	if (length(res) == 0) {
 	  warning(paste0("No objects of type \"", type, "\" found in the parsed MDL file"))
 	}
@@ -82,181 +79,124 @@ MODEL_PREDICTION_SUBBLOCKS <- c(".DEQ", ".COMPARTMENT")
 		stop(paste("The file extension for the file being parsed into R objects should be .mdl; the filename was", f))
 	}
   
-    fromJSON(json)[[1]]
+    fromJSON(json)
 
 }
 
 
-.extractNamedObject <- function(raw, name, type) {
+.extractNamedObject <- function(raw, name) {
 	
-  val <- raw[name] # Creates a list containing the single matching object
+	val <- raw[sapply(raw, function(e) {e$name == name})] # Creates a list containing the single matching object
   
-  .extractTypeObject(val, type)
+	.extractObjs(val)[[1]]
 }
 
 
-.extractTypeObject <- function(raw, type) {
+.extractTypeObjects <- function(raw, type) {
 	
-	switch (type,
-		dataobj  = .extractObj(raw, "dataobj", .createDataObj),
-		parobj  = .extractObj(raw, "parobj", .createParObj),
-		mdlobj  = .extractObj(raw, "mdlobj", .createMdlObj),
-		taskobj  = .extractObj(raw, "taskobj", .createTaskObj)
-	)
-  
+	val <- raw[sapply(raw, function(e) {e$type == type})] # Creates a list containing the matching objects
+
+	.extractObjs(val)
 }
 
 
-.extractObj <- function(raw, identifier, createObjFn) {
+.extractObjs <- function(raw) {
 	
-	# Extract identifiers
-	logi <- sapply(raw, 
-		function(x) {
-			x$identifier==identifier
-		}
-	)
+	lapply(raw, function(b) {
 	
-	subList <- raw[logi]
+		createObjFn <- switch(b$type,
+			dataObj = .createDataObj,
+			parObj = .createParObj,
+			mdlObj = .createMdlObj,
+			taskObj = .createTaskObj
+		)
+		
+		createObjFn(b$blocks, b$name)
 	
-	# This is essentially
-	#  objList <- lapply(subList, createObjFn)
-	# but with the extra line of code that assigns the name
-	objList <- lapply(names(subList), function(n) { # 'n' is the name of the list element
-		obj <- createObjFn(subList[[n]])
-		obj@name <- n
-		obj
-	} )
+	})
 	
-	# Having the list of objects as a named list is not strictly necessary since the objects have a "name" attribute,
-	# but it is convenient to be able to do e.g.
-	#  parsed <- getMDLObjects("Warfarin-ODE-28Oct2014.mdl")
-	#  dataObj <- parsed$warfarin_PK_ODE_dat
-	names(objList) <- names(subList)
-	
-	return(objList)
 }
 
 
-.createParObj <- function(parObjAsList) {
+.createParObj <- function(parObjAsList, name) {
 	
 	if (is.null(parObjAsList)) {
 		stop("Input argument parObjAsList is null")
 	}
-
-	# Weren't sure what to do about the VARIABILITY block since you can have a mixture
-	# of named parameters, "matrix" blocks, "diag" blocks and "same" blocks.
-	# The transformation on this block in the code below essentially removes the extra layer
-	# of nesting there is in the VARIABILITY data coming in.
-	# It allows the named parameters to be accessed as such e.g. myMog@parObj@VARIABILITY$PPV_KOUT,
-	# as per all the other such lists of named parameters/variables there are in the R objects.
-	# A side effect of this though, peculiar to the VARIABILITY block due to its heterogeneous
-	# nature, is that this gives rise to multiple elements having the same name in the list
-	# (multiple "same" blocks probably being the most common scenario).
-	# Although R doesn't actually complain, having duplicate names in a named list undoubtedly
-	# isn't a good idea, so such elements have a "_n" suffix appended to their names where "n"
-	# is an number that increments individually for "matrix", "diag" and "same"; when writing
-	# the R objects back out to JSON (and thence to MDL), these suffixes are dropped.
-
-	diagCnt <- 0; matrixCnt <- 0; sameCnt <- 0;
-	variabilityNames <- lapply(as.list(parObjAsList$VARIABILITY), function(x) {
-		elemName <- names(x) # only one element in each sub-list of the main list
-		if (elemName == "diag") {
-			diagCnt <<- diagCnt + 1
-			elemName <- paste0(elemName, "_", diagCnt)
-		}
-		else if (elemName == "matrix") {
-			matrixCnt <<- matrixCnt + 1
-			elemName <- paste0(elemName, "_", matrixCnt)
-		}
-		else if (elemName == "same") {
-			sameCnt <<- sameCnt + 1
-			elemName <- paste0(elemName, "_", sameCnt)
-		}
-		elemName
-	})
 	
-	res <- new("parObj",
-		DECLARED_VARIABLES = translateIntoNamedList(parObjAsList$DECLARED_VARIABLES), # as.list done within the function
-		STRUCTURAL = translateIntoNamedList(parObjAsList$STRUCTURAL), # as.list done within the function
-		VARIABILITY = removeExtraLayerOfNesting(parObjAsList$VARIABILITY),
-		# TODO: TBC - These need to be populated
-		PRIOR_PARAMETERS = list(),
-		TARGET_CODE = as.character(parObjAsList$TARGET_CODE)
+	parObj <- new("parObj",
+		DECLARED_VARIABLES = as.list(parObjAsList$DECLARED_VARIABLES), # as.list handles null; TODO Transformation like translateIntoNamedList to be applied to this instead
+		STRUCTURAL = removeExtraLayerOfNesting(parObjAsList$STRUCTURAL), # removeExtraLayerOfNesting handles null
+		VARIABILITY = removeExtraLayerOfNesting(parObjAsList$VARIABILITY), # removeExtraLayerOfNesting handles null
+		name = name
 	)
 	
-	names(res@VARIABILITY) <- variabilityNames
-	
-	res
+	parObj
 } 
 
 
-.createDataObj <- function(dataObjAsList) {
+.createDataObj <- function(dataObjAsList, name) {
 	
 	if (is.null(dataObjAsList)) {
 		stop("Input argument dataObjAsList is null")
 	}
 
-    res <- new("dataObj",
-        SOURCE = as.list(dataObjAsList$SOURCE),
-		DECLARED_VARIABLES = translateIntoNamedList(dataObjAsList$DECLARED_VARIABLES), # as.list done within the function
-        DATA_INPUT_VARIABLES = translateIntoNamedList(dataObjAsList$DATA_INPUT_VARIABLES), # as.list done within the function
-        DATA_DERIVED_VARIABLES = translateIntoNamedList(dataObjAsList$DATA_DERIVED_VARIABLES), # as.list done within the function
-        # TODO: TBC - This needs to be populated
-		TARGET_CODE = as.character(dataObjAsList$TARGET_CODE)
+    dataObj <- new("dataObj",
+        SOURCE = removeExtraLayerOfNesting(dataObjAsList$SOURCE), # removeExtraLayerOfNesting handles null
+		DECLARED_VARIABLES = as.list(dataObjAsList$DECLARED_VARIABLES), # as.list handles null; TODO Transformation like translateIntoNamedList to be applied to this instead
+        DATA_INPUT_VARIABLES = removeExtraLayerOfNesting(dataObjAsList$DATA_INPUT_VARIABLES), # removeExtraLayerOfNesting handles null
+        DATA_DERIVED_VARIABLES = as.list(dataObjAsList$DATA_DERIVED_VARIABLES), # as.list handles null; TODO Transformation like translateIntoNamedList to be applied to this instead
+		name = name
     )
     
-    # Unquote the file name so that the file name within the R object is more easily manipulated
-    res@SOURCE$file <- strip_quotes(res@SOURCE$file)
-    # Similarly for the Ignore character
-    res@SOURCE$ignore <- strip_quotes(res@SOURCE$ignore)
+	dataObj@SOURCE <- lapply(dataObj@SOURCE, function(srcfile) {
+	    # Unquote the file name so that the file name within the R object is more easily manipulated
+	    srcfile$file <- strip_quotes(srcfile$file)
+	    # Similarly for the Ignore character
+	    srcfile$ignore <- strip_quotes(srcfile$ignore)
+		srcfile
+	})
 
-    res
+    dataObj
 }
 
 
-.createMdlObj <- function(mdlObjAsList) {
+.createMdlObj <- function(mdlObjAsList, name) {
 	
 	if (is.null(mdlObjAsList)) {
 		stop("Input argument mdlObjAsList is null")
 	}
 	
-    res <- new("mdlObj",
-		IDV = translateIntoNamedList(mdlObjAsList$IDV), # as.list done within the function
-		COVARIATES = translateIntoNamedList(mdlObjAsList$COVARIATES), # as.list done within the function
-		VARIABILITY_LEVELS = translateIntoNamedList(mdlObjAsList$VARIABILITY_LEVELS), # as.list done within the function
-        STRUCTURAL_PARAMETERS = translateIntoNamedList(mdlObjAsList$STRUCTURAL_PARAMETERS), # as.list done within the function
-        VARIABILITY_PARAMETERS = translateIntoNamedList(mdlObjAsList$VARIABILITY_PARAMETERS), # as.list done within the function
-        RANDOM_VARIABLE_DEFINITION = translateIntoNamedList(mdlObjAsList$RANDOM_VARIABLE_DEFINITION), # as.list done within the function
-        INDIVIDUAL_VARIABLES = translateIntoNamedList(mdlObjAsList$INDIVIDUAL_VARIABLES), # as.list done within the function
-		MODEL_PREDICTION = .parseModelPredictionListFromJSON(mdlObjAsList$MODEL_PREDICTION),
-        OBSERVATION = translateIntoNamedList(mdlObjAsList$OBSERVATION), # as.list done within the function
-		GROUP_VARIABLES = translateIntoNamedList(mdlObjAsList$GROUP_VARIABLES), # as.list done within the function
-		MODEL_OUTPUT_VARIABLES = translateIntoNamedList(mdlObjAsList$MODEL_OUTPUT_VARIABLES), # as.list done within the function
-		# TODO: TBC - These three slots need to be populated
-		ESTIMATION = list(),
-		SIMULATION = list(),
-		TARGET_CODE = as.character(mdlObjAsList$TARGET_CODE)
+    mdlObj <- new("mdlObj",
+		IDV = as.char.vector(mdlObjAsList$IDV), # our version of as.vector for strings that handles null
+		COVARIATES = as.list(mdlObjAsList$COVARIATES), # as.list handles null; TODO Transformation like translateIntoNamedList to be applied to this instead
+		VARIABILITY_LEVELS = removeExtraLayerOfNesting(mdlObjAsList$VARIABILITY_LEVELS), # removeExtraLayerOfNesting handles null
+        STRUCTURAL_PARAMETERS = as.char.vector(mdlObjAsList$STRUCTURAL_PARAMETERS), # our version of as.vector for strings that handles null
+        VARIABILITY_PARAMETERS = as.char.vector(mdlObjAsList$VARIABILITY_PARAMETERS), # our version of as.vector for strings that handles null
+        RANDOM_VARIABLE_DEFINITION = as.list(mdlObjAsList$RANDOM_VARIABLE_DEFINITION), # as.list handles null; TODO Transformation like translateIntoNamedList to be applied to this instead
+        INDIVIDUAL_VARIABLES = as.list(mdlObjAsList$INDIVIDUAL_VARIABLES), # as.list handles null; TODO Transformation like translateIntoNamedList to be applied to this instead
+		MODEL_PREDICTION = as.list(mdlObjAsList$MODEL_PREDICTION), # as.list handles null; TODO transformation into objects to be applied here
+        OBSERVATION = as.list(mdlObjAsList$OBSERVATION), # as.list handles null; TODO Transformation like translateIntoNamedList to be applied to this instead
+		GROUP_VARIABLES = as.list(mdlObjAsList$GROUP_VARIABLES), # as.list handles null; TODO Transformation like translateIntoNamedList to be applied to this instead
+		name = name
     )
 	
-	res
+	mdlObj
 }
 
 
-.createTaskObj <- function(taskObjAsList) {
+.createTaskObj <- function(taskObjAsList, name) {
 	
 	if (is.null(taskObjAsList)) {
 		stop("Input argument taskObjAsList is null")
 	}
 	
-	res <- new("taskObj",
-		ESTIMATE = as.character(taskObjAsList$ESTIMATE),
-		SIMULATE = as.character(taskObjAsList$SIMULATE),
-		EVALUATE = as.character(taskObjAsList$EVALUATE),
-		OPTIMISE = as.character(taskObjAsList$OPTIMISE),
-		DATA = as.character(taskObjAsList$DATA),
-		MODEL = as.character(taskObjAsList$MODEL),
-		TARGET_CODE = as.character(taskObjAsList$TARGET_CODE)
-	)  
+	taskObj <- new("taskObj",
+		ESTIMATE = removeExtraLayerOfNesting(taskObjAsList$ESTIMATE), # removeExtraLayerOfNesting handles null
+		name = name
+	)
+	
+	taskObj
 }
 
 
@@ -306,73 +246,42 @@ setMethod("write", "mogObj", function(object, f, fisServer=TEL.getServer()) {
     }
     m = object
     
-    # See comment in .createParObj function re the extra transformation required on VARIABILITY slot
-    # (the transformation here is the reverse of that in .createParObj function)
-    parObjAsList <- .removeNullEntries(list(
-        DECLARED_VARIABLES = translateNamedListIntoList(m@parObj@DECLARED_VARIABLES),
-        STRUCTURAL = translateNamedListIntoList(m@parObj@STRUCTURAL),
-        VARIABILITY = addExtraLayerOfNesting(m@parObj@VARIABILITY),
-        # TODO: TBC - These two slots need to be populated
-        PRIOR_PARAMETERS = m@parObj@PRIOR_PARAMETERS,
-        TARGET_CODE = m@parObj@TARGET_CODE,
-        identifier = "parobj"
+    parObjBlocks <- .removeNullEntries(list(
+        DECLARED_VARIABLES = m@parObj@DECLARED_VARIABLES,
+        STRUCTURAL = addExtraLayerOfNesting(m@parObj@STRUCTURAL),
+        VARIABILITY = addExtraLayerOfNesting(m@parObj@VARIABILITY)
+    ))
+
+	dataObjBlocksSOURCE <- lapply(m@dataObj@SOURCE, function(srcfile) {
+		# Enclose the file name in double quotes ready for writing back to MDL
+		srcfile$file <- add_quotes(srcfile$file)
+		# Similarly for the Ignore character
+		srcfile$ignore <- add_quotes(srcfile$ignore)
+		srcfile
+	})
+    
+    dataObjBlocks <- .removeNullEntries(list(
+        SOURCE = addExtraLayerOfNesting(dataObjBlocksSOURCE),
+        DECLARED_VARIABLES = m@dataObj@DECLARED_VARIABLES,
+        DATA_INPUT_VARIABLES = addExtraLayerOfNesting(m@dataObj@DATA_INPUT_VARIABLES),
+        DATA_DERIVED_VARIABLES = m@dataObj@DATA_DERIVED_VARIABLES
+    ))
+
+    mdlObjBlocks <- .removeNullEntries(list(
+        IDV = m@mdlObj@IDV,
+        COVARIATES = m@mdlObj@COVARIATES,
+        VARIABILITY_LEVELS = addExtraLayerOfNesting(m@mdlObj@VARIABILITY_LEVELS),
+        STRUCTURAL_PARAMETERS = m@mdlObj@STRUCTURAL_PARAMETERS,
+        VARIABILITY_PARAMETERS = m@mdlObj@VARIABILITY_PARAMETERS,
+        RANDOM_VARIABLE_DEFINITION = m@mdlObj@RANDOM_VARIABLE_DEFINITION,
+        INDIVIDUAL_VARIABLES = m@mdlObj@INDIVIDUAL_VARIABLES,
+        MODEL_PREDICTION = m@mdlObj@MODEL_PREDICTION,
+        OBSERVATION = m@mdlObj@OBSERVATION,
+        GROUP_VARIABLES = m@mdlObj@GROUP_VARIABLES
     ))
     
-    if (length(m@parObj@VARIABILITY) > 0) { # trap the empty-list condition
-        lapply(1:length(m@parObj@VARIABILITY), function(i) {
-            elemName <- names(m@parObj@VARIABILITY)[[i]]
-            # Strip off the redundant count from the end of 'special' variability parameter elements
-            elemName <- gsub("^(same|diag|matrix)_.*$", "\\1", elemName, fixed=FALSE)
-            names(parObjAsList$VARIABILITY[[i]]) <<- elemName
-        })
-    }
-    # Clear the top-level names of the list elements as these names have been moved onto the individual
-    # sub-elements (we have added an extra layer of nesting to the VARIABILITY list)
-    names(parObjAsList$VARIABILITY) <- NULL
-    
-    dataObjAsList <- .removeNullEntries(list(
-        SOURCE = .removeNullEntries(m@dataObj@SOURCE), # removeNullEntries() required since ignoreChar etc. might not be specified
-        DECLARED_VARIABLES = translateNamedListIntoList(m@dataObj@DECLARED_VARIABLES),
-        DATA_INPUT_VARIABLES = translateNamedListIntoList(m@dataObj@DATA_INPUT_VARIABLES),
-        DATA_DERIVED_VARIABLES = translateNamedListIntoList(m@dataObj@DATA_DERIVED_VARIABLES),
-        TARGET_CODE = m@parObj@TARGET_CODE,
-        identifier = "dataobj"
-    ))
-    
-    # Enclose the file name in double quotes ready for writing back to MDL
-    dataObjAsList$SOURCE$file <- add_quotes(dataObjAsList$SOURCE$file)
-    # Similarly for the Ignore character
-    dataObjAsList$SOURCE$ignore <- add_quotes(dataObjAsList$SOURCE$ignore)
-    
-    mdlObjAsList <- .removeNullEntries(list(
-        IDV = translateNamedListIntoList(m@mdlObj@IDV),
-        COVARIATES = translateNamedListIntoList(m@mdlObj@COVARIATES),
-        VARIABILITY_LEVELS = translateNamedListIntoList(m@mdlObj@VARIABILITY_LEVELS),
-        STRUCTURAL_PARAMETERS = translateNamedListIntoList(m@mdlObj@STRUCTURAL_PARAMETERS),
-        VARIABILITY_PARAMETERS = translateNamedListIntoList(m@mdlObj@VARIABILITY_PARAMETERS),
-        RANDOM_VARIABLE_DEFINITION = translateNamedListIntoList(m@mdlObj@RANDOM_VARIABLE_DEFINITION),
-        INDIVIDUAL_VARIABLES = translateNamedListIntoList(m@mdlObj@INDIVIDUAL_VARIABLES),
-        MODEL_PREDICTION = .parseModelPredictionNamedListIntoJSON(m@mdlObj@MODEL_PREDICTION),
-        OBSERVATION = translateNamedListIntoList(m@mdlObj@OBSERVATION),
-        GROUP_VARIABLES = translateNamedListIntoList(m@mdlObj@GROUP_VARIABLES),
-        MODEL_OUTPUT_VARIABLES = translateNamedListIntoList(m@mdlObj@MODEL_OUTPUT_VARIABLES),
-        # TODO: TBC - These three slots need to be populated
-        ESTIMATION = m@mdlObj@ESTIMATION,
-        SIMULATION = m@mdlObj@SIMULATION,
-        TARGET_CODE = m@mdlObj@TARGET_CODE,
-        identifier = "mdlobj"
-    ))
-    
-    taskObjAsList <- .removeNullEntries(list(
-        ESTIMATE = m@taskObj@ESTIMATE,
-        # TODO: TBC - These six slots need to be populated
-        SIMULATE = m@taskObj@SIMULATE,
-        EVALUATE = m@taskObj@EVALUATE,
-        OPTIMISE = m@taskObj@OPTIMISE,
-        DATA = m@taskObj@DATA,
-        MODEL = m@taskObj@MODEL,
-        TARGET_CODE = m@taskObj@TARGET_CODE,
-        identifier = "taskobj"
+    taskObjBlocks <- .removeNullEntries(list(
+        ESTIMATE = addExtraLayerOfNesting(m@taskObj@ESTIMATE)
     ))
     
     dataObjName <- m@dataObj@name
@@ -380,21 +289,28 @@ setMethod("write", "mogObj", function(object, f, fisServer=TEL.getServer()) {
     mdlObjName <- m@mdlObj@name
     taskObjName <- m@taskObj@name
     mogDefinitionName <- if (length(m@name) == 0 || m@name == '') "outputMog" else m@name
+	
+	# Extra layer of nesting needed for the JSON - ensures that order of items is maintained (although it doesn't actually matter for this block)
+	mogObjBlocks <- list(OBJECTS=list(
+		list(list(type="dataObj")),
+		list(list(type="parObj")),
+		list(list(type="mdlObj")),
+		list(list(type="taskObj"))
+	))
+	names(mogObjBlocks$OBJECTS[[1]]) <- c(dataObjName)
+	names(mogObjBlocks$OBJECTS[[2]]) <- c(parObjName)
+	names(mogObjBlocks$OBJECTS[[3]]) <- c(mdlObjName)
+	names(mogObjBlocks$OBJECTS[[4]]) <- c(taskObjName)
     
-    allObjsAsList <- list(
-        dataObjAsList, parObjAsList, mdlObjAsList, taskObjAsList,
-        # The mog definition object
-        list(
-            identifier = "mogobj",
-            OBJECTS = setNames(
-                vector("list", 4), # Creates an empty list of length 4
-                list(dataObjName, parObjName, mdlObjName, taskObjName)
-            )
-        )
-    )
-    names(allObjsAsList) <- c(dataObjName, parObjName, mdlObjName, taskObjName, mogDefinitionName)
+	allObjsAsList <- list(
+		list(name=dataObjName, type="dataObj", blocks=dataObjBlocks),
+		list(name=parObjName, type="parObj", blocks=parObjBlocks),
+		list(name=mdlObjName, type="mdlObj", blocks=mdlObjBlocks),
+		list(name=taskObjName, type="taskObj", blocks=taskObjBlocks),
+		list(name=mogDefinitionName, type="mogObj", blocks=mogObjBlocks)
+	)
     
-    json <- toJSON(list(allObjsAsList))
+    json <- toJSON(allObjsAsList)
     return(json)
 }
 
@@ -447,6 +363,7 @@ setMethod("write", "mogObj", function(object, f, fisServer=TEL.getServer()) {
 # Also, remove the name attribute (".name") to avoid duplication and confusion.
 # Named lists allow for easier access and manipulation of the R objects by R workflows.
 # This function also handles null which gets converted into an empty list.
+# TODO update this, we no longer write variable names to ".name" attr but to "name" attr
 translateIntoNamedList <- function(x) {
 	l <- as.list(x) # Handle null which gets converted into an empty list
 	# Note that a variable that doesn't have a .name would be default get translated into an
@@ -459,6 +376,7 @@ translateIntoNamedList <- function(x) {
 # stripped off, in order that they are written out as lists in the JSON rather than
 # (unordered) maps.
 # Each name is 'moved' onto an attribute named ".name" of the list element instead.
+# TODO update this, we no longer write variable names to ".name" attr but to "name" attr
 translateNamedListIntoList <- function(l) {
 	if (length(l) > 0) { # trap the empty-list condition
 		res <- lapply(1:length(l), function(i) {
@@ -507,52 +425,11 @@ addExtraLayerOfNesting <- function(l) {
 	}
 }
 
-# Each element in the incoming JSON list can either represent a 'normal' variable
-# (i.e. variable name mapping to either a named list of attributes, or mapping to
-# an expression held in the special key ".expr"); or it can represent one of the
-# special sub-blocks i.e. "DEQ" or "COMPARTMENT" which are stored in the JSON with
-# a dot prefix to distinguish them from actual variable names. For each of these
-# sub-blocks:
-# They contain lists of variables so the only processing they require is
-# the standard translation into named list of variables.
-# Next, the sub-block name including the dot prefix, is stored in the special
-# ".name" attribute.
-# Once all the individual Model Prediction items have been processed, the
-# resulting list is translated into a named list, comprising both variables
-# the aforementioned sub-blocks.
-.parseModelPredictionListFromJSON <- function(modPred) {
-	
-	translateIntoNamedList(lapply(modPred, function(e) {
-		for (subBlockName in MODEL_PREDICTION_SUBBLOCKS) {
-			if (is.list(e[[subBlockName]])) {
-				e <- translateIntoNamedList(e[[subBlockName]])
-				e$.name <- subBlockName
-			}
-		}
-		e
-	}))
-	
-}
-
-# The reverse of .parseModelPredictionListFromJSON(), used when writing the JSON back out.
-# The special sub-blocks i.e. "DEQ" and "COMPARTMENT" have translateNamedListIntoList() applied
-# applied to them to 'move' the name of each list element onto an attribute named ".name" of
-# the element instead, before translateNamedListIntoList() is applied to the Model Prediction
-# named list itself.
-.parseModelPredictionNamedListIntoJSON <- function(modPredNamedList) {
-	
-	lapply(translateNamedListIntoList(modPredNamedList), function(e) {
-		for (subBlockName in MODEL_PREDICTION_SUBBLOCKS) {
-			if (e$.name == subBlockName) {
-				e$.name <- NULL
-				e <- list(translateNamedListIntoList(e))
-				names(e) <- subBlockName
-				return(e)
-			}
-		}
-		e
-	})
-	
+# Our version of as.vector for strings that handles null correctly
+# i.e. as.char.vector(NULL) = character(0)
+# to be consistent with as.list(NULL) = list()
+as.char.vector <- function(v) {
+	c(character(0), v)
 }
 
 

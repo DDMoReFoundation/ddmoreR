@@ -18,27 +18,25 @@ jsonAsNestedLists <- rjson:::fromJSON(file=jsonFile)
 
 test_that("Checking that JSON-format text representing the MDL could be parsed", {
 	expect_true(is.list(jsonAsNestedLists), info="JSON-as-nested-lists should be a list")
-	expect_true(is.list(jsonAsNestedLists[[1]]), info="JSON-as-nested-lists should be a list of lists")
-	expect_equal(length(jsonAsNestedLists[[1]]), 5, info="Should be 5 main elements in the JSON-as-nested-lists")
+	expect_true(length(jsonAsNestedLists) == 5, info="JSON-as-nested-lists should be a list containing 5 elements")
 })
-
-jsonAsNestedLists <- jsonAsNestedLists[[1]]
 
 test_that("Expected dataObj to have been created from the JSON-format text representing the MDL", {
 
-	myDataObj <<- DDMoRe.TEL:::.extractTypeObject(jsonAsNestedLists, "dataobj")[[1]]
+	myDataObj <<- DDMoRe.TEL:::.extractTypeObjects(jsonAsNestedLists, "dataObj")[[1]]
 	
 	expect_true(isS4(myDataObj), info="dataObj should be an S4 class")
 	
+	expect_false(is.null(myDataObj@SOURCE), info="SOURCE slot should be populated")
 	expect_false(is.null(myDataObj@DECLARED_VARIABLES), info="DECLARED_VARIABLES slot should be populated")
 	expect_false(is.null(myDataObj@DATA_INPUT_VARIABLES), info="DATA_INPUT_VARIABLES slot should be populated")
-	expect_false(is.null(myDataObj@SOURCE), info="SOURCE slot should be populated")
+	expect_false(is.null(myDataObj@DATA_DERIVED_VARIABLES), info="DATA_DERIVED_VARIABLES slot should be populated")
 
 })
 
 test_that("Expected parObj to have been created from the JSON-format text representing the MDL", {
 
-	myParObj <<- DDMoRe.TEL:::.extractTypeObject(jsonAsNestedLists, "parobj")[[1]]
+	myParObj <<- DDMoRe.TEL:::.extractTypeObjects(jsonAsNestedLists, "parObj")[[1]]
 	
 	expect_true(isS4(myParObj), info="parObj should be an S4 class")
 	
@@ -50,7 +48,7 @@ test_that("Expected parObj to have been created from the JSON-format text repres
 
 test_that("Expected mdlObj to have been created from the JSON-format text representing the MDL", {
 
-	myMdlObj <<- DDMoRe.TEL:::.extractTypeObject(jsonAsNestedLists, "mdlobj")[[1]]
+	myMdlObj <<- DDMoRe.TEL:::.extractTypeObjects(jsonAsNestedLists, "mdlObj")[[1]]
 	
 	expect_true(isS4(myMdlObj), info="mdlObj should be an S4 class")
 	
@@ -62,18 +60,18 @@ test_that("Expected mdlObj to have been created from the JSON-format text repres
 	expect_false(is.null(myMdlObj@RANDOM_VARIABLE_DEFINITION), info="RANDOM_VARIABLE_DEFINITION slot should be populated")
 	expect_false(is.null(myMdlObj@INDIVIDUAL_VARIABLES), info="INDIVIDUAL_VARIABLES slot should be populated")
 	expect_false(is.null(myMdlObj@MODEL_PREDICTION), info="MODEL_PREDICTION slot should be populated")
-	expect_false(is.null(myMdlObj@MODEL_PREDICTION$.DEQ), info="MODEL_PREDICTION::DEQ slot should be populated")
-	# Reinstate this if PKMACRO is re-introduced into the MDL grammar
-	#expect_false(is.null(myMdlObj@MODEL_PREDICTION$.PKMACRO), info="MODEL_PREDICTION::PKMACRO slot should be populated")
-	expect_false(is.null(myMdlObj@MODEL_PREDICTION$.COMPARTMENT), info="MODEL_PREDICTION::COMPARTMENT slot should be populated")
+	# TODO fix this check
+	#expect_false(is.null(myMdlObj@MODEL_PREDICTION$DEQ), info="MODEL_PREDICTION::DEQ slot should be populated")
+	# TODO fix this check
+	#expect_false(is.null(myMdlObj@MODEL_PREDICTION$COMPARTMENT), info="MODEL_PREDICTION::COMPARTMENT slot should be populated")
 	expect_false(is.null(myMdlObj@OBSERVATION), info="OBSERVATION slot should be populated")
-	expect_false(is.null(myMdlObj@MODEL_OUTPUT_VARIABLES), info="MODEL_OUTPUT_VARIABLES slot should be populated")
+	expect_false(is.null(myMdlObj@GROUP_VARIABLES), info="GROUP_VARIABLES slot should be populated")
 	
 })
 
 test_that("Expected taskObj to have been created from the JSON-format text representing the MDL", {
 
-	myTaskObj <<- DDMoRe.TEL:::.extractTypeObject(jsonAsNestedLists, "taskobj")[[1]]
+	myTaskObj <<- DDMoRe.TEL:::.extractTypeObjects(jsonAsNestedLists, "taskObj")[[1]]
 	
 	expect_true(isS4(myTaskObj), info="taskObj should be an S4 class")
 
@@ -83,7 +81,7 @@ test_that("Expected taskObj to have been created from the JSON-format text repre
 
 test_that("Expected output Mog to have been created", {
 
-	myOutputMog <<- createMogObj(myDataObj, myParObj, myMdlObj, myTaskObj, "warfarin_PK_ODE_mog")
+	myOutputMog <<- createMogObj(myDataObj, myParObj, myMdlObj, myTaskObj, "fully_populated_mog")
 	
 	expect_true(isS4(myOutputMog), info="Output MOG object should be an S4 class")
 	expect_true(class(myOutputMog) == "mogObj", info="Checking the class of the Output MOG object")
@@ -91,7 +89,7 @@ test_that("Expected output Mog to have been created", {
 	expect_identical(myOutputMog@parObj, myParObj, info="parObj slot in the Output MOG object should have been populated")
 	expect_identical(myOutputMog@mdlObj, myMdlObj, info="mdlObj slot in the Output MOG object should have been populated")
 	expect_identical(myOutputMog@taskObj, myTaskObj, info="taskObj slot in the Output MOG object should have been populated")
-	expect_equal(myOutputMog@name, "warfarin_PK_ODE_mog", info="Checking the name of the Output MOG object")
+	expect_equal(myOutputMog@name, "fully_populated_mog", info="Checking the name of the Output MOG object")
 
 })
 
@@ -111,121 +109,152 @@ stopifnot(file.exists(jsonFileOutput))
 
 test_that("Checking that output JSON-as-nested-lists could be parsed", {
 	expect_true(is.list(jsonAsNestedListsOutput), info="JSON-as-nested-lists should be a list")
-	expect_true(is.list(jsonAsNestedListsOutput[[1]]), info="JSON-as-nested-lists should be a list of lists")
-	expect_equal(length(jsonAsNestedListsOutput[[1]]), 5, info="Should be 5 main elements in the JSON-as-nested-lists")
+	expect_true(length(jsonAsNestedListsOutput) == 5, info="JSON-as-nested-lists should be a list containing 5 elements")
 })
 
-jsonAsNestedListsOutput <- jsonAsNestedListsOutput[[1]]
-
-# Compares the attributes of an item within a block
-compareAttributesOfElementOfBlock <- function(objName, blockName, elemNo, inputAttributes, outputAttributes) {
-    if(is.null(inputAttributes) || is.null(outputAttributes)) {
-        message(paste("Warning one of the attributes of",blockName,"is null.\n"))
+# Compares a variable/item within a block
+compareBlockItems <- function(objName, blockName, itemContext, inputBlockItems, outputBlockItems) {
+    if (is.null(inputBlockItems) || is.null(outputBlockItems)) {
+        message(paste("Warning one of the item lists of",blockName,"is null.\n"))
         test_that(paste("Both blocks", blockName, " should be null, since one of them is"), {
-            expect_true(is.null(inputAttributes)&&is.null(outputAttributes))
+            expect_true(is.null(inputBlockItems)&&is.null(outputBlockItems))
         })
-        return(NULL)
-        #return at this point to remove warnings from output
+        return(NULL) # return at this point to remove warnings from output
     }
-	test_that(paste("Comparing the names of the attributes of item", elemNo, "in the input and output nested-list representations of block:", blockName), {
-		expect_equal(length(outputAttributes), length(inputAttributes))
-		expect_equal(length(names(inputAttributes)), length(inputAttributes)) # Ensure the attributes are named
-		expect_equal(length(names(outputAttributes)), length(outputAttributes)) # Ensure the attributes are named
-		expect_equal(sort(names(outputAttributes)), sort(names(inputAttributes)))
+	
+	test_that(paste("Comparing the names of the attributes of item", itemContext, "in the input and output nested-list representations of block:", blockName), {
+		expect_equal(length(outputBlockItems), length(inputBlockItems))
+		expect_equal(length(names(inputBlockItems)), length(inputBlockItems)) # Ensure the attributes are named
+		expect_equal(length(names(outputBlockItems)), length(outputBlockItems)) # Ensure the attributes are named
+		expect_equal(sort(names(outputBlockItems)), sort(names(inputBlockItems)))
 	})
 
-	attrNames <- names(inputAttributes)
+	attrNames <- names(inputBlockItems)
 
 	lapply(attrNames, function(attrName) {
-
-		if ( (blockName == 'MODEL_PREDICTION') && (attrName %in% c(".DEQ", ".COMPARTMENT")) ) { # Used to be ".PKMACRO" too; reinstate this if "PKMACRO" is re-introduced into the MDL syntax
-			# Nested sub-blocks have to be treated as blocks in their own right for the purposes of comparison of their content
-			compareNestedListsRepresentationOfBlock(objName, paste0('MODEL_PREDICTION::', attrName), inputAttributes[[attrName]], outputAttributes[[attrName]]) 
+				
+		message("Comparing ", objName, "::", blockName, "::", itemContext, "::", attrName, "\n")
+		
+		test_that(paste("Same class type expected for the input and output nested-list representations of block: ", blockName, ", item: ", attrName), {
+			expect_equal(class(outputBlockItems[[attrName]]), class(inputBlockItems[[attrName]]))
+		})
+		
+		if (attrName%in%c("DEQ", "COMPARTMENT")) {
+			compareNestedListsRepresentationOfBlock(objName, attrName, inputBlockItems[[attrName]], outputBlockItems[[attrName]])
+		} else if (is.list(inputBlockItems[[attrName]])) { # Extra layer of nesting
+			compareBlockItems(objName, blockName, paste0(itemContext,"::",attrName), inputBlockItems[[attrName]], outputBlockItems[[attrName]])
 		} else {
-			test_that(paste("Comparing the", attrName, "attribute of item", elemNo, "in the input and output nested-list representations of block:", blockName), {
-				expect_equal(outputAttributes[[attrName]], inputAttributes[[attrName]])
+			test_that(paste("Comparing the", attrName, "attribute of item", itemContext, "in the input and output nested-list representations of block:", blockName), {
+				expect_equal(outputBlockItems[[attrName]], inputBlockItems[[attrName]])
 			})
 		}
+		
 	})
 
+}
+
+# Compares the blocks within dataObj, parObj, mdlObj or taskObj, in vector representation
+compareVectorRepresentationOfBlock <- function(objName, blockName, inputBlockAsVector, outputBlockAsVector) {
+	
+	message(paste0("\nComparing block name ", objName, "::", blockName, "...\n"))
+
+	if (is.null(inputBlockAsVector) || is.null(outputBlockAsVector)) {
+		message(paste("Warning one of the blocks",blockName,"is null.\n"))
+		test_that(paste("Both blocks", blockName, " should be null, since one of them is"), {
+			expect_true(is.null(inputBlockAsVector)&&is.null(outputBlockAsVector))
+		})
+		return(NULL) # return at this point to remove warnings from output
+	}
+	test_that(paste("Identical vectors of items expected for input and output vector representations of block:", blockName), {
+		expect_equal(outputBlockAsVector, inputBlockAsVector)
+	})
+	
 }
 
 # Compares the blocks within dataObj, parObj, mdlObj or taskObj, in nested-list representation
 compareNestedListsRepresentationOfBlock <- function(objName, blockName, inputBlockAsNestedList, outputBlockAsNestedList) {
 	
-	cat(paste0("\nComparing block name ", objName, "::", blockName, "...\n"))
+	message(paste0("\nComparing block name ", objName, "::", blockName, "...\n"))
     
-    if(is.null(inputBlockAsNestedList) || is.null(outputBlockAsNestedList)) {
+    if (is.null(inputBlockAsNestedList) || is.null(outputBlockAsNestedList)) {
         message(paste("Warning one of the blocks",blockName,"is null.\n"))
         test_that(paste("Both blocks", blockName, " should be null, since one of them is"), {
             expect_true(is.null(inputBlockAsNestedList)&&is.null(outputBlockAsNestedList))
         })
-        return(NULL)
-        #return at this point to remove warnings from output
+        return(NULL) # return at this point to remove warnings from output
     }
 	test_that(paste("Same number of items expected for input and output nested-list representations of block:", blockName), {
 		expect_equal(length(outputBlockAsNestedList), length(inputBlockAsNestedList))
 	})
 
 	lapply(seq(1:length(inputBlockAsNestedList)), function(i) {
-		compareAttributesOfElementOfBlock(objName, blockName, i, inputBlockAsNestedList[[i]], outputBlockAsNestedList[[i]])
+		
+		compareBlockItems(objName, blockName, paste0("#",i), inputBlockAsNestedList[[i]], outputBlockAsNestedList[[i]])
+		
 	})
 
 }
 
 # Compares dataObj, parObj, mdlObj or taskObj, in nested-list representation
-compareNestedListsRepresentationOfTopLevelObject <- function(objName) {
+compareNestedListsRepresentationOfTopLevelObject <- function(inputData, outputData) {
 	
-	inputObjAsNestedLists <- jsonAsNestedLists[[objName]]
-	outputObjAsNestedLists <- jsonAsNestedListsOutput[[objName]]
+	test_that(paste("Comparing the object names for the input and output nested-list representations of object:", inputData$name, "(", inputData$type, ")"), {
+		expect_equal(outputData$name, inputData$name)
+	})
+	
+	test_that(paste("Comparing the object types for the input and output nested-list representations of object:", inputData$name, "(", inputData$type, ")"), {
+		expect_equal(outputData$type, inputData$type)
+	})
 
-	test_that(paste("Comparing the blocks for the input and output nested-list representations of object:", objName), {
+	test_that(paste("Comparing the blocks for the input and output nested-list representations of object:", inputData$name, "(", inputData$type, ")"), {
 
 		expect_true(
-			is.list(inputObjAsNestedLists) && length(inputObjAsNestedLists) > 0,
-			info=paste("Input JSON-as-nested-lists should contain list of blocks for object:", objName)
+			is.list(inputData$blocks) && length(inputData$blocks) > 0,
+			info=paste("Input JSON-as-nested-lists should contain list of blocks for object:", inputData$name, "(", inputData$type, ")")
 		)
 		expect_true(
-			is.list(outputObjAsNestedLists) && length(outputObjAsNestedLists) > 0,
-			info=paste("Output JSON-as-nested-lists should contain list of blocks for object:", objName)
+			is.list(outputData$blocks) && length(outputData$blocks) > 0,
+			info=paste("Output JSON-as-nested-lists should contain list of blocks for object:", outputData$name, "(", inputData$type, ")")
 		)
 		
-		inputObjBlockNames <<- names(inputObjAsNestedLists)
-		outputObjBlockNames <<- names(outputObjAsNestedLists)
+		inputObjBlockNames <<- names(inputData$blocks)
+		outputObjBlockNames <<- names(outputData$blocks)
 		
-		expect_equal(length(outputObjBlockNames), length(inputObjBlockNames),
-			info=paste("Same number of blocks expected for input and output nested-list representations of object:", objName))
+		expect_equal(length(outputData$blocks), length(inputData$blocks),
+			info=paste("Same number of blocks expected for input and output nested-list representations of object:", inputData$name, "(", inputData$type, ")"))
 		
 		expect_equal(sort(outputObjBlockNames), sort(inputObjBlockNames),
-			info=paste("Same list of blocks expected for input and output nested-list representations of object:", objName))
+			info=paste("Same list of blocks expected for input and output nested-list representations of object:", inputData$name, "(", inputData$type, ")"))
 		
 	})
 
 	lapply(inputObjBlockNames, function(blockName) {
-		message(paste("Comparing blocks",blockName, ".\n"))
-		if (blockName == 'identifier') {
-			test_that(paste('Comparing the identifiers for the input and output nested-list representations of object:', objName), {
-				expect_equal(outputObjAsNestedLists[['identifier']], inputObjAsNestedLists[['identifier']])
-			})
-		} else if (blockName == 'SOURCE') {
-			# Treat the SOURCE block specially since it is a set of attributes itself rather than being a list of sets of attributes
-			compareAttributesOfElementOfBlock(objName, "SOURCE", NA, inputObjAsNestedLists[[blockName]], outputObjAsNestedLists[[blockName]])
-		} else if (blockName == 'ESTIMATE') {
-			# Treat the ESTIMATE block (of a task object; ideally we'd check this too) specially since it is a plain character vector
-			test_that(paste('Comparing the text of the ESTIMATE block for the input and output nested-list representations of object:', objName), {
-				expect_equal(outputObjAsNestedLists[['ESTIMATE']], inputObjAsNestedLists[['ESTIMATE']])
-			})
+		if (blockName%in%c("IDV", "STRUCTURAL_PARAMETERS", "VARIABILITY_PARAMETERS")) {
+			# Compare vectors of variable names
+			compareVectorRepresentationOfBlock(inputData$name, blockName, inputData$blocks[[blockName]], outputData$blocks[[blockName]])
 		} else {
-			compareNestedListsRepresentationOfBlock(objName, blockName, inputObjAsNestedLists[[blockName]], outputObjAsNestedLists[[blockName]])
+			compareNestedListsRepresentationOfBlock(inputData$name, blockName, inputData$blocks[[blockName]], outputData$blocks[[blockName]])
 		}
 	})
 	
 }
 
 
-compareNestedListsRepresentationOfTopLevelObject(myDataObj@name)
-compareNestedListsRepresentationOfTopLevelObject(myParObj@name)
-compareNestedListsRepresentationOfTopLevelObject(myMdlObj@name)
-compareNestedListsRepresentationOfTopLevelObject(myTaskObj@name)
-compareNestedListsRepresentationOfTopLevelObject("warfarin_PK_ODE_mog")
+compareNestedListsRepresentationOfTopLevelObject(
+	jsonAsNestedLists[sapply(jsonAsNestedLists, function(it) { it$type=="dataObj"})][[1]],
+	jsonAsNestedListsOutput[sapply(jsonAsNestedListsOutput, function(it) { it$type=="dataObj"})][[1]]
+)
+compareNestedListsRepresentationOfTopLevelObject(
+	jsonAsNestedLists[sapply(jsonAsNestedLists, function(it) { it$type=="parObj"})][[1]],
+	jsonAsNestedListsOutput[sapply(jsonAsNestedListsOutput, function(it) { it$type=="parObj"})][[1]]
+)
+compareNestedListsRepresentationOfTopLevelObject(
+	jsonAsNestedLists[sapply(jsonAsNestedLists, function(it) { it$type=="mdlObj"})][[1]],
+	jsonAsNestedListsOutput[sapply(jsonAsNestedListsOutput, function(it) { it$type=="mdlObj"})][[1]]
+)
+compareNestedListsRepresentationOfTopLevelObject(
+	jsonAsNestedLists[sapply(jsonAsNestedLists, function(it) { it$type=="taskObj"})][[1]],
+	jsonAsNestedListsOutput[sapply(jsonAsNestedListsOutput, function(it) { it$type=="taskObj"})][[1]]
+)
+# TODO: compareNestedListsRepresentationOfTopLevelObject() for MOG obj
 

@@ -1,1 +1,1 @@
-[{"skeleton_data":{"identifier":"dataobj"},"skeleton_task":{"identifier":"taskobj"},"skeleton_mdl":{"RANDOM_VARIABLE_DEFINITION":[],"identifier":"mdlobj"},"skeleton_mog":{"identifier":"mogobj"},"skeleton_par":{"identifier":"parobj"}}]
+[{"name":"skeleton_data","blocks":{},"type":"dataObj"},{"name":"skeleton_par","blocks":{},"type":"parObj"},{"name":"skeleton_mdl","blocks":{},"type":"mdlObj"},{"name":"skeleton_task","blocks":{},"type":"taskObj"},{"name":"skeleton_mog","blocks":{},"type":"mogObj"}]

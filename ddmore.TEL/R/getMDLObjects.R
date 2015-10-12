@@ -6,7 +6,7 @@
 #' If a vector of object names are given in the "names" argument, then only these 
 #' items are returned.
 #'
-#' @usage getMDLObjects(x, type, name)
+#' @usage getMDLObjects(x, name)
 #'
 #' @param x File path or URL of the .mdl file containing the task object.
 #'
@@ -49,14 +49,14 @@ getMDLObjects <- function(x, name, fisServer=TEL.getServer()) {
   
   allObjs <- list()
   sapply(MOG_OBJECT_TYPES, function(mog_object_type) {
-	allObjs <<- c(allObjs, .extractTypeObject(raw, mog_object_type))
+	allObjs <<- c(allObjs, .extractTypeObjects(raw, mog_object_type))
   })
 
   if (length(allObjs) == 0) {
 	stop("No objects found in the parsed MDL file")
   }
 
-  # Only return the object with given name if name is specified
+  # Only return the single object with given name if name is specified
   if (!missing(name)) {
 	
 	# Extract names
@@ -70,7 +70,7 @@ getMDLObjects <- function(x, name, fisServer=TEL.getServer()) {
 	if (length(subList) == 0) {
 		stop(paste0("No object named \"", name, "\" found in the parsed MDL file"))
 	}
-	return(subList)
+	return(subList[[1]])
   }
   
   # Otherwise return a list of all the objects
