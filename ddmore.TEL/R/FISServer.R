@@ -252,7 +252,8 @@ setMethod("submitJob", signature = signature("FISServer"),
                              "Content-Type" = "application/json")
               response <- .httpPost(url = submitURL, body=json, headers = httpheader )
               if(response$header['status']!=200) {
-                  stop(sprintf("Could not submit job. Error: %s", body))
+                  exception <- fromJSON(response$body)
+                  stop(sprintf("Could not submit job. Error: %s", exception$message))
               }
               bodyAsList <- fromJSON(response$body)
               return(createFISJobFromNamedList(bodyAsList))
@@ -283,7 +284,8 @@ setMethod("cancelJob", signature = signature("FISServer"),
               response <- .httpPost(url = cancelURL, body="", headers=c(Accept = "application/json; charset=UTF-8"))
               
               if(response$header['status']!=200) {
-                  stop(sprintf("Could not cancel job %s. Error: %s", job@id, body))
+                  exception <- fromJSON(response$body)
+                  stop(sprintf("Could not cancel job %s. Error: %s", job@id, exception$message))
               }
               bodyAsList <- fromJSON(response$body)
               return(createFISJobFromNamedList(bodyAsList))

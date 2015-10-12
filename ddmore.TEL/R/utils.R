@@ -348,10 +348,12 @@ parent.folder <- function(f) {
  
   if (tolower(what) == "parameter") {
     objs <- getParameterObjects(mdlFile)[[1]]
+  } else if (tolower(what) == "model") {
+    objs <- getModelObjects(mdlFile)[[1]]
   } else if (tolower(what) == "mdl") {
     objs <- getMDLObjects(mdlFile)[[1]]
   } else {
-    stop("Value for what not recognised, must be one of ('mdl', 'parameter')")
+    stop("Value for what not recognised, must be one of ('mdl', 'parameter', 'model')")
   }
 
   if (length(objs) > 1) {
