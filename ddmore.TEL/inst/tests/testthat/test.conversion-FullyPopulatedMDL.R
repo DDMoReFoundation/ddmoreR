@@ -60,10 +60,12 @@ test_that("Expected mdlObj to have been created from the JSON-format text repres
 	expect_false(is.null(myMdlObj@RANDOM_VARIABLE_DEFINITION), info="RANDOM_VARIABLE_DEFINITION slot should be populated")
 	expect_false(is.null(myMdlObj@INDIVIDUAL_VARIABLES), info="INDIVIDUAL_VARIABLES slot should be populated")
 	expect_false(is.null(myMdlObj@MODEL_PREDICTION), info="MODEL_PREDICTION slot should be populated")
-	# TODO fix this check
-	#expect_false(is.null(myMdlObj@MODEL_PREDICTION$DEQ), info="MODEL_PREDICTION::DEQ slot should be populated")
-	# TODO fix this check
-	#expect_false(is.null(myMdlObj@MODEL_PREDICTION$COMPARTMENT), info="MODEL_PREDICTION::COMPARTMENT slot should be populated")
+	expect_false(is.null(myMdlObj@MODEL_PREDICTION[[8]]$DEQ), info="MODEL_PREDICTION::DEQ should be populated")
+	expect_true(length(myMdlObj@MODEL_PREDICTION[[8]]$DEQ) > 0, info="MODEL_PREDICTION::DEQ should be populated")
+	expect_equal(myMdlObj@MODEL_PREDICTION[[8]]$.subtype, "BlockStmt", info="MODEL_PREDICTION::DEQ should be populated")
+	expect_false(is.null(myMdlObj@MODEL_PREDICTION[[9]]$COMPARTMENT), info="MODEL_PREDICTION::COMPARTMENT should be populated")
+	expect_true(length(myMdlObj@MODEL_PREDICTION[[9]]$COMPARTMENT) > 0, info="MODEL_PREDICTION::COMPARTMENT should be populated")
+	expect_equal(myMdlObj@MODEL_PREDICTION[[9]]$.subtype, "BlockStmt", info="MODEL_PREDICTION::COMPARTMENT should be populated")
 	expect_false(is.null(myMdlObj@OBSERVATION), info="OBSERVATION slot should be populated")
 	expect_false(is.null(myMdlObj@GROUP_VARIABLES), info="GROUP_VARIABLES slot should be populated")
 	
