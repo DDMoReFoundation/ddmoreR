@@ -9,7 +9,7 @@
 #' @usage update(object, block, item, with)
 #'
 #' @param object An object of class \code{\linkS4class{parObj}}
-#' @param block Which block ("STRUCTURAL", "VARIABILITY" or "PRIOR_PARAMETERS") to update
+#' @param block Which block ("STRUCTURAL", "VARIABILITY" or "DECLARED_VARIABLES") to update
 #' @param item Identifies which element (e.g. variable) within a block to update;
 #'        corresponds to a named list item within the block. Accepts a vector for
 #'        updating multiple variables.
