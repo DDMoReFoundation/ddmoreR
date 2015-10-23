@@ -234,7 +234,11 @@ compareNestedListsRepresentationOfTopLevelObject <- function(inputData, outputDa
 		if (blockName%in%c("IDV", "STRUCTURAL_PARAMETERS", "VARIABILITY_PARAMETERS")) {
 			# Compare vectors of variable names
 			compareVectorRepresentationOfBlock(inputData$name, blockName, inputData$blocks[[blockName]], outputData$blocks[[blockName]])
+		} else if (blockName%in%c("ESTIMATE", "SIMULATE")) {
+			# Compare sets of name-value attributes
+			compareBlockItems(inputData$name, blockName, "", inputData$blocks[[blockName]], outputData$blocks[[blockName]])
 		} else {
+			# Recurse down
 			compareNestedListsRepresentationOfBlock(inputData$name, blockName, inputData$blocks[[blockName]], outputData$blocks[[blockName]])
 		}
 	})

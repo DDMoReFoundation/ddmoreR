@@ -67,7 +67,7 @@ is.dataObj <- function(obj){
 validity.taskObj <- function(object)
 {
 	stopifnot(is.list(object@ESTIMATE))
-	#stopifnot(is.character(object@SIMULATE))
+	stopifnot(is.list(object@SIMULATE))
 	#stopifnot(is.character(object@EVALUATE))
 	#stopifnot(is.character(object@OPTIMISE))
 	#stopifnot(is.character(object@DATA))
@@ -83,14 +83,15 @@ validity.taskObj <- function(object)
 #' in an MDL file. They are created by parsing an MDL file using
 #' \link{getTaskPropertiesObjects} or \link{getMDLObjects}.
 #' 
-#' @slot ESTIMATE List of sets of name-value-pair attributes
+#' @slot ESTIMATE Set of name-value-pair attributes, i.e. named list
+#' @slot SIMULATE Set of name-value-pair attributes, i.e. named list
 #' @slot name The name assigned to the \code{taskObj} in the MDL file.
 #' 
 #' @author mwise
 setClass("taskObj", 
   slots = c(
 	ESTIMATE = "list",
-	#SIMULATE = "character",
+	SIMULATE = "list",
 	#EVALUATE = "character",
 	#OPTIMISE = "character",
 	#DATA = "character",

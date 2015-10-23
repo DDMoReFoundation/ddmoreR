@@ -192,7 +192,8 @@ MODEL_PREDICTION_SUBBLOCKS <- c(".DEQ", ".COMPARTMENT")
 	}
 	
 	taskObj <- new("taskObj",
-		ESTIMATE = removeExtraLayerOfNesting(taskObjAsList$ESTIMATE), # removeExtraLayerOfNesting handles null
+		ESTIMATE = as.list(taskObjAsList$ESTIMATE), # as.list handles null
+		SIMULATE = as.list(taskObjAsList$SIMULATE), # as.list handles null
 		name = name
 	)
 	
@@ -281,7 +282,8 @@ setMethod("write", "mogObj", function(object, f, fisServer=TEL.getServer()) {
     ))
     
     taskObjBlocks <- .removeNullEntries(list(
-        ESTIMATE = addExtraLayerOfNesting(m@taskObj@ESTIMATE)
+        ESTIMATE = m@taskObj@ESTIMATE,
+		SIMULATE = m@taskObj@SIMULATE
     ))
     
     dataObjName <- m@dataObj@name
