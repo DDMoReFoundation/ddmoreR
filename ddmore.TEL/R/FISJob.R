@@ -159,7 +159,7 @@ setGeneric(
 )
 setMethod("getStdOutFile", signature = signature("FISJob"),
           function(fisJob) {
-              return(file.path(fisJob@workingDirectory, sprintf("%s/stdout",FIS_JOB_METADATA_DIR)))
+              return(file.path(fisJob@workingDirectory, sprintf("%s/stdout.txt",FIS_JOB_METADATA_DIR)))
           })
 
 ##############################################################
@@ -179,7 +179,7 @@ setGeneric(
 )
 setMethod("getStdErrFile", signature = signature("FISJob"),
           function(fisJob) {
-              return(file.path(fisJob@workingDirectory, sprintf("%s/stderr",FIS_JOB_METADATA_DIR)))
+              return(file.path(fisJob@workingDirectory, sprintf("%s/stderr.txt",FIS_JOB_METADATA_DIR)))
           })
 
 ##############################################################
