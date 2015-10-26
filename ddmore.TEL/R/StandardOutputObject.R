@@ -317,17 +317,17 @@ setMethod(f="as.data",
 
           if (length(ID.col.name) > 1) {
             stop(paste0("Multiple DATA_INPUT_VARIABLES have use defined as 'id' in MDL file, ", 
-              "cannot determine correct column name for ID from MDF file. "))
+              "cannot determine correct column name for ID from MDL file. "))
           } else if (length(ID.col.name) == 0) {
             stop(paste0("No DATA_INPUT_VARIABLES have a 'use' parameter defined as 'id' in the MDL file", 
-              "cannot determine correct column name for ID from MDF file."))
+              "cannot determine correct column name for ID from MDL file."))
           }
           if (length(TIME.col.name) > 1) {
             stop(paste0("Multiple DATA_INPUT_VARIABLES have use defined as 'idv' in MDL file, ", 
-              "cannot determine correct column name for TIME from MDF file."))
+              "cannot determine correct column name for TIME from MDL file."))
           } else if (length(TIME.col.name) == 0) {
             stop(paste0("No DATA_INPUT_VARIABLES have a 'use' parameter defined as 'idv' in the MDL file", 
-              "cannot determine correct column name for TIME from MDF file."))
+              "cannot determine correct column name for TIME from MDL file."))
           }
 
           # Pass in the rawData file 
@@ -349,7 +349,7 @@ setMethod(f="as.data",
                           rawData[, remaining.names],
                           deparse.level = 0)
           # Update names for first two columns 
-          names(rawData) <- c(c(ID.col.name, TIME.col.name), remaining.names) 
+          names(rawData) <- c(ID.col.name, TIME.col.name, remaining.names) 
 			  }
 			  
         mergedDataFrame <- rawData
