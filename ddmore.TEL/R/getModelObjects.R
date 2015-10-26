@@ -1,7 +1,7 @@
 ################################################################################
 #' getModelObjects
 #'
-#' Parses the specified MDL file, extracting the \code{mdlobj} MCL Model Object
+#' Parses the specified MDL file, extracting the \code{mdlObj} MCL Model Object
 #' top-level blocks and converting them to S4 objects of class
 #' \code{\linkS4class{mdlObj}}.
 #' 
@@ -36,9 +36,9 @@
 setGeneric("getModelObjects", function(file, object, name, fisServer = TEL.getServer()) { 
 	# create object in R from parser:
 	if (!missing(name)) {
-		res <- .parseMDLFile(file, name=name, type="mdlobj", fisServer = fisServer)
+		res <- .parseMDLFile(file, name=name, type="mdlObj", fisServer = fisServer)
 	} else{
-		res <- .parseMDLFile(file, type="mdlobj", fisServer = fisServer)
+		res <- .parseMDLFile(file, type="mdlObj", fisServer = fisServer)
 	}
 	return(res)
 })

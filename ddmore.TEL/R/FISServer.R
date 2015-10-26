@@ -53,11 +53,12 @@ setClass(
 #'
 #' @usage createFISServer(url, operationalUrl, startupScript, jobStatusPollingDelay, myMdlObj, myTaskObj)
 #'
-#' @param url An object of class dataObj
-#' @param operationalUrl An object of class parObj
-#' @param startupScript An object of class mdlObj
-#' @param taskObj An object of class taskObj
-#' @param mogName (Optional) The name to assign to the new mogObj
+#' @param url
+#' @param operationalUrl
+#' @param startupScript
+#' @param jobStatusPollingDelay
+#' @param startupPollingMax
+#' @param startupPollingDelay
 #'
 #' @return An S4 Object of class "FISServer".
 #'

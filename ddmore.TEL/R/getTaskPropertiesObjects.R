@@ -1,7 +1,7 @@
 ################################################################################
 #' getTaskPropertiesObjects
 #'
-#' Parses the specified MDL file, extracting the \code{taskobj} MCL Task Properties
+#' Parses the specified MDL file, extracting the \code{taskObj} MCL Task Properties
 #' Object top-level blocks and converting them to S4 objects of class
 #' \code{\linkS4class{taskObj}}.
 #' 
@@ -33,9 +33,9 @@
 setGeneric("getTaskPropertiesObjects", function(file, object, name, fisServer = TEL.getServer()) { 
   # create object in R from parser:
   if (!missing(name)) {
-	  res <- .parseMDLFile(file, name=name, type="taskobj", fisServer = fisServer)
+	  res <- .parseMDLFile(file, name=name, type="taskObj", fisServer = fisServer)
   } else{
-	  res <- .parseMDLFile(file, type="taskobj", fisServer = fisServer)
+	  res <- .parseMDLFile(file, type="taskObj", fisServer = fisServer)
   }
   return(res)
 })

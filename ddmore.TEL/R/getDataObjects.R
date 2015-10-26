@@ -1,7 +1,7 @@
 ################################################################################
 #' getDataObjects
 #'
-#' Parses the specified MDL file, extracting the \code{dataobj} MCL Data Object
+#' Parses the specified MDL file, extracting the \code{dataObj} MCL Data Object
 #' top-level blocks and converting them to S4 objects of class
 #' \code{\linkS4class{dataObj}}.
 #' 
@@ -38,9 +38,9 @@
 setGeneric("getDataObjects", function(file, object, name, fisServer = TEL.getServer()) { 
 	# create object in R from parser:
 	if (!missing(name)) {
-		res <- .parseMDLFile(file, name=name, type="dataobj", fisServer = fisServer)
+		res <- .parseMDLFile(file, name=name, type="dataObj", fisServer = fisServer)
 	} else{
-		res <- .parseMDLFile(file, type="dataobj", fisServer = fisServer)
+		res <- .parseMDLFile(file, type="dataObj", fisServer = fisServer)
 	}
   	return(res)
   standardGeneric("getDataObjects")

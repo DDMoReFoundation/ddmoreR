@@ -1,7 +1,7 @@
 ################################################################################
 #' getParameterObjects
 #'
-#' Parses the specified MDL file, extracting the \code{parobj} MCL Parameter
+#' Parses the specified MDL file, extracting the \code{parObj} MCL Parameter
 #' Object top-level blocks and converting them to S4 objects of class
 #' \code{\linkS4class{parObj}}.
 #' 
@@ -38,9 +38,9 @@
 setGeneric("getParameterObjects", function(file, object, name, fisServer = TEL.getServer()) {
 	# create object in R from parser:
 	if (!missing(name)) {
-		res <- .parseMDLFile(file, name=name, type="parobj", fisServer = fisServer)
+		res <- .parseMDLFile(file, name=name, type="parObj", fisServer = fisServer)
 	} else{
-		res <- .parseMDLFile(file, type="parobj", fisServer = fisServer)
+		res <- .parseMDLFile(file, type="parObj", fisServer = fisServer)
 	}
 	return(res)
 })

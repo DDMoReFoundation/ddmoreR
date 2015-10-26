@@ -7,9 +7,9 @@ if (interactive()){
   cmd <- commandArgs(TRUE)
 }
 
-parkageSource <- cmd[1]
+packageSource <- cmd[1]
 
-install.packages(parkageSource, repos=NULL, lib=localLib, INSTALL_opts = "--no-lock", type="source")
+install.packages(packageSource, repos=NULL, lib=localLib, INSTALL_opts = "--no-lock", type="source")
 require(DDMoRe.TEL, lib.loc = localLib)
 require(testthat, lib.loc = localLib) 
 require(XML, lib.loc = localLib) 

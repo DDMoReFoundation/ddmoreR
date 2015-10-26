@@ -9,7 +9,7 @@
 #' @usage update(object, block, item, with)
 #'
 #' @param object An object of class \code{\linkS4class{parObj}}
-#' @param block Which block ("STRUCTURAL", "VARIABILITY" or "PRIOR_PARAMETERS") to update
+#' @param block Which block ("STRUCTURAL", "VARIABILITY" or "DECLARED_VARIABLES") to update
 #' @param item Identifies which element (e.g. variable) within a block to update;
 #'        corresponds to a named list item within the block. Accepts a vector for
 #'        updating multiple variables.
@@ -18,7 +18,13 @@
 #'        boolean attribute values should be enclosed in double quotes as per string
 #'        attribute values
 #' @return The updated object of class parObj
-#'
+#' 
+#' @note When trying to update multiple attributes across multiple variables e.g. via
+#'       \code{p <- update(p, 'STRUCTURAL', names(p@STRUCTURAL), list(value=0.5565, lo=0.6656))}
+#'       then this won't neccessarily update the correct values, since the names of the
+#'       attributes aren't checked in this case, so which attributes get which values is
+#'       arbitrary. This is raised as a SourceForge ticket #186.
+#'  
 #' @examples
 #' # Change the initial value for a structural parameter
 #' update(warfarinMOG@@parObj, "STRUCTURAL", "POP_V", list(value="2"))
