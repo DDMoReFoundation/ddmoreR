@@ -363,17 +363,6 @@ parent.folder <- function(f) {
   return(objs)
 }
 
-
-#' Utility to fetch column names from MDL file
-#'
-.deriveColumnNamesFromAssociatedMDL <- function(SOObject) {
-  
-  MDLObjs <- .getMdlInfoFromSO(SOObject, what="mdl")
-  colNames <- names(MDLObjs@DATA_INPUT_VARIABLES)
-
-  colNames
-}
-
 .deriveStructuralParametersFromAssociatedMDL <- function(SOObject) {
   names(.getMdlInfoFromSO(SOObject, what="parameter")@STRUCTURAL)
 }

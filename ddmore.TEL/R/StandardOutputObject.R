@@ -302,32 +302,54 @@ setMethod(f="as.data",
 				  stop("Path to input data must be specified")
 			  } else {
 
-          # Read data in and examine file header. If no ID or TIME in header, fetch
-          # column names based on the mdl file.
-				  rawData <- read.NONMEMDataSet(inputDataPath)
+          # Fetching Column names for the raw data is now dependent on an existing MDL file
+          # file existence check is performed by .getMdlInfoFromSO
+          MDLObjs <- .getMdlInfoFromSO(SOObject, what="mdl")
 
-          if (any(!(c("ID", "TIME") %in% names(rawData)))) {
-            colNames <- .deriveColumnNamesFromAssociatedMDL(SOObject)
-            rawData <- read.NONMEMDataSet(inputDataPath, colNames=colNames)
+          # Find the variable names being used as ID and TIME
+          input.var.use.definitions = lapply(MDLObjs@DATA_INPUT_VARIABLES, FUN= function(x) {x[['use']]})
+
+          ID.index = input.var.use.definitions == "id"
+          TIME.index = input.var.use.definitions == "idv"
+
+          ID.col.name = names(input.var.use.definitions[ID.index])
+          TIME.col.name = names(input.var.use.definitions[TIME.index])
+
+          if (length(ID.col.name) > 1) {
+            stop(paste0("Multiple DATA_INPUT_VARIABLES have use defined as 'id' in MDL file, ", 
+              "cannot determine correct column name for ID from MDF file. "))
+          } else if (length(ID.col.name) == 0) {
+            stop(paste0("No DATA_INPUT_VARIABLES have a 'use' parameter defined as 'id' in the MDL file", 
+              "cannot determine correct column name for ID from MDF file."))
+          }
+          if (length(TIME.col.name) > 1) {
+            stop(paste0("Multiple DATA_INPUT_VARIABLES have use defined as 'idv' in MDL file, ", 
+              "cannot determine correct column name for TIME from MDF file."))
+          } else if (length(TIME.col.name) == 0) {
+            stop(paste0("No DATA_INPUT_VARIABLES have a 'use' parameter defined as 'idv' in the MDL file", 
+              "cannot determine correct column name for TIME from MDF file."))
           }
 
+          # Pass in the rawData file 
+          colNames <- names(MDLObjs@DATA_INPUT_VARIABLES)
+          rawData <- read.NONMEMDataSet(inputDataPath, colNames=colNames)
           # Convert all column headers to upper case 
           names(rawData) <- toupper(names(rawData))
 
           # Checks for Column format
-				  rawData[["ID"]] <- as.numeric(rawData[["ID"]]) 
-				  rawData[["TIME"]] <- as.numeric(rawData[["TIME"]]) 
+				  rawData[[ID.col.name]] <- as.numeric(rawData[[ID.col.name]]) 
+				  rawData[[TIME.col.name]] <- as.numeric(rawData[[TIME.col.name]]) 
 
           # Reorder data frame to have ID and TIME column as first two. 
-          ID.col = names(rawData) == "ID"
-          TIME.col = names(rawData) == "TIME"
-          remaining.names = setdiff(names(rawData),c("ID","TIME"))
+          ID.col = names(rawData) == ID.col.name
+          TIME.col = names(rawData) == TIME.col.name
+          remaining.names = setdiff(names(rawData),c(ID.col.name,TIME.col.name))
           rawData = cbind(rawData[, ID.col], 
                           rawData[, TIME.col], 
                           rawData[, remaining.names],
                           deparse.level = 0)
           # Update names for first two columns 
-          names(rawData) <- c(c("ID", "TIME"), remaining.names) 
+          names(rawData) <- c(c(ID.col.name, TIME.col.name), remaining.names) 
 			  }
 			  
         mergedDataFrame <- rawData
