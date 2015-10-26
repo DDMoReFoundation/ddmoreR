@@ -4,28 +4,28 @@
 # IV Infusion.
 #
 
-warfarin_PK_INFUSION_dat = dataobj {
+warfarin_PK_INFUSION_dat = dataObj {
 	DECLARED_VARIABLES{ CENTRAL Y }
 	
 	DATA_INPUT_VARIABLES {
-		ID : { use=id }
-		TIME : { use=idv }
-		WT : { type = continuous, use=covariate }
-		AMT : { use=amt, define=CENTRAL }
-		RATE : { use=rate, type=continuous }  # this is how we define the rate of infusion
-		DV : { use=dv, define=Y }
-		logtWT:{ type = continuous }  
+		ID : { use is id }
+		TIME : { use is idv }
+		WT : { use is covariate }
+		AMT : { use is amt, variable = CENTRAL }
+		RATE : { use is rate }  # this is how we define the rate of infusion
+		DV : { use is dv, variable = Y }
+		logtWT : { use is covariate }
 	} # end DATA_INPUT_VARIABLES
 	
 	SOURCE {
-	    file = "warfarin_infusion.csv"
-            inputformat = nonmemFormat 
-	    ignore = "#" 
+	    srcfile : {file = "warfarin_infusion.csv",
+            		inputFormat is nonmemFormat ,
+	    			ignore = "#" }
 	} # end SOURCE
 } # end data object
 
 
-warfarin_PK_INFUSION_par = parobj {
+warfarin_PK_INFUSION_par = parObj {
 	DECLARED_VARIABLES{ETA_CL ETA_V}
 
 	# By default a parameter is to be estimated if fix is omitted
@@ -40,14 +40,14 @@ warfarin_PK_INFUSION_par = parobj {
 		} # end STRUCTURAL
 	VARIABILITY {
 		# Don't need to provide types. No longer needed.
-		PPV_CL : { value = 0.1, type=SD }
-		PPV_V : { value = 0.1, type=SD }
-		OMEGA : { params=[ETA_CL, ETA_V], value = [0.01], type = CORR }
+		PPV_CL : { value = 0.1, type is sd }
+		PPV_V : { value = 0.1, type is sd }
+		OMEGA : { parameter=[ETA_CL, ETA_V], value = [0.01], type is corr }
 	} # end VARIABILITY
 } # end of parameter object 
 
 
-warfarin_PK_INFUSION_mdl = mdlobj {
+warfarin_PK_INFUSION_mdl = mdlObj {
 	IDV { T }
 
 	COVARIATES{
@@ -55,8 +55,8 @@ warfarin_PK_INFUSION_mdl = mdlobj {
 		}
 
 	VARIABILITY_LEVELS{
-		ID : { level=2, type=parameter  }
-		DV : { level=1, type=observation }
+		ID : { level=2, type is parameter  }
+		DV : { level=1, type is observation }
 	}
 
 	STRUCTURAL_PARAMETERS {
@@ -80,8 +80,8 @@ warfarin_PK_INFUSION_mdl = mdlobj {
 
 	
 	INDIVIDUAL_VARIABLES { # This maps to the "Type 3" individual parameter definition in PharmML
-	    CL : { type = linear, trans = log, pop = POP_CL, fixEff = {coeff=BETA_CL_WT, cov=logtWT}, ranEff = ETA_CL }
-	    V : { type = linear, trans = log, pop = POP_V, fixEff =  {coeff=BETA_V_WT , cov = logtWT }, ranEff = ETA_V }
+	    ln(CL) = linear( trans is ln, pop = POP_CL, fixEff = [{coeff=BETA_CL_WT, cov=logtWT}] , ranEff = [ETA_CL] )
+	    ln(V) = linear( trans is ln, pop = POP_V, fixEff = [{coeff=BETA_V_WT, cov=logtWT}] , ranEff = [ETA_V] )
 	} # end INDIVIDUAL_VARIABLES
 
 	MODEL_PREDICTION {
@@ -96,28 +96,23 @@ warfarin_PK_INFUSION_mdl = mdlobj {
 	}
 
 	OBSERVATION {
-	    Y : { type = continuous, error = combinedError1(additive = RUV_ADD, proportional = RUV_PROP, f = CC),
-	              eps = EPS_Y, prediction = CC } 
+	    Y = combinedError1(additive = RUV_ADD, proportional = RUV_PROP, eps = EPS_Y, prediction = CC ) 
 	} # end OBSERVATION
 } # end of model object
 
-warfarin_PK_ODE_task = taskobj {
-	ESTIMATE {
-	    # We need the definition of algorithms and algorithm
-	    # properties before we can put anything meaningful here
-	    target = MLXTRAN_CODE
-	    version = "4.3.2"
-	    algo = [ "SAEM" ]
-	} #end ESTIMATE sub block
+warfarin_PK_ODE_task = taskObj {
+	ESTIMATE{ 
+		set algo is saem
+}
 } # end of task object
 
 
 
-warfarin_PK_ODE_mog = mogobj {
+warfarin_PK_ODE_mog = mogObj {
 	OBJECTS{
-		warfarin_PK_INFUSION_dat
-		warfarin_PK_INFUSION_mdl
-		warfarin_PK_INFUSION_par
-		warfarin_PK_ODE_task
+		warfarin_PK_INFUSION_dat : { type is dataObj }
+		warfarin_PK_INFUSION_mdl : { type is mdlObj }
+		warfarin_PK_INFUSION_par : { type is parObj }
+		warfarin_PK_ODE_task : { type is taskObj }
 	}
 }
