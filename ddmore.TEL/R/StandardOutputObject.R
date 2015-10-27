@@ -286,7 +286,7 @@ mergeCheckColumnNames <- function(df1, df2) {
 #'
 #'  Method to Fetch all relevant data and return a merged data.frame object.
 #'
-#' @include read.R
+#' @include readDataObj.R
 #' @export
 setGeneric(name="as.data",
            def=function(SOObject, inputDataPath)
