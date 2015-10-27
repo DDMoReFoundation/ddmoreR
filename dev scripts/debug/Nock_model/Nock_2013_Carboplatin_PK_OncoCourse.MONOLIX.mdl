@@ -1,0 +1,153 @@
+# Version: 1.0.3 (alpha) Build Number: 913 Build ID:  2014-11-24_09-53-12
+
+### Data object
+Nock_2013_Carboplatin_PK_dat = dataobj{
+
+   DATA_INPUT_VARIABLES{
+      ID: {type=categorical}
+      TIME: {type=continuous,units="h"}
+      TALD: {type=continuous, units="h"} # time after last dose
+      AMT: {type=continuous, units="mg"} 
+      DUR : {type= continuous, units="h"}
+      RATE : {type= continuous, units="mg/h"}
+      DV : {type=continuous, units="ug/mL"} # drug concentration
+      EVID : {type=categorical} 
+      DOSE : {type=continuous, units="mg"} 
+      AGE : {type=continuous, units="y"} 
+      HGT : {type=continuous, units="cm"} 
+      KG : {type=continuous, units="kg"} 
+      BSA : {type=continuous, units="m2"} 
+      CLCR : {type=continuous, units="mL/min"}
+      CREA : {type=continuous, units="mg/dL"}
+      TRT : {type=categorical} 
+      logtCLCR :{type=continuous}
+      logtKG :{type=continuous}
+      }# end DATA_INPUT_VARIABLES 
+
+   SOURCE{
+   		file="Carbo_DDMoRe_log2mod.csv"
+        inputformat=nonmemFormat
+        ignore="#"
+   }
+} # end data object
+
+
+### Parameter object
+Nock_2013_Carboplatin_PK_par = parobj{
+
+   STRUCTURAL{
+      THCL: {value=8.3, lo=0, units="L/h"}
+      THV1: {value=22, lo=0, units="L"}
+      Q: {value=0.76, lo=0, units="L/h"}
+      V2: {value=31, lo=0, units="L"}
+      SDADD : {value=0, fix=true, units="ug/mL"} #additive error is SD units
+      SDPROP : {value=0.2, lo=0} #proportional error in SD units
+      CLCLCR_COV : {value=0.69, lo=-10, hi=10}
+      V1KG_COV : {value=0.69, lo=-10, hi=10}
+      
+   }# end STRUCTURAL
+
+   VARIABILITY{
+      OMCL: {value=0.019, type=VAR}
+      OMV1: {value=0, type=VAR, fix=true}
+            
+      SIGMA: {value=1, type=VAR, fix=true}
+   }# end VARIABILITY
+
+} # end of parameter object
+
+### Model object
+Nock_2013_Carboplatin_PK_mdl = mdlobj{
+
+   MODEL_INPUT_VARIABLES{
+      ID: {type=categorical, use=id,level=2}
+      TIME: {type=continuous, use=idv, units="h"}
+      AMT: {type=continuous, use=amt, administration=Ac, units="mg"} 
+      DUR : {type= continuous, units="h", use=tinf}
+      RATE : {type= continuous, units="mg/h", use=rate}
+      DV : {type=continuous, prediction=Y, use=dv,level=1, units="ug/mL"} # drug concentration
+      EVID : {type=categorical, use=evid} 
+      logtCLCR :{type=continuous, use=covariate}
+      logtKG :{type=continuous, use=covariate}
+    }# end MODEL_INPUT_VARIABLES
+   
+   
+
+   STRUCTURAL_PARAMETERS{
+   	  THCL
+   	  THV1
+   	  Q
+   	  V2
+   	  SDADD
+      SDPROP
+   	  CLCLCR_COV
+   	  V1KG_COV
+   }# end STRUCTURAL_PARAMETERS
+
+   VARIABILITY_PARAMETERS{
+     OMCL
+     OMV1
+     SIGMA
+   }# end VARIABILITY_PARAMETERS
+
+
+   RANDOM_VARIABLE_DEFINITION{
+      ETA_OMCL ~ {type=normal, mean=0, var=OMCL, level=ID}
+      ETA_OMV1 ~ {type=normal, mean=0, var=OMV1, level=ID}
+      
+   }# end RANDOM_VARIABLE_DEFINITION
+   
+
+   INDIVIDUAL_VARIABLES{
+	   	#logtCLCR is not defined
+	   	#randEff -> ranEff
+      CL : {type=linear, trans=log, pop = THCL, fixEff=[CLCLCR_COV], cov=[logtCLCR], ranEff=ETA_OMCL}
+      V1 : {type=linear, trans=log, pop = THV1, fixEff=[V1KG_COV], cov=[logtKG], ranEff=ETA_OMV1}  
+
+
+   }# end INDIVIDUAL_VARIABLES
+
+
+   MODEL_PREDICTION{
+    ODE{
+        # Drug PK
+        Ac : {deriv=(-(Q/V1)*Ac - (CL/V1)*Ac + (Q/V2)*Ap), init=0, x0=0}
+        Ap : {deriv= ((Q/V1)*Ac - (Q/V2)*Ap), init=0, x0=0}
+        }
+	IPRED = Ac/V1
+   }# end MODEL_PREDICTION
+
+ 
+   OBSERVATION{      
+      eps_SIGMA ~ {type=normal, mean=0, var=SIGMA, level=DV}
+      
+      Y : {type=continuous, error=combinedError2(additive=SDADD, proportional=SDPROP,f=IPRED),
+      	eps=eps_SIGMA, prediction=IPRED}
+      #combinedError2 is undefined yet
+   }# end OBSERVATION
+
+} # end of model object
+
+
+
+Nock_2013_Carboplatin_PK_task = taskobj{
+### Task Properties object
+
+	MODEL{
+  	 	tolrel= 5
+	}
+ 
+      ESTIMATE {
+         target=NMTRAN_CODE
+         cov=true
+         algo=["FOCEI"] 
+      }# end ESTIMATE
+
+}# end of task object
+
+Nock_2013_Carboplatin_PK = mog{
+	Nock_2013_Carboplatin_PK_task
+	Nock_2013_Carboplatin_PK_mdl
+	Nock_2013_Carboplatin_PK_par
+	Nock_2013_Carboplatin_PK_dat
+}

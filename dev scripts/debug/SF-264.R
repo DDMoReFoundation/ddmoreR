@@ -16,9 +16,6 @@ load_all(ddmore)
 
 require(DDMoRe.TEL)
 
-# Temporary Fix to test locally
-TEL.setServer(createFISServer(startupScript = ""))
-
 # --------------------------
 
 # file path definitions 
@@ -27,6 +24,9 @@ SO_file = "UseCase2.SO.xml"
 mdl_file = 'C:\\Users/cmusselle/Downloads/UseCase2.mdl'
 data_file = "warfarin_conc.csv"
 
+# Temporary Fix to test locally
+TEL.setServer(createFISServer(startupScript = ""))
+
 # Load SO object
 SO = LoadSOObject(SO_file)
 df <- as.data(SO, data_file)
@@ -34,14 +34,16 @@ xpdb <- as.xpdb(SO, data_file)
 
 out = getPopulationParameters(SO)
 
-temp <- getPopulationParameters(SO, what="estimates", block="STRUCTURAL")
-parValues <- temp$MLE
-
 
 myParObj <- getParameterObjects(mdl_file)[[1]]
-myParObjUpdated <- update(myParObj,
-                          block="STRUCTURAL",
-                          item=names(parValues),
-                          with=list(value=parValues))
+myDataObj <- getDataObjects(mdl_file)[[1]]
+
+myModelObj <- getModelObjects(mdl_file)[[1]]
+
+params = names(myModelObj@INDIVIDUAL_VARIABLES)
+covariates = names(myModelObj@COVARIATES)
+randpar = names(myModelObj@RANDOM_VARIABLE_DEFINITION)
+
+
 
 

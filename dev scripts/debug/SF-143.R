@@ -19,23 +19,26 @@ require(DDMoRe.TEL)
 # --------------------------
 
 # file path definitions 
-setwd('C://Users/cmusselle/Downloads/')
-SO_file = "UseCase2.SO.xml"
-mdl_file = 'UseCase2.mdl'
-data_file = "warfarin_conc_analytic.csv"
+setwd('C:\\Users\\cmusselle\\Projects\\DDmore\\TEL-R\\dev scripts\\debug\\Nock_model')
+SO_file = "Nock_2013_Carboplatin_PK_OncoCourse.MONOLIX.SO.xml"
+mdl_file = 'Nock_2013_Carboplatin_PK_OncoCourse.MONOLIX.mdl'
+data_file = "Carbo_DDMoRe_log2mod_MDV.CSV"
 
 # Load SO object
-
 SO = LoadSOObject(SO_file)
-
 df <- as.data(SO, data_file)
 
 # Temporary Fix to test locally
-TEL.setServer(createFISServer(startupScript = ""))
+# TEL.setServer(createFISServer(startupScript = ""))
 
 xpdb <- as.xpdb(SO, data_file)
 
-out = getPopulationParameters(SO)
 
+
+# For X in 
+
+MDLObjs <- .getMdlInfoFromSO(SO, what="mdl")
+
+out = getPopulationParameters(SO)
 
 
