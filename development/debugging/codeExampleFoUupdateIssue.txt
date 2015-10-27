@@ -1,0 +1,21 @@
+
+Hi Chris,
+
+As discussed with Mike this morning.  I think the bit he’s talking about are the following lines:
+# 
+#' We can then update the parameter object using the "update" function.  
+#' In future, we will alter the update(...) function to take a vector of parameters from the estimation
+#' to update ALL initial values.
+# 
+myParObj <- getParameterObjects(mdlfile)[[1]]
+myParObjUpdated <- update(myParObj,block="STRUCTURAL",item=parNames[parNames%in%structuralNames],with=list(value=parValues[parNames%in%structuralNames]))
+myParObjUpdated <- update(myParObjUpdated,block="VARIABILITY",item=parNames[parNames%in%variabilityNames],with=list(value=parValues[parNames%in%variabilityNames]))
+
+#' The name of the correlation parameter 'CORR_PPV_CL_V' is different in the SO ('r_V_CL'), and needs to be handled differently 
+myParObjUpdated <- update(myParObjUpdated,block="VARIABILITY",item="CORR_PPV_CL_V",with=list(value=parValues[parNames%in%"CORR_PPV_CL_V"]))
+
+Let me know if you have any questions.
+
+Cheers
+
+Richard
