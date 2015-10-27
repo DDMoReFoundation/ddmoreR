@@ -1,7 +1,7 @@
 ################################################################################
-#' readDataObj
+#' read
 #'
-#' A "readDataObj" method for Data Objects and MOG objects  (S4 objects of class 
+#' A "read" method for Data Objects and MOG objects  (S4 objects of class 
 #' \code{dataObj} and \code{mogObj}. This uses information within the dataObj
 #' object to define where and how to retrieve the data, attributes of dataset
 #' columns (naming, type, units where applicable) and, if specified, how to
@@ -30,23 +30,23 @@
 #'
 #' @export
 #' @docType methods
-#' @rdname readDataObj-methods
+#' @rdname read-methods
 #'
 #' @examples
-#' mydata <- readDataObj(warfMOG@dataObj, sourceDir='C:\\SEE\\MDL_IDE\\workspace\\Product1\\models')
+#' mydata <- read(warfMOG@dataObj, sourceDir='C:\\SEE\\MDL_IDE\\workspace\\Product1\\models')
 #' head(myData)
 #'
 #' @include telClasses.R
 #' @include utils.R
 
-setGeneric("readDataObj", function(object, sourceDir=getwd(), deriveVariables=TRUE, categoricalAsFactor=TRUE, recode=TRUE, asRaw=FALSE, ...) { 
-  standardGeneric("readDataObj")
+setGeneric("read", function(object, sourceDir=getwd(), deriveVariables=TRUE, categoricalAsFactor=TRUE, recode=TRUE, asRaw=FALSE, ...) { 
+  standardGeneric("read")
 })
 
 
-#' @rdname readDataObj-methods
-#' @aliases readDataObj,dataObj,dataObj-method
-setMethod("readDataObj", "dataObj", function(object, sourceDir=getwd(), deriveVariables=TRUE, categoricalAsFactor=TRUE, recode=TRUE, asRaw=FALSE, ...) {
+#' @rdname read-methods
+#' @aliases read,dataObj,dataObj-method
+setMethod("read", "dataObj", function(object, sourceDir=getwd(), deriveVariables=TRUE, categoricalAsFactor=TRUE, recode=TRUE, asRaw=FALSE, ...) {
   # if asRaw=TRUE, set the following arguments as FALSE
   if (asRaw) {
     deriveVariables <- FALSE
@@ -72,7 +72,7 @@ setMethod("readDataObj", "dataObj", function(object, sourceDir=getwd(), deriveVa
     if (inherits(test, "try-error")) {
       warning("Unable to apply code from DATA_DERIVED_VARIABLES to the data. The code
         may not be valid R syntax, or it may not be written to function on a row-by-row
-        basis. Please see ?readDataObj for further information. The data has been imported without
+        basis. Please see ?read for further information. The data has been imported without
         applying the code.")
     } else {
     
@@ -109,13 +109,13 @@ setMethod("readDataObj", "dataObj", function(object, sourceDir=getwd(), deriveVa
 })
 
 
-#' @rdname readDataObj-methods
-#' @aliases readDataObj,mogObj,mogObj-method
-setMethod("readDataObj", "mogObj", function(object, sourceDir=getwd(), deriveVariables=TRUE, categoricalAsFactor=TRUE, recode=TRUE, asRaw=FALSE, ...) {
+#' @rdname read-methods
+#' @aliases read,mogObj,mogObj-method
+setMethod("read", "mogObj", function(object, sourceDir=getwd(), deriveVariables=TRUE, categoricalAsFactor=TRUE, recode=TRUE, asRaw=FALSE, ...) {
   # extract dataObj
   ob <- object@dataObj
   # pass to method for dataObj
-  readDataObj(ob,  deriveVariables=deriveVariables, categoricalAsFactor=categoricalAsFactor, recode=recode, asRaw=asRaw, ... )
+  read(ob,  deriveVariables=deriveVariables, categoricalAsFactor=categoricalAsFactor, recode=recode, asRaw=asRaw, ... )
 })
 
 

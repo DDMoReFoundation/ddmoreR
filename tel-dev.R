@@ -36,7 +36,7 @@ print(sprintf("DDMoRe TEL R libraries directory: %s", libPath))
           
 script.files = c(
     "telClasses", "createMogObj",
-    "utils", "import", "execute", "conversion", "readDataObj", "updateParObj",
+    "utils", "import", "execute", "conversion", "read", "update",
     "getDataObjects", "getParameterObjects", "getPopulationParameters", "getModelObjects", "getTaskPropertiesObjects", "getMDLObjects",
     "FISServer", "FISJob", "server", "jobExecution", "psnWrappers", "xmlParsers", "StandardOutputSubClasses", "StandardOutputObject",
 	"LoadSOObject"

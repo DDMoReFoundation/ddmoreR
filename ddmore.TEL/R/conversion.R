@@ -203,7 +203,7 @@ MODEL_PREDICTION_SUBBLOCKS <- c(".DEQ", ".COMPARTMENT")
 
 
 ##############################################################
-#' writeMogObj
+#' write
 #'
 #' Takes in an instance of R class \link{\code{mogObj}} comprising a single instance of each of:
 #' \itemize{
@@ -216,7 +216,7 @@ MODEL_PREDICTION_SUBBLOCKS <- c(".DEQ", ".COMPARTMENT")
 #' 
 #' It is recommended that the file not have an extension, whereby the .mdl extension will be appended.
 #' 
-#' @usage writeMogObj(myMogObj, 'C:/Users/fred/mymodel')
+#' @usage write(myMogObj, 'C:/Users/fred/mymodel')
 #'
 #' @param object Instance of R class \link{\code{mogObj}}.
 #' @param f File path to the .mdl file (optionally without the .mdl extension) that will be created.
@@ -225,16 +225,16 @@ MODEL_PREDICTION_SUBBLOCKS <- c(".DEQ", ".COMPARTMENT")
 #' @export
 #' 
 #' @docType methods
-#' @rdname writeMogObj-methods
+#' @rdname write-methods
 #' @include telClasses.R
 
-setGeneric("writeMogObj", function(object, f, fisServer=TEL.getServer()) { 
-  standardGeneric("writeMogObj")
+setGeneric("write", function(object, f, fisServer=TEL.getServer()) { 
+  standardGeneric("write")
 })
 
-#' @rdname writeMogObj-methods
-#' @aliases writeMogObj,mogObj,mogObj-method
-setMethod("writeMogObj", "mogObj", function(object, f, fisServer=TEL.getServer()) {
+#' @rdname write-methods
+#' @aliases write,mogObj,mogObj-method
+setMethod("write", "mogObj", function(object, f, fisServer=TEL.getServer()) {
     .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FIS Server instance is required.")
     json <- .generateJSON(object)
 
