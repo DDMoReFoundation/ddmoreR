@@ -130,7 +130,7 @@ setMethod("readDataObj", "mogObj", function(object, sourceDir=getwd(), deriveVar
 #'
 .importData <- function(dataObj, sourceDir=getwd(), ...) {
 	
-	if (is.null(dataObj@SOURCE$file)) {
+	if (is.null(dataObj@SOURCE[[1]]$file)) {
 		stop("No data file referenced in the data object")
 	}
 
