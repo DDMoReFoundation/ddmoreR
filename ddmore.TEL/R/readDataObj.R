@@ -135,7 +135,7 @@ setMethod("readDataObj", "mogObj", function(object, sourceDir=getwd(), deriveVar
 	}
 
 	# Prepend the source directory (the current directory if not specified) to the data files
-	dataFile <- file.path(sourceDir, dataObj@SOURCE$file)
+	dataFile <- file.path(sourceDir, dataObj@SOURCE[[1]]$file)
   
 	read.NONMEMDataSet(dataFile, ...) # return this as the result
 
