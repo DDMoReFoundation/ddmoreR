@@ -356,7 +356,7 @@ TEL.importSOStep <- function(submission, fisServer, ...) {
     if(!("importDirectory" %in% names(submission$parameters)) || is.null(submission$parameters$importDirectory)) {
         stop("Illegal Argument: submission's 'resultsDir' element must be set and can't be NULL.")
     }
-    multiple <- ifelse("importMultipleSO" %in% submission$parameters, submission$parameters$importMultipleSO, FALSE)
+    multiple <- ifelse("importMultipleSO" %in% names(submission$parameters), submission$parameters$importMultipleSO, FALSE)
     
     soXMLFileName <- paste0(file_path_sans_ext(basename(submission$parameters$modelFile)), ".SO.xml")
     if (!is.null(submission$fisJob)) { # Should always be the case, if called as part of \link{TEL.monitor})
