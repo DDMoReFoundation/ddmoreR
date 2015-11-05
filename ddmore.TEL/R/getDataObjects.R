@@ -15,13 +15,13 @@
 #'        using the name argument allows the user to target a specific data object.
 #' @param fisServer FISServer instance.
 #' @return List of S4 Objects of class \code{dataObj}. If name is specified, only the 
-#'          single specified object is returned.
+#'         single specified object is returned.
 #' 
 #' @examples
 #' # Retrieve all data objects
 #' dataObjsList <- getDataObjects('Warfarin-ODE-latest.mdl')
 #' # Retrieve a known data object by name
-#' warfDataObj <- getDataObjects('Warfarin-ODE-latest.mdl', name='warfarin_PK_ODE_dat')[[1]]
+#' warfDataObj <- getDataObjects('Warfarin-ODE-latest.mdl', name='warfarin_PK_ODE_dat')
 #'
 #' @details
 #' \code{getDataObjects()} only parses the MCL code, it does not read any data file 

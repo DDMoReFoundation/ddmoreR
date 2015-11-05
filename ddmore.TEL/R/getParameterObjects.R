@@ -9,7 +9,7 @@
 #' MCL Parameter Object sub-blocks; see \linkS4class{parObj}.
 #' 
 #' To update the parameter values within the object the
-#' \link[DDMoRe.TEL:update-methods]{update} function should be used.
+#' \link[DDMoRe.TEL:updateParObj-methods]{updateParObj} function should be used.
 #'
 #' @param file File path to the .mdl file containing the parameter object(s).
 #' @param object TODO Not currently used.
@@ -19,15 +19,15 @@
 #'        a specific parameter object.
 #' @param fisServer FISServer instance.
 #' @return List of S4 Objects of class \code{parObj}. If name is specified, only the 
-#'          single specified object is returned.
+#'         single specified object is returned.
 #' 
 #' @examples
 #' # Retrieve all parameter objects
 #' paramObjsList <- getParameterObjects('Warfarin-ODE-latest.mdl')
 #' # Retrieve a known parameter object by name
-#' warfParamObj <- getParameterObjects('Warfarin-ODE-latest.mdl', name='warfarin_PK_ODE_par')[[1]]
+#' warfParamObj <- getParameterObjects('Warfarin-ODE-latest.mdl', name='warfarin_PK_ODE_par')
 #' 
-#' @seealso \link[DDMoRe.TEL:update-methods]{update}
+#' @seealso \link[DDMoRe.TEL:updateParObj-methods]{updateParObj}
 #'
 #' @export
 #' @docType methods

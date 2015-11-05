@@ -15,13 +15,13 @@
 #'        using the name argument allows the user to target a specific model object.
 #' @param fisServer FISServer instance.
 #' @return List of S4 Objects of class \code{mdlObj}. If name is specified, only the 
-#'          single specified object is returned.
+#'         single specified object is returned.
 #' 
 #' @examples
 #' # Retrieve all model objects
 #' mdlObjsList <- getModelObjects('Warfarin-ODE-latest.mdl')
 #' # Retrieve a known model object by name
-#' warfMdlObj <- getModelObjects('Warfarin-ODE-latest.mdl', name='warfarin_PK_ODE_mdl')[[1]]
+#' warfMdlObj <- getModelObjects('Warfarin-ODE-latest.mdl', name='warfarin_PK_ODE_mdl')
 #' 
 #' @details Users are not generally expected to change the model object via TEL, except in
 #'          very few cases e.g. stepwise covariate model building via a configuration file 

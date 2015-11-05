@@ -51,14 +51,14 @@ MODEL_PREDICTION_SUBBLOCKS <- c(".DEQ", ".COMPARTMENT")
 
   if (!missing(name)) {
   
-    res <- .extractNamedObject(raw, name)
+    res <- .extractNamedObject(raw, name) # Single object
 	if (length(res) == 0) {
 	  stop(paste0("No object named \"", name, "\" of type \"", type, "\" found in the parsed MDL file"))
 	}
     
   } else {
 	  
-    res <- .extractTypeObjects(raw, type)
+    res <- .extractTypeObjects(raw, type) # List of objects
 	if (length(res) == 0) {
 	  warning(paste0("No objects of type \"", type, "\" found in the parsed MDL file"))
 	}
@@ -102,18 +102,20 @@ MODEL_PREDICTION_SUBBLOCKS <- c(".DEQ", ".COMPARTMENT")
 
 .extractObjs <- function(raw) {
 	
-	lapply(raw, function(b) {
+	applyObjectNamesToListOfObjects(
+		lapply(raw, function(b) {
 	
-		createObjFn <- switch(b$type,
-			dataObj = .createDataObj,
-			parObj = .createParObj,
-			mdlObj = .createMdlObj,
-			taskObj = .createTaskObj
-		)
-		
-		createObjFn(b$blocks, b$name)
+			createObjFn <- switch(b$type,
+				dataObj = .createDataObj,
+				parObj = .createParObj,
+				mdlObj = .createMdlObj,
+				taskObj = .createTaskObj
+			)
+			
+			createObjFn(b$blocks, b$name)
 	
-	})
+		})
+	)
 	
 }
 
@@ -392,6 +394,14 @@ translateNamedListIntoList <- function(l) {
 	} else {
 		list()
 	}
+}
+
+# Given an (unnamed) list containing instances of dataObj, parObj, mdlObj and/or taskObj,
+# extract the 'name' attributes from each of these and return the same list as passed in
+# but now being a named list, i.e. having those extracted names assigned as keys.
+applyObjectNamesToListOfObjects <- function(objList) {
+	names(objList) <- sapply(objList, function(obj) { obj@name })
+	objList
 }
 
 # Given a list that contains individual elements that are themselves

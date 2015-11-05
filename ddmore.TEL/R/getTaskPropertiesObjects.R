@@ -22,7 +22,7 @@
 #' # Retrieve all task properties objects
 #' taskPropsList <- getTaskPropertiesObjects('Warfarin-ODE-latest.mdl')
 #' # Retrieve a known task properties object by name
-#' warfTaskProps <- getTaskPropertiesObjects('Warfarin-ODE-latest.mdl', name='warfarin_PK_ODE_task')[[1]]
+#' warfTaskProps <- getTaskPropertiesObjects('Warfarin-ODE-latest.mdl', name='warfarin_PK_ODE_task')
 #'
 #' @export
 #' @docType methods
