@@ -123,7 +123,7 @@ test_that("TEL.printJobs should print FAILED jobs if FAILED status specified", {
     expect_equal(nrow(failedJobs), 1, info = "Unexpected number of FAILED jobs.")
 })
 
-context("TEL.cancelJob")
+context("DDMORE.cancelJob")
 # Given
 setMethod("cancelJob", signature = signature("MockFISServer"),
           function(fisServer, job) {
@@ -131,9 +131,9 @@ setMethod("cancelJob", signature = signature("MockFISServer"),
               job
           })
 
-test_that("TEL.cancelJob should result in job with CANCELLING state", {
+test_that("DDMORE.cancelJob should result in job with CANCELLING state", {
         fisJob <- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id =  "MOCK_ID_RUNNING_1", workingDirectory = "/mock/working/dir", status = "RUNNING"))
         # then
-        cancelledJob <- TEL.cancelJob(fisJob)
+        cancelledJob <- DDMORE.cancelJob(fisJob)
         expect_equal(cancelledJob@status, 'CANCELLING', info = "Invalid job status returned.")
 })

@@ -22,7 +22,6 @@
 #' 
 #' @author Jonathan Chard, Matthew Wise
 #' 
-#' @seealso \code{TEL.prepareWorkingFolder}
 #' @seealso \code{TEL.submitJob}
 #' @seealso \code{TEL.poll}
 #' @seealso \code{TEL.importFiles}
@@ -33,7 +32,7 @@
 #' 
 #' @include server.R
 #' @include import.R
-#' @include telClasses.R
+#' @include Classes.R
 #' @include StandardOutputObject.R
 setGeneric("estimate", function(x, target=NULL,
 	addargs=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), clearUp=FALSE,
@@ -114,7 +113,7 @@ setMethod("estimate", signature=signature(x="mogObj"),
 #' @include FISServer.R
 #' @include jobExecution.R
 #' @include import.R
-#' @include telClasses.R
+#' @include Classes.R
 #' @include StandardOutputObject.R
 setGeneric("execute", function(x, target = NULL,
                                addargs = NULL, subfolder = format(Sys.time(), "%Y%b%d%H%M%S"),

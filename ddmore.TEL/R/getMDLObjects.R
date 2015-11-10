@@ -36,7 +36,7 @@
 #' myThamMOG@dataobj$DESIGN <- myDesignBlock
 #' myThamMOG@taskobj <- mySimulationTaskObject
 #'
-#' @include telClasses.R FISServer.R
+#' @include Classes.R FISServer.R
 getMDLObjects <- function(x, name, fisServer=TEL.getServer()) { 
   
   if(!is.character(x)){stop("x must be a string containing either the file name or URL of the MDL file")}

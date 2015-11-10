@@ -33,7 +33,7 @@
 #' @docType methods
 #' @rdname getParameterObjects-methods
 #'
-#' @include telClasses.R
+#' @include Classes.R
 
 setGeneric("getParameterObjects", function(file, object, name, fisServer = TEL.getServer()) {
 	# create object in R from parser:

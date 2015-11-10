@@ -37,7 +37,7 @@
 #' @export
 #' @docType methods
 #' @rdname updateParObj-methods
-#' @include telClasses.R
+#' @include Classes.R
 
 setGeneric("updateParObj", function(object, block, item, with) { 
   standardGeneric("updateParObj")

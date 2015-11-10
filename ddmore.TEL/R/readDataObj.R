@@ -36,7 +36,7 @@
 #' mydata <- readDataObj(warfMOG@dataObj, sourceDir='C:\\SEE\\MDL_IDE\\workspace\\Product1\\models')
 #' head(myData)
 #'
-#' @include telClasses.R
+#' @include Classes.R
 #' @include utils.R
 
 setGeneric("readDataObj", function(object, sourceDir=getwd(), deriveVariables=TRUE, categoricalAsFactor=TRUE, recode=TRUE, asRaw=FALSE, ...) { 

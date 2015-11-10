@@ -39,7 +39,7 @@
 #' ## Retain the proportion of male and female in the sampled data.
 #' newWarfData <- sample(warfData, by="SEX")
 #'
-#' @include telClasses.R
+#' @include Classes.R
 #' @export
 #' @docType methods
 #' @rdname sample-methods

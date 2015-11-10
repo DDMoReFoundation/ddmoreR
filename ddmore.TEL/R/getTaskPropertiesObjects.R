@@ -28,7 +28,7 @@
 #' @docType methods
 #' @rdname getTaskPropertiesObjects-methods
 #'
-#' @include telClasses.R
+#' @include Classes.R
 
 setGeneric("getTaskPropertiesObjects", function(file, object, name, fisServer = TEL.getServer()) { 
   # create object in R from parser:

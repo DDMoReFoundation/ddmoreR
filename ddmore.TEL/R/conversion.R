@@ -39,7 +39,7 @@ MODEL_PREDICTION_SUBBLOCKS <- c(".DEQ", ".COMPARTMENT")
 #' 
 #' @usage .parseMDLFile('Warfarin-ODE-latest.mdl', type='dataObj')
 #' 
-#' @include telClasses.R
+#' @include Classes.R
 .parseMDLFile <- function(f, name, type, fisServer) {
     .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FIS Server instance is required.")
   if (!missing(type) && !type%in%c(MOG_OBJECT_TYPES)) {
@@ -227,7 +227,7 @@ MODEL_PREDICTION_SUBBLOCKS <- c(".DEQ", ".COMPARTMENT")
 #' @export
 #' 
 #' @docType methods
-#' @include telClasses.R
+#' @include Classes.R
 #' @rdname writeMogObj-methods
 
 setGeneric("writeMogObj", function(object, f, fisServer=TEL.getServer()) { 
