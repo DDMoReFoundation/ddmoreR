@@ -1,7 +1,7 @@
 Package: DDMoRe.TEL
 Type: Package
 Title: Brings in implementation of TEL
-Version: 0.0.3
+Version: 0.0.4
 Build-Number: 1
 Date: 2014-mm-dd
 Author: Mango Solutions
@@ -22,10 +22,12 @@ Collate:
     'FISJob.R'
     'FISServer.R'
     'xmlParsers.R'
+    'utils.R'
+    'telClasses.R'
+    'readDataObj.R'
     'StandardOutputSubClasses.R'
     'StandardOutputObject.R'
     'LoadSOObject.R'
-    'telClasses.R'
     'conversion.R'
     'createMogObj.R'
     'server.R'
@@ -40,10 +42,8 @@ Collate:
     'getParameterObjects.R'
     'getPopulationParameters.R'
     'getTaskPropertiesObjects.R'
-    'utils.R'
     'plot.R'
     'psnWrappers.R'
-    'readDataObj.R'
     'sample.R'
     'startingValues.r'
     'subset.R'

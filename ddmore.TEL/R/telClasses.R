@@ -34,7 +34,7 @@ validity.dataObj <- function(object)
 #' @slot name The name assigned to the \code{dataObj} in the MDL file.
 #' 
 #' @author mwise
-setClass("dataObj", 
+dataObj <- setClass("dataObj", 
   slots = c(
     SOURCE = "list",
 	DECLARED_VARIABLES = "list",
@@ -88,7 +88,7 @@ validity.taskObj <- function(object)
 #' @slot name The name assigned to the \code{taskObj} in the MDL file.
 #' 
 #' @author mwise
-setClass("taskObj", 
+taskObj <- setClass("taskObj", 
   slots = c(
 	ESTIMATE = "list",
 	SIMULATE = "list",
@@ -144,7 +144,7 @@ validity.parObj <- function(object)
 #' @slot name The name assigned to the \code{parObj} in the MDL file.
 #' 
 #' @author mwise
-setClass("parObj", 
+parObj <- setClass("parObj", 
   slots = c(
 	DECLARED_VARIABLES = "list",
   	STRUCTURAL = "list",
@@ -224,7 +224,7 @@ validity.mdlObj <- function(object)
 #' @slot name The name assigned to the \code{mdlObj} in the MDL file.
 #' 
 #' @author mwise
-setClass("mdlObj", 
+mdlObj <- setClass("mdlObj", 
   slots = c(
 	IDV = "vector",
 	COVARIATES = "list",
@@ -290,7 +290,7 @@ validity.mogObj <- function(object)
 #' @slot name A name to be assigned to the MOG; used when writing back out to MDL.
 #' 
 #' @author khanley
-setClass("mogObj", 
+mogObj <- setClass("mogObj", 
   slots = c(
 	dataObj = "dataObj",
 	parObj = "parObj",

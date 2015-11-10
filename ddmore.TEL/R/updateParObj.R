@@ -1,14 +1,14 @@
 ##############################################################
 #' updateParObj
 #'
-#' Updates an object of class \code{\linkS4class{parObj}}. It allows the user to specify
+#' Updates an object of class \linkS4class{parObj}. It allows the user to specify
 #' new initial values, bounds (lower, upper), prior distributions, and whether to fix or
 #' unfix a variable. Typically this method is used to update initial parameter values
 #' from current values to output values from an estimation step.
 #' 
 #' @usage updateParObj(object, block, item, with)
 #'
-#' @param object An object of class \code{\linkS4class{parObj}}
+#' @param object An object of class \linkS4class{parObj}
 #' @param block Which block ("STRUCTURAL", "VARIABILITY" or "DECLARED_VARIABLES") to update
 #' @param item Identifies which element (e.g. variable) within a block to update;
 #'        corresponds to a named list item within the block. Accepts a vector for
@@ -19,11 +19,6 @@
 #'        attribute values
 #' @return The updated object of class parObj
 #' 
-#' @note When trying to update multiple attributes across multiple variables e.g. via
-#'       \code{p <- updateParObj(p, 'STRUCTURAL', names(p@STRUCTURAL), list(value=0.5565, lo=0.6656))}
-#'       then this won't neccessarily update the correct values, since the names of the
-#'       attributes aren't checked in this case, so which attributes get which values is
-#'       arbitrary. This is raised as a SourceForge ticket #186.
 #'  
 #' @examples
 #' # Change the initial value for a structural parameter
@@ -33,6 +28,12 @@
 #' # Fix the value of a parameter
 #' updateParObj(nockMOG@parObj, "VARIABILITY", "SIGMA", list(fix="true"))
 #' 
+#' @note When trying to update multiple attributes across multiple variables e.g. via
+#'       \code{p <- updateParObj(p, "STRUCTURAL", names(p<at>STRUCTURAL), list(value=0.5565, lo=0.6656))}
+#'       then this won't neccessarily update the correct values, since the names of the
+#'       attributes aren't checked in this case, so which attributes get which values is
+#'       arbitrary. This is raised as a SourceForge ticket #186.
+#'
 #' @export
 #' @docType methods
 #' @rdname updateParObj-methods

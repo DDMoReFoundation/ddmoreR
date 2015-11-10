@@ -202,33 +202,33 @@ MODEL_PREDICTION_SUBBLOCKS <- c(".DEQ", ".COMPARTMENT")
 	taskObj
 }
 
-
-
 ##############################################################
 #' writeMogObj
 #'
-#' Takes in an instance of R class \link{\code{mogObj}} comprising a single instance of each of:
+#' Takes in an instance of the R \linkS4class{mogObj} class along with a specified file path, 
+#' and writes out the content of the MOG Object to that file as MDL.
+#'
+#' The \linkS4class{mogObj} class comprises of a single instance of each of the following objects:
 #' \itemize{
-#'   \item{\linkS4class{\code{dataObj}} class}
-#'   \item{\linkS4class{\code{parObj}} class}
-#'   \item{\linkS4class{\code{mdlObj}} class}
-#'   \item{\linkS4class{\code{taskObj}} class}
+#' 	 \item \linkS4class{dataObj} class
+#' 	 \item \linkS4class{parObj} class
+#' 	 \item \linkS4class{mdlObj} class
+#' 	 \item \linkS4class{taskObj} class
 #' }
-#' and a specified file path, and writes out the content of the MOG Object to that file as MDL.
 #' 
 #' It is recommended that the file not have an extension, whereby the .mdl extension will be appended.
 #' 
 #' @usage writeMogObj(myMogObj, 'C:/Users/fred/mymodel')
 #'
-#' @param object Instance of R class \link{\code{mogObj}}.
+#' @param object Instance of R class \linkS4class{mogObj}.
 #' @param f File path to the .mdl file (optionally without the .mdl extension) that will be created.
 #' @param fisServer FISServer instance.
 #'
 #' @export
 #' 
 #' @docType methods
-#' @rdname writeMogObj-methods
 #' @include telClasses.R
+#' @rdname writeMogObj-methods
 
 setGeneric("writeMogObj", function(object, f, fisServer=TEL.getServer()) { 
   standardGeneric("writeMogObj")
