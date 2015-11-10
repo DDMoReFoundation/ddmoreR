@@ -127,7 +127,8 @@ SSE.PsN <- function(model, command="sse", samples, seed, sseOptions="", subfolde
   #TODO loading SO can take a long time, boolean option importSO to execute() would be nice
   #TODO If collect is set to false we do not get result files back, and no SO object. Cannot handle that here
   
-  outputObject <- execute(model, target="PsNgeneric", addargs=ssecommand, subfolder=subfolder, importMultipleSO=TRUE, ...)
+  multiple <- (samples > 1)
+  outputObject <- execute(model, target="PsNgeneric", addargs=ssecommand, subfolder=subfolder, importMultipleSO=multiple, ...)
   
   outputObject
 }
