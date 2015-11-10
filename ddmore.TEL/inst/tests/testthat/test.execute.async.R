@@ -1,6 +1,6 @@
 #' Tests functions involved in task execution
 
-library("DDMoRe.TEL")
+library("DDMoRe")
 require("methods")
 require("testthat")
 
@@ -26,14 +26,14 @@ createMockFISServer <-
 
 
 mockServer<- createMockFISServer(jobStatusPollingDelay=1)
-TEL.setServer(mockServer)
+DDMORE.setServer(mockServer)
 context("Executing and monitoring a job manually.")
 
 
 
 # Test data
-testDataInputs <- system.file("tests/data/test.execute.async/inputs", package = "DDMoRe.TEL")
-testDataOutputs <- system.file("tests/data/test.execute.async/outputs", package = "DDMoRe.TEL")
+testDataInputs <- system.file("tests/data/test.execute.async/inputs", package = "DDMoRe")
+testDataOutputs <- system.file("tests/data/test.execute.async/outputs", package = "DDMoRe")
 testInputFiles <- lapply(dir(testDataInputs), function(x) { file.path(testDataInputs,x) })
 testResultFiles <- lapply(dir(testDataOutputs), function(x) { file.path(testDataOutputs,x) })
 
@@ -53,7 +53,7 @@ test_that("I can perform all steps involved in job execution manually.", {
                       # mocking the result file name changes made by FIS
                       # FIXME - FIS should not change this one, now FIS just changes the extension, once PHEX is supported by converters it may not be the case
                       # FIS should use different attribute for communication between internal FIS/MIF components, not one that was submitted by FIS client
-                      # FIXME - TEL.R submits absolute path to model file, not relative to the working dir. The API must be more explicit about it
+                      # FIXME - DDMORE R package submits absolute path to model file, not relative to the working dir. The API must be more explicit about it
                       tmpJob@executionFile <- paste0(file_path_sans_ext(basename(tmpJob@executionFile)), ".xml")
                   }
                   tmpJob
@@ -70,7 +70,7 @@ test_that("I can perform all steps involved in job execution manually.", {
               })
     
     # Root of test directory
-    testDirRoot <- tempfile("DDMoRe.TEL-test.execute.async.",tempdir())
+    testDirRoot <- tempfile("DDMoRe-test.execute.async.",tempdir())
     # Directory where fis job is executed
     fisJobDir <- tempfile("FIS-job.",testDirRoot)
     # Where user's files reside
@@ -91,13 +91,13 @@ test_that("I can perform all steps involved in job execution manually.", {
                               workingDirectory = fisJobDir, 
                               extraInputFiles = list(), 
                               commandParameters = "mock command line parameters")
-    tmpJob <<- TEL.submitJob(newJob)
+    tmpJob <<- DDMORE.submitJob(newJob)
     
     expect_true(tmpJob@id == 'MOCK_ID', info = "Job id was incorrect.")
     
     # then I can monitor it
     while(!(tmpJob@status %in% c("COMPLETED"))) {
-        tmpJob <<- TEL.getJob(tmpJob@id)
+        tmpJob <<- DDMORE.getJob(tmpJob@id)
     }
 
     expect_true(tmpJob@status == 'COMPLETED', info = "FIS Job was not in 'COMPLETED' state.")

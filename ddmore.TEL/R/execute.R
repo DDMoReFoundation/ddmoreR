@@ -22,9 +22,9 @@
 #' 
 #' @author Jonathan Chard, Matthew Wise
 #' 
-#' @seealso \code{TEL.submitJob}
-#' @seealso \code{TEL.poll}
-#' @seealso \code{TEL.importFiles}
+#' @seealso \code{DDMORE.submitJob}
+#' @seealso \code{DDMORE.poll}
+#' @seealso \code{DDMORE.importFiles}
 #' 
 #' @export
 #' @docType methods
@@ -36,7 +36,7 @@
 #' @include StandardOutputObject.R
 setGeneric("estimate", function(x, target=NULL,
 	addargs=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), clearUp=FALSE,
-	fisServer=TEL.getServer()) {
+	fisServer=DDMORE.getServer()) {
   
 	execute(x=x, target=target,
 			addargs=addargs, subfolder=subfolder, clearUp=clearUp,
@@ -48,7 +48,7 @@ setGeneric("estimate", function(x, target=NULL,
 setMethod("estimate", signature=signature(x="mogObj"), 
 	function(x, target=NULL,
 			 addargs=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), clearUp=FALSE,
-			 fisServer=TEL.getServer()) {
+			 fisServer=DDMORE.getServer()) {
 
     # First write out MOG to MDL.
     # TODO: This will write out to the current directory - probably not what is desired!
@@ -103,11 +103,11 @@ setMethod("estimate", signature=signature(x="mogObj"),
 #'         on the parameters \code{importSO} and  \code{importMultipleSO}
 #' @author Jonathan Chard, Matthew Wise
 #' 
-#' @seealso \code{TEL.prepareSubmissionStep}
-#' @seealso \code{TEL.submitJobStep}
-#' @seealso \code{TEL.pollStep}
-#' @seealso \code{TEL.importFilesStep}
-#' @seealso \code{TEL.importSOStep}
+#' @seealso \code{DDMORE.prepareSubmissionStep}
+#' @seealso \code{DDMORE.submitJobStep}
+#' @seealso \code{DDMORE.pollStep}
+#' @seealso \code{DDMORE.importFilesStep}
+#' @seealso \code{DDMORE.importSOStep}
 #' 
 #' @include server.R
 #' @include FISServer.R
@@ -118,7 +118,7 @@ setMethod("estimate", signature=signature(x="mogObj"),
 setGeneric("execute", function(x, target = NULL,
                                addargs = NULL, subfolder = format(Sys.time(), "%Y%b%d%H%M%S"),
                                extraInputFileExts = NULL, extraInputFiles = NULL,
-                               fisServer = TEL.getServer(), ...) {
+                               fisServer = DDMORE.getServer(), ...) {
     .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FIS Server instance is required.")
     if (is.null(target)) {
         stop(
@@ -134,14 +134,14 @@ setGeneric("execute", function(x, target = NULL,
     }
     
     inargs <- list(...)
-    submission <- TEL.prepareSubmissionStep(
-            executionType = target, workingDirectory = tempfile("TEL.job",tempdir()),
+    submission <- DDMORE.prepareSubmissionStep(
+            executionType = target, workingDirectory = tempfile("DDMORE.job",tempdir()),
             modelfile = absoluteModelFilePath, extraInputFileExts = extraInputFileExts, 
             extraInputFiles = extraInputFiles, outputSubFolderName = subfolder,
             commandParameters = addargs, fisServer = fisServer, 
             extraParams = inargs
         )
-    submission <- TEL.performExecutionWorkflow(submission, fisServer = fisServer, workflowSteps = .buildWorkflow(params = inargs))
+    submission <- DDMORE.performExecutionWorkflow(submission, fisServer = fisServer, workflowSteps = .buildWorkflow(params = inargs))
     return(submission$so)
 })
 
@@ -155,40 +155,40 @@ setGeneric("execute", function(x, target = NULL,
 #' @return a list of steps for execution
 .buildWorkflow <- function( params ) {
     workflow <- list()
-    workflow <- c(workflow,TEL.submitJobStep)
-    workflow <- c(workflow,TEL.pollStep)
-    workflow <- c(workflow,TEL.importFilesStep)
+    workflow <- c(workflow,DDMORE.submitJobStep)
+    workflow <- c(workflow,DDMORE.pollStep)
+    workflow <- c(workflow,DDMORE.importFilesStep)
     if(!is.null(params$clearUp) && params$clearUp) {
-        workflow <- c(workflow,TEL.clearUpStep)
+        workflow <- c(workflow,DDMORE.clearUpStep)
     }
     if(is.null(params$importSO) || params$importSO) {
-        workflow <- c(workflow,TEL.importSOStep)
-        workflow <- c(workflow,TEL.verifySOStep)
+        workflow <- c(workflow,DDMORE.importSOStep)
+        workflow <- c(workflow,DDMORE.verifySOStep)
     }
     workflow
 }
 ################################################################################
-#' TEL.performSyncExecutionWorkflow
+#' DDMORE.performSyncExecutionWorkflow
 #' 
 #' Function performing a workflow involved in execution of a Job in FIS. 
 #' 
 #' If execution fails, the submission object together with the error (if any) that provoked the failure is available
-#' as '.telFailedSubmission' global variable.
+#' as '.DdmoreFailedSubmission' global variable.
 #' 
 #' @param submission a list representing a job that holds all parameters required for successful submission of a job.
 #' @param fisServer FISServer instance.
 #' @param workflowSteps a list of workflow steps to be executed during execution.
 #' 
 #'
-#' @seealso \code{TEL.prepareSubmissionStep}
+#' @seealso \code{DDMORE.prepareSubmissionStep}
 #' 
 #' @include jobExecution.R
 #' 
 #' @export
 #' 
-TEL.performExecutionWorkflow <-
+DDMORE.performExecutionWorkflow <-
     function(submission = NULL,
-             fisServer = TEL.getServer(), workflowSteps = list(), ...) {
+             fisServer = DDMORE.getServer(), workflowSteps = list(), ...) {
         .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FIS Server instance is required.")
         .precondition.checkArgument(!is.null(submission), "submission", "Object is required.")
         .precondition.checkArgument(("parameters" %in% names(submission)) && !is.null(submission$parameters),"submission$parameters", "Element must be set and can't be NULL.")
@@ -218,7 +218,7 @@ TEL.performExecutionWorkflow <-
         message(SUBMISSION_STATUSES[[submission$status]]$label)
         message(sprintf('-- %s', submission$end))
         if (submission$status == SUBMISSION_FAILED) {
-            .telFailedSubmission <<- submission
+            .DdmoreFailedSubmission <<- submission
             stop(
                 "Execution of model ", submission$parameters$modelFile, " failed.\n  The contents of the working directory ",
                 submission$parameters$importDirectory, " may be useful for tracking down the cause of the failure."
@@ -251,7 +251,7 @@ setMethod("execute", signature=signature(x="mogObj"),
     function(x, target=NULL,
                     addargs=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), clearUp=FALSE,
                     extraInputFileExts=NULL, extraInputFiles=NULL, importSO=TRUE, importMultipleSO=FALSE,
-                    fisServer = TEL.getServer()) {
+                    fisServer = DDMORE.getServer()) {
 
     # First write out MOG to MDL.
     # TODO: This will write out to the current directory - probably not what is desired!

@@ -23,7 +23,7 @@
 #' # Retrieve a known model object by name
 #' warfMdlObj <- getModelObjects('Warfarin-ODE-latest.mdl', name='warfarin_PK_ODE_mdl')
 #' 
-#' @details Users are not generally expected to change the model object via TEL, except in
+#' @details Users are not generally expected to change the model object via the DDMORE R package, except in
 #'          very few cases e.g. stepwise covariate model building via a configuration file 
 #'          (as in the "scm" method within Perl speaks NONMEM, PsN).
 #'
@@ -33,7 +33,7 @@
 #'
 #' @include Classes.R
 
-setGeneric("getModelObjects", function(file, object, name, fisServer = TEL.getServer()) { 
+setGeneric("getModelObjects", function(file, object, name, fisServer = DDMORE.getServer()) { 
 	# create object in R from parser:
 	if (!missing(name)) {
 		res <- .parseMDLFile(file, name=name, type="mdlObj", fisServer = fisServer)
@@ -46,7 +46,7 @@ setGeneric("getModelObjects", function(file, object, name, fisServer = TEL.getSe
 #' @rdname getModelObjects-methods
 #' @aliases getModelObjects,mogObj,mogObj-method
 setMethod("getModelObjects", signature=signature(object="mogObj"),
-  function(file, object, name, fisServer = TEL.getServer()) {
+  function(file, object, name, fisServer = DDMORE.getServer()) {
     return(x@mdlObj)
 })
 

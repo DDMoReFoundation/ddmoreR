@@ -17,7 +17,7 @@ is.empty <- function(slot) {
 #' Override of the standard message() function.
 #' 
 #' Prints to stdout not stderr in order that benign messages are not printed in
-#' red in the TEL-R console.
+#' red in the R console.
 #' Also added optional parameter \code{file}, which defaults to \code{stdout()},
 #' as per \link{cat}.
 #' 

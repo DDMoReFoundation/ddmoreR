@@ -2,15 +2,15 @@
 full_install = TRUE
 root = "C:\\Users\\cmusselle\\Projects\\DDmore\\TEL-R"
 
-if ("DDMoRe.TEL" %in% .packages()) {
-  detach("package:DDMoRe.TEL", unload=TRUE)
+if ("DDMoRe" %in% .packages()) {
+  detach("package:DDMoRe", unload=TRUE)
 } 
 
 setwd(root)
 if (full_install) {
-  install.packages("C:\\Users\\cmusselle\\Projects\\DDmore\\TEL-R\\.__artefacts/DDMoRe.TEL_0.0.4.tar.gz", repos=NULL, type="source")
+  install.packages("C:\\Users\\cmusselle\\Projects\\DDmore\\TEL-R\\.__artefacts/DDMoRe_0.0.4.tar.gz", repos=NULL, type="source")
 } else {
-  ddmore = as.package("DDMoRe.TEL")
+  ddmore = as.package("DDMoRe")
   # document(ddmore)
   load_all(ddmore)
 }
@@ -18,8 +18,6 @@ if (full_install) {
 
 library(testthat)
 require(devtools)
-require(DDMoRe.TEL)
+require(DDMoRe)
 
 test_dir("ddmore.TEL/inst/tests/testthat/")
-
-

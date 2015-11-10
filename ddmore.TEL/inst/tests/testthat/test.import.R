@@ -1,6 +1,6 @@
 #' Tests function involved in FIS job's results import
 rm(list = ls())
-library("DDMoRe.TEL")
+library("DDMoRe")
 require("methods")
 require("testthat")
 setClass(
@@ -24,7 +24,7 @@ createMockFISServer <-
 
 
 mockServer<- createMockFISServer(jobStatusPollingDelay=1)
-TEL.setServer(mockServer)
+DDMORE.setServer(mockServer)
 context("Importing Job Results")
 
 test_that("importJobResultFiles should import job result files", {

@@ -5,15 +5,15 @@ tmp <- tempdir()
 setwd(tmp)
 
 # Copy csv file to temp directory:
-csv <- system.file("data", "training", "tumour_exposure.csv", package="DDMoRe.TEL")
+csv <- system.file("data", "training", "tumour_exposure.csv", package="DDMoRe")
 logi <- file.copy(csv, ".")
 
 # Stop if not copied successfully:
 stopifnot(logi)
 
 # Import data
-source(system.file("data", "training", "mogObjTumourSize.r", package="DDMoRe.TEL"))
-stopifnot(DDMoRe.TEL:::is.mogObj(myMog))
+source(system.file("data", "training", "mogObjTumourSize.r", package="DDMoRe"))
+stopifnot(DDMoRe:::is.mogObj(myMog))
 
 
 test_that("Error messages are returned for incorrect inputs for dataObj object", {

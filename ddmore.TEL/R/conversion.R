@@ -230,13 +230,13 @@ MODEL_PREDICTION_SUBBLOCKS <- c(".DEQ", ".COMPARTMENT")
 #' @include Classes.R
 #' @rdname writeMogObj-methods
 
-setGeneric("writeMogObj", function(object, f, fisServer=TEL.getServer()) { 
+setGeneric("writeMogObj", function(object, f, fisServer=DDMORE.getServer()) { 
   standardGeneric("writeMogObj")
 })
 
 #' @rdname writeMogObj-methods
 #' @aliases writeMogObj,mogObj,mogObj-method
-setMethod("writeMogObj", "mogObj", function(object, f, fisServer=TEL.getServer()) {
+setMethod("writeMogObj", "mogObj", function(object, f, fisServer=DDMORE.getServer()) {
     .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FIS Server instance is required.")
     json <- .generateJSON(object)
 
@@ -456,7 +456,7 @@ as.char.vector <- function(v) {
 #' @return Path to the generated .xml PharmML file.
 #' 
 #' @export
-as.PharmML <- function(f, fisServer = TEL.getServer()) {
+as.PharmML <- function(f, fisServer = DDMORE.getServer()) {
     .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FIS Server instance is required.")
     .precondition.checkArgument(file.exists(f), "f", sprintf("MDL file %s must exist.",f))
 	

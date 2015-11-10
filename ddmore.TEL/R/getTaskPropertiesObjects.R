@@ -30,7 +30,7 @@
 #'
 #' @include Classes.R
 
-setGeneric("getTaskPropertiesObjects", function(file, object, name, fisServer = TEL.getServer()) { 
+setGeneric("getTaskPropertiesObjects", function(file, object, name, fisServer = DDMORE.getServer()) { 
   # create object in R from parser:
   if (!missing(name)) {
 	  res <- .parseMDLFile(file, name=name, type="taskObj", fisServer = fisServer)
@@ -43,7 +43,7 @@ setGeneric("getTaskPropertiesObjects", function(file, object, name, fisServer = 
 #' @rdname getTaskPropertiesObjects-methods
 #' @aliases getTaskPropertiesObjects,mogObj,mogObj-method
 setMethod("getTaskPropertiesObjects", signature=signature(object="mogObj"),
-  function(file, object, name, fisServer = TEL.getServer()) {
+  function(file, object, name, fisServer = DDMORE.getServer()) {
     return(x@taskObj)
 })
 

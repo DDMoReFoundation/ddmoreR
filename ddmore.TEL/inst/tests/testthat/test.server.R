@@ -1,6 +1,6 @@
 #' Tests functions involved in task execution
 
-library("DDMoRe.TEL")
+library("DDMoRe")
 require("methods")
 require("testthat")
 rm(list = ls())
@@ -25,12 +25,12 @@ createMockFISServer <-
 
 
 mockServer<- createMockFISServer(jobStatusPollingDelay=1)
-TEL.setServer(mockServer)
+DDMORE.setServer(mockServer)
 
-context("TEL.pollStep")
+context("DDMORE.pollStep")
 
 
-test_that("TEL.pollStep should poll untill Job status is COMPLETED", {
+test_that("DDMORE.pollStep should poll untill Job status is COMPLETED", {
     # Given
     pollCount <- 0
     pollMax <- 1
@@ -48,7 +48,7 @@ test_that("TEL.pollStep should poll untill Job status is COMPLETED", {
     submission$fisJob <- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id =  "MOCK_ID", status = "NEW"))
     submission$status <- "Submitted"
     # when
-    result = TEL.pollStep(submission, fisServer = mockServer)
+    result = DDMORE.pollStep(submission, fisServer = mockServer)
     
     #then
     
@@ -58,7 +58,7 @@ test_that("TEL.pollStep should poll untill Job status is COMPLETED", {
     expect_false(result$status=="Failed", info = "Submission's 'status' should not be set to 'Failed'.")
 })
 
-test_that("TEL.pollStep should poll untill Job status is FAILED", {
+test_that("DDMORE.pollStep should poll untill Job status is FAILED", {
     # Given
     pollCount <- 0
     pollMax <- 1
@@ -76,7 +76,7 @@ test_that("TEL.pollStep should poll untill Job status is FAILED", {
     submission$fisJob <- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id =  "MOCK_ID", status = "NEW"))
     submission$status <- "Submitted"
     # when
-    result = TEL.pollStep(submission, fisServer = mockServer)
+    result = DDMORE.pollStep(submission, fisServer = mockServer)
     
     #then
     
@@ -86,7 +86,7 @@ test_that("TEL.pollStep should poll untill Job status is FAILED", {
     expect_false(result$status=="Failed", info = "Submission's 'status' element should not be 'Failed'.")
 })
 
-context("TEL.printJobs")
+context("DDMORE.printJobs")
 # Given
 setMethod("getJobs", signature = signature("MockFISServer"),
           function(fisServer) {
@@ -101,25 +101,25 @@ setMethod("getJobs", signature = signature("MockFISServer"),
               )
           })
 
-test_that("TEL.printJobs should print all if all statuses are specified", {
+test_that("DDMORE.printJobs should print all if all statuses are specified", {
     # then
-    allJobs <- TEL.printJobs()
+    allJobs <- DDMORE.printJobs()
     expect_equal(nrow(allJobs), 8, info = "Unexpected number of all jobs.")
 })
-test_that("TEL.printJobs should print NEW jobs if NEW status specified", {
-    newJobs <- TEL.printJobs(statuses=c("NEW"))
+test_that("DDMORE.printJobs should print NEW jobs if NEW status specified", {
+    newJobs <- DDMORE.printJobs(statuses=c("NEW"))
     expect_equal(nrow(newJobs), 2, info = "Unexpected number of NEW jobs.")
 })
-test_that("TEL.printJobs should print RUNNING jobs if RUNNING status specified", {
-    runningJobs <- TEL.printJobs( statuses=c("RUNNING"))
+test_that("DDMORE.printJobs should print RUNNING jobs if RUNNING status specified", {
+    runningJobs <- DDMORE.printJobs( statuses=c("RUNNING"))
     expect_equal(nrow(runningJobs), 2, info = "Unexpected number of RUNNING jobs.")
 })
-test_that("TEL.printJobs should print COMPLETED jobs if COMPLETED status specified", {
-    completedJobs <- TEL.printJobs(statuses=c("COMPLETED"))
+test_that("DDMORE.printJobs should print COMPLETED jobs if COMPLETED status specified", {
+    completedJobs <- DDMORE.printJobs(statuses=c("COMPLETED"))
     expect_equal(nrow(completedJobs), 1, info = "Unexpected number of COMPLETED jobs.")
 })
-test_that("TEL.printJobs should print FAILED jobs if FAILED status specified", {
-    failedJobs <- TEL.printJobs(statuses=c("FAILED"))
+test_that("DDMORE.printJobs should print FAILED jobs if FAILED status specified", {
+    failedJobs <- DDMORE.printJobs(statuses=c("FAILED"))
     expect_equal(nrow(failedJobs), 1, info = "Unexpected number of FAILED jobs.")
 })
 

@@ -1,6 +1,6 @@
 #' Tests for MDL file with just the requisite top-level objects present but no sub-blocks
 
-library("DDMoRe.TEL")
+library("DDMoRe")
 require("methods")
 
 context("Loading in MDL into R objects, for skeleton MDL file")
@@ -8,7 +8,7 @@ context("Loading in MDL into R objects, for skeleton MDL file")
 # Clear workspace 
 rm(list=ls())
 
-skeletonJsonFile <- system.file("tests/data/json/skeleton.json", package = "DDMoRe.TEL")
+skeletonJsonFile <- system.file("tests/data/json/skeleton.json", package = "DDMoRe")
 
 test_that("Checking the existence of the test data file containing the JSON-format text representing the MDL", {
     expect_true(file.exists(skeletonJsonFile), info="Checking that test data file exists")
@@ -23,7 +23,7 @@ test_that("Checking that JSON-format text representing the MDL could be parsed",
 
 test_that("Expected dataObj to have been created from the JSON-format text representing the MDL", {
 	
-	mySkeletonDataObj <<- DDMoRe.TEL:::.extractTypeObjects(skeletonJsonAsNestedLists, "dataObj")[[1]]
+	mySkeletonDataObj <<- DDMoRe:::.extractTypeObjects(skeletonJsonAsNestedLists, "dataObj")[[1]]
 	
 	expect_true(isS4(mySkeletonDataObj), info="dataObj should be an S4 class")
 	expect_true(class(mySkeletonDataObj) == "dataObj", info="dataObj should be the correct class type")
@@ -31,7 +31,7 @@ test_that("Expected dataObj to have been created from the JSON-format text repre
 
 test_that("Expected parObj to have been created from the JSON-format text representing the MDL", {
 	
-	mySkeletonParObj <<- DDMoRe.TEL:::.extractTypeObjects(skeletonJsonAsNestedLists, "parObj")[[1]]
+	mySkeletonParObj <<- DDMoRe:::.extractTypeObjects(skeletonJsonAsNestedLists, "parObj")[[1]]
 	
 	expect_true(isS4(mySkeletonParObj), info="parObj should be an S4 class")
 	expect_true(class(mySkeletonParObj) == "parObj", info="parObj should be the correct class type")
@@ -39,7 +39,7 @@ test_that("Expected parObj to have been created from the JSON-format text repres
 
 test_that("Expected mdlObj to have been created from the JSON-format text representing the MDL", {
 			
-	mySkeletonMdlObj <<- DDMoRe.TEL:::.extractTypeObjects(skeletonJsonAsNestedLists, "mdlObj")[[1]]
+	mySkeletonMdlObj <<- DDMoRe:::.extractTypeObjects(skeletonJsonAsNestedLists, "mdlObj")[[1]]
 	
 	expect_true(isS4(mySkeletonMdlObj), info="mdlObj should be an S4 class")
 	expect_true(class(mySkeletonMdlObj) == "mdlObj", info="mdlObj should be the correct class type")
@@ -47,7 +47,7 @@ test_that("Expected mdlObj to have been created from the JSON-format text repres
 
 test_that("Expected taskObj to have been created from the JSON-format text representing the MDL", {
 			
-	mySkeletonTaskObj <<- DDMoRe.TEL:::.extractTypeObjects(skeletonJsonAsNestedLists, "taskObj")[[1]]
+	mySkeletonTaskObj <<- DDMoRe:::.extractTypeObjects(skeletonJsonAsNestedLists, "taskObj")[[1]]
 	
 	expect_true(isS4(mySkeletonTaskObj), info="taskObj should be an S4 class")
 	expect_true(class(mySkeletonTaskObj) == "taskObj", info="taskObj should be the correct class type")

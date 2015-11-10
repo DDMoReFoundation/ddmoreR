@@ -35,7 +35,7 @@
 #'
 #' @include Classes.R
 
-setGeneric("getDataObjects", function(file, object, name, fisServer = TEL.getServer()) { 
+setGeneric("getDataObjects", function(file, object, name, fisServer = DDMORE.getServer()) { 
 	# create object in R from parser:
 	if (!missing(name)) {
 		res <- .parseMDLFile(file, name=name, type="dataObj", fisServer = fisServer)
@@ -49,7 +49,7 @@ setGeneric("getDataObjects", function(file, object, name, fisServer = TEL.getSer
 #' @rdname getDataObjects-methods
 #' @aliases getDataObjects,mogObj,mogObj-method
 setMethod("getDataObjects", signature=signature(object="mogObj"), 
-  function(file, object, name, fisServer = TEL.getServer()) {
+  function(file, object, name, fisServer = DDMORE.getServer()) {
 	if (!missing(file)) {
 		warning("You have specified the file argument in addition to a mogObj. The file argument will be ignored.")
 	}

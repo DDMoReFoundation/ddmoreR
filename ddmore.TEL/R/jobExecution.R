@@ -20,11 +20,11 @@ SUBMISSION_STATUSES[[ SUBMISSION_COMPLETED_WITH_ERRORS ]] <- list(label = "Faile
 
 
 ################################################################################
-#' TEL.prepareSubmissionStep
+#' DDMORE.prepareSubmissionStep
 #'
-#' INTERNAL, this function is to be used by \code{TEL.performExecutionWorkflow}.
+#' INTERNAL, this function is to be used by \code{DDMORE.performExecutionWorkflow}.
 #' 
-#' Submits a job to the TEL server.
+#' Submits a job to the DDMORE server.
 #' @param executionType Identifies the target software to use to execute this job.
 #'        E.g. NONMEM, MONOLIX.
 #' @param workingDirectory Directory, normally within the system temporary directory,
@@ -71,14 +71,14 @@ SUBMISSION_STATUSES[[ SUBMISSION_COMPLETED_WITH_ERRORS ]] <- list(label = "Faile
 #'           \item{\code{parameters$executionFile}}
 #'             - An absolute path to the model file.
 #'             }
-TEL.prepareSubmissionStep <- function( executionType=NULL, workingDirectory = NULL, modelfile = NULL, extraInputFileExts=NULL, 
-                                       extraInputFiles=list(), commandParameters=NULL, outputSubFolderName = NULL, fisServer=TEL.getServer(), extraParams = list() ) {
+DDMORE.prepareSubmissionStep <- function( executionType=NULL, workingDirectory = NULL, modelfile = NULL, extraInputFileExts=NULL, 
+                                       extraInputFiles=list(), commandParameters=NULL, outputSubFolderName = NULL, fisServer=DDMORE.getServer(), extraParams = list() ) {
     .precondition.checkArgument(!is.null(executionType),'executionType', " Must be set and can't be NULL.")
     .precondition.checkArgument(!is.null(modelfile), 'modelfile', "Must be set and can't be NULL.")
     .precondition.checkArgument(!is.null(workingDirectory), 'workingDirectory',"Must be set and can't be NULL.")
     .precondition.checkArgument(!is.null(outputSubFolderName), 'outputSubFolderName',"Must be set and can't be NULL.")
-    if (!TEL.serverRunning(fisServer)) {
-        stop("Server(s) is/are not running, unable to submit job. Server health details have been made available in the TEL.serverHealthDetails object.")
+    if (!DDMORE.serverRunning(fisServer)) {
+        stop("Server(s) is/are not running, unable to submit job. Server health details have been made available in the DDMORE.serverHealthDetails object.")
     }
     
     if (!file.exists(modelfile)) {
@@ -124,7 +124,7 @@ TEL.prepareSubmissionStep <- function( executionType=NULL, workingDirectory = NU
 ################################################################################
 #' .buildSubmissionJob
 #' 
-#' INTERNAL, this function is to be used by \code{TEL.performExecutionWorkflow}.
+#' INTERNAL, this function is to be used by \code{DDMORE.performExecutionWorkflow}.
 #'
 #' Helper function that creates a \code{FISJob} from list of submission parameters
 #'
@@ -149,18 +149,18 @@ TEL.prepareSubmissionStep <- function( executionType=NULL, workingDirectory = NU
 }
 
 ################################################################################
-#' TEL.submitJobStep
+#' DDMORE.submitJobStep
 #'
-#' INTERNAL, this function is to be used by \code{TEL.performExecutionWorkflow}.
+#' INTERNAL, this function is to be used by \code{DDMORE.performExecutionWorkflow}.
 #' 
-#' Submits a job to the TEL server.
+#' Submits a job to the DDMORE server.
 #' 
 #' @param submission named list representing a submission.
 #' @param fisServer FISServer instance.
 #' 
 #' @return \code{submission} input submission with additional 'fisJob' element representing a job running on FIS.
 #' 
-TEL.submitJobStep <- function( submission, fisServer=TEL.getServer(), ...) {
+DDMORE.submitJobStep <- function( submission, fisServer=DDMORE.getServer(), ...) {
     .precondition.checkArgument(!is.null(submission),'submission', " Must be set and can't be NULL.")
     
     # Submit
@@ -177,12 +177,12 @@ TEL.submitJobStep <- function( submission, fisServer=TEL.getServer(), ...) {
 }
 
 ################################################################################
-#' TEL.pollStep
+#' DDMORE.pollStep
 #' 
-#' INTERNAL, this function is to be used by \code{TEL.performExecutionWorkflow}.
+#' INTERNAL, this function is to be used by \code{DDMORE.performExecutionWorkflow}.
 #'
-#' Continously polls the TEL server (at roughly 20 second intervals) for a
-#' specified execution request jobID, until the TEL server either reports the
+#' Continously polls the DDMORE server (at roughly 20 second intervals) for a
+#' specified execution request jobID, until the DDMORE server either reports the
 #' job as having completed successfully or as having failed.
 #' 
 #' @param submission Named list containing information relating to the
@@ -196,7 +196,7 @@ TEL.submitJobStep <- function( submission, fisServer=TEL.getServer(), ...) {
 #' @return Updated \code{submission} named list augmented with the \code{status}
 #'         of the job and final FIS job state
 #'
-TEL.pollStep <- function(submission, fisServer=TEL.getServer(), ...) {
+DDMORE.pollStep <- function(submission, fisServer=DDMORE.getServer(), ...) {
     if(is.null(submission)) {
         stop("Illegal Argument: submission can't be null")
     }
@@ -223,9 +223,9 @@ TEL.pollStep <- function(submission, fisServer=TEL.getServer(), ...) {
 }
 
 ################################################################################
-#' TEL.clearUpStep
+#' DDMORE.clearUpStep
 #'
-#' INTERNAL, this function is to be used by \code{TEL.performExecutionWorkflow}.
+#' INTERNAL, this function is to be used by \code{DDMORE.performExecutionWorkflow}.
 #' 
 #' Clears up Job working directories. 
 #' 
@@ -239,7 +239,7 @@ TEL.pollStep <- function(submission, fisServer=TEL.getServer(), ...) {
 #' 
 #' @return Updated \code{submission} named list.
 #' 
-TEL.clearUpStep <- function(submission, fisServer=TEL.getServer(), ...) {
+DDMORE.clearUpStep <- function(submission, fisServer=DDMORE.getServer(), ...) {
     workingFolder <- file.path(submission$parameters$workingDirectory)
     if (clearUp==TRUE) {
         unlink(workingFolder, recursive=TRUE)
@@ -248,9 +248,9 @@ TEL.clearUpStep <- function(submission, fisServer=TEL.getServer(), ...) {
 }
 
 ################################################################################
-#' TEL.importFilesStep.
+#' DDMORE.importFilesStep.
 #' 
-#' INTERNAL, this function is to be used by \code{TEL.performExecutionWorkflow}.
+#' INTERNAL, this function is to be used by \code{DDMORE.performExecutionWorkflow}.
 #' This is a wrapper function for \code{importJobResultFiles}.
 #' 
 #' Import result files for Model submission.
@@ -267,16 +267,16 @@ TEL.clearUpStep <- function(submission, fisServer=TEL.getServer(), ...) {
 #'          \item{\code{status}}
 #'            - The status of the execution of the model file. If not "COMPLETED"
 #'              then this import into Standard Output object will not work.
-#'          \item{\code{fisJob}} - structure returned from \link{TEL.getJob}
+#'          \item{\code{fisJob}} - structure returned from \link{DDMORE.getJob}
 #'        }
 #' @param fisServer - FISServer instance
 #' @return The 'submission' named list.
 #'
-#' @seealso \code{TEL.performExecutionWorkflow}
+#' @seealso \code{DDMORE.performExecutionWorkflow}
 #' @seealso \code{importJobResultFiles}
 #' @author mwise, mrogalski
 #' 
-TEL.importFilesStep <- function(submission, fisServer, ... ) {
+DDMORE.importFilesStep <- function(submission, fisServer, ... ) {
     if(is.null(submission)) {
         stop("Illegal Argument: submission can't be NULL.")
     }
@@ -299,9 +299,9 @@ TEL.importFilesStep <- function(submission, fisServer, ... ) {
 }
 
 ################################################################################
-#' TEL.importSOStep
+#' DDMORE.importSOStep
 #' 
-#' INTERNAL, this function is to be used by \code{TEL.performExecutionWorkflow}.
+#' INTERNAL, this function is to be used by \code{DDMORE.performExecutionWorkflow}.
 #' This is a wrapper function for \code{LoadSOObjects}.
 #' 
 #' Import results as Standard Output object(s)
@@ -323,7 +323,7 @@ TEL.importFilesStep <- function(submission, fisServer, ... ) {
 #'            - MDL file that was executed; any leading path will be stripped off,
 #'              and the .mdl file extension replaced with .SO.xml, to derive the
 #'              filename of the Standard Output XML file. If \code{submission$job}
-#'              is available (which it will be if called as part of \link{TEL.monitor})
+#'              is available (which it will be if called as part of \link{DDMORE.monitor})
 #'              then the \code{job$controlFile} is used instead of the \code{modelFile}
 #'              since this will include any relative file path prefix on the control
 #'              file i.e. if the model file references its data file via a relative path.
@@ -334,7 +334,7 @@ TEL.importFilesStep <- function(submission, fisServer, ... ) {
 #'          \item{\code{status}}
 #'            - The status of the execution of the model file. If not "COMPLETED"
 #'              then this import into Standard Output object will not work.
-#'          \item{\code{fisJob}} - structure returned from \link{TEL.getJob}
+#'          \item{\code{fisJob}} - structure returned from \link{DDMORE.getJob}
 #'        }
 #' @return submission named list with 'so' element being an object of class \linkS4class{StandardOutputObject}, or if \code{multiple}
 #'         is TRUE, then a list of such objects.
@@ -343,7 +343,7 @@ TEL.importFilesStep <- function(submission, fisServer, ... ) {
 #' 
 #' @include LoadSOObject.R
 #' @include StandardOutputObject.R
-TEL.importSOStep <- function(submission, fisServer, ...) {
+DDMORE.importSOStep <- function(submission, fisServer, ...) {
     if(is.null(submission)) {
         stop("Illegal Argument: submission can't be NULL.")
     }
@@ -359,7 +359,7 @@ TEL.importSOStep <- function(submission, fisServer, ...) {
     multiple <- ifelse("importMultipleSO" %in% names(submission$parameters), submission$parameters$importMultipleSO, FALSE)
     
     soXMLFileName <- paste0(file_path_sans_ext(basename(submission$parameters$modelFile)), ".SO.xml")
-    if (!is.null(submission$fisJob)) { # Should always be the case, if called as part of \link{TEL.monitor})
+    if (!is.null(submission$fisJob)) { # Should always be the case, if called as part of \link{DDMORE.monitor})
         # Take into account the fact that the control file, and thus the SO XML file, might be in a subdirectory
         soXMLFilePath <- file.path(submission$parameters$importDirectory, dirname(submission$fisJob@executionFile), soXMLFileName)
     } else {
@@ -387,9 +387,9 @@ TEL.importSOStep <- function(submission, fisServer, ...) {
 }
 
 ################################################################################
-#' TEL.verifySOStep
+#' DDMORE.verifySOStep
 #'
-#' INTERNAL, this function is to be used by \code{TEL.performExecutionWorkflow}.
+#' INTERNAL, this function is to be used by \code{DDMORE.performExecutionWorkflow}.
 #' 
 #' Checks SO if it represents a successful TPT execution.
 #' 
@@ -407,7 +407,7 @@ TEL.importSOStep <- function(submission, fisServer, ...) {
 #' 
 #' @return Updated \code{submission} named list.
 #' 
-TEL.verifySOStep <- function(submission, fisServer=TEL.getServer(), ...) {
+DDMORE.verifySOStep <- function(submission, fisServer=DDMORE.getServer(), ...) {
     .precondition.checkArgument(!is.null(submission),'submission', " Must be set and can't be NULL.")
     .precondition.checkArgument(!("fisJob" %in% names(submission)) || is.FISJob(submission$fisJob), "submission$fisJob", "Must be set and of type FISJob.")
     .precondition.checkArgument(!("so" %in% names(submission)) || is.SOObject(submission$so), "submission$so", "Must be set and be of type StandardOutputObject.")
