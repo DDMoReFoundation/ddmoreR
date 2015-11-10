@@ -90,17 +90,26 @@ setMethod("readDataObj", "dataObj", function(object, sourceDir=getwd(), deriveVa
     input <- object@DATA_INPUT_VARIABLES
     vars <- names(input)
     
-    for (ii in vars) {
-      type <- input[[ii]]$type
+    for (v in vars) {
+      useStr <- input[[v]]$use
       
-      if (!is.null(type)) {
+      if (!is.null(useStr)) {
         # Try to convert columns if type is specified in MDL
-        if (type=="categorical" && categoricalAsFactor) {
-          try(res[, ii] <- as.factor(res[, ii]))
-        } else if (type=="continuous") {
-          try(res[, ii] <- as.numeric(res[, ii]))
+        if (str_detect(useStr, "catCov") && categoricalAsFactor) {
+			
+			# TODO: Extract the levels and labels directly from the parsed MDL once the MDL->JSON->R
+			# conversion actually parses the "... catCov withCategories ..." string
+			allCategoriesStr <- str_match(useStr, "withCategories\\s*\\{\\s*(.*)\\s*\\}")[[2]]
+			categoriesStrs <- strsplit(allCategoriesStr, "\\s*,\\s*")[[1]]
+			lvls <- sapply(str_split(categoriesStrs, "\\s+"), function(v) { v[[3]] })
+			lbls <- sapply(str_split(categoriesStrs, "\\s+"), function(v) { v[[1]] })
+			
+			try(res[, v] <- factor(x=res[, v], levels=lvls, labels=lbls))
+			# TODO: reinstate this once type information is available with new grammar
+			# } else if (type=="continuous") {
+			#   try(res[, v] <- as.numeric(res[, v]))
         }
-        # TODO: add more options here   
+        # TODO: add more options here
       }  
 
     }
