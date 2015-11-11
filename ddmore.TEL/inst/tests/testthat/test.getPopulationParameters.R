@@ -12,7 +12,7 @@ test_that("Test getPopulationParameters returns a list of dataframes, one per es
   # Load in SO
   SOObject = LoadSOObject(data.path)
   
-  # By default will return estimates,measures for precision and confidence intervals; for each of: MLE Baysian and Bootstrap
+  # By default will return estimates,measures for precisions and confidence intervals; for each of: MLE Baysian and Bootstrap
   output = getPopulationParameters(SOObject)
     
   expect_true(class(output) == "list", info = "Returned object should be a list")
@@ -37,7 +37,7 @@ test_that("Test getPopulationParameters returns correct statistics by default fo
   # Load in SO
   SOObject = LoadSOObject(data.path)
   
-  # By default will return estimates, measures for precision and confidence intervals; for each of: MLE Baysian and Bootstrap
+  # By default will return estimates, measures for precisions and confidence intervals; for each of: MLE Baysian and Bootstrap
   output = getPopulationParameters(SOObject)
   
   PARAMETERS = c("BETA_CL_WT", "BETA_V_WT", "CORR_PPV_CL_V", "POP_CL", "POP_KA", "POP_TLAG", 
@@ -136,7 +136,7 @@ test_that("Test getPopulationParameters returns correct statistics using 'estima
  })
 
 
-test_that("Test getPopulationParameters returns correct statistics using 'precision' option for MLE, Bayesian and Bootstrap estimates.", {
+test_that("Test getPopulationParameters returns correct statistics using 'precisions' option for MLE, Bayesian and Bootstrap estimates.", {
   
   data.path = system.file("tests//data//PharmMLSO/HandCoded//warfarin_PK_ODE_SO_FULL-v0_2.xml",  
                           package = "DDMoRe")
@@ -144,8 +144,8 @@ test_that("Test getPopulationParameters returns correct statistics using 'precis
   # Load in SO
   SOObject = LoadSOObject(data.path)
   
-  # By default will return estimates, measures for precision and confidence intervals; for each of: MLE Bayesian and Bootstrap
-  output = getPopulationParameters(SOObject, what="precision", keep.only="mean")
+  # By default will return estimates, measures for precisions and confidence intervals; for each of: MLE Bayesian and Bootstrap
+  output = getPopulationParameters(SOObject, what="precisions", keep.only="mean")
 
   PARAMETERS = c("BETA_CL_WT", "BETA_V_WT", "CORR_PPV_CL_V", "POP_CL", "POP_KA", "POP_TLAG", 
                   "POP_V", "PPV_CL", "PPV_KA", "PPV_TLAG", "PPV_V", "RUV_ADD", "RUV_PROP")
@@ -197,7 +197,7 @@ test_that("Test getPopulationParameters returns correct statistics using 'interv
   # Load in SO
   SOObject = LoadSOObject(data.path)
   
-  # By default will return estimates, measures for precision and confidence intervals; for each of: MLE Baysian and Bootstrap
+  # By default will return estimates, measures for precisions and confidence intervals; for each of: MLE Baysian and Bootstrap
   output = getPopulationParameters(SOObject, what="intervals", keep.only="mean")
     
   # MLE
@@ -321,7 +321,7 @@ test_that("Test getPopulationParameters returns correct statistics using bootstr
 
  })
 
-test_that("Test getPopulationParameters returns correct statistics using bootstrap_UPDRS1.SO.xml sample data with what='precision'.", {
+test_that("Test getPopulationParameters returns correct statistics using bootstrap_UPDRS1.SO.xml sample data with what='precisions'.", {
   
   data.path = system.file("tests//data//PharmMLSO/MachineGenerated//bootstrap_UPDRS1.SO.xml",  
                           package = "DDMoRe")
@@ -330,7 +330,7 @@ test_that("Test getPopulationParameters returns correct statistics using bootstr
   SOObject = LoadSOObject(data.path)
   
   # By specifying just estimates, and a keep.only for Bayesian and Bootstrap, only a named list is returned
-  output = getPopulationParameters(SOObject, what="precision", keep.only="mean")
+  output = getPopulationParameters(SOObject, what="precisions", keep.only="mean")
   
   PARAMETERS = c("ETA_PPV_BASE_ETA_PPV_KE0", "POP_C50", "POP_E0INT", "POP_E0SLP", 
                  "POP_EMAX", "POP_GAM", "POP_KE0", "PPV_BASE", "PPV_C50", "PPV_GAM", 

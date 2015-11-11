@@ -1,46 +1,50 @@
 # ============================= #
 # Higher Level Getter Functions #
 # ============================= #
+
 #' getPopulationParameters
 #' 
 #' This function acts on an object of class StandardOutputObject and is a wrapper 
 #' to getMLEPopulationParameters, getBayesianPopulationParameters and 
-#' getBootstrapPopulationParameters presenting 
-#' estimates of the STRUCTURAL and RANDOM_VARIABILITY parameters along with any 
-#' associated measures of uncertainty (Std Dev) and interval estimates if these 
-#' are available.
+#' getBootstrapPopulationParameters presenting estimates of the STRUCTURAL
+#' and VARIABILITY parameters along with any associated measures of uncertainty
+#' (Std Dev) and interval estimates if these are available.
 #'
 #' The values available for return from the StandardOutputObject depend on the 
 #' estimation method used and how these are populated - either directly from the
 #' estimation task output or subsequently via other methods e.g. bootstrapping. 
 #' The function will provide suitable names for the columns depending on the 
 #' methods used. So for example, although the argument for "what" accepts 
-#' "precision" this may mean SE assuming Normality, Bootstrap SE, SD from MCMC 
+#' "precisions" this may mean SE assuming Normality, Bootstrap SE, SD from MCMC 
 #' or SAEM estimation methods.
 #'
-#' @param SOObject an object of class StandardOutputObject, the output from an 
-#'    estimation task.
-#' @param block character string determining which parameters to return. 
-#'    Options are "STRUCTURAL", "VARIABILITY" and "all" (default).
-#' @param what character vector determining what values to return:
-#'  \itemize{
-#'    \item "estimates" - returns point estimates for the parameters.
-#'    \item "precision" - returns variability / uncertainty estimates for the 
-#'        parameters.
-#'    \item "intervals" - returns interval estimates for the parameters. 
-#'    \item "all" - returns all of the above in a table if they are present in the SOObject (default).}
+#' @param SOObject	an object of class StandardOutputObject, the output from an 
+#' 					estimation task.
+#' @param block		character string determining which parameters to return. 
+#'					Options (case insensitive) are "STRUCTURAL", "VARIABILITY"
+#' 					and "all" (default).
+#' @param what		character string determining what values to return (all case
+#' 					insensitive):
+#' 					\itemize{
+#' 					  \item "estimates" - returns point estimates for the parameters.
+#' 					  \item "precisions" - returns variability / uncertainty estimates
+#' 										   for the parameters.
+#'					  \item "intervals" - returns interval estimates for the parameters. 
+#' 					  \item "all" - returns all of the above in a table if they are
+#' 									present in the SOObject (default).
+#' 					}
 #' @param keep.only character string determining which central tendency statistic to use 
-#'      for the estimate when multiple are present. Only applicable to Bayesian which
-#'      has Mean, Median and  Mode; and Bootstrap which has Mean and Median as options.   
+#'					for the estimate when multiple are present. Only applicable to Bayesian
+#' 					which has Mean, Median and  Mode; and Bootstrap which has Mean and
+#' 					Median as options.
 #' 
 #' @return If only returning estimates by setting \code{what="estimates"} then a named vector of 
-#' real values is returned to fascilitate the outputs use with the \code{update} method. 
-#' If what is set to "intervals", "precision" or "all" then a data frame 
-#' containing one row for each parameter is returned. The columns of which will be the parameter 
-#' names, estimate values, then followed by the statistics specified e.g. precision values, 
-#' interval values or both
+#' real values is returned to facilitate the outputs use with the \code{update} method. 
+#' If what is set to "intervals", "precisions" or "all" then a data frame containing one row for
+#' each parameter is returned. The columns of which will be the parameter names, estimate values,
+#' then followed by the statistics specified e.g. precision values, interval values or both.
 #' 
-#' @examples getPopulationParameters(object, block="ALL", what="all")  
+#' @examples getPopulationParameters(object, block="all", what="all")
 #'
 #' @seealso getPopulationEstimates, getPrecisionPopulationEstimates
 #'
@@ -54,17 +58,18 @@ getPopulationParameters <- function(SOObject, block="all", what="all", keep.only
     message('The "type" parameter has been renamed to "block" for clarity. At current using both is possible though using "type" may become deprecated in the future.')
   }
 
+  block = tolower(block)
+  what = tolower(what)
+  
   # Error checking  #
   # --------------- #
-  if (!(tolower(block) %in% c("structural", "variability", "all"))) {
-      stop('Parameter "block" must be one of: "STRUCTURAL", "VARIABILITY" or "ALL".')
+  if (!(block %in% c("structural", "variability", "all"))) {
+      stop('Parameter "block" must be one of: "STRUCTURAL", "VARIABILITY" or "all" (case insensitive).')
   } 
-  block = tolower(block)
 
-  if (!(tolower(what) %in% c("estimates", "precision", "intervals", "all"))) {
-      stop('Parameter "what" must be one of: "estimates", "precision", "intervals" or "all".')
+  if (!(what %in% c("estimates", "precisions", "intervals", "all"))) {
+      stop('Parameter "what" must be one of: "estimates", "precisions", "intervals" or "all" (case insensitive).')
   }
-  what = tolower(what)
 
   stopifnot(isS4(SOObject) & class(SOObject) == "StandardOutputObject")
 
@@ -72,7 +77,7 @@ getPopulationParameters <- function(SOObject, block="all", what="all", keep.only
   if (is.empty(SOObject@Estimation@PopulationEstimates) && what == "estimates") {
     stop("Tried to fetch the parameter estimates, however section Estimation:PopulationEstimates was not found in the SO Object")
   }
-  if (is.empty(SOObject@Estimation@PrecisionPopulationEstimates) && what == "precision") {
+  if (is.empty(SOObject@Estimation@PrecisionPopulationEstimates) && what == "precisions") {
     stop("Tried to fetch the parameter precision values, however section Estimation:PrecisionPopulationEstimates was not found in the SO Object")
   }
   if (is.empty(SOObject@Estimation@IndividualEstimates) && what == "intervals") {
@@ -223,7 +228,7 @@ row.merge.cbind <- function(x, y, colNames) {
 }
 
 
-getMLEPopulationParameters <- function(SOObject, what="all"){
+getMLEPopulationParameters <- function(SOObject, what="all") {
   
   # Extract parameter values for MLE
   df <- SOObject@Estimation@PopulationEstimates$MLE$data
@@ -245,7 +250,7 @@ getMLEPopulationParameters <- function(SOObject, what="all"){
   MLE.output['Parameter'] <- rownames(MLE.output)
   MLE.output <- MLE.output[c("Parameter", "MLE")]
   
-  if (what %in% c("all", "precision")) {
+  if (what %in% c("all", "precisions")) {
 
     se <- SOObject@Estimation@PrecisionPopulationEstimates$MLE$StandardError$data  
     rse <- SOObject@Estimation@PrecisionPopulationEstimates$MLE$RelativeStandardError$data
@@ -295,7 +300,7 @@ getMLEPopulationParameters <- function(SOObject, what="all"){
 }
 
 
-getBayesianPopulationParameters <- function(SOObject, what="all", keep.only=NULL){
+getBayesianPopulationParameters <- function(SOObject, what="all", keep.only=NULL) {
   
   # Extract parameter values for MLE
   estimate_mean <- SOObject@Estimation@PopulationEstimates$Bayesian$PosteriorMean$data
@@ -312,7 +317,7 @@ getBayesianPopulationParameters <- function(SOObject, what="all", keep.only=NULL
   }
   
   if (what == "estimates" & !is.null(keep.only)) {
-      # Return only named vector of mena/median/mode if thats all thats asked for
+      # Return only named vector of mena/median/mode if that's all that's asked for
       out <- eval(parse(text=paste0("estimate_", tolower(keep.only))))
       out.as.list <- unlist(as.list(out))
       names(out.as.list) <- colnames(out)
@@ -345,7 +350,7 @@ getBayesianPopulationParameters <- function(SOObject, what="all", keep.only=NULL
   }
   
   # Append precision information for parameters
-  if (what %in% c("all", "precision")) {
+  if (what %in% c("all", "precisions")) {
     sdp <- SOObject@Estimation@PrecisionPopulationEstimates$Bayesian$StandardDeviationPosterior$data  
     if (is.null(sdp)) {
       warning(paste0("Tried to fetch the parameter precision values, however section ",
@@ -397,7 +402,7 @@ getBayesianPopulationParameters <- function(SOObject, what="all", keep.only=NULL
 }
 
 
-getBootstrapPopulationParameters <- function(SOObject, what="all", keep.only=NULL){
+getBootstrapPopulationParameters <- function(SOObject, what="all", keep.only=NULL) {
 
   # Extract parameter values for MLE
   estimate_mean <- SOObject@Estimation@PopulationEstimates$Bootstrap$Mean$data
@@ -437,7 +442,7 @@ getBootstrapPopulationParameters <- function(SOObject, what="all", keep.only=NUL
   }
   
   # Append precision information for parameters
-  if (what %in% c("all", "precision")) {
+  if (what %in% c("all", "precisions")) {
     precision.stats <- SOObject@Estimation@PrecisionPopulationEstimates$Bootstrap$PrecisionEstimates$data  
     if (is.null(precision.stats)) {
       warning(paste0("Tried to fetch the parameter precision values, however section ",
@@ -491,9 +496,5 @@ getBootstrapPopulationParameters <- function(SOObject, what="all", keep.only=NUL
   return(Bootstrap.output)
   
 }
-
-
-
-
 
 
