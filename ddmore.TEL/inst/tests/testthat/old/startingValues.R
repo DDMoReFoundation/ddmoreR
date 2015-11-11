@@ -7,8 +7,8 @@ setwd(tmp)
 
 
 # Import data
-source(system.file("data", "training", "mogObjTumourSize.r", package="DDMoRe"))
-stopifnot(DDMoRe:::is.mogObj(myMog))
+source(system.file("data", "training", "mogObjTumourSize.r", package="ddmore"))
+stopifnot(ddmore:::is.mogObj(myMog))
 
 test_that("startingValues method is able to specify distributions for parameters", {
 

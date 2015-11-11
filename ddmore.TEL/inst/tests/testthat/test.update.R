@@ -1,4 +1,4 @@
-library("DDMoRe")
+library("ddmore")
 require("methods")
 
 context("Testing the updating of attribute values of variables within a parameter object")
@@ -6,10 +6,10 @@ context("Testing the updating of attribute values of variables within a paramete
 # Clear workspace. 
 rm(list=ls())
 
-myParObjFile = system.file("tests/data/UseCase1ParObj.Rdata", package = "DDMoRe")
+myParObjFile = system.file("tests/data/UseCase1ParObj.Rdata", package = "ddmore")
 stopifnot(file.exists(myParObjFile))
 load(file=myParObjFile)
-stopifnot(DDMoRe:::is.parObj(myParObj))
+stopifnot(ddmore:::is.parObj(myParObj))
 
 test_that("A single update of an attribute value of a variable", {
 	

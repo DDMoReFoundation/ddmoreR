@@ -9,7 +9,7 @@
 #' MCL Parameter Object sub-blocks; see \linkS4class{parObj}.
 #' 
 #' To update the parameter values within the object the
-#' \link[DDMoRe:updateParObj-methods]{updateParObj} function should be used.
+#' \link[ddmore:updateParObj-methods]{updateParObj} function should be used.
 #'
 #' @param file File path to the .mdl file containing the parameter object(s).
 #' @param object TODO Not currently used.
@@ -27,7 +27,7 @@
 #' # Retrieve a known parameter object by name
 #' warfParamObj <- getParameterObjects('Warfarin-ODE-latest.mdl', name='warfarin_PK_ODE_par')
 #' 
-#' @seealso \link[DDMoRe:updateParObj-methods]{updateParObj}
+#' @seealso \link[ddmore:updateParObj-methods]{updateParObj}
 #'
 #' @export
 #' @docType methods

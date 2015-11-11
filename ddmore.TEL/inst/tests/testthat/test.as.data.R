@@ -1,4 +1,4 @@
-library("DDMoRe")
+library("ddmore")
 library("XML")
 require("methods")
 
@@ -54,9 +54,9 @@ if(USE_MOCK) {
 # test_that("as.data correctly merges raw input data with SO data", {
 
 #   # Setup paths to files
-#   csvFilePath = system.file("tests/data/warfarin_conc.csv", package = "DDMoRe")
+#   csvFilePath = system.file("tests/data/warfarin_conc.csv", package = "ddmore")
 #   data.path = system.file("tests/data/PharmMLSO/MachineGenerated/Warfarin-ODE-latest-Monolix.SO.xml",  
-#     package = "DDMoRe")
+#     package = "ddmore")
 
 #   # Load in SO
 #   SOObject = LoadSOObject(data.path)
@@ -95,11 +95,11 @@ test_that("as.data correctly merges raw input data with SO data", {
   # Note: these tests require the local servers to be running in order to parse the mdl file.
 
   # Setup paths to files
-  csvFilePath = system.file("tests/data/warfarin_infusion.csv", package = "DDMoRe")
+  csvFilePath = system.file("tests/data/warfarin_infusion.csv", package = "ddmore")
   xml.data.path = system.file("tests/data/PharmMLSO/MachineGenerated/UseCase9.SO.xml",  
-    package = "DDMoRe")
+    package = "ddmore")
   expected.data.path = system.file("tests/data/PharmMLSO/MachineGenerated/UseCase9.SO.as.data.txt",  
-    package = "DDMoRe")
+    package = "ddmore")
 
   # Load in SO
   SOObject = LoadSOObject(xml.data.path)
@@ -131,11 +131,11 @@ test_that("as.data correctly merges raw input data with SO data", {
 #   # Note: these tests require the local servers to be running in order to parse the mdl file.
 
 #   # Setup paths to files
-#   csvFilePath = system.file("tests/data/warfarin_conc.csv", package = "DDMoRe")
+#   csvFilePath = system.file("tests/data/warfarin_conc.csv", package = "ddmore")
 #   xml.data.path = system.file("tests/data/PharmMLSO/MachineGenerated/UseCase1_FOCEI.SO.xml",  
-#     package = "DDMoRe")
+#     package = "ddmore")
 #   expected.data.path = system.file("tests/data/PharmMLSO/MachineGenerated/UseCase1_FOCEI.SO.as.data.txt",  
-#     package = "DDMoRe")
+#     package = "ddmore")
 
 #   # Load in SO
 #   SOObject = LoadSOObject(xml.data.path)

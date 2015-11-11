@@ -1,6 +1,6 @@
 #' Tests functions involved in task execution
 
-library("DDMoRe")
+library("ddmore")
 require("methods")
 require("testthat")
 
@@ -32,8 +32,8 @@ context("Executing and monitoring a job manually.")
 
 
 # Test data
-testDataInputs <- system.file("tests/data/test.execute.async/inputs", package = "DDMoRe")
-testDataOutputs <- system.file("tests/data/test.execute.async/outputs", package = "DDMoRe")
+testDataInputs <- system.file("tests/data/test.execute.async/inputs", package = "ddmore")
+testDataOutputs <- system.file("tests/data/test.execute.async/outputs", package = "ddmore")
 testInputFiles <- lapply(dir(testDataInputs), function(x) { file.path(testDataInputs,x) })
 testResultFiles <- lapply(dir(testDataOutputs), function(x) { file.path(testDataOutputs,x) })
 
@@ -70,7 +70,7 @@ test_that("I can perform all steps involved in job execution manually.", {
               })
     
     # Root of test directory
-    testDirRoot <- tempfile("DDMoRe-test.execute.async.",tempdir())
+    testDirRoot <- tempfile("ddmore-test.execute.async.",tempdir())
     # Directory where fis job is executed
     fisJobDir <- tempfile("FIS-job.",testDirRoot)
     # Where user's files reside

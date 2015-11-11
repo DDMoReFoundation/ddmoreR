@@ -10,12 +10,12 @@ if (interactive()){
 packageSource <- cmd[1]
 
 install.packages(packageSource, repos=NULL, lib=localLib, INSTALL_opts = "--no-lock", type="source")
-require(DDMoRe, lib.loc = localLib)
+require(ddmore, lib.loc = localLib)
 require(testthat, lib.loc = localLib) 
 require(XML, lib.loc = localLib) 
 ## Parse command line arg
 outputFolder <- cmd[2]
-packageName <- "DDMoRe"
+packageName <- "ddmore"
 
 ## Load Dependencies
 require(tools)

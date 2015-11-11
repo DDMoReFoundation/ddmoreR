@@ -1,5 +1,5 @@
 #' Tests functions involved in task execution
-library("DDMoRe")
+library("ddmore")
 require("methods")
 require("testthat")
 rm(list = ls())
