@@ -1,6 +1,6 @@
 #' Tests function involved in FIS job's results import
 rm(list = ls())
-library("DDMoRe")
+library("ddmore")
 require("methods")
 require("testthat")
 setClass(

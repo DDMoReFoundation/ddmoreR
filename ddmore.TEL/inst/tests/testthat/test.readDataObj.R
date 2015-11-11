@@ -1,4 +1,4 @@
-library("DDMoRe")
+library("ddmore")
 require("methods")
 
 context("Reading in data from data file referenced by data object")
@@ -6,7 +6,7 @@ context("Reading in data from data file referenced by data object")
 # Clear workspace 
 rm(list=ls())
 
-myDataObjFile <- system.file("tests/data/UseCase5DataObj.Rdata", package = "DDMoRe")
+myDataObjFile <- system.file("tests/data/UseCase5DataObj.Rdata", package = "ddmore")
 
 load(file=myDataObjFile)
 
