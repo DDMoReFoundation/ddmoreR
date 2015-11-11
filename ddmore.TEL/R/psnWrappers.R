@@ -133,6 +133,17 @@ SSE.PsN <- function(model, command="sse", samples, seed, sseOptions="", subfolde
   outputObject
 }
 
+NCA.PsN <- function(model, command="nca", samples, ncaOptions="", subfolder=paste0("nca_",format(Sys.time(), "%Y%b%d%H%M%S")), ...) {
+  ncacommand <- paste0(command," --samples=", samples, " ", ncaOptions)
+  
+  #TODO loading SO can take a long time, boolean option importSO to execute() would be nice
+  #TODO If collect is set to false we do not get result files back, and no SO object. Cannot handle that here
+  
+  outputObject <- execute(model, target="PsNgeneric", addargs=ncacommand, subfolder=subfolder, importMultipleSO=false, ...)
+  
+  outputObject
+}
+
 #Helper function to find file with pattern in resultsDir 
 #Return string with absolute path file name, or NULL if no file matching pattern found, or if more than one found
 .findResultFile <- function(resultsDir,pattern) {
