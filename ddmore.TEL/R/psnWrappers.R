@@ -133,6 +133,22 @@ SSE.PsN <- function(model, command="sse", samples, seed, sseOptions="", subfolde
   outputObject
 }
 
+#' NCA.PsN
+#' Prepares input for Chayan Acharya’s R package ncappc for non-compartmental analysis.
+#' @param model An object of class \linkS4class{mogObj} or an MDL file. Will be
+#' 		  passed on directly to execute()
+#' @param command A string with the nca command. Default is nca.
+#' @param samples An integer indicating the number of samples to run. Must be at least 20.
+#' @param ncaOptions (Optional) String containing any PsN nca options
+#'   	  except -samples and currently unsupported file options.
+#' @param subfolder (Optional) Specify the name of a subfolder, within the directory
+#'        containing the model file, in which to store the results. Default
+#'        is a timestamped folder with prefix nca_.
+#' @param ...
+#' @return An object of class \linkS4class{StandardOutputObject}
+#' 
+#' @author Gunnar Yngman
+#' @export
 NCA.PsN <- function(model, command="nca", samples, ncaOptions="", subfolder=paste0("nca_",format(Sys.time(), "%Y%b%d%H%M%S")), ...) {
   ncacommand <- paste0(command," --samples=", samples, " ", ncaOptions)
   
