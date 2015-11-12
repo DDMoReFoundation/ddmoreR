@@ -49,7 +49,7 @@
 #' @seealso getPopulationEstimates, getPrecisionPopulationEstimates
 #'
 #' @export
-getPopulationParameters <- function(SOObject, block="all", what="all", keep.only=NULL, ...) {
+getPopulationParameters <- function(SOObject, block="all", what="all", keep.only=NULL, fisServer = DDMORE.getServer(), ...) {
   
   # Parameter deprecation warning
   extraParams = list(...)
@@ -113,7 +113,7 @@ getPopulationParameters <- function(SOObject, block="all", what="all", keep.only
   
   if (block == "structural") {
 
-	structParams <- .deriveStructuralParametersFromAssociatedMDL(SOObject)
+	structParams <- .deriveStructuralParametersFromAssociatedMDL(SOObject, fisServer=fisServer)
     
     # Only return the structural parameters for each type of estimate
     for (df.name in names(estimates.output.list)) {
@@ -129,7 +129,7 @@ getPopulationParameters <- function(SOObject, block="all", what="all", keep.only
 
         } else {
 
-          keep.idx <- sapply(estimates.output.list[[df.name]]["Parameter"], 
+          keep.idx <- sapply(estimates.output.list[[df.name]][["Parameter"]], 
               FUN = function(x) {
 				  x %in% structParams
               })
@@ -142,14 +142,26 @@ getPopulationParameters <- function(SOObject, block="all", what="all", keep.only
   
   if (block == "variability") {
     
-	variabilityParams <- .deriveVariabilityParametersFromAssociatedMDL(SOObject)
+	structuralParams <- .deriveStructuralParametersFromAssociatedMDL(SOObject, fisServer=fisServer)
+	variabilityParams <- .deriveVariabilityParametersFromAssociatedMDL(SOObject, fisServer=fisServer)
 	
     # Only return the variability parameters for each type of estimate
     for (df.name in names(estimates.output.list)) {
 		
 		if (is.vector(estimates.output.list[[df.name]])) {
 			
-			keep.idx <- sapply(names(estimates.output.list[[df.name]]), 
+			# Temporary workaround DDMORE-1533 / SF#320
+			# Treat all parameters in the SO output that are not in the STRUCTURAL block, as VARIABILITY.
+			# This is because correlation parameter (type=CORR in VARIABILITY block) names
+			# don't correspond with the names of the parameters in this bit of the SO.
+			# The parameters in the SO are the STRUCTURAL params plus the VARIABILITY params,
+			# and there are no such naming issues with the STRUCTURAL params, hence we
+			# can apply this workaround to derive the VARIABILITY param names in the SO
+			# rather than taking them from the VARIABILITY block.
+			allVarNames <<- names(estimates.output.list[[df.name]])
+			variabilityParams <- setdiff(allVarNames, structuralParams)
+			
+			keep.idx <- sapply(allVarNames, 
 				FUN = function(x) {
 					x %in% variabilityParams
 				})
@@ -157,8 +169,12 @@ getPopulationParameters <- function(SOObject, block="all", what="all", keep.only
 			estimates.output.list[[df.name]] <- estimates.output.list[[df.name]][keep.idx]
 			
 		} else {
+			
+			# Same workaround as described above is applied here
+			allVarNames <<- estimates.output.list[[df.name]][["Parameter"]]
+			variabilityParams <- setdiff(allVarNames, structuralParams)
     
-			keep.idx <- sapply(estimates.output.list[[df.name]]["Parameter"],
+			keep.idx <- sapply(allVarNames,
 				FUN = function(x) {
 					x %in% variabilityParams
 				})
@@ -201,7 +217,7 @@ getPopulationParameters <- function(SOObject, block="all", what="all", keep.only
 row.merge.cbind <- function(x, y, colNames) {
 
     # TODO: Temporary fix for inconsistency of column names between SO and the spec 
-    colnames(y)[colnames(y)=="parameter"]   <- "Parameter"
+    colnames(y)[colnames(y)=="parameter"] <- "Parameter"
 
     # Input checking for x dataframe 
     if (is.null(x[["Parameter"]])) {

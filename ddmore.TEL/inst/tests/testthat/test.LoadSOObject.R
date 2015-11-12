@@ -15,14 +15,14 @@ testSlotsNotEmpty <- function(S4class, slotnames) {
   
 }
 
-context("Loading in SOObjects from Handcoded PharmMLSO Version 0.1")
+context("Loading in SOObjects from Handcoded PharmMLSO")
 
 test_that("PharmML SO fills expected slots in Estimation", {
 
   # Clear workspace. 
   rm(list=ls())
   
-  data.path = system.file("tests/data/PharmMLSO/HandCoded/warfarin_PK_ODE_SO_FULL-v0_1.xml",  
+  data.path = system.file("tests/data/PharmMLSO/HandCoded/warfarin_PK_ODE_SO_FULL-v0_2.SO.xml",  
   		package = "ddmore")
         
   # Load in SO
@@ -231,7 +231,7 @@ test_that("PharmML SO returns expected slots when running a simulation task", {
 
 
 #-------------------------------------------------------------------------------------------------
-context("Loading an empty, i.e. no SOBlocks, PharmML SO Version 0.1. Checking an Error is raised")
+context("Loading an empty, i.e. no SOBlocks, PharmML SO. Checking an Error is raised")
 #-------------------------------------------------------------------------------------------------
 
 test_that("Error is raised on passing an empty PharmML SO.", {

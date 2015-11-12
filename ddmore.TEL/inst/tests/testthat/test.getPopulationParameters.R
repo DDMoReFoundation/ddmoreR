@@ -6,7 +6,7 @@ context("Test getPopulationParameters from Handcoded PharmMLSO Version 0.2")
 
 test_that("Test getPopulationParameters returns a list of dataframes, one per estimate type.", {
   
-  data.path = system.file("tests//data//PharmMLSO/HandCoded//warfarin_PK_ODE_SO_FULL-v0_2.xml",  
+  data.path = system.file("tests//data//PharmMLSO/HandCoded//warfarin_PK_ODE_SO_FULL-v0_2.SO.xml",  
                           package = "ddmore")
   
   # Load in SO
@@ -31,7 +31,7 @@ test_that("Test getPopulationParameters returns a list of dataframes, one per es
 
 test_that("Test getPopulationParameters returns correct statistics by default for MLE, Bayesian and Bootstrap estimates.", {
   
-  data.path = system.file("tests//data//PharmMLSO/HandCoded//warfarin_PK_ODE_SO_FULL-v0_2.xml",  
+  data.path = system.file("tests//data//PharmMLSO/HandCoded//warfarin_PK_ODE_SO_FULL-v0_2.SO.xml",  
                           package = "ddmore")
   
   # Load in SO
@@ -93,7 +93,7 @@ test_that("Test getPopulationParameters returns correct statistics by default fo
 
 test_that("Test getPopulationParameters returns correct statistics using 'estimates' option for MLE, Bayesian and Bootstrap estimates.", {
   
-  data.path = system.file("tests//data//PharmMLSO/HandCoded//warfarin_PK_ODE_SO_FULL-v0_2.xml",  
+  data.path = system.file("tests//data//PharmMLSO/HandCoded//warfarin_PK_ODE_SO_FULL-v0_2.SO.xml",  
                           package = "ddmore")
   
   # Load in SO
@@ -138,7 +138,7 @@ test_that("Test getPopulationParameters returns correct statistics using 'estima
 
 test_that("Test getPopulationParameters returns correct statistics using 'precisions' option for MLE, Bayesian and Bootstrap estimates.", {
   
-  data.path = system.file("tests//data//PharmMLSO/HandCoded//warfarin_PK_ODE_SO_FULL-v0_2.xml",  
+  data.path = system.file("tests//data//PharmMLSO/HandCoded//warfarin_PK_ODE_SO_FULL-v0_2.SO.xml",  
                           package = "ddmore")
   
   # Load in SO
@@ -191,7 +191,7 @@ test_that("Test getPopulationParameters returns correct statistics using 'precis
 
 test_that("Test getPopulationParameters returns correct statistics using 'intervals' option for MLE, Bayesian and Bootstrap estimates.", {
   
-  data.path = system.file("tests//data//PharmMLSO/HandCoded//warfarin_PK_ODE_SO_FULL-v0_2.xml",  
+  data.path = system.file("tests//data//PharmMLSO/HandCoded//warfarin_PK_ODE_SO_FULL-v0_2.SO.xml",  
                           package = "ddmore")
   
   # Load in SO
