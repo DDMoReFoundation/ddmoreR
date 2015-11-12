@@ -81,9 +81,11 @@ LoadSOObjects <- function(file) {
 		stop("PharmML parsing aborted. There does not appear to be any SOBlock sections in the specified file.")
 	}
 	if (length(soBlocks) == 1) {
-		stop("LoadSOObjects() is used for the case where there is known to multiple SOBlock in the SO XML file;\n", 
-			" use the singlular version of the function, LoadSOObject(), instead if there is only a single SOBlocks in the file.")
-	} 
+		# Deliberately don't error because if SSE execution (which would normally generate multiple SO blocks) failed
+		# with an error, there might only be one SOBlock, containing TaskInformation section with the error messages
+		warning("LoadSOObjects() is used for the case where there is known to be multiple SOBlock in the SO XML file;\n", 
+			"  use the singular version of the function, LoadSOObject(), instead if there is only a single SOBlock in the file.")
+	}
 
 	# Set working directory to that specified in file
 	# (I (MSW) don't like this, can't we amend the xmlParsers.R to resolve the associated data files
