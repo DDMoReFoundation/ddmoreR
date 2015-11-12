@@ -176,7 +176,7 @@ sim.PsN <- function(model, samples, dv="DV", idv="TIME", columns="", allColumns=
   #TODO loading SO can take a long time, boolean option importSO to execute() would be nice
   #TODO If collect is set to false we do not get result files back, and no SO object. Cannot handle that here
 
-  outputObject <- execute(model, target="PsNgeneric", addargs=ncacommand, subfolder=subfolder, importMultipleSO=false, extraInputFiles=extraFile)
+  outputObject <- execute(model, target="PsNgeneric", addargs=ncacommand, subfolder=subfolder, importMultipleSO=FALSE, extraInputFiles=extraFile)
 
   outputObject
 }
