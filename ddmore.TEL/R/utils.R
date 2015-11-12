@@ -1,8 +1,8 @@
 ################################################################################
 # Package-local variables
-ddmore.tel.utils <- new.env()
+ddmore.utils <- new.env()
 # is debug log level enabled
-ddmore.tel.utils$debug <- FALSE
+ddmore.utils$debug <- FALSE
 
 #' Utility function to test whether a slot in the SO is empty or not.
 #'
@@ -387,14 +387,14 @@ parent.folder <- function(f) {
 
 #' logs debug message to output stream
 log.debug <- function(message) {
-    if(ddmore.tel.utils$debug) {
+    if(ddmore.utils$debug) {
         message(sprintf("DEBUG: %s", message))
     }
 }
 
 #' sets debug mode
 .setDebugMode <- function(debug = FALSE) {
-    ddmore.tel.utils$debug <- debug
+    ddmore.utils$debug <- debug
 }
 
 #'
