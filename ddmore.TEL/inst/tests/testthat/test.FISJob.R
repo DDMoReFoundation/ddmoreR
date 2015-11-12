@@ -1,4 +1,4 @@
-library("DDMoRe.TEL")
+library("ddmore")
 library("XML")
 require("methods")
 require("testthat")
@@ -32,7 +32,7 @@ test_that("FISJob can be converted to JSON", {
 
 test_that("FISJob can be read from JSON", {
     
-    instance <- createFISJobFromNamedList(fromJSON(file=system.file("tests/data/json/FISJob.json", package = "DDMoRe.TEL")))
+    instance <- createFISJobFromNamedList(fromJSON(file=system.file("tests/data/json/FISJob.json", package = "ddmore")))
     
     expect_true(is.FISJob(instance), 
                 info = "Instance was not of type FISServer"
@@ -54,7 +54,7 @@ test_that("FISJob can be read from JSON", {
 
 test_that("FISJob with extra input files can be read from JSON", {
     
-    instance <- createFISJobFromNamedList(fromJSON(file=system.file("tests/data/json/FISJobWithExtraInputFiles.json", package = "DDMoRe.TEL")))
+    instance <- createFISJobFromNamedList(fromJSON(file=system.file("tests/data/json/FISJobWithExtraInputFiles.json", package = "ddmore")))
     
     expect_true(is.FISJob(instance), 
                 info = "Instance was not of type FISServer"

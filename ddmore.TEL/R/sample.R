@@ -24,7 +24,7 @@
 #' @param prob a vector of probabilities for obtaining the elements of the 
 #'  observations being sampled. Must sum to 1.
 #' @param by a stratification variable defined within object. Default is to sample by ID.
-#' @param... additional arguments to be passed to the TEL read method
+#' @param... additional arguments to be passed to the DDMORE readDataObj method
 #'
 #' @seealso R base function \code{sample}
 #' @return A copy of the dataObj with the sampled data set substituted for the original
@@ -39,7 +39,7 @@
 #' ## Retain the proportion of male and female in the sampled data.
 #' newWarfData <- sample(warfData, by="SEX")
 #'
-#' @include telClasses.R
+#' @include Classes.R
 #' @export
 #' @docType methods
 #' @rdname sample-methods

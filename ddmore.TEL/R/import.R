@@ -13,7 +13,7 @@
 #' 
 #' @return \code{FISJob} instance.
 #' 
-importJobResultFiles <- function(fisJob, targetDirectory = NULL, fisServer = TEL.getServer()) {
+importJobResultFiles <- function(fisJob, targetDirectory = NULL, fisServer = DDMORE.getServer()) {
     .precondition.checkArgument(is.FISJob(fisJob), "fisJob", "Needs to be of type FISJob.")
     .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "Needs to be of type FISServer.")
     .precondition.checkArgument(!is.null(targetDirectory), "targetDirectory", "Must be set and can't be NULL.")

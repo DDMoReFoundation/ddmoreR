@@ -1,6 +1,6 @@
 #' Tests for MDL file with as many blocks and sub-blocks populated as possible, and with a variety of types/formats of variables and attributes
 
-library("DDMoRe.TEL")
+library("ddmore")
 require("methods")
 
 context("Loading in MDL into R objects, for fully populated MDL file")
@@ -8,7 +8,7 @@ context("Loading in MDL into R objects, for fully populated MDL file")
 # Clear workspace 
 rm(list=ls())
 
-jsonFile <- system.file("tests/data/json/FullyPopulated.json", package = "DDMoRe.TEL")
+jsonFile <- system.file("tests/data/json/FullyPopulated.json", package = "ddmore")
 
 test_that("Checking the existence of the test data file containing the JSON-format text representing the MDL", {
 	expect_true(file.exists(jsonFile), info="Checking that test data file exists")
@@ -23,7 +23,7 @@ test_that("Checking that JSON-format text representing the MDL could be parsed",
 
 test_that("Expected dataObj to have been created from the JSON-format text representing the MDL", {
 
-	myDataObj <<- DDMoRe.TEL:::.extractTypeObjects(jsonAsNestedLists, "dataObj")[[1]]
+	myDataObj <<- ddmore:::.extractTypeObjects(jsonAsNestedLists, "dataObj")[[1]]
 	
 	expect_true(isS4(myDataObj), info="dataObj should be an S4 class")
 	
@@ -36,7 +36,7 @@ test_that("Expected dataObj to have been created from the JSON-format text repre
 
 test_that("Expected parObj to have been created from the JSON-format text representing the MDL", {
 
-	myParObj <<- DDMoRe.TEL:::.extractTypeObjects(jsonAsNestedLists, "parObj")[[1]]
+	myParObj <<- ddmore:::.extractTypeObjects(jsonAsNestedLists, "parObj")[[1]]
 	
 	expect_true(isS4(myParObj), info="parObj should be an S4 class")
 	
@@ -48,7 +48,7 @@ test_that("Expected parObj to have been created from the JSON-format text repres
 
 test_that("Expected mdlObj to have been created from the JSON-format text representing the MDL", {
 
-	myMdlObj <<- DDMoRe.TEL:::.extractTypeObjects(jsonAsNestedLists, "mdlObj")[[1]]
+	myMdlObj <<- ddmore:::.extractTypeObjects(jsonAsNestedLists, "mdlObj")[[1]]
 	
 	expect_true(isS4(myMdlObj), info="mdlObj should be an S4 class")
 	
@@ -73,7 +73,7 @@ test_that("Expected mdlObj to have been created from the JSON-format text repres
 
 test_that("Expected taskObj to have been created from the JSON-format text representing the MDL", {
 
-	myTaskObj <<- DDMoRe.TEL:::.extractTypeObjects(jsonAsNestedLists, "taskObj")[[1]]
+	myTaskObj <<- ddmore:::.extractTypeObjects(jsonAsNestedLists, "taskObj")[[1]]
 	
 	expect_true(isS4(myTaskObj), info="taskObj should be an S4 class")
 

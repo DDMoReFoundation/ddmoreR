@@ -40,7 +40,7 @@
 #' ignore <- createIndex(warfData,criteria=warfTaskObject@DATA$IGNORE)
 #' newWarfData <- subset(warfData, by = ignore)
 #'
-#' @include telClasses.R
+#' @include Classes.R
 #' @export
 #' @docType methods
 #' @rdname subset-methods

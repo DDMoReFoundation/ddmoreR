@@ -1,12 +1,12 @@
-Package: DDMoRe.TEL
+Package: ddmore
 Type: Package
-Title: Brings in implementation of TEL
-Version: 0.0.3
+Title: The DDMORE R Package
+Version: 0.0.4
 Build-Number: 1
 Date: 2014-mm-dd
 Author: Mango Solutions
 Maintainer: Support at Mango Solutions <support@mango-solutions.com>
-Description: Initial implementation of the TEL in R. It integrates with FIS
+Description: Initial implementation of the DDMORE R package. It integrates with FIS
     using REST API.
 License: TBD
 Depends:
@@ -22,10 +22,12 @@ Collate:
     'FISJob.R'
     'FISServer.R'
     'xmlParsers.R'
+    'utils.R'
+    'Classes.R'
+    'readDataObj.R'
     'StandardOutputSubClasses.R'
     'StandardOutputObject.R'
     'LoadSOObject.R'
-    'telClasses.R'
     'conversion.R'
     'createMogObj.R'
     'server.R'
@@ -40,10 +42,8 @@ Collate:
     'getParameterObjects.R'
     'getPopulationParameters.R'
     'getTaskPropertiesObjects.R'
-    'utils.R'
     'plot.R'
     'psnWrappers.R'
-    'readDataObj.R'
     'sample.R'
     'startingValues.r'
     'subset.R'

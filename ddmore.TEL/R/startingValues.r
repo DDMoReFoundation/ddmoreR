@@ -32,7 +32,7 @@
 #' # We can use the function either on the arObj, or a mogObj
 #' startingValues(myMog@parObj, ml)
 #' startingValues(myMog, ml)
-#' @include telClasses.R
+#' @include Classes.R
 #' @export
 #' @docType methods
 #' @rdname startingValues-methods

@@ -6,15 +6,15 @@ tmp <- tempdir()
 setwd(tmp)
 
 # Copy csv file to temp directory:
-csv <- system.file("data", "training", "tumour_exposure.csv", package="DDMoRe.TEL")
+csv <- system.file("data", "training", "tumour_exposure.csv", package="ddmore")
 logi <- file.copy(csv, ".")
 
 # Stop if not copied successfully:
 stopifnot(logi)
 
 # Import data
-source(system.file("data", "training", "mogObjTumourSize.r", package="DDMoRe.TEL"))
-stopifnot(DDMoRe.TEL:::is.mogObj(myMog))
+source(system.file("data", "training", "mogObjTumourSize.r", package="ddmore"))
+stopifnot(ddmore:::is.mogObj(myMog))
 
 set.seed(123)
 

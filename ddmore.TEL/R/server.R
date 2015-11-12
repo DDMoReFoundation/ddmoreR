@@ -2,65 +2,65 @@
 # This will be replaced in the future by Server class and its instance, which will hold 
 # all FIS integration properties (ports, urls, polling settings, etc.) and this instance will be passed
 # to execute (and other) functions
-TEL.server.env <- new.env()
+DDMORE.server.env <- new.env()
 
 ################################################################################
-#' TEL.getServer
+#' DDMORE.getServer
 #'
 #' Gets a handle on FIS Server instance.
 #' 
-#' @seealso \code{TEL.setServer}
+#' @seealso \code{DDMORE.setServer}
 #' @seealso \code{createFISServer}
 #' 
 #' @return FISServer instance
 #' @export
-TEL.getServer <- function() {
-    if(!"fisServer" %in% ls(TEL.server.env)) {
+DDMORE.getServer <- function() {
+    if(!"fisServer" %in% ls(DDMORE.server.env)) {
         stop("FIS Server instance not configured")
     }
-    return(TEL.server.env$fisServer)
+    return(DDMORE.server.env$fisServer)
 }
 ################################################################################
-#' TEL.setServer
+#' DDMORE.setServer
 #'
 #' Sets a handle to default FIS Server instance
 #' 
-#' @seealso \code{TEL.getServer}
+#' @seealso \code{DDMORE.getServer}
 #' @seealso \code{createFISServer}
 #' 
 #' @return FISServer instance
 #' @export
-TEL.setServer <- function(fisServer) {
+DDMORE.setServer <- function(fisServer) {
     .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FIS Server instance is required.")
-    if("fisServer" %in% ls(TEL.server.env)) {
-        warning(sprintf("One FIS Server instance is already configured pointing to %s. ", TEL.server.env$fisServer@url))
+    if("fisServer" %in% ls(DDMORE.server.env)) {
+        warning(sprintf("One FIS Server instance is already configured pointing to %s. ", DDMORE.server.env$fisServer@url))
     }
-    assign("fisServer", fisServer, envir = TEL.server.env)
+    assign("fisServer", fisServer, envir = DDMORE.server.env)
 }
 
 ################################################################################
-#' TEL.startServer
+#' DDMORE.startServer
 #'
-#' Starts the TEL server, by launching the startup.bat script within the root
+#' Starts the DDMORE server, by launching the startup.bat script within the root
 #' of the SEE.
 #' 
-#' This is automatically called as part of launching the TEL.R console within
+#' This is automatically called as part of launching the R console within
 #' the MDL IDE within SEE; if the R console is not running within SEE in that
 #' setup then this function is a no-op.
 #' 
 #' @export
-TEL.startServer <- 
+DDMORE.startServer <- 
     function(fisServer) {
     .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FIS Server instance is required.")
     message("Starting servers [ ", appendLF=FALSE)
-    if (!TEL.serverRunning(fisServer)) {
+    if (!DDMORE.serverRunning(fisServer)) {
       startupScriptDir <- dirname(fisServer@startupScript)
       startupScriptName <- basename(fisServer@startupScript)
       startupScriptStdErr <- file.path(startupScriptDir, paste0(".",startupScriptName, ".stderr"))
       startupScriptStdOut <- file.path(startupScriptDir, paste0(".",startupScriptName, ".stdout"))
       system2(fisServer@startupScript,'/B', wait=F, stdout=startupScriptStdOut, stderr=startupScriptStdErr)  # /B argument suppresses the display of the command windows
       count = 0
-      while ( count < fisServer@startupPollingMax && !TEL.serverRunning(fisServer) ) {
+      while ( count < fisServer@startupPollingMax && !DDMORE.serverRunning(fisServer) ) {
         Sys.sleep(fisServer@startupPollingDelay)
         count <- count+1
         message(".", appendLF=FALSE)
@@ -68,8 +68,8 @@ TEL.startServer <-
       }
       message(" ]", appendLF=FALSE)
       message() # Append a newline
-      if (!TEL.serverRunning(fisServer)) {
-      	healthStatuses <- TEL.serverHealthcheck(fisServer)
+      if (!DDMORE.serverRunning(fisServer)) {
+      	healthStatuses <- DDMORE.serverHealthcheck(fisServer)
         stop(paste("Failure!", healthStatuses, sep="\n"))
         stop(paste("Server was unable to start. Refer to", startupScriptStdErr, " and ", startupScriptStdOut, "for details."))
       }
@@ -82,10 +82,10 @@ TEL.startServer <-
   }
 
 ################################################################################
-#' TEL.serverRunning
+#' DDMORE.serverRunning
 #'
 #' Checks if the FIS server, and its dependent servers, are running.
-#' As a side effect, populates a TEL.serverHealthDetails global object so that the
+#' As a side effect, populates a DDMORE.serverHealthDetails global object so that the
 #' user can access the health statuses of the individual server components.
 #'
 #' @param fisServer FISServer instance.
@@ -94,28 +94,28 @@ TEL.startServer <-
 #' 
 #' @export
 #' 
-TEL.serverRunning <- 
+DDMORE.serverRunning <- 
   function(fisServer) {
 
 	healthStatuses <- health(fisServer)
 	
 	# Make the server health details available to the user
-	TEL.serverHealthDetails <<- healthStatuses
+	DDMORE.serverHealthDetails <<- healthStatuses
 	
 	(healthStatuses[[1]] == 'UP') && # Status of FIS itself
 		all(lapply(healthStatuses[-1], function(srvStatus) { srvStatus$status }) == 'UP')
   }
   
 ################################################################################
-#' TEL.stopServer
+#' DDMORE.stopServer
 #'
-#' Stops the TEL server.
+#' Stops the DDMORE server.
 #' 
 #' @param fisServer FISServer instance.
 #' @param dontWait (Internal usage only) Defaults to FALSE; only the R console
 #' 				   termination should call this with TRUE
 #'
-TEL.stopServer <-
+DDMORE.stopServer <-
   function(fisServer, dontWait = FALSE) {
     message("Stopping server...")
 	if (shutdown(fisServer)) {
@@ -137,50 +137,50 @@ TEL.stopServer <-
 #' Override the default R quit function to try to stop the server before
 #' quitting normally.
 #' 
-#' This is automatically called when the TEL.R console is terminated.
+#' This is automatically called when the R console is terminated.
 #' 
 #' @param fisServer FISServer instance.
 #' 
 #' @export
 #'
-q <- function(fisServer=TEL.getServer()) {
-	TEL.safeStop(fisServer, dontWait=TRUE);
+q <- function(fisServer=DDMORE.getServer()) {
+	DDMORE.safeStop(fisServer, dontWait=TRUE);
 	base:::q()
 }
 
 ################################################################################
-#' TEL.safeStop
+#' DDMORE.safeStop
 #'
-#' Checks that the TEL server is running and if so, stops it.
+#' Checks that the DDMORE server is running and if so, stops it.
 #' 
 #' @param fisServer FISServer instance.
 #' @param dontWait (Internal usage only) Defaults to FALSE; only the R console
 #' 				   termination should call this with TRUE
 #'
-TEL.safeStop <-
+DDMORE.safeStop <-
   function(fisServer, dontWait = FALSE) {
-    if (TEL.serverRunning(fisServer)) {
-      TEL.stopServer(fisServer, dontWait)
+    if (DDMORE.serverRunning(fisServer)) {
+      DDMORE.stopServer(fisServer, dontWait)
     }
   }
 
 ################################################################################
-#' TEL.checkConfiguration
+#' DDMORE.checkConfiguration
 #'
-#' Checks if this DDMoRe.TEL package is actually loaded (the R scripts may have
+#' Checks if this ddmore package is actually loaded (the R scripts may have
 #' been \code{source}d instead). If so, then determine the path to the package
 #' and navigate up the directory tree from this location to obtain the SEE home
-#' directory, returning this directory. Therefore this assumes that the TEL.R
+#' directory, returning this directory. Therefore this assumes that the R
 #' console has been launched from within the MDL IDE within SEE; otherwise
 #' the function will raise an error.
 #'
-TEL.checkConfiguration <-
+DDMORE.checkConfiguration <-
   function() {
 
-	if ("package:DDMoRe.TEL" %in% search()) {
+	if ("package:ddmore" %in% search()) {
 		# The package is loaded, proceed
 
-    	packagePath <- path.package("DDMoRe.TEL")
+    	packagePath <- path.package("ddmore")
     
     	see.home <- file_path_as_absolute(file.path(packagePath, '..', '..', '..', '..'))
     
@@ -195,18 +195,18 @@ TEL.checkConfiguration <-
         	errMsg <- paste(errMsg, 'Derived MIF directory ', mif.home, ' does not exist.\n', sep='')
     	}
     	if (errMsg != "") {
-        	stop(paste(errMsg, 'This is probably because you are not running the TEL console from within an SEE environment.\nThe FIS and MIF servers must be started manually.', sep=""))
+        	stop(paste(errMsg, 'This is probably because you are not running the DDMORE R console from within an SEE environment.\nThe FIS and MIF servers must be started manually.', sep=""))
     	}
     
     	see.home # Return value
 		
 	} else {
-		stop("The DDMoRe.TEL package is not loaded. The FIS and MIF servers must be started manually.")
+		stop("The ddmore package is not loaded. The FIS and MIF servers must be started manually.")
 	}
     
   }
 ################################################################################
-#' TEL.submitJob
+#' DDMORE.submitJob
 #' 
 #' Submits a given job to FIS. Wrapper for \code{submitJob(FISServer)} method.
 #' 
@@ -216,14 +216,14 @@ TEL.checkConfiguration <-
 #' @return submitted FISJob
 #' @export
 #'
-TEL.submitJob <- function(fisJob, fisServer = TEL.getServer()) {
+DDMORE.submitJob <- function(fisJob, fisServer = DDMORE.getServer()) {
     .precondition.checkArgument(is.FISJob(fisJob), "fisJob", "FISJob instance required.")
     .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FISServer instance required.")
     submitJob(fisServer, fisJob)
 }
 
 ################################################################################
-#' TEL.getJobs
+#' DDMORE.getJobs
 #' 
 #' Get list of jobs being executed by FIS. Wrapper for \code{getJobs(FISServer)} method.
 #' 
@@ -232,13 +232,13 @@ TEL.submitJob <- function(fisJob, fisServer = TEL.getServer()) {
 #' @return list of FISJob object
 #' @export
 #'
-TEL.getJobs <- function(fisServer = TEL.getServer()) {
+DDMORE.getJobs <- function(fisServer = DDMORE.getServer()) {
     .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "Server instance required.")
     getJobs(fisServer)
 }
 
 ################################################################################
-#' TEL.getJob
+#' DDMORE.getJob
 #' 
 #' Get state of the job with a given Id. Wrapper for \code{getJob(FISServer, jobId)} method.
 #' 
@@ -248,14 +248,14 @@ TEL.getJobs <- function(fisServer = TEL.getServer()) {
 #' @return FISJob object
 #' @export
 #'
-TEL.getJob <- function(jobId = NULL, fisServer = TEL.getServer()) {
+DDMORE.getJob <- function(jobId = NULL, fisServer = DDMORE.getServer()) {
     .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FISServer instance required.")
     .precondition.checkArgument(!is.null(jobId), "jobId", "Job id must be specified.")
     getJob(fisServer, jobId)
 }
 
 ################################################################################
-#' TEL.cancelJob
+#' DDMORE.cancelJob
 #' 
 #' Cancels a given job. Wrapper for \code{cancelJob(FISServer, jobId)} method.
 #' 
@@ -265,7 +265,7 @@ TEL.getJob <- function(jobId = NULL, fisServer = TEL.getServer()) {
 #' @return FISJob object
 #' @export
 #'
-TEL.cancelJob <- function(job = NULL, fisServer = TEL.getServer()) {
+DDMORE.cancelJob <- function(job = NULL, fisServer = DDMORE.getServer()) {
     .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FISServer instance required.")
     .precondition.checkArgument(is.FISJob(job), "job", "FISJob instance required.")
     cancelJob(fisServer, job)
@@ -273,7 +273,7 @@ TEL.cancelJob <- function(job = NULL, fisServer = TEL.getServer()) {
 
 
 ################################################################################
-#' TEL.printJobs
+#' DDMORE.printJobs
 #' 
 #' Print jobs with a given statuses. 
 #' 
@@ -283,7 +283,7 @@ TEL.cancelJob <- function(job = NULL, fisServer = TEL.getServer()) {
 #' @return data.frame with jobs data
 #' @export
 #'
-TEL.printJobs <- function(fisServer = TEL.getServer(), statuses = c('NEW', 'RUNNING', 'CANCELLING', 'FAILED', 'COMPLETED', 'CANCELLED')) {
+DDMORE.printJobs <- function(fisServer = DDMORE.getServer(), statuses = c('NEW', 'RUNNING', 'CANCELLING', 'FAILED', 'COMPLETED', 'CANCELLED')) {
     .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "Server instance required.")
     .precondition.checkArgument(!is.null(statuses), "statuses", "Can't be null.")
     jobs <- getJobs(fisServer)
