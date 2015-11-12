@@ -42,20 +42,11 @@ LoadSOObject <- function(file) {
 	SOObject@.pathToSourceXML <- file
 
 	# Print out any errors in the SO Object to the R console to make it obvious if execution failed
-	if (length(SOObject@TaskInformation$Messages$Errors) > 0) {
-		message("\nThe following ERRORs were raised during the job execution:", file=stderr())
-		for (e in (SOObject@TaskInformation$Messages$Errors)) { message(paste0(" ", e$Name, ": ", str_trim(e$Content)), file=stderr()) }
-	}
-	if (length(SOObject@TaskInformation$Messages$Warnings) > 0) {
-		message("\nThe following WARNINGs were raised during the job execution:", file=stderr())
-		for (e in (SOObject@TaskInformation$Messages$Warnings)) { message(paste0(" ", e$Name, ": ", str_trim(e$Content)), file=stderr()) }
-	}
-	# Also print out any information messages
-	if (length(SOObject@TaskInformation$Messages$Info) > 0) {
-		message("\nThe following MESSAGEs were raised during the job execution:", file=stderr())
-		for (e in (SOObject@TaskInformation$Messages$Info)) { message(paste0(" ", e$Name, ": ", str_trim(e$Content)), file=stderr()) }
-	}
-	message("") # Extra line break
+	.printSOMessages(
+		SOObject@TaskInformation$Messages$Errors,
+		SOObject@TaskInformation$Messages$Warnings,
+		SOObject@TaskInformation$Messages$Info
+	)
 	
 	# Reset Working directory 
 	setwd(old.wd)
@@ -115,6 +106,13 @@ LoadSOObjects <- function(file) {
 		SOObject@.pathToSourceXML <- file
 		SOObject
 	})
+
+	# Print out any errors in the SO Object to the R console to make it obvious if execution failed
+	.printSOMessages(
+		.removeNullEntries(sapply(SOObjectList, function(so) { so@TaskInformation$Messages$Errors })),
+		.removeNullEntries(sapply(SOObjectList, function(so) { so@TaskInformation$Messages$Warnings })),
+		.removeNullEntries(sapply(SOObjectList, function(so) { so@TaskInformation$Messages$Info }))
+	)
 
 	# Reset Working directory
 	setwd(old.wd)
@@ -288,4 +286,23 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 				paste(messageList$parsed, collapse="\n      "), sep="\n      "))
 
 	SOObject
+}
+
+.printSOMessages <- function(soErrorMsgs, soWarningMsgs, soInfoMsgs) {
+	
+	if (!is.empty(soErrorMsgs)) {
+		message("\nThe following ERRORs were raised during the job execution:", file=stderr())
+		for (e in (soErrorMsgs)) { message(paste0(" ", e$Name, ": ", str_trim(e$Content)), file=stderr()) }
+	}
+	if (!is.empty(soWarningMsgs)) {
+		message("\nThe following WARNINGs were raised during the job execution:", file=stderr())
+		for (e in (soWarningMsgs)) { message(paste0(" ", e$Name, ": ", str_trim(e$Content)), file=stderr()) }
+	}
+	# Also print out any information messages
+	if (!is.empty(soInfoMsgs)) {
+		message("\nThe following MESSAGEs were raised during the job execution:", file=stderr())
+		for (e in (soInfoMsgs)) { message(paste0(" ", e$Name, ": ", str_trim(e$Content)), file=stderr()) }
+	}
+	message("") # Extra line break
+	
 }
