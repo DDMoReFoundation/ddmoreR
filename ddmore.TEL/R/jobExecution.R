@@ -248,7 +248,7 @@ DDMORE.clearUpStep <- function(submission, fisServer=DDMORE.getServer(), ...) {
 }
 
 ################################################################################
-#' DDMORE.importFilesStep.
+#' DDMORE.importFilesStep
 #' 
 #' INTERNAL, this function is to be used by \code{DDMORE.performExecutionWorkflow}.
 #' This is a wrapper function for \code{importJobResultFiles}.
