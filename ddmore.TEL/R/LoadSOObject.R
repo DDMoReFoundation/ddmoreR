@@ -111,9 +111,9 @@ LoadSOObjects <- function(file) {
 
 	# Print out any errors in the SO Object to the R console to make it obvious if execution failed
 	.printSOMessages(
-		.removeNullEntries(sapply(SOObjectList, function(so) { so@TaskInformation$Messages$Errors })),
-		.removeNullEntries(sapply(SOObjectList, function(so) { so@TaskInformation$Messages$Warnings })),
-		.removeNullEntries(sapply(SOObjectList, function(so) { so@TaskInformation$Messages$Info }))
+		unlist(lapply(SOObjectList, function(so) { so@TaskInformation$Messages$Errors }), recursive=FALSE),
+		unlist(lapply(SOObjectList, function(so) { so@TaskInformation$Messages$Warnings }), recursive=FALSE),
+		unlist(lapply(SOObjectList, function(so) { so@TaskInformation$Messages$Info }), recursive=FALSE)
 	)
 
 	# Reset Working directory
