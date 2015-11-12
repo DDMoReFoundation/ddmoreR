@@ -393,7 +393,8 @@ TEL.importSOStep <- function(submission, fisServer, ...) {
 #' 
 #' Checks SO if it represents a successful TPT execution.
 #' 
-#' If there are any errors found in the TaskInformation block of the SO then the submission status is set to SUBMISSION_COMPLETED_WITH_ERRORS.
+#' If there are any errors found in the TaskInformation block of the SO then the
+#' submission status is set to SUBMISSION_COMPLETED_WITH_ERRORS.
 #' Otherwise the status of the submission is not modified.
 #' 
 #' @param submission Named list containing information relating to the
@@ -410,13 +411,19 @@ TEL.importSOStep <- function(submission, fisServer, ...) {
 TEL.verifySOStep <- function(submission, fisServer=TEL.getServer(), ...) {
     .precondition.checkArgument(!is.null(submission),'submission', " Must be set and can't be NULL.")
     .precondition.checkArgument(!("fisJob" %in% names(submission)) || is.FISJob(submission$fisJob), "submission$fisJob", "Must be set and of type FISJob.")
-    .precondition.checkArgument(!("so" %in% names(submission)) || is.SOObject(submission$so), "submission$so", "Must be set and be of type StandardOutputObject.")
-    if(submission$status == SUBMISSION_FAILED) {
+	multipleSO <- ifelse(is.null(submission$parameters$importMultipleSO), FALSE, submission$parameters$importMultipleSO)
+    .precondition.checkArgument(!("so" %in% names(submission)) ||
+			(!multipleSO && is.SOObject(submission$so)) || (multipleSO && is.list(submission$so) && all(sapply(submission$so, is.SOObject))),
+			"submission$so", "Must be set and be of type StandardOutputObject.")
+	
+    if (submission$status == SUBMISSION_FAILED) {
         return(submission)
     }
-    if(length(submission$so@TaskInformation$Messages$Errors)>0) {
-        submission$status <- SUBMISSION_COMPLETED_WITH_ERRORS
-    }
+	
+	if ( (!multipleSO && !is.empty(submission$so@TaskInformation$Messages$Errors)) ||
+		 (multipleSO && !all(sapply(submission$so, function(so) { is.empty(so@TaskInformation$Messages$Errors) }))) ) {
+	        submission$status <- SUBMISSION_COMPLETED_WITH_ERRORS
+	}
     
     submission
 }
