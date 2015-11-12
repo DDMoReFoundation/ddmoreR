@@ -133,26 +133,25 @@ SSE.PsN <- function(model, command="sse", samples, seed, sseOptions="", subfolde
   outputObject
 }
 
-#' simulate.PsN
-#' Perform simulation on a given model (via PsN script nca)
+#' sim.PsN
+#' Simulate with a given model (via the PsN script nca)
 #' @param model An object of class \linkS4class{mogObj} or an MDL file. Will be
 #' 		  passed on directly to execute()
 #' @param samples An integer indicating the number of samples to run. Must be at least 20.
 #' @param dv (Optional) String indicating name of dependent variable. Default is DV.
 #' @param idv (Optional) String indicating name of independent variable. Default is TIME.
 #' @param columns (Optional) String or vector of strings containing extra columns to append. Default is none.
-#' @param allColumns (Optional) Logical dictating if all columns in input should be output. Default is false.
+#' @param allColumns (Optional) Logical dictating if all columns input should be output. Default is false.
 #' @param rawresFile (Optional) String indicating name of file if simulating with uncertainty. Default is none.
 #' @param rawresFile (Optional) Integer indicating lines to skip in rawres file. Default is 1.
 #' @param subfolder (Optional) Specify the name of a subfolder, within the directory
 #'        containing the model file, in which to store the results. Default
 #'        is a timestamped folder with prefix sim_.
-#' @param ...
 #' @return An object of class \linkS4class{StandardOutputObject}
 #' 
 #' @author Gunnar Yngman
 #' @export
-simulate.PsN <- function(model, samples, dv="DV", idv="TIME", columns="", allColumns=FALSE, rawresFile="", rawresOffset=1, subfolder=paste0("sim_",format(Sys.time(), "%Y%b%d%H%M%S")), ...) {
+sim.PsN <- function(model, samples, dv="DV", idv="TIME", columns="", allColumns=FALSE, rawresFile="", rawresOffset=1, subfolder=paste0("sim_",format(Sys.time(), "%Y%b%d%H%M%S"))) {
   # Options for columns to include
   ncaOptions <- ifelse(allColumns, " --include_all_columns", " ")
   if (!any(columns == "")) {
@@ -177,7 +176,7 @@ simulate.PsN <- function(model, samples, dv="DV", idv="TIME", columns="", allCol
   #TODO loading SO can take a long time, boolean option importSO to execute() would be nice
   #TODO If collect is set to false we do not get result files back, and no SO object. Cannot handle that here
 
-  outputObject <- execute(model, target="PsNgeneric", addargs=ncacommand, subfolder=subfolder, importMultipleSO=false, extraInputFiles=extraFile, ...)
+  outputObject <- execute(model, target="PsNgeneric", addargs=ncacommand, subfolder=subfolder, importMultipleSO=false, extraInputFiles=extraFile)
 
   outputObject
 }
