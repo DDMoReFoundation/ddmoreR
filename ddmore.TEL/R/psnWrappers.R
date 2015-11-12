@@ -133,30 +133,52 @@ SSE.PsN <- function(model, command="sse", samples, seed, sseOptions="", subfolde
   outputObject
 }
 
-#' NCA.PsN
-#' Prepares input for Chayan Acharya’s R package ncappc for non-compartmental analysis.
+#' simulate.PsN
+#' Perform simulation on a given model (via PsN script nca)
 #' @param model An object of class \linkS4class{mogObj} or an MDL file. Will be
 #' 		  passed on directly to execute()
-#' @param command A string with the nca command. Default is nca.
 #' @param samples An integer indicating the number of samples to run. Must be at least 20.
-#' @param ncaOptions (Optional) String containing any PsN nca options
-#'   	  except -samples and currently unsupported file options.
+#' @param dv (Optional) String indicating name of dependent variable. Default is DV.
+#' @param idv (Optional) String indicating name of independent variable. Default is TIME.
+#' @param columns (Optional) String or vector of strings containing extra columns to append. Default is none.
+#' @param allColumns (Optional) Logical dictating if all columns in input should be output. Default is false.
+#' @param rawresFile (Optional) String indicating name of file if simulating with uncertainty. Default is none.
+#' @param rawresFile (Optional) Integer indicating lines to skip in rawres file. Default is 1.
 #' @param subfolder (Optional) Specify the name of a subfolder, within the directory
 #'        containing the model file, in which to store the results. Default
-#'        is a timestamped folder with prefix nca_.
+#'        is a timestamped folder with prefix sim_.
 #' @param ...
 #' @return An object of class \linkS4class{StandardOutputObject}
 #' 
 #' @author Gunnar Yngman
 #' @export
-NCA.PsN <- function(model, command="nca", samples, ncaOptions="", subfolder=paste0("nca_",format(Sys.time(), "%Y%b%d%H%M%S")), ...) {
-  ncacommand <- paste0(command," --samples=", samples, " ", ncaOptions)
-  
+simulate.PsN <- function(model, samples, dv="DV", idv="TIME", columns="", allColumns=FALSE, rawresFile="", rawresOffset=1, subfolder=paste0("sim_",format(Sys.time(), "%Y%b%d%H%M%S")), ...) {
+  # Options for columns to include
+  ncaOptions <- ifelse(allColumns, " --include_all_columns", " ")
+  if (!any(columns == "")) {
+    ncaOptions <- paste0(ncaOptions, " --columns=", paste(columns, collapse=","))
+  }
+
+  # Dependent and independent variable options
+  ncaOptions <- paste0(ncaOptions, " --dv=", dv)
+  ncaOptions <- paste0(ncaOptions, " --idv=", idv)
+
+  # Rawres file options
+  extraFile <- NULL
+  if (rawresFile != "") {
+    ncaOptions <- paste0(ncaOptions, " --rawres_input=", rawresFile)
+    ncaOptions <- paste0(ncaOptions, " --offset_rawres=", rawresOffset)
+    extraFile <- rawresFile
+  }
+
+  # Final command including mandatory number of samples
+  ncacommand <- paste0("nca --samples=", samples, ncaOptions)
+
   #TODO loading SO can take a long time, boolean option importSO to execute() would be nice
   #TODO If collect is set to false we do not get result files back, and no SO object. Cannot handle that here
-  
-  outputObject <- execute(model, target="PsNgeneric", addargs=ncacommand, subfolder=subfolder, importMultipleSO=false, ...)
-  
+
+  outputObject <- execute(model, target="PsNgeneric", addargs=ncacommand, subfolder=subfolder, importMultipleSO=false, extraInputFiles=extraFile, ...)
+
   outputObject
 }
 
