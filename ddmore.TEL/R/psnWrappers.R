@@ -139,6 +139,7 @@ SSE.PsN <- function(model, command="sse", samples, seed, sseOptions="", subfolde
 #' 		    passed on directly to execute().
 #' @param samples An integer indicating the number of samples to simulate.
 #'        Must be at least 20.
+#' @param seed A string or numeric with a random seed for the Perl pseudo-random number generator.
 #' @param dv (Optional) String indicating name of dependent variable. Default is DV.
 #' @param idv (Optional) String indicating name of independent variable. Default is TIME.
 #' @param vars (Optional) String or string vector containing extra variables
@@ -162,9 +163,10 @@ SSE.PsN <- function(model, command="sse", samples, seed, sseOptions="", subfolde
 #' 
 #' @author Gunnar Yngman
 #' @export
-sim.PsN <- function(model, samples, dv="DV", idv="TIME", vars="", inputVars=FALSE, rawresFile="", rawresOffset=1, subfolder=paste0("sim_",format(Sys.time(), "%Y%b%d%H%M%S")), ncaOptions="", extraInputFiles="", ...) {
+sim.PsN <- function(model, samples, seed, dv="DV", idv="TIME", vars="", inputVars=FALSE, rawresFile="", rawresOffset=1, subfolder=paste0("sim_",format(Sys.time(), "%Y%b%d%H%M%S")), ncaOptions="", extraInputFiles="", ...) {
   # Simple argument validation
   if (!(is.numeric(samples) && length(samples) == 1 && samples >= 20)) stop("Argument 'samples' is not single numeric and >=20")
+  if (!((is.character(seed) || is.numeric(seed)) && length(seed) == 1)) stop("Argument 'seed' is not single numeric or string")
   if (!(is.character(dv) && length(dv) == 1)) stop("Argument 'dv' is not single string")
   if (!(is.character(idv) && length(idv) == 1)) stop("Argument 'idv' is not single string")
   if (!(is.character(vars) && !(any(vars == "") && length(vars) > 1))) stop("Argument 'vars' is not single string or string vector")
@@ -193,8 +195,8 @@ sim.PsN <- function(model, samples, dv="DV", idv="TIME", vars="", inputVars=FALS
     if(is.null(extraInputFiles)) extraInputFiles <- rawresFile
   }
 
-  # Final command including mandatory number of samples and extra options
-  ncaCommand <- paste0("nca --samples=", samples, ncaCommand, " ", ncaOptions)
+  # Final command including mandatory number of samples, seed and optional extra options
+  ncaCommand <- paste0("nca --samples=", samples, " --seed=", seed, ncaCommand, " ", ncaOptions)
 
   #TODO loading SO can take a long time, boolean option importSO to execute() would be nice
   #TODO If collect is set to false we do not get result files back, and no SO object. Cannot handle that here
