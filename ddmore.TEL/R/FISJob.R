@@ -145,7 +145,7 @@ is.FISJob <- function(obj) {
 ##############################################################
 #' getStdOutFile
 #'
-#' Resolves location of a file containing standard output stream of third-party tool
+#' Resolves location of a file containing standard output stream of third-party tool.
 #'
 #' @usage getStdOutFile(object)
 #'
@@ -165,7 +165,7 @@ setMethod("getStdOutFile", signature = signature("FISJob"),
 ##############################################################
 #' getStdErrFile
 #'
-#' Resolves location of a file containing standard error stream of third-party tool
+#' Resolves location of a file containing standard error stream of third-party tool.
 #'
 #' @usage getStdErrFile(object)
 #'
@@ -181,11 +181,31 @@ setMethod("getStdErrFile", signature = signature("FISJob"),
           function(fisJob) {
               return(file.path(fisJob@workingDirectory, sprintf("%s/stderr.txt",FIS_JOB_METADATA_DIR)))
           })
+  
+  ##############################################################
+#' getConvReportLogFile
+#'
+#' Resolves location of MDL->PharmML conversion report log file.
+#'
+#' @usage getConvReportLogFile(object)
+#'
+#' @return path to the conversionReport.log file
+setGeneric(
+	name = "getConvReportLogFile",
+	def = function(fisJob)
+	{
+		standardGeneric("getConvReportLogFile")
+	}
+)
+setMethod("getConvReportLogFile", signature = signature("FISJob"),
+		  function(fisJob) {
+			  return(file.path(fisJob@workingDirectory, sprintf("%s/conversionReport.log",FIS_JOB_METADATA_DIR)))
+		  })
 
 ##############################################################
 #' .fisJobToJSON
 #'
-#' Converts FISJob objects to JSON representation
+#' Converts FISJob objects to JSON representation.
 #'
 #' @usage .fisJobToJSON(object)
 #'
