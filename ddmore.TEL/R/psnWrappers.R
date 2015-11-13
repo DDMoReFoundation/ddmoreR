@@ -134,42 +134,51 @@ SSE.PsN <- function(model, command="sse", samples, seed, sseOptions="", subfolde
 }
 
 #' sim.PsN
-#' Simulate with a given model (via the PsN script nca)
+#' Simulate a number of samples with a given model (internally using the PsN script nca)
 #' @param model An object of class \linkS4class{mogObj} or an MDL file. Will be
-#' 		  passed on directly to execute()
-#' @param samples An integer indicating the number of samples to run. Must be at least 20.
+#' 		    passed on directly to execute().
+#' @param samples An integer indicating the number of samples to simulate.
+#'        Must be at least 20.
 #' @param dv (Optional) String indicating name of dependent variable. Default is DV.
 #' @param idv (Optional) String indicating name of independent variable. Default is TIME.
-#' @param columns (Optional) String or string vector containing extra columns to append output. Default is none.
-#' @param inputColumns (Optional) Logical dictating if all columns input in model also should append output. Default is false.
-#' @param rawresFile (Optional) String indicating name of file if simulating with uncertainty. Default is none.
-#' @param rawresOffset (Optional) Integer indicating lines to skip in rawres file (if used). Default is 1.
+#' @param vars (Optional) String or string vector containing extra variables
+#'        to append simulation output. Can be combined with inputVars. Default is none.
+#' @param inputVars (Optional) Logical dictating if all variables input in model
+#'        also should append simulation output. Default is false (only id, idv and dv).
+#' @param rawresFile (Optional) String indicating path of PsN raw results file,
+#'        e.g. from an earlier bootstrap execution, if simulating with uncertainty
+#'        (see PsN documentation). Default is none.
+#' @param rawresOffset (Optional) Integer indicating lines to skip (excluding header)
+#'        in raw results file (if used). Default is 1.
 #' @param subfolder (Optional) Specify the name of a subfolder, within the directory
 #'        containing the model file, in which to store the results. Default
 #'        is a timestamped folder with prefix sim_.
-#' @param ncaOptions (Optional) String containing extra PsN nca options. Default is none.
-#' @param extraInputFiles (Optional) String or string vector containing extra input files. Default is none or rawresFile (if used).
+#' @param ncaOptions (Optional) String containing extra PsN nca options to append
+#'        (see PsN nca documentation). Default is none.
+#' @param extraInputFiles (Optional) String or string vector of paths, either
+#'        absolute or relative (to the model file), to any additional files to be
+#'        included in the execution. Default is none or, if used, value of rawresFile.
 #' @return An object of class \linkS4class{StandardOutputObject}
 #' 
 #' @author Gunnar Yngman
 #' @export
-sim.PsN <- function(model, samples, dv="DV", idv="TIME", columns="", inputColumns=FALSE, rawresFile="", rawresOffset=1, subfolder=paste0("sim_",format(Sys.time(), "%Y%b%d%H%M%S")), ncaOptions="", extraInputFiles="", ...) {
+sim.PsN <- function(model, samples, dv="DV", idv="TIME", vars="", inputVars=FALSE, rawresFile="", rawresOffset=1, subfolder=paste0("sim_",format(Sys.time(), "%Y%b%d%H%M%S")), ncaOptions="", extraInputFiles="", ...) {
   # Simple argument validation
   if (!(is.numeric(samples) && length(samples) == 1 && samples >= 20)) stop("Argument 'samples' is not single numeric and >=20")
   if (!(is.character(dv) && length(dv) == 1)) stop("Argument 'dv' is not single string")
   if (!(is.character(idv) && length(idv) == 1)) stop("Argument 'idv' is not single string")
-  if (!(is.character(columns) && !(any(columns == "") && length(columns) > 1))) stop("Argument 'columns' is not single string or string vector")
-  if (!(is.logical(inputColumns) && length(inputColumns) == 1)) stop("Argument 'inputColumns' is not single logical")
+  if (!(is.character(vars) && !(any(vars == "") && length(vars) > 1))) stop("Argument 'vars' is not single string or string vector")
+  if (!(is.logical(inputVars) && length(inputVars) == 1)) stop("Argument 'inputVars' is not single logical")
   if (!(is.character(rawresFile) && length(rawresFile) == 1)) stop("Argument 'rawresFile' is not single string")
   if (!(is.numeric(rawresOffset) && length(rawresOffset) == 1 && rawresOffset >= 1)) stop("Argument 'rawresOffset' is not single numeric and >=1")
   if (!(is.character(subfolder) && length(subfolder) == 1)) stop("Argument 'subfolder' is not single string")
   if (!(is.character(ncaOptions) && length(ncaOptions) == 1)) stop("Argument 'ncaOptions' is not single string")
   if (!(is.character(extraInputFiles) && !(any(extraInputFiles == "") && length(extraInputFiles) > 1))) stop("Argument 'extraInputFiles' is not single string or string vector")
   
-  # Options for columns to include
-  ncaCommand <- ifelse(inputColumns, " --include_all_columns", "")
-  if (!any(columns == "")) {
-    ncaCommand <- paste0(ncaCommand, " --columns=", paste(columns, collapse=","))
+  # Options for variables to include
+  ncaCommand <- ifelse(inputVars, " --include_all_columns", "")
+  if (!any(vars == "")) {
+    ncaCommand <- paste0(ncaCommand, " --columns=", paste(vars, collapse=","))
   }
 
   # Options for dependent and independent variables
