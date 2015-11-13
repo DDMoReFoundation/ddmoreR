@@ -140,29 +140,31 @@ SSE.PsN <- function(model, command="sse", samples, seed, sseOptions="", subfolde
 #' @param samples An integer indicating the number of samples to run. Must be at least 20.
 #' @param dv (Optional) String indicating name of dependent variable. Default is DV.
 #' @param idv (Optional) String indicating name of independent variable. Default is TIME.
-#' @param columns (Optional) String or vector of strings containing extra columns to append. Default is none.
-#' @param inputColumns (Optional) Logical dictating if all columns in model input should be output. Default is false.
+#' @param columns (Optional) String or string vector containing extra columns to append output. Default is none.
+#' @param inputColumns (Optional) Logical dictating if all columns input in model also should append output. Default is false.
 #' @param rawresFile (Optional) String indicating name of file if simulating with uncertainty. Default is none.
 #' @param rawresOffset (Optional) Integer indicating lines to skip in rawres file (if used). Default is 1.
 #' @param subfolder (Optional) Specify the name of a subfolder, within the directory
 #'        containing the model file, in which to store the results. Default
 #'        is a timestamped folder with prefix sim_.
 #' @param ncaOptions (Optional) String containing extra PsN nca options. Default is none.
+#' @param extraInputFiles (Optional) String or string vector containing extra input files. Default is none or rawresFile (if used).
 #' @return An object of class \linkS4class{StandardOutputObject}
 #' 
 #' @author Gunnar Yngman
 #' @export
-sim.PsN <- function(model, samples, dv="DV", idv="TIME", columns="", inputColumns=FALSE, rawresFile="", rawresOffset=1, subfolder=paste0("sim_",format(Sys.time(), "%Y%b%d%H%M%S")), ncaOptions="", ...) {
-  # Argument validation
-  if (!(is.numeric(samples) && length(samples) == 1 && samples >= 20)) stop("Argument 'samples' must be one single numeric and >20")
-  if (!(is.character(dv) && length(dv) == 1)) stop("Argument 'dv' must be one single string")
-  if (!(is.character(idv) && length(idv) == 1)) stop("Argument 'idv' must be one single string")
-  if (!is.character(columns) || (any(columns == "") && length(columns) > 1)) stop("Argument 'columns' must be one string or vector of strings (and can't contain empty strings)")
-  if (!(is.logical(inputColumns) && length(inputColumns) == 1)) stop("Argument 'inputColumns' must be one single logical")
-  if (!(is.character(rawresFile) && length(rawresFile) == 1)) stop("Argument 'rawresFile' must be one single string")
-  if (!(is.numeric(rawresOffset) && length(rawresOffset) == 1 && rawresOffset >= 1)) stop("Argument 'rawresOffset' must be one single numeric and >1")
-  if (!(is.character(subfolder) && length(subfolder) == 1)) stop("Argument 'subfolder' must be one single string")
-  if (!(is.character(ncaOptions) && length(ncaOptions) == 1)) stop("Argument 'ncaOptions' must be one single string")
+sim.PsN <- function(model, samples, dv="DV", idv="TIME", columns="", inputColumns=FALSE, rawresFile="", rawresOffset=1, subfolder=paste0("sim_",format(Sys.time(), "%Y%b%d%H%M%S")), ncaOptions="", extraInputFiles="", ...) {
+  # Simple argument validation
+  if (!(is.numeric(samples) && length(samples) == 1 && samples >= 20)) stop("Argument 'samples' is not single numeric and >=20")
+  if (!(is.character(dv) && length(dv) == 1)) stop("Argument 'dv' is not single string")
+  if (!(is.character(idv) && length(idv) == 1)) stop("Argument 'idv' is not single string")
+  if (!(is.character(columns) && !(any(columns == "") && length(columns) > 1))) stop("Argument 'columns' is not single string or string vector")
+  if (!(is.logical(inputColumns) && length(inputColumns) == 1)) stop("Argument 'inputColumns' is not single logical")
+  if (!(is.character(rawresFile) && length(rawresFile) == 1)) stop("Argument 'rawresFile' is not single string")
+  if (!(is.numeric(rawresOffset) && length(rawresOffset) == 1 && rawresOffset >= 1)) stop("Argument 'rawresOffset' is not single numeric and >=1")
+  if (!(is.character(subfolder) && length(subfolder) == 1)) stop("Argument 'subfolder' is not single string")
+  if (!(is.character(ncaOptions) && length(ncaOptions) == 1)) stop("Argument 'ncaOptions' is not single string")
+  if (!(is.character(extraInputFiles) && !(any(extraInputFiles == "") && length(extraInputFiles) > 1))) stop("Argument 'extraInputFiles' is not single string or string vector")
   
   # Options for columns to include
   ncaCommand <- ifelse(inputColumns, " --include_all_columns", "")
@@ -174,22 +176,21 @@ sim.PsN <- function(model, samples, dv="DV", idv="TIME", columns="", inputColumn
   ncaCommand <- paste0(ncaCommand, " --dv=", dv)
   ncaCommand <- paste0(ncaCommand, " --idv=", idv)
 
-  # Options for rawres file
-  inargs <- list(...)
-  extraFiles <- inargs$extraInputFiles
+  # Options for rawres/extra input files
+  if(any(extraInputFiles == "")) extraInputFiles <- NULL
   if (rawresFile != "") {
     ncaCommand <- paste0(ncaCommand, " --rawres_input=", rawresFile)
     ncaCommand <- paste0(ncaCommand, " --offset_rawres=", rawresOffset)
-    extraFiles <- ifelse(is.null(extraFiles), rawresFile, extraFiles)
+    if(is.null(extraInputFiles)) extraInputFiles <- rawresFile
   }
 
-  # Final command including mandatory number of samples
+  # Final command including mandatory number of samples and extra options
   ncaCommand <- paste0("nca --samples=", samples, ncaCommand, " ", ncaOptions)
 
   #TODO loading SO can take a long time, boolean option importSO to execute() would be nice
   #TODO If collect is set to false we do not get result files back, and no SO object. Cannot handle that here
 
-  outputObject <- execute(model, target="PsNgeneric", addargs=ncaCommand, subfolder=subfolder, importMultipleSO=FALSE, extraInputFiles=extraFiles, ...)
+  outputObject <- execute(model, target="PsNgeneric", addargs=ncaCommand, subfolder=subfolder, importMultipleSO=FALSE, extraInputFiles=extraInputFiles, ...)
 
   outputObject
 }
