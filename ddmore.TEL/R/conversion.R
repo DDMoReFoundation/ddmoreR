@@ -4,10 +4,6 @@ JSON_FILE_EXT <- 'json'
 
 MOG_OBJECT_TYPES <- c("dataObj", "parObj", "mdlObj", "taskObj")
 
-# This used to include ".PKMACRO" too; add this back in if "PKMACRO" is re-introduced into the MDL syntax,
-# and also update the R doc on the MODEL_PREDICTION slot in the class definition of mdlObj accordingly.
-MODEL_PREDICTION_SUBBLOCKS <- c(".DEQ", ".COMPARTMENT") 
-
 
 ################################################################################
 #' .parseMDLFile
@@ -39,7 +35,7 @@ MODEL_PREDICTION_SUBBLOCKS <- c(".DEQ", ".COMPARTMENT")
 #' 
 #' @usage .parseMDLFile('Warfarin-ODE-latest.mdl', type='dataObj')
 #' 
-#' @include telClasses.R
+#' @include Classes.R
 .parseMDLFile <- function(f, name, type, fisServer) {
     .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FIS Server instance is required.")
   if (!missing(type) && !type%in%c(MOG_OBJECT_TYPES)) {
@@ -202,41 +198,41 @@ MODEL_PREDICTION_SUBBLOCKS <- c(".DEQ", ".COMPARTMENT")
 	taskObj
 }
 
-
-
 ##############################################################
 #' writeMogObj
 #'
-#' Takes in an instance of R class \link{\code{mogObj}} comprising a single instance of each of:
+#' Takes in an instance of the R \linkS4class{mogObj} class along with a specified file path, 
+#' and writes out the content of the MOG Object to that file as MDL.
+#'
+#' The \linkS4class{mogObj} class comprises of a single instance of each of the following objects:
 #' \itemize{
-#'   \item{\linkS4class{\code{dataObj}} class}
-#'   \item{\linkS4class{\code{parObj}} class}
-#'   \item{\linkS4class{\code{mdlObj}} class}
-#'   \item{\linkS4class{\code{taskObj}} class}
+#' 	 \item \linkS4class{dataObj} class
+#' 	 \item \linkS4class{parObj} class
+#' 	 \item \linkS4class{mdlObj} class
+#' 	 \item \linkS4class{taskObj} class
 #' }
-#' and a specified file path, and writes out the content of the MOG Object to that file as MDL.
 #' 
 #' It is recommended that the file not have an extension, whereby the .mdl extension will be appended.
 #' 
 #' @usage writeMogObj(myMogObj, 'C:/Users/fred/mymodel')
 #'
-#' @param object Instance of R class \link{\code{mogObj}}.
+#' @param object Instance of R class \linkS4class{mogObj}.
 #' @param f File path to the .mdl file (optionally without the .mdl extension) that will be created.
 #' @param fisServer FISServer instance.
 #'
 #' @export
 #' 
 #' @docType methods
+#' @include Classes.R
 #' @rdname writeMogObj-methods
-#' @include telClasses.R
 
-setGeneric("writeMogObj", function(object, f, fisServer=TEL.getServer()) { 
+setGeneric("writeMogObj", function(object, f, fisServer=DDMORE.getServer()) { 
   standardGeneric("writeMogObj")
 })
 
 #' @rdname writeMogObj-methods
 #' @aliases writeMogObj,mogObj,mogObj-method
-setMethod("writeMogObj", "mogObj", function(object, f, fisServer=TEL.getServer()) {
+setMethod("writeMogObj", "mogObj", function(object, f, fisServer=DDMORE.getServer()) {
     .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FIS Server instance is required.")
     json <- .generateJSON(object)
 
@@ -456,7 +452,7 @@ as.char.vector <- function(v) {
 #' @return Path to the generated .xml PharmML file.
 #' 
 #' @export
-as.PharmML <- function(f, fisServer = TEL.getServer()) {
+as.PharmML <- function(f, fisServer = DDMORE.getServer()) {
     .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FIS Server instance is required.")
     .precondition.checkArgument(file.exists(f), "f", sprintf("MDL file %s must exist.",f))
 	

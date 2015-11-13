@@ -1,8 +1,8 @@
 ################################################################################
 # Package-local variables
-ddmore.tel.utils <- new.env()
+ddmore.utils <- new.env()
 # is debug log level enabled
-ddmore.tel.utils$debug <- FALSE
+ddmore.utils$debug <- FALSE
 
 #' Utility function to test whether a slot in the SO is empty or not.
 #'
@@ -17,7 +17,7 @@ is.empty <- function(slot) {
 #' Override of the standard message() function.
 #' 
 #' Prints to stdout not stderr in order that benign messages are not printed in
-#' red in the TEL-R console.
+#' red in the R console.
 #' Also added optional parameter \code{file}, which defaults to \code{stdout()},
 #' as per \link{cat}.
 #' 
@@ -338,8 +338,8 @@ parent.folder <- function(f) {
 
 #' Utilities to extract parts of the mdl file that shares the same name as the current SO.xml 
 #' 
-.getMdlInfoFromSO <- function(SOObject, what="MDL") {
-
+.getMdlInfoFromSO <- function(SOObject, what="MDL", fisServer = DDMORE.getServer()) {
+	
   # Look up MDL file, which is for now assumed to be in the same folder and shares the same name.
   mdlFile <- sub(x=SOObject@.pathToSourceXML, pattern="\\.SO\\.xml$", replacement=".mdl")
   if (!file.exists(mdlFile)) {
@@ -347,11 +347,11 @@ parent.folder <- function(f) {
   }
  
   if (tolower(what) == "parameter") {
-    objs <- getParameterObjects(mdlFile)[[1]]
+    objs <- getParameterObjects(mdlFile, fisServer=fisServer)[[1]]
   } else if (tolower(what) == "model") {
-    objs <- getModelObjects(mdlFile)[[1]]
+    objs <- getModelObjects(mdlFile, fisServer=fisServer)[[1]]
   } else if (tolower(what) == "mdl") {
-    objs <- getMDLObjects(mdlFile)[[1]]
+    objs <- getMDLObjects(mdlFile, fisServer=fisServer)[[1]]
   } else {
     stop("Value for what not recognised, must be one of ('mdl', 'parameter', 'model')")
   }
@@ -363,12 +363,12 @@ parent.folder <- function(f) {
   return(objs)
 }
 
-.deriveStructuralParametersFromAssociatedMDL <- function(SOObject) {
-  names(.getMdlInfoFromSO(SOObject, what="parameter")@STRUCTURAL)
+.deriveStructuralParametersFromAssociatedMDL <- function(SOObject, fisServer = DDMORE.getServer()) {
+  names(.getMdlInfoFromSO(SOObject, what="parameter", fisServer=fisServer)@STRUCTURAL)
 }
 
-.deriveVariabilityParametersFromAssociatedMDL <- function(SOObject) {
-  names(.getMdlInfoFromSO(SOObject, what="parameter")@VARIABILITY)
+.deriveVariabilityParametersFromAssociatedMDL <- function(SOObject, fisServer = DDMORE.getServer()) {
+  names(.getMdlInfoFromSO(SOObject, what="parameter", fisServer=fisServer)@VARIABILITY)
 }
 
 .convertObjectToNamedList <- function(obj) {
@@ -387,14 +387,14 @@ parent.folder <- function(f) {
 
 #' logs debug message to output stream
 log.debug <- function(message) {
-    if(ddmore.tel.utils$debug) {
+    if(ddmore.utils$debug) {
         message(sprintf("DEBUG: %s", message))
     }
 }
 
 #' sets debug mode
 .setDebugMode <- function(debug = FALSE) {
-    ddmore.tel.utils$debug <- debug
+    ddmore.utils$debug <- debug
 }
 
 #'

@@ -9,7 +9,7 @@
 #' 
 #' @seealso \code{plot.dataObj}
 #' 
-#' @include telClasses.R
+#' @include Classes.R
 #' @include utils.R
 #' @method plot mogObj
 #' @export
@@ -76,7 +76,7 @@ plot.mogObj <-
 #' 
 #' @seealso \code{read}, \code{xyplot}
 #' 
-#' @include telClasses.R
+#' @include Classes.R
 #' @include utils.R
 #' @method plot dataObj
 #' @export

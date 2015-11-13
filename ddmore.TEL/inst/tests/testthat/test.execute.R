@@ -1,5 +1,5 @@
 #' Tests functions involved in task execution
-library("DDMoRe.TEL")
+library("ddmore")
 require("methods")
 require("testthat")
 rm(list = ls())
@@ -24,10 +24,10 @@ createMockFISServer <-
 
 
 mockServer<- createMockFISServer(jobStatusPollingDelay=1)
-TEL.setServer(mockServer)
+DDMORE.setServer(mockServer)
 context("Monitoring job")
 
-test_that("TEL.performExecutionWorkflow with default import flags results in non-null result for successful job", {
+test_that("DDMORE.performExecutionWorkflow with default import flags results in non-null result for successful job", {
     completedJob <- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id="MOCK_ID", status ='COMPLETED'))
     telMock <- list(
         submitJobStep = function(submission, fisServer, ...) {
@@ -67,7 +67,7 @@ test_that("TEL.performExecutionWorkflow with default import flags results in non
     submission$parameters$modelFile <- "MOCK_MODEL"
     submission$parameters$workingDirectory <- "MOCK_WORKING_DIR"
     # when
-    result = TEL.performExecutionWorkflow(
+    result = DDMORE.performExecutionWorkflow(
         submission, fisServer = mockServer, workflowSteps = telMock, mockParam = "mock"
     )
     
@@ -77,7 +77,7 @@ test_that("TEL.performExecutionWorkflow with default import flags results in non
     expect_true("so" %in% names(result), info  = "so element should be set on the result list")
 })
 
-test_that("TEL.performExecutionWorkflow without import results in non-null result but empty 'so' attribute", {
+test_that("DDMORE.performExecutionWorkflow without import results in non-null result but empty 'so' attribute", {
     completedJob <<- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id="MOCK_ID", status ='COMPLETED'))
     telMock <- list(
         submitJobStep = function(submission, fisServer, ...) {
@@ -108,7 +108,7 @@ test_that("TEL.performExecutionWorkflow without import results in non-null resul
     submission$parameters$modelFile <- "MOCK_MODEL"
     submission$parameters$workingDirectory <- "MOCK_WORKING_DIR"
     # when
-    result = TEL.performExecutionWorkflow(
+    result = DDMORE.performExecutionWorkflow(
         submission, fisServer = mockServer, workflowSteps = telMock
     )
     
@@ -118,7 +118,7 @@ test_that("TEL.performExecutionWorkflow without import results in non-null resul
     expect_false("so" %in% names(result), info  = "so element should NOT be set on the result list")
 })
 
-test_that("TEL.performExecutionWorkflow results in error for failed job", {
+test_that("DDMORE.performExecutionWorkflow results in error for failed job", {
     telMock <- list(
         submitJobStep = function(submission, fisServer, ...) {
             log.debug("submitJob")
@@ -154,13 +154,13 @@ test_that("TEL.performExecutionWorkflow results in error for failed job", {
     submission$parameters$workingDirectory <- "MOCK_WORKING_DIR"
     #then
     expect_error(
-        TEL.performExecutionWorkflow(
+        DDMORE.performExecutionWorkflow(
             submission, fisServer = mockServer, workflowSteps = telMock
         ), info = "Failed job should result in error."
     )
 })
 
-test_that("TEL.performExecutionWorkflow results in error if any step throws error.", {
+test_that("DDMORE.performExecutionWorkflow results in error if any step throws error.", {
     telMock <- list(
         submitJobStep = function(submission, fisServer, ...) {
             log.debug("submitJob")
@@ -196,7 +196,7 @@ test_that("TEL.performExecutionWorkflow results in error if any step throws erro
 
     #then
     expect_error(
-        TEL.performExecutionWorkflow(
+        DDMORE.performExecutionWorkflow(
             submission, fisServer = mockServer, workflowSteps = telMock
         ), info = "Failed job should result in error."
     )
@@ -236,23 +236,23 @@ test_that("Final status of submission is correctly set - FISJob is present", {
     expect_equal(result$status, SUBMISSION_COMPLETED, "Submission with some random status and job with status Completed should result in SUBMISSION_COMPLETED final status")
 })
 
-test_that("TEL.verifySOStep  - results in unmodified submission status if SO doesn't contain error messages", {
+test_that("DDMORE.verifySOStep  - results in unmodified submission status if SO doesn't contain error messages", {
     submission <- list()
     submission$fisJob <- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id="MOCK_ID", status ='COMPLETED'))
     submission$so <- createSOObject()
     submission$status <- "Some status"
-    result <- TEL.verifySOStep(submission)
+    result <- DDMORE.verifySOStep(submission)
     expect_equal(result$status, "Some status", "Submission with SO that doesn't contain error messages, should result in unchanged submission status.")
     
 })
 
-test_that("TEL.verifySOStep  - results in SUBMISSION_COMPLETED_WITH_ERRORS if SO contains error messages", {
+test_that("DDMORE.verifySOStep  - results in SUBMISSION_COMPLETED_WITH_ERRORS if SO contains error messages", {
     submission <- list()
     submission$fisJob <- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id="MOCK_ID", status ='COMPLETED'))
     submission$so <- createSOObject()
     submission$status <- SUBMISSION_COMPLETED
     submission$so@TaskInformation$Messages$Errors <- list("First Error", "Second Error")
-    result <- TEL.verifySOStep(submission)
+    result <- DDMORE.verifySOStep(submission)
     expect_equal(result$status, SUBMISSION_COMPLETED_WITH_ERRORS, "Submission with SO that contains error messages, should result in SUBMISSION_COMPLETED_WITH_ERRORS status.")
     
 })

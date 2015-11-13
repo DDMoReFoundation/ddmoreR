@@ -1,4 +1,4 @@
-library("DDMoRe.TEL")
+library("ddmore")
 library("XML")
 require("methods")
 
@@ -23,7 +23,7 @@ test_that("PharmML SO produced by execute in PsN fills expected slots in Estimat
   rm(list=ls())
   
   data.path = system.file("tests/data/PharmMLSO/MachineGenerated/PsN/Warfarin-ODE-latest-execute.SO.xml",  
-    package = "DDMoRe.TEL")
+    package = "ddmore")
 
   # Load in SO
   SOObject = LoadSOObject(data.path)
@@ -83,7 +83,7 @@ test_that("PharmML SO produced by Bootstrap in PsN fills expected slots in Estim
   rm(list=ls())
   
   data.path = system.file("tests/data/PharmMLSO/MachineGenerated/PsN/Warfarin-ODE-latest-bootstrap.SO.xml",  
-    package = "DDMoRe.TEL")
+    package = "ddmore")
 
   # Load in SO
   SOObject = LoadSOObject(data.path)
@@ -140,7 +140,7 @@ test_that("PharmML SO produced by VPC in PsN fills expected slots in Estimation"
   rm(list=ls())
   
   data.path = system.file("tests/data/PharmMLSO/MachineGenerated/PsN/Warfarin-ODE-latest-vpc.SO.xml",  
-    package = "DDMoRe.TEL")
+    package = "ddmore")
 
   # Load in SO
   SOObject = LoadSOObject(data.path)
@@ -198,7 +198,7 @@ test_that("PharmML SO produced by VPC in PsN fills expected slots in Estimation"
 #   rm(list=ls())
   
 #   data.path = system.file("tests/data/PharmMLSO/MachineGenerated/PsN/Warfarin-ODE-latest-sse.SO.xml",  
-#     package = "DDMoRe.TEL")
+#     package = "ddmore")
 
 #   # Load in SO
 #   SOObject = LoadSOObject(data.path)

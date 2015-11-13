@@ -42,20 +42,11 @@ LoadSOObject <- function(file) {
 	SOObject@.pathToSourceXML <- file
 
 	# Print out any errors in the SO Object to the R console to make it obvious if execution failed
-	if (length(SOObject@TaskInformation$Messages$Errors) > 0) {
-		message("\nThe following ERRORs were raised during the job execution:", file=stderr())
-		for (e in (SOObject@TaskInformation$Messages$Errors)) { message(paste0(" ", e$Name, ": ", str_trim(e$Content)), file=stderr()) }
-	}
-	if (length(SOObject@TaskInformation$Messages$Warnings) > 0) {
-		message("\nThe following WARNINGs were raised during the job execution:", file=stderr())
-		for (e in (SOObject@TaskInformation$Messages$Warnings)) { message(paste0(" ", e$Name, ": ", str_trim(e$Content)), file=stderr()) }
-	}
-	# Also print out any information messages
-	if (length(SOObject@TaskInformation$Messages$Info) > 0) {
-		message("\nThe following MESSAGEs were raised during the job execution:", file=stderr())
-		for (e in (SOObject@TaskInformation$Messages$Info)) { message(paste0(" ", e$Name, ": ", str_trim(e$Content)), file=stderr()) }
-	}
-	message("") # Extra line break
+	.printSOMessages(
+		SOObject@TaskInformation$Messages$Errors,
+		SOObject@TaskInformation$Messages$Warnings,
+		SOObject@TaskInformation$Messages$Info
+	)
 	
 	# Reset Working directory 
 	setwd(old.wd)
@@ -90,9 +81,11 @@ LoadSOObjects <- function(file) {
 		stop("PharmML parsing aborted. There does not appear to be any SOBlock sections in the specified file.")
 	}
 	if (length(soBlocks) == 1) {
-		stop("LoadSOObjects() is used for the case where there is known to multiple SOBlock in the SO XML file;\n", 
-			" use the singlular version of the function, LoadSOObject(), instead if there is only a single SOBlocks in the file.")
-	} 
+		# Deliberately don't error because if SSE execution (which would normally generate multiple SO blocks) failed
+		# with an error, there might only be one SOBlock, containing TaskInformation section with the error messages
+		warning("LoadSOObjects() is used for the case where there is known to be multiple SOBlock in the SO XML file;\n", 
+			"  use the singular version of the function, LoadSOObject(), instead if there is only a single SOBlock in the file.")
+	}
 
 	# Set working directory to that specified in file
 	# (I (MSW) don't like this, can't we amend the xmlParsers.R to resolve the associated data files
@@ -115,6 +108,13 @@ LoadSOObjects <- function(file) {
 		SOObject@.pathToSourceXML <- file
 		SOObject
 	})
+
+	# Print out any errors in the SO Object to the R console to make it obvious if execution failed
+	.printSOMessages(
+		unlist(lapply(SOObjectList, function(so) { so@TaskInformation$Messages$Errors }), recursive=FALSE),
+		unlist(lapply(SOObjectList, function(so) { so@TaskInformation$Messages$Warnings }), recursive=FALSE),
+		unlist(lapply(SOObjectList, function(so) { so@TaskInformation$Messages$Info }), recursive=FALSE)
+	)
 
 	# Reset Working directory
 	setwd(old.wd)
@@ -288,4 +288,23 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 				paste(messageList$parsed, collapse="\n      "), sep="\n      "))
 
 	SOObject
+}
+
+.printSOMessages <- function(soErrorMsgs, soWarningMsgs, soInfoMsgs) {
+	
+	if (!is.empty(soErrorMsgs)) {
+		message("\nThe following ERRORs were raised during the job execution:", file=stderr())
+		for (e in (soErrorMsgs)) { message(paste0(" ", e$Name, ": ", str_trim(e$Content)), file=stderr()) }
+	}
+	if (!is.empty(soWarningMsgs)) {
+		message("\nThe following WARNINGs were raised during the job execution:", file=stderr())
+		for (e in (soWarningMsgs)) { message(paste0(" ", e$Name, ": ", str_trim(e$Content)), file=stderr()) }
+	}
+	# Also print out any information messages
+	if (!is.empty(soInfoMsgs)) {
+		message("\nThe following MESSAGEs were raised during the job execution:", file=stderr())
+		for (e in (soInfoMsgs)) { message(paste0(" ", e$Name, ": ", str_trim(e$Content)), file=stderr()) }
+	}
+	message("") # Extra line break
+	
 }

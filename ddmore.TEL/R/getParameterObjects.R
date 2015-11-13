@@ -9,7 +9,7 @@
 #' MCL Parameter Object sub-blocks; see \linkS4class{parObj}.
 #' 
 #' To update the parameter values within the object the
-#' \link[DDMoRe.TEL:updateParObj-methods]{updateParObj} function should be used.
+#' \link[ddmore:updateParObj-methods]{updateParObj} function should be used.
 #'
 #' @param file File path to the .mdl file containing the parameter object(s).
 #' @param object TODO Not currently used.
@@ -27,15 +27,15 @@
 #' # Retrieve a known parameter object by name
 #' warfParamObj <- getParameterObjects('Warfarin-ODE-latest.mdl', name='warfarin_PK_ODE_par')
 #' 
-#' @seealso \link[DDMoRe.TEL:updateParObj-methods]{updateParObj}
+#' @seealso \link[ddmore:updateParObj-methods]{updateParObj}
 #'
 #' @export
 #' @docType methods
 #' @rdname getParameterObjects-methods
 #'
-#' @include telClasses.R
+#' @include Classes.R
 
-setGeneric("getParameterObjects", function(file, object, name, fisServer = TEL.getServer()) {
+setGeneric("getParameterObjects", function(file, object, name, fisServer = DDMORE.getServer()) {
 	# create object in R from parser:
 	if (!missing(name)) {
 		res <- .parseMDLFile(file, name=name, type="parObj", fisServer = fisServer)
@@ -48,7 +48,7 @@ setGeneric("getParameterObjects", function(file, object, name, fisServer = TEL.g
 #' @rdname getParameterObjects-methods
 #' @aliases getParameterObjects,mogObj,mogObj-method
 setMethod("getParameterObjects", signature=signature(object="mogObj"),
-  function(file, object, name, fisServer = TEL.getServer()) {
+  function(file, object, name, fisServer = DDMORE.getServer()) {
     return(x@parObj)
 })
 

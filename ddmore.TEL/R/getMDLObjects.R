@@ -19,7 +19,7 @@
 #' @docType methods
 #' @rdname getMDLObjects-methods
 #' @examples
-#' Retrieve from the DDMoRe Library
+#' Retrieve from the ddmore Library
 #' ThamDataObject <- getMDLObjects(file="http://ddmore.eu/model-repository/model/download/127.17?filename=2008ThamJCCR.mdl")
 #' ## Retrieve the all Objects from the .mdl file
 #' ThamDataObject <- getMDLObjects("2008ThamJCCR.mdl", type="All")
@@ -36,8 +36,8 @@
 #' myThamMOG@dataobj$DESIGN <- myDesignBlock
 #' myThamMOG@taskobj <- mySimulationTaskObject
 #'
-#' @include telClasses.R FISServer.R
-getMDLObjects <- function(x, name, fisServer=TEL.getServer()) { 
+#' @include Classes.R FISServer.R
+getMDLObjects <- function(x, name, fisServer=DDMORE.getServer()) { 
   
   if(!is.character(x)){stop("x must be a string containing either the file name or URL of the MDL file")}
   if(!missing(name)){

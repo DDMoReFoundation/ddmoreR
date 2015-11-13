@@ -1,4 +1,4 @@
-library("DDMoRe.TEL")
+library("ddmore")
 library("XML")
 require("methods")
 
@@ -6,8 +6,8 @@ context("Test getPopulationParameters from Handcoded PharmMLSO Version 0.2")
 
 test_that("Test getPopulationParameters returns a list of dataframes, one per estimate type.", {
   
-  data.path = system.file("tests//data//PharmMLSO/HandCoded//warfarin_PK_ODE_SO_FULL-v0_2.xml",  
-                          package = "DDMoRe.TEL")
+  data.path = system.file("tests//data//PharmMLSO/HandCoded//warfarin_PK_ODE_SO_FULL-v0_2.SO.xml",  
+                          package = "ddmore")
   
   # Load in SO
   SOObject = LoadSOObject(data.path)
@@ -31,8 +31,8 @@ test_that("Test getPopulationParameters returns a list of dataframes, one per es
 
 test_that("Test getPopulationParameters returns correct statistics by default for MLE, Bayesian and Bootstrap estimates.", {
   
-  data.path = system.file("tests//data//PharmMLSO/HandCoded//warfarin_PK_ODE_SO_FULL-v0_2.xml",  
-                          package = "DDMoRe.TEL")
+  data.path = system.file("tests//data//PharmMLSO/HandCoded//warfarin_PK_ODE_SO_FULL-v0_2.SO.xml",  
+                          package = "ddmore")
   
   # Load in SO
   SOObject = LoadSOObject(data.path)
@@ -93,8 +93,8 @@ test_that("Test getPopulationParameters returns correct statistics by default fo
 
 test_that("Test getPopulationParameters returns correct statistics using 'estimates' option for MLE, Bayesian and Bootstrap estimates.", {
   
-  data.path = system.file("tests//data//PharmMLSO/HandCoded//warfarin_PK_ODE_SO_FULL-v0_2.xml",  
-                          package = "DDMoRe.TEL")
+  data.path = system.file("tests//data//PharmMLSO/HandCoded//warfarin_PK_ODE_SO_FULL-v0_2.SO.xml",  
+                          package = "ddmore")
   
   # Load in SO
   SOObject = LoadSOObject(data.path)
@@ -138,8 +138,8 @@ test_that("Test getPopulationParameters returns correct statistics using 'estima
 
 test_that("Test getPopulationParameters returns correct statistics using 'precisions' option for MLE, Bayesian and Bootstrap estimates.", {
   
-  data.path = system.file("tests//data//PharmMLSO/HandCoded//warfarin_PK_ODE_SO_FULL-v0_2.xml",  
-                          package = "DDMoRe.TEL")
+  data.path = system.file("tests//data//PharmMLSO/HandCoded//warfarin_PK_ODE_SO_FULL-v0_2.SO.xml",  
+                          package = "ddmore")
   
   # Load in SO
   SOObject = LoadSOObject(data.path)
@@ -191,8 +191,8 @@ test_that("Test getPopulationParameters returns correct statistics using 'precis
 
 test_that("Test getPopulationParameters returns correct statistics using 'intervals' option for MLE, Bayesian and Bootstrap estimates.", {
   
-  data.path = system.file("tests//data//PharmMLSO/HandCoded//warfarin_PK_ODE_SO_FULL-v0_2.xml",  
-                          package = "DDMoRe.TEL")
+  data.path = system.file("tests//data//PharmMLSO/HandCoded//warfarin_PK_ODE_SO_FULL-v0_2.SO.xml",  
+                          package = "ddmore")
   
   # Load in SO
   SOObject = LoadSOObject(data.path)
@@ -256,7 +256,7 @@ context("Test getPopulationParameters from Machine Generated PharmMLSO Version 0
 test_that("Test getPopulationParameters returns correct statistics using bootstrap_UPDRS1.SO.xml sample data with what='all'.", {
   
   data.path = system.file("tests//data//PharmMLSO/MachineGenerated//bootstrap_UPDRS1.SO.xml",  
-                          package = "DDMoRe.TEL")
+                          package = "ddmore")
   
   # Load in SO
   SOObject = LoadSOObject(data.path)
@@ -324,7 +324,7 @@ test_that("Test getPopulationParameters returns correct statistics using bootstr
 test_that("Test getPopulationParameters returns correct statistics using bootstrap_UPDRS1.SO.xml sample data with what='precisions'.", {
   
   data.path = system.file("tests//data//PharmMLSO/MachineGenerated//bootstrap_UPDRS1.SO.xml",  
-                          package = "DDMoRe.TEL")
+                          package = "ddmore")
   
   # Load in SO
   SOObject = LoadSOObject(data.path)
@@ -386,7 +386,7 @@ test_that("Test getPopulationParameters returns correct statistics using bootstr
 test_that("Test getPopulationParameters returns correct statistics using bootstrap_UPDRS1.SO.xml sample data with what='intervals'.", {
   
   data.path = system.file("tests//data//PharmMLSO/MachineGenerated//bootstrap_UPDRS1.SO.xml",  
-                          package = "DDMoRe.TEL")
+                          package = "ddmore")
   
   # Load in SO
   SOObject = LoadSOObject(data.path)
@@ -446,7 +446,7 @@ test_that("Test getPopulationParameters returns correct statistics using bootstr
 test_that("Test getPopulationParameters returns correct statistics using UPDRS1_CNS_ZINNIA.SO.xml sample data.", {
   
   data.path = system.file("tests//data//PharmMLSO/MachineGenerated//UPDRS1_CNS_ZINNIA.SO.xml", 
-                          package = "DDMoRe.TEL")
+                          package = "ddmore")
   SOObject = LoadSOObject(data.path)
   
   # By specifying just estimates, and a keep.only for Bayesian and Bootstrap, only a named list is returned

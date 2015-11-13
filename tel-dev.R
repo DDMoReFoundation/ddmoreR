@@ -6,7 +6,7 @@
 
 ##
 ## Load in the R files so that the workflow functions can be modified on-the-fly,
-## rather than having to re-build the DDMoRE.TEL package every time a change is made.
+## rather than having to re-build the DDMoRE package every time a change is made.
 ##
 
 reqdLibs <- c('rjson','RCurl','RNMImport','XML','stringr')
@@ -30,12 +30,12 @@ location <- normalizePath(dirname(file.path(sys.frame(1)$ofile)))
 print(sprintf("DDMoRe TEL R project root: %s", location))
 scripts.dir <- paste0(location, "/ddmore.TEL/R/")
 libPath <- file.path(location, ".lib")
-print(sprintf("DDMoRe TEL R source files location: %s", scripts.dir))
-print(sprintf("DDMoRe TEL R libraries directory: %s", libPath))
+print(sprintf("DDMoRe R source files location: %s", scripts.dir))
+print(sprintf("DDMoRe R libraries directory: %s", libPath))
 .libPaths(libPath)
           
 script.files = c(
-    "telClasses", "createMogObj",
+    "Classes", "createMogObj",
     "utils", "import", "execute", "conversion", "readDataObj", "updateParObj",
     "getDataObjects", "getParameterObjects", "getPopulationParameters", "getModelObjects", "getTaskPropertiesObjects", "getMDLObjects",
     "FISServer", "FISJob", "server", "jobExecution", "psnWrappers", "xmlParsers", "StandardOutputSubClasses", "StandardOutputObject",

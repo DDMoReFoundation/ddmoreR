@@ -8,11 +8,11 @@ as.xpdb <- function(outputObject=NULL, ...) {
                   "_params", "catab", "cotab", "mytab", "extra", "xptab", 
                   "cwtab")
   
-  TEL.xpose.data(runno="", tab.suffix=".tab", mod.prefix=file.name.base, mod.suffix=".ctl", table.names=table.names, ...)
+  DDMORE.xpose.data(runno="", tab.suffix=".tab", mod.prefix=file.name.base, mod.suffix=".ctl", table.names=table.names, ...)
   
 }
 
-TEL.xpose.data <- function (runno, tab.suffix = "", sim.suffix = "sim", cwres.suffix = "", 
+DDMORE.xpose.data <- function (runno, tab.suffix = "", sim.suffix = "sim", cwres.suffix = "", 
                             directory = "", quiet = TRUE, table.names = c("sdtab", "mutab", 
                                                                           "patab", "catab", "cotab", "mytab", "extra", "xptab", 
                                                                           "cwtab"), cwres.name = c("cwtab"), mod.prefix = "run", 
