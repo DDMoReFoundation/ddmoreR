@@ -155,38 +155,48 @@ setMethod(f="readRawData",
 #'
 #'  @param df1 The first data frame, column types and positions are known.
 #'  @param df2 The second data frame to merge in, column types and positions are checked before merge.
+#'  @param ID.colName The name used for the ID column in both df1 and df2.
+#'  @param TIME.colName The name used for the TIME column in both df1 and df2.
 #'
 #' @export
-mergeByPosition <- function(df1, df2, msg='') {
+mergeByPosition <- function(df1, df2, msg='', ID.colName, TIME.colName) {
+
+  # Set defaults to ID and TIME if they are not given 
+  if (missing(ID.colName)) {
+    ID.colName = "ID"
+  }
+  if (missing(TIME.colName)) {
+    TIME.colName = "TIME"
+  }
 
   # Find ID column position in df2
-  ID.col = toupper(names(df2)) == "ID"
-  TIME.col = toupper(names(df2)) == "TIME"
+  ID.colIdx = toupper(names(df2)) == toupper(ID.colName)
+  TIME.colIdx = toupper(names(df2)) == toupper(TIME.colName)
 
   # Type conversion Checks for ID column
-  if (class(df2[, ID.col]) == "factor") {
-      df2[, ID.col] = as.character(df2[, ID.col])
+  if (class(df2[, ID.colIdx]) == "factor") {
+      df2[, ID.colIdx] = as.character(df2[, ID.colIdx])
   } 
-  df2[, ID.col] = as.numeric(df2[, ID.col])
+  df2[, ID.colIdx] = as.numeric(df2[, ID.colIdx])
 
   # Type conversion Checks for TIME column
-  if (class(df2[, TIME.col]) == "factor") {
-      df2[, TIME.col] = as.character(df2[, TIME.col])
+  if (class(df2[, TIME.colIdx]) == "factor") {
+      df2[, TIME.colIdx] = as.character(df2[, TIME.colIdx])
   } 
-  df2[, TIME.col] = as.numeric(df2[, TIME.col])
+  df2[, TIME.colIdx] = as.numeric(df2[, TIME.colIdx])
 
   # Check ID column is the same on df1 and df2
-  if (all(df1[, "ID"] != df2[, ID.col])) {
+  if (all(df1[, ID.colName] != df2[, ID.colIdx])) {
     stop(paste("ID column order of df1 and df2 does not match when merging", msg))
   }
 
   # Check TIME column is the same on df1 and df2 
-  if (all(df1[, "TIME"] != df2[, TIME.col])) {
+  if (all(df1[, TIME.colName] != df2[, TIME.colIdx])) {
     stop(paste("TIME column order of df1 and df2 does not match when merging", msg))
   }
 
   # merge all unique columns between df1 and df2
-  unique.names.df2 = setdiff(names(df2),c("ID","TIME"))
+  unique.names.df2 = setdiff(names(df2),c(ID.colName, TIME.colName))
   unique.names.df2 = setdiff(unique.names.df2, names(df1))
   mergedDf = cbind(df1, df2[, unique.names.df2], deparse.level = 0)
   # Update column names
@@ -262,11 +272,22 @@ checkDoseRows <- function(df1, df2, label1, label2, extraInfo=NULL) {
 
 #' mergeCheckColumnNames 
 #' 
+#'  @param ID.colName The name used for the ID column in both df1 and df2.
+#'  @param TIME.colName The name used for the TIME column in both df1 and df2.
+#'
 #' Utility to merge two dataframes but print out a warning if duplicate column names are detected
-mergeCheckColumnNames <- function(df1, df2) {
+mergeCheckColumnNames <- function(df1, df2, ID.colName, TIME.colName) {
+
+  # Set defaults to ID and TIME if they are not given 
+  if (missing(ID.colName)) {
+    ID.colName = "ID"
+  }
+  if (missing(TIME.colName)) {
+    TIME.colName = "TIME"
+  }
 
   # Check column names
-  duplicateNames = setdiff(intersect(names(df1), names(df2)), "ID")
+  duplicateNames = setdiff(intersect(names(df1), names(df2)), c(ID.colName, TIME.colName))
   duplicateNamesIdx = sapply(duplicateNames, FUN=function(x) grep(x, names(df2)))
 
   if (length(duplicateNames) > 0 ) {
@@ -312,20 +333,20 @@ setMethod(f="as.data",
           ID.index = input.var.use.definitions == "id"
           TIME.index = input.var.use.definitions == "idv"
 
-          ID.col.name = names(input.var.use.definitions[ID.index])
-          TIME.col.name = names(input.var.use.definitions[TIME.index])
+          ID.colName = names(input.var.use.definitions[ID.index])
+          TIME.colName = names(input.var.use.definitions[TIME.index])
 
-          if (length(ID.col.name) > 1) {
+          if (length(ID.colName) > 1) {
             stop(paste0("Multiple DATA_INPUT_VARIABLES have use defined as 'id' in MDL file, ", 
               "cannot determine correct column name for ID from MDL file. "))
-          } else if (length(ID.col.name) == 0) {
+          } else if (length(ID.colName) == 0) {
             stop(paste0("No DATA_INPUT_VARIABLES have a 'use' parameter defined as 'id' in the MDL file", 
               "cannot determine correct column name for ID from MDL file."))
           }
-          if (length(TIME.col.name) > 1) {
+          if (length(TIME.colName) > 1) {
             stop(paste0("Multiple DATA_INPUT_VARIABLES have use defined as 'idv' in MDL file, ", 
               "cannot determine correct column name for TIME from MDL file."))
-          } else if (length(TIME.col.name) == 0) {
+          } else if (length(TIME.colName) == 0) {
             stop(paste0("No DATA_INPUT_VARIABLES have a 'use' parameter defined as 'idv' in the MDL file", 
               "cannot determine correct column name for TIME from MDL file."))
           }
@@ -337,19 +358,19 @@ setMethod(f="as.data",
           names(rawData) <- toupper(names(rawData))
 
           # Checks for Column format
-				  rawData[[ID.col.name]] <- as.numeric(rawData[[ID.col.name]]) 
-				  rawData[[TIME.col.name]] <- as.numeric(rawData[[TIME.col.name]]) 
+				  rawData[[ID.colName]] <- as.numeric(rawData[[ID.colName]]) 
+				  rawData[[TIME.colName]] <- as.numeric(rawData[[TIME.colName]]) 
 
           # Reorder data frame to have ID and TIME column as first two. 
-          ID.col = names(rawData) == ID.col.name
-          TIME.col = names(rawData) == TIME.col.name
-          remaining.names = setdiff(names(rawData),c(ID.col.name,TIME.col.name))
+          ID.col = names(rawData) == ID.colName
+          TIME.col = names(rawData) == TIME.colName
+          remaining.names = setdiff(names(rawData),c(ID.colName,TIME.colName))
           rawData = cbind(rawData[, ID.col], 
                           rawData[, TIME.col], 
                           rawData[, remaining.names],
                           deparse.level = 0)
           # Update names for first two columns 
-          names(rawData) <- c(ID.col.name, TIME.col.name, remaining.names) 
+          names(rawData) <- c(ID.colName, TIME.colName, remaining.names) 
 			  }
 			  
         mergedDataFrame <- rawData
@@ -364,7 +385,7 @@ setMethod(f="as.data",
           df1 <- checkDoseRows(df1, df2, label1="rawData", label2="Predictions")
 
           # Fetch and merge Predictions 
-          mergedDataFrame <- mergeByPosition(df1, df2, 'predictions')
+          mergedDataFrame <- mergeByPosition(df1, df2, 'predictions', ID.colName=ID.colName, TIME.colName=TIME.colName)
         } else {
           warning("No Estimation::Predictions found in the SO; the resulting data frame will not contain these")
         }
@@ -379,7 +400,7 @@ setMethod(f="as.data",
           df1 = checkDoseRows(df1, df2, label1="rawData+Predictions", label2="Residuals", 
             extraInfo="Residuals data does not currently contain dose rows in output from Nonmem executions.")
 
-				  mergedDataFrame <- mergeByPosition(df1, df2, 'residuals')
+				  mergedDataFrame <- mergeByPosition(df1, df2, 'residuals', ID.colName=ID.colName, TIME.colName=TIME.colName)
 			  } else {
 				  warning("No Estimation::Residuals found in the SO; the resulting data frame will not contain these")
 			  }
@@ -388,7 +409,7 @@ setMethod(f="as.data",
 				  # IndividualEstimates, Estimates
 				  df1 <- mergedDataFrame
 				  df2 <- SOObject@Estimation@IndividualEstimates$Estimates$Mean$data
-				  mergedDataFrame <- mergeCheckColumnNames(df1, df2)
+				  mergedDataFrame <- mergeCheckColumnNames(df1, df2, ID.colName=ID.colName, TIME.colName=TIME.colName)
 			  } else {
 				  warning("No Estimation::IndividualEstimates::Estimates::Mean found in the SO; the resulting data frame will not contain these")
 			  }
@@ -397,7 +418,7 @@ setMethod(f="as.data",
 				  # IndividualEstimates, RandomEffects
 				  df1 <- mergedDataFrame
 				  df2 <- SOObject@Estimation@IndividualEstimates$RandomEffects$EffectMean$data
-				  mergedDataFrame <- mergeCheckColumnNames(df1, df2)
+				  mergedDataFrame <- mergeCheckColumnNames(df1, df2, ID.colName=ID.colName, TIME.colName=TIME.colName)
 			  } else {
 				  warning("No Estimation::IndividualEstimates::RandomEffects::EffectMean found in the SO; the resulting data frame will not contain these")
 			  }
