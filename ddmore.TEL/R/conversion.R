@@ -74,6 +74,11 @@ MOG_OBJECT_TYPES <- c("dataObj", "parObj", "mdlObj", "taskObj")
 	} else {
 		stop(paste("The file extension for the file being parsed into R objects should be .mdl; the filename was", f))
 	}
+	
+	if (json == "") {
+		# TODO: Write the conversionReport.log file to a suitable place, and tell the user where to find it
+		stop("Unable to generate JSON representation of MDL file; it likely has syntax errors.")
+	}
   
     fromJSON(json)
 
