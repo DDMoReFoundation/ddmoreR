@@ -1,4 +1,4 @@
-library("DDMoRe")
+library("ddmore")
 library("XML")
 require("methods")
 
@@ -15,15 +15,15 @@ testSlotsNotEmpty <- function(S4class, slotnames) {
   
 }
 
-context("Loading in SOObjects from Handcoded PharmMLSO Version 0.1")
+context("Loading in SOObjects from Handcoded PharmMLSO")
 
 test_that("PharmML SO fills expected slots in Estimation", {
 
   # Clear workspace. 
   rm(list=ls())
   
-  data.path = system.file("tests/data/PharmMLSO/HandCoded/warfarin_PK_ODE_SO_FULL-v0_1.xml",  
-  		package = "DDMoRe")
+  data.path = system.file("tests/data/PharmMLSO/HandCoded/warfarin_PK_ODE_SO_FULL-v0_2.SO.xml",  
+  		package = "ddmore")
         
   # Load in SO
   SOObject = LoadSOObject(data.path)
@@ -76,7 +76,7 @@ test_that("PharmML SO returns expected slots when running a bootstrap task", {
   rm(list=ls())
 
   data.path = system.file("tests/data/PharmMLSO/MachineGenerated/bootstrap.SO.xml",  
-                          package = "DDMoRe")
+                          package = "ddmore")
   
   # Load in SO
   SOObject = LoadSOObject(data.path)
@@ -127,7 +127,7 @@ test_that("PharmML SO returns expected slots when running a simulation task", {
   rm(list=ls())
   
   data.path = system.file("tests/data/PharmMLSO/MachineGenerated/run1.SO.xml",  
-                          package = "DDMoRe")
+                          package = "ddmore")
   
   # Load in SO
   SOObject = LoadSOObject(data.path)
@@ -184,7 +184,7 @@ test_that("PharmML SO returns expected slots when running a simulation task", {
 #   rm(list=ls())
   
 #   data.path = system.file("tests/data/PharmMLSO/MachineGenerated/pheno.SO.xml",  
-#   		package = "DDMoRe")
+#   		package = "ddmore")
         
 #   # Load in SO
 #   SOObject = LoadSOObject(data.path)
@@ -231,13 +231,13 @@ test_that("PharmML SO returns expected slots when running a simulation task", {
 
 
 #-------------------------------------------------------------------------------------------------
-context("Loading an empty, i.e. no SOBlocks, PharmML SO Version 0.1. Checking an Error is raised")
+context("Loading an empty, i.e. no SOBlocks, PharmML SO. Checking an Error is raised")
 #-------------------------------------------------------------------------------------------------
 
 test_that("Error is raised on passing an empty PharmML SO.", {
 
 	soXmlFilePath = system.file("tests/data/PharmMLSO/HandCoded/emptySO_v0_1.xml", 
-	package = "DDMoRe")
+	package = "ddmore")
 
 	# Single SO version
 	expect_error(LoadSOObject(soXmlFilePath), 
@@ -257,7 +257,7 @@ test_that("List of 20 SO objects is parsed correctly from LoadSOObjects", {
   # Clear workspace. 
   rm(list=ls())
 
-  soXmlFilePath = system.file("tests/data/PharmMLSO/MachineGenerated/PsN/Warfarin-ODE-latest-sse.SO.xml", package = "DDMoRe")
+  soXmlFilePath = system.file("tests/data/PharmMLSO/MachineGenerated/PsN/Warfarin-ODE-latest-sse.SO.xml", package = "ddmore")
 
   # Load in SO
   SOObjects = LoadSOObjects(soXmlFilePath)  
@@ -291,7 +291,7 @@ test_that("Expected Estimation::PrecisionPopulationEstimates::MLE::StandardError
   # Clear workspace. 
   rm(list=ls())
 
-  soXmlFilePath = system.file("tests/data/PharmMLSO/HandCoded/Warfarin-ODE-latest-Monolix-EmptyMatrices.SO.xml", package = "DDMoRe")
+  soXmlFilePath = system.file("tests/data/PharmMLSO/HandCoded/Warfarin-ODE-latest-Monolix-EmptyMatrices.SO.xml", package = "ddmore")
 
   # Load in SO
   SOObject = LoadSOObject(soXmlFilePath)

@@ -1,13 +1,13 @@
-library("DDMoRe")
+library("ddmore")
 library("XML")
 require("methods")
 
 context("Test getEstimationInfo")
 
-test_that("Test getEstimationInfo parses hand coded warfarin_PK_ODE_SO_FULL-v0_2.xml", {
+test_that("Test getEstimationInfo parses hand coded warfarin_PK_ODE_SO_FULL-v0_2.SO.xml", {
   
-  data.path <- system.file("tests//data//PharmMLSO/HandCoded//warfarin_PK_ODE_SO_FULL-v0_2.xml",  
-                          package = "DDMoRe")
+  data.path <- system.file("tests//data//PharmMLSO/HandCoded//warfarin_PK_ODE_SO_FULL-v0_2.SO.xml",  
+                          package = "ddmore")
   
   # Load in SO
   SOObject <- LoadSOObject(data.path)
@@ -34,7 +34,7 @@ test_that("Test getEstimationInfo parses hand coded warfarin_PK_ODE_SO_FULL-v0_2
 test_that("Test getEstimationInfo parses machine generated bootstrap_UPDRS1.SO.xml", {
   
   data.path <- system.file("tests//data//PharmMLSO/MachineGenerated//bootstrap_UPDRS1.SO.xml",  
-                          package = "DDMoRe")
+                          package = "ddmore")
   
   # Load in SO
   SOObject <- LoadSOObject(data.path)

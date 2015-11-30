@@ -133,6 +133,79 @@ SSE.PsN <- function(model, command="sse", samples, seed, sseOptions="", subfolde
   outputObject
 }
 
+#' sim.PsN
+#' Simulate a number of samples with a given model (internally using the PsN script nca)
+#' @param model An object of class \linkS4class{mogObj} or an MDL file. Will be
+#' 		    passed on directly to execute().
+#' @param samples An integer indicating the number of samples to simulate.
+#'        Must be at least 20.
+#' @param seed A string or numeric with a random seed for the Perl pseudo-random number generator.
+#' @param dv (Optional) String indicating name of dependent variable. Default is DV.
+#' @param idv (Optional) String indicating name of independent variable. Default is TIME.
+#' @param vars (Optional) String or string vector containing extra variables
+#'        to append simulation output. Can be combined with inputVars. Default is none.
+#' @param inputVars (Optional) Logical dictating if all variables input in model
+#'        also should append simulation output. Default is false (only id, idv and dv).
+#' @param rawresFile (Optional) String indicating path of PsN raw results file,
+#'        e.g. from an earlier bootstrap execution, if simulating with uncertainty
+#'        (see PsN documentation). Default is none.
+#' @param rawresOffset (Optional) Integer indicating lines to skip (excluding header)
+#'        in raw results file (if used). Default is 1.
+#' @param subfolder (Optional) Specify the name of a subfolder, within the directory
+#'        containing the model file, in which to store the results. Default
+#'        is a timestamped folder with prefix sim_.
+#' @param ncaOptions (Optional) String containing extra PsN nca options to append
+#'        (see PsN nca documentation). Default is none.
+#' @param extraInputFiles (Optional) String or string vector of paths, either
+#'        absolute or relative (to the model file), to any additional files to be
+#'        included in the execution. Default is none or, if used, value of rawresFile.
+#' @return An object of class \linkS4class{StandardOutputObject}
+#' 
+#' @author Gunnar Yngman
+#' @export
+sim.PsN <- function(model, samples, seed, dv="DV", idv="TIME", vars="", inputVars=FALSE, rawresFile="", rawresOffset=1, subfolder=paste0("sim_",format(Sys.time(), "%Y%b%d%H%M%S")), ncaOptions="", extraInputFiles="", ...) {
+  # Simple argument validation
+  if (!(is.numeric(samples) && length(samples) == 1 && samples >= 20)) stop("Argument 'samples' is not single numeric and >=20")
+  if (!((is.character(seed) || is.numeric(seed)) && length(seed) == 1)) stop("Argument 'seed' is not single numeric or string")
+  if (!(is.character(dv) && length(dv) == 1)) stop("Argument 'dv' is not single string")
+  if (!(is.character(idv) && length(idv) == 1)) stop("Argument 'idv' is not single string")
+  if (!(is.character(vars) && !(any(vars == "") && length(vars) > 1))) stop("Argument 'vars' is not single string or string vector")
+  if (!(is.logical(inputVars) && length(inputVars) == 1)) stop("Argument 'inputVars' is not single logical")
+  if (!(is.character(rawresFile) && length(rawresFile) == 1)) stop("Argument 'rawresFile' is not single string")
+  if (!(is.numeric(rawresOffset) && length(rawresOffset) == 1 && rawresOffset >= 1)) stop("Argument 'rawresOffset' is not single numeric and >=1")
+  if (!(is.character(subfolder) && length(subfolder) == 1)) stop("Argument 'subfolder' is not single string")
+  if (!(is.character(ncaOptions) && length(ncaOptions) == 1)) stop("Argument 'ncaOptions' is not single string")
+  if (!(is.character(extraInputFiles) && !(any(extraInputFiles == "") && length(extraInputFiles) > 1))) stop("Argument 'extraInputFiles' is not single string or string vector")
+  
+  # Options for variables to include
+  ncaCommand <- ifelse(inputVars, " --include_all_columns", "")
+  if (!any(vars == "")) {
+    ncaCommand <- paste0(ncaCommand, " --columns=", paste(vars, collapse=","))
+  }
+
+  # Options for dependent and independent variables
+  ncaCommand <- paste0(ncaCommand, " --dv=", dv)
+  ncaCommand <- paste0(ncaCommand, " --idv=", idv)
+
+  # Options for rawres/extra input files
+  if(any(extraInputFiles == "")) extraInputFiles <- NULL
+  if (rawresFile != "") {
+    ncaCommand <- paste0(ncaCommand, " --rawres_input=", rawresFile)
+    ncaCommand <- paste0(ncaCommand, " --offset_rawres=", rawresOffset)
+    if(is.null(extraInputFiles)) extraInputFiles <- rawresFile
+  }
+
+  # Final command including mandatory number of samples, seed and optional extra options
+  ncaCommand <- paste0("nca --samples=", samples, " --seed=", seed, ncaCommand, " ", ncaOptions)
+
+  #TODO loading SO can take a long time, boolean option importSO to execute() would be nice
+  #TODO If collect is set to false we do not get result files back, and no SO object. Cannot handle that here
+
+  outputObject <- execute(model, target="PsNgeneric", addargs=ncaCommand, subfolder=subfolder, importMultipleSO=FALSE, extraInputFiles=extraInputFiles, ...)
+
+  outputObject
+}
+
 #Helper function to find file with pattern in resultsDir 
 #Return string with absolute path file name, or NULL if no file matching pattern found, or if more than one found
 .findResultFile <- function(resultsDir,pattern) {

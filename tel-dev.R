@@ -35,7 +35,7 @@ print(sprintf("DDMoRe R libraries directory: %s", libPath))
 .libPaths(libPath)
           
 script.files = c(
-    "telClasses", "createMogObj",
+    "Classes", "createMogObj",
     "utils", "import", "execute", "conversion", "readDataObj", "updateParObj",
     "getDataObjects", "getParameterObjects", "getPopulationParameters", "getModelObjects", "getTaskPropertiesObjects", "getMDLObjects",
     "FISServer", "FISJob", "server", "jobExecution", "psnWrappers", "xmlParsers", "StandardOutputSubClasses", "StandardOutputObject",

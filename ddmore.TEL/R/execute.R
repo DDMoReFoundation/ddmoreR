@@ -173,7 +173,7 @@ setGeneric("execute", function(x, target = NULL,
 #' Function performing a workflow involved in execution of a Job in FIS. 
 #' 
 #' If execution fails, the submission object together with the error (if any) that provoked the failure is available
-#' as '.DdmoreFailedSubmission' global variable.
+#' as '.ddmoreFailedSubmission' global variable.
 #' 
 #' @param submission a list representing a job that holds all parameters required for successful submission of a job.
 #' @param fisServer FISServer instance.
@@ -218,10 +218,11 @@ DDMORE.performExecutionWorkflow <-
         message(SUBMISSION_STATUSES[[submission$status]]$label)
         message(sprintf('-- %s', submission$end))
         if (submission$status == SUBMISSION_FAILED) {
-            .DdmoreFailedSubmission <<- submission
+            .ddmoreFailedSubmission <<- submission
             stop(
                 "Execution of model ", submission$parameters$modelFile, " failed.\n  The contents of the working directory ",
-                submission$parameters$importDirectory, " may be useful for tracking down the cause of the failure."
+                submission$parameters$importDirectory, " may be useful for tracking down the cause of the failure.",
+				"\n  Additionally, the submission object has been saved to the hidden variable .ddmoreFailedSubmission in the workspace; internal errors should have been captured in .ddmoreFailedSubmission$error$message."
             )
         }
         return(submission)

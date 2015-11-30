@@ -4,10 +4,6 @@ JSON_FILE_EXT <- 'json'
 
 MOG_OBJECT_TYPES <- c("dataObj", "parObj", "mdlObj", "taskObj")
 
-# This used to include ".PKMACRO" too; add this back in if "PKMACRO" is re-introduced into the MDL syntax,
-# and also update the R doc on the MODEL_PREDICTION slot in the class definition of mdlObj accordingly.
-MODEL_PREDICTION_SUBBLOCKS <- c(".DEQ", ".COMPARTMENT") 
-
 
 ################################################################################
 #' .parseMDLFile
@@ -77,6 +73,11 @@ MODEL_PREDICTION_SUBBLOCKS <- c(".DEQ", ".COMPARTMENT")
 		json <- readLines(f, warn=FALSE)[[1]]
 	} else {
 		stop(paste("The file extension for the file being parsed into R objects should be .mdl; the filename was", f))
+	}
+	
+	if (json == "") {
+		# TODO: Write the conversionReport.log file to a suitable place, and tell the user where to find it
+		stop("Unable to generate JSON representation of MDL file; it likely has syntax errors.")
 	}
   
     fromJSON(json)

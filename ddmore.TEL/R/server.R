@@ -167,7 +167,7 @@ DDMORE.safeStop <-
 ################################################################################
 #' DDMORE.checkConfiguration
 #'
-#' Checks if this DDMoRe package is actually loaded (the R scripts may have
+#' Checks if this ddmore package is actually loaded (the R scripts may have
 #' been \code{source}d instead). If so, then determine the path to the package
 #' and navigate up the directory tree from this location to obtain the SEE home
 #' directory, returning this directory. Therefore this assumes that the R
@@ -177,10 +177,10 @@ DDMORE.safeStop <-
 DDMORE.checkConfiguration <-
   function() {
 
-	if ("package:DDMoRe" %in% search()) {
+	if ("package:ddmore" %in% search()) {
 		# The package is loaded, proceed
 
-    	packagePath <- path.package("DDMoRe")
+    	packagePath <- path.package("ddmore")
     
     	see.home <- file_path_as_absolute(file.path(packagePath, '..', '..', '..', '..'))
     
@@ -201,7 +201,7 @@ DDMORE.checkConfiguration <-
     	see.home # Return value
 		
 	} else {
-		stop("The DDMoRe package is not loaded. The FIS and MIF servers must be started manually.")
+		stop("The ddmore package is not loaded. The FIS and MIF servers must be started manually.")
 	}
     
   }

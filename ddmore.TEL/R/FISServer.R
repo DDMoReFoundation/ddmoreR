@@ -136,14 +136,14 @@ setMethod("getWriteMDLUrl", signature = signature("FISServer"),
 ################################################################################
 #' MDLToPharmML
 #'
-#' Converts MDL to PharmML
+#' Converts an MDL file to a PharmML file.
 #' 
 #' Internal method, users should use as.PharmML function.
 #'
 #' @param fisServer FISServer instance.
 #' @param filePath absolute path to an MDL file that should be converted
 #' 
-#' @return a path to the result PharmML file
+#' @return a path to the result PharmML file, in the current working directory
 #'
 setGeneric(
     name = "MDLToPharmML",
@@ -158,12 +158,12 @@ setMethod("MDLToPharmML", signature = signature("FISServer"),
               .precondition.checkArgument(file.exists(filePath), "filePath", sprintf("MDL file %s must exist.",filePath))
               body <- URLencode(paste0(
                   "filePath=", normalizePath(filePath, winslash="/"),
-                  "&outputDir=", normalizePath(tempdir())
+                  "&outputDir=", normalizePath(getwd())
               ))
               url <- sprintf('%s/convertmdl', fisServer@url)
               response <- .httpPost(url = url, body = body)
               
-              if(response$header['status']!=200) {
+              if (response$header['status'] != 200) {
                   # in case of error, the body contains JSON representation of the exception
                   log.debug(response$body)
                   exception <- fromJSON(response$body)

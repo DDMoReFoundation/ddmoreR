@@ -11,8 +11,8 @@ library(RCurl)
 library(RNMImport)
 library(xpose4)
 library(MSToolkit)
-# Load the TEL.R library
-library(DDMoRe.TEL)
+# Load the DDMoRe R library
+library(ddmore)
 
 ## ----loadData---------------------------------------------------------
 warfData<-readNmData("warfpk2.csv",records=0)
