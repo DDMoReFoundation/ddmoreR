@@ -12,7 +12,8 @@
 #' @param file The relative path to the .SO.xml file
 #' @return Returns a newly created instance of the \link{StandardOutputObject} class
 #'         populated with the data from the single SOBlock section of the PharmML file
-#' 
+#' @examples 
+#' mlx <- LoadSOObject("UseCase2.SO.xml")
 #' @export
 #' @include StandardOutputObject.R xmlParsers.R 
 LoadSOObject <- function(file) {
