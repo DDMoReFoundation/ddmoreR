@@ -48,5 +48,6 @@ Collate:
     'startingValues.r'
     'subset.R'
     'updateParObj.R'
+    'as.mdl.R'
 Suggests:
     testthat

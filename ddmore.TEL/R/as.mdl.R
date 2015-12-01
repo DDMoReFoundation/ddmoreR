@@ -8,8 +8,6 @@
 #' @param nmtranComments If original NMTRAN in comments are to be included in the output set to TRUE. Default is FASLE.
 #' 
 #' @export
-
-
 as.mdl <- function(nmFilePath, url = "http://nmtran-to-mdl.mango-solutions.com/process.php", 
                    mdlHelpComments = FALSE, nmtranComments = FALSE){
   
