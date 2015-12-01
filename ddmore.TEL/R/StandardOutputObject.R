@@ -333,8 +333,8 @@ setMethod(f="as.data",
           ID.index = input.var.use.definitions == "id"
           TIME.index = input.var.use.definitions == "idv"
 
-          ID.colName = names(input.var.use.definitions[ID.index])
-          TIME.colName = names(input.var.use.definitions[TIME.index])
+          ID.colName = toupper(names(input.var.use.definitions[ID.index]))
+          TIME.colName = toupper(names(input.var.use.definitions[TIME.index]))
 
           if (length(ID.colName) > 1) {
             stop(paste0("Multiple DATA_INPUT_VARIABLES have use defined as 'id' in MDL file, ", 
@@ -352,7 +352,7 @@ setMethod(f="as.data",
           }
 
           # Pass in the rawData file 
-          colNames <- names(MDLObjs@DATA_INPUT_VARIABLES)
+          colNames <- toupper(names(MDLObjs@DATA_INPUT_VARIABLES))
           rawData <- read.NONMEMDataSet(inputDataPath, colNames=colNames)
           # Convert all column headers to upper case 
           names(rawData) <- toupper(names(rawData))
