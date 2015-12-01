@@ -494,9 +494,9 @@ setMethod(f="as.xpdb",
             covariates = sapply(obj@COVARIATES, FUN=function(x) x$name )
             randpar = sapply(obj@RANDOM_VARIABLE_DEFINITION, FUN=function(x) x$name ) 
 
-            myXpdb@Prefs@Xvardef$parms <- params
-            myXpdb@Prefs@Xvardef$covariates <- covariates
-            myXpdb@Prefs@Xvardef$ranpar <- randpar
+            myXpdb@Prefs@Xvardef$parms <- toupper(params)
+            myXpdb@Prefs@Xvardef$covariates <- toupper(covariates)
+            myXpdb@Prefs@Xvardef$ranpar <- toupper(randpar)
 
             ## Ideally would also update xpdb@Prefs@Labels (variable labels for plots)
             #myXpdb@Prefs@Labels
