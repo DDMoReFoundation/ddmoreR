@@ -124,6 +124,40 @@ test_that("as.data correctly merges raw input data with SO data", {
 })
 
 
+test_that("as.data correctly merges raw input data with SO data when custom TIME col is specified in Nonmen Run", {
+
+  # Note: these tests require the local servers to be running in order to parse the mdl file.
+
+  # Setup paths to files
+  csvFilePath = system.file("tests/data/warfarin_conc_TIMEchange.csv", package = "ddmore")
+  xml.data.path = system.file("tests/data/PharmMLSO/MachineGenerated/UseCase2_TIMEchange_fixed.SO.xml",  
+    package = "ddmore")
+  expected.data.path = system.file("tests/data/PharmMLSO/MachineGenerated/UseCase2_TIMEchange_fixed.as.data.txt",  
+    package = "ddmore")
+
+  # Load in SO
+  SOObject = LoadSOObject(xml.data.path)
+
+  # Test for fetching Raw Data from an input file and combining with SO data 
+  MyDataFrame = as.data(SOObject, inputDataPath=csvFilePath)
+
+  # Test no empty data frame is returned 
+  expect_true(
+    nrow(MyDataFrame) > 0 , 
+    info = "Data Frame should not be empty"
+  )
+  
+  # Test data frame values are as expected
+  expectedValues = dget(expected.data.path)
+ 
+  expect_true(
+    all.equal(expectedValues, MyDataFrame), 
+    info = "Data Frame should contain correct values"
+  )
+
+})
+
+
 # context("Testing as.data can deal with duplicate column names in SO slots.")
 
 # test_that("as.data correctly merges raw input data with SO data", {
