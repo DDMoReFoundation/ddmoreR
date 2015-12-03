@@ -3,24 +3,17 @@
 #' This function acts on an object of class StandardOutputObject 
 #' and presents information to the user about the parameter values for the individuals.  
 #' 
-#' Depending on the target software and estimation method, values 
-#' such as Objective Function Value (OFV), -2*log-likelihood and/or Information criteria
-#' such as AIC, DIC, BIC may be returned. In addition, any warnings, errors and info messages 
-#' from the log will also be stored in the returned output. If there are any errors of warnings, 
-#' these will also be printed to the console.   
-#'
 #' @param SOObject an object of class StandardOutputObject, the output from an 
 #'     estimation task.
 #' @param what a character vector specifying which measure of central tendency to return, 
 #'     either "Mean" (default), "Median" or "Mode".
 #'
-#' @return A nested list with two elements:.
-#'   \describe{
-#'     \item{"Liklihood"}{All information from the Liklihood slot of the SOObject}
-#'  \item{"Messages"}{A nested list for each message grouped by message type ("Info", "Error", and/or "Warning" if present)}
-#' }
+#' @return A data frame with number of rows equal to the number of individuals,
+#'     and number of columns corresponding to the number of parameters.
 #'
-#' @examples getIndividualParameters(object)
+#' @examples 
+#' mlx <- LoadSOObject("UseCase2.SO.xml")
+#' getIndividualParameters(mlx)
 #'
 #' @export 
 getIndividualParameters <- function(SOObject, what="Mean") { 

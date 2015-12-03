@@ -22,11 +22,10 @@
 #'  
 #' @examples
 #' # Change the initial value for a structural parameter
-#' updateParObj(warfarinMOG@@parObj, "STRUCTURAL", "POP_V", list(value="2"))
-#' # Change the bounds of a variability parameter
-#' updateParObj(warfarinMOG@@parObj, "VARIABILITY", "CORR_PPV_CL_V", list(lo=-0.5, hi=+0.5))
+#' myParObj <- getParameterObjects("UseCase2.mdl")[[1]]
+#' updateParObj(myParObj, "STRUCTURAL", "POP_V", list(value="2"))
 #' # Fix the value of a parameter
-#' updateParObj(nockMOG@parObj, "VARIABILITY", "SIGMA", list(fix="true"))
+#' updateParObj(myParObj, "STRUCTURAL", "BETA_V_WT", list(fix="false"))
 #' 
 #' @note When trying to update multiple attributes across multiple variables e.g. via
 #'       \code{p <- updateParObj(p, "STRUCTURAL", names(p<at>STRUCTURAL), list(value=0.5565, lo=0.6656))}
