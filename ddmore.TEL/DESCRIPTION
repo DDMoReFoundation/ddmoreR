@@ -49,5 +49,6 @@ Collate:
     'subset.R'
     'updateParObj.R'
     'as.mdl.R'
+    "cleanUp.R"
 Suggests:
     testthat
