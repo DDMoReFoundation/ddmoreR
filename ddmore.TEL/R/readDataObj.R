@@ -27,7 +27,10 @@
 #' @return Returns a data frame or list of data frames containing the dataset(s)
 #'         as described by the Data Object SOURCE, DATA_INPUT_VARIABLES and
 #'         DATA_DERIVED_VARIABLES information.
-#'
+#' @examples 
+#'  myDataObj <- getDataObjects("UseCase2.mdl")[[1]]
+#'  myData <- readDataObj(myDataObj)
+#'  head(myData)
 #' @export
 #' @docType methods
 #' @rdname readDataObj-methods

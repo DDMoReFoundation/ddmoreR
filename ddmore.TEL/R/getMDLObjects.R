@@ -19,22 +19,15 @@
 #' @docType methods
 #' @rdname getMDLObjects-methods
 #' @examples
-#' Retrieve from the ddmore Library
-#' ThamDataObject <- getMDLObjects(file="http://ddmore.eu/model-repository/model/download/127.17?filename=2008ThamJCCR.mdl")
+#' \dontrun{
+#'  Retrieve from the ddmore Library
+#'    ThamDataObject <- getMDLObjects(file="http://ddmore.eu/model-repository/model/download/127.17?filename=2008ThamJCCR.mdl")
+#'    }
+#'    
 #' ## Retrieve the all Objects from the .mdl file
-#' ThamDataObject <- getMDLObjects("2008ThamJCCR.mdl", type="All")
+#' myMDLObj <- getMDLObjects("UseCase2.mdl")
 #' ## Retrieve the named Objects from the .mdl file
-#' ThamMDLObjects<- getMDLObjects ("2008ThamJCCR.mdl",
-#'   				names=c("tumour_size_dat","tumour_size_par",
-#' 					 "tumour_size_mdl", "tumour_size_task"))
-#' ## Convert the retrieved items to be a Model Object Group (MOG)
-#' ## Checks for one object of each type.
-#' myThamMOG <- as.MOG(ThamMDLObjects)
-#' ## Substitute a user-defined Design and simulation based Task Properties Object
-#' ## TO DO: 
-#' ## Define myDesignBlock and mySimulationTaskObject
-#' myThamMOG@dataobj$DESIGN <- myDesignBlock
-#' myThamMOG@taskobj <- mySimulationTaskObject
+#' warfPKdat_obj <- getMDLObjects ("UseCase2.mdl",names=c("warfarin_PK_ANALYTIC_dat"))
 #'
 #' @include Classes.R FISServer.R
 getMDLObjects <- function(x, name, fisServer=DDMORE.getServer()) { 

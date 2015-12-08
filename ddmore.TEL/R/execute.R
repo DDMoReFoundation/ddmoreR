@@ -51,9 +51,9 @@ setMethod("estimate", signature=signature(x="mogObj"),
 			 fisServer=DDMORE.getServer()) {
 
     # First write out MOG to MDL.
-    # TODO: This will write out to the current directory - probably not what is desired!
+    # TODO: This will write out to the current directory - probably not what is desired! Where is/would the data file be taken from?
     # Should it maybe use MOG object's name?
-    write(x, f="output.mdl")
+    writeMogObj(x, f="output.mdl")
     
     # Now call the generic method using the mdl file
 	execute(x="output.mdl", target=target,
@@ -255,9 +255,9 @@ setMethod("execute", signature=signature(x="mogObj"),
                     fisServer = DDMORE.getServer()) {
 
     # First write out MOG to MDL.
-    # TODO: This will write out to the current directory - probably not what is desired!
+    # TODO: This will write out to the current directory - probably not what is desired! Where is/would the data file be taken from?
     # Should it maybe use MOG object's name?
-    write(x, f="output.mdl")
+    writeMogObj(x, f="output.mdl")
     
     # Now call the generic method using the mdl file
     execute(x="output.mdl", target=target,

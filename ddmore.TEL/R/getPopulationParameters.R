@@ -44,9 +44,12 @@
 #' each parameter is returned. The columns of which will be the parameter names, estimate values,
 #' then followed by the statistics specified e.g. precision values, interval values or both.
 #' 
-#' @examples getPopulationParameters(object, block="all", what="all")
+#' @examples 
+#' mlx <- LoadSOObject("UseCase2.SO.xml")
+#' getPopulationParameters(mlx, what="all")
+#' getPopulationParameters(mlx, what="estimates")
+#' getPopulationParameters(mlx, block="STRUCTURAL",what="estimates")
 #'
-#' @seealso getPopulationEstimates, getPrecisionPopulationEstimates
 #'
 #' @export
 getPopulationParameters <- function(SOObject, block="all", what="all", keep.only=NULL, fisServer = DDMORE.getServer(), ...) {

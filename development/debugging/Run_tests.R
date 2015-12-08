@@ -1,6 +1,6 @@
 
-if ("DDMoRe.TEL" %in% .packages()) {
-  detach("package:DDMoRe.TEL", unload=TRUE)
+if ("ddmore" %in% .packages()) {
+  detach("package:ddmore", unload=TRUE)
 } 
 
 library(testthat)
@@ -12,7 +12,7 @@ ddmore = as.package("DDMoRe.TEL")
 
 load_all(ddmore)
 
-require(DDMoRe.TEL)
+require(ddmore)
 
 test_dir("ddmore.TEL/inst/tests/testthat/")
 

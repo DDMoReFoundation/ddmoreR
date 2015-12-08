@@ -23,9 +23,9 @@
 #' 
 #' @examples
 #' # Retrieve all parameter objects
-#' paramObjsList <- getParameterObjects('Warfarin-ODE-latest.mdl')
+#' paramObjsList <- getParameterObjects("UseCase2.mdl")
 #' # Retrieve a known parameter object by name
-#' warfParamObj <- getParameterObjects('Warfarin-ODE-latest.mdl', name='warfarin_PK_ODE_par')
+#' warfParamObj <- getParameterObjects("UseCase2.mdl", name="warfarin_PK_ODE_par")
 #' 
 #' @seealso \link[ddmore:updateParObj-methods]{updateParObj}
 #'
