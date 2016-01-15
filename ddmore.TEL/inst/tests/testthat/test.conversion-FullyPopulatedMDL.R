@@ -135,7 +135,7 @@ compareBlockItems <- function(objName, blockName, itemContext, inputBlockItems, 
 
 	lapply(attrNames, function(attrName) {
 				
-		message("Comparing ", objName, "::", blockName, "::", itemContext, "::", attrName, "\n")
+		# message("Comparing ", objName, "::", blockName, "::", itemContext, "::", attrName, "\n")
 		
 		test_that(paste("Same class type expected for the input and output nested-list representations of block: ", blockName, ", item: ", attrName), {
 			expect_equal(class(outputBlockItems[[attrName]]), class(inputBlockItems[[attrName]]))
@@ -158,7 +158,7 @@ compareBlockItems <- function(objName, blockName, itemContext, inputBlockItems, 
 # Compares the blocks within dataObj, parObj, mdlObj or taskObj, in vector representation
 compareVectorRepresentationOfBlock <- function(objName, blockName, inputBlockAsVector, outputBlockAsVector) {
 	
-	message(paste0("\nComparing block name ", objName, "::", blockName, "...\n"))
+	# message(paste0("\nComparing block name ", objName, "::", blockName, "...\n"))
 
 	if (is.null(inputBlockAsVector) || is.null(outputBlockAsVector)) {
 		message(paste("Warning one of the blocks",blockName,"is null.\n"))
@@ -176,7 +176,7 @@ compareVectorRepresentationOfBlock <- function(objName, blockName, inputBlockAsV
 # Compares the blocks within dataObj, parObj, mdlObj or taskObj, in nested-list representation
 compareNestedListsRepresentationOfBlock <- function(objName, blockName, inputBlockAsNestedList, outputBlockAsNestedList) {
 	
-	message(paste0("\nComparing block name ", objName, "::", blockName, "...\n"))
+	# message(paste0("\nComparing block name ", objName, "::", blockName, "...\n"))
     
     if (is.null(inputBlockAsNestedList) || is.null(outputBlockAsNestedList)) {
         message(paste("Warning one of the blocks",blockName,"is null.\n"))
