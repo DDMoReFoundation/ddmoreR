@@ -325,7 +325,7 @@ setMethod(f="as.data",
 
           # Fetching Column names for the raw data is now dependent on an existing MDL file
           # file existence check is performed by .getMdlInfoFromSO
-          MDLObjs <- .getMdlInfoFromSO(SOObject, what="mdl")
+          MDLObjs <- .getMdlInfoFromSO(SOObject, what="data")
 
           # Find the variable names being used as ID and TIME
           input.var.use.definitions = lapply(MDLObjs@DATA_INPUT_VARIABLES, FUN= function(x) {x[['use']]})
