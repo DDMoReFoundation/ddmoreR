@@ -340,14 +340,14 @@ setMethod(f="as.data",
             stop(paste0("Multiple DATA_INPUT_VARIABLES have use defined as 'id' in MDL file, ", 
               "cannot determine correct column name for ID from MDL file. "))
           } else if (length(ID.colName) == 0) {
-            stop(paste0("No DATA_INPUT_VARIABLES have a 'use' parameter defined as 'id' in the MDL file", 
+            stop(paste0("No DATA_INPUT_VARIABLES have a 'use' parameter defined as 'id' in the MDL file ", 
               "cannot determine correct column name for ID from MDL file."))
           }
           if (length(TIME.colName) > 1) {
             stop(paste0("Multiple DATA_INPUT_VARIABLES have use defined as 'idv' in MDL file, ", 
               "cannot determine correct column name for TIME from MDL file."))
           } else if (length(TIME.colName) == 0) {
-            stop(paste0("No DATA_INPUT_VARIABLES have a 'use' parameter defined as 'idv' in the MDL file", 
+            stop(paste0("No DATA_INPUT_VARIABLES have a 'use' parameter defined as 'idv' in the MDL file ", 
               "cannot determine correct column name for TIME from MDL file."))
           }
 
