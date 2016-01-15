@@ -352,8 +352,10 @@ parent.folder <- function(f) {
     objs <- getMDLObjects(mdlFile, fisServer=fisServer)[[1]]
   } else if (tolower(what) == "data") {
     objs <- getDataObjects(mdlFile, fisServer=fisServer)[[1]]  
+  } else if (tolower(what) == "model") {
+    objs <- getModelObjects(mdlFile, fisServer=fisServer)[[1]]  
   } else {
-    stop("Value for what not recognised, must be one of ('mdl', 'parameter', 'data')")
+    stop("Value for what not recognised, must be one of ('mdl', 'parameter', 'model', 'data')")
   }
 
   if (length(objs) > 1) {

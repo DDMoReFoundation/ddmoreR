@@ -489,7 +489,7 @@ setMethod(f="as.xpdb",
                         
             # TODO: Temporary workaround is to find model parameters from MDL file to populate 
             # The Xvardef slot of the xpdb object
-            obj <- .getMdlInfoFromSO(SOObject, what='Model')
+            obj <- .getMdlInfoFromSO(SOObject, what='model')
             params = sapply(obj@INDIVIDUAL_VARIABLES, FUN=function(x) x$name ) 
             covariates = sapply(obj@COVARIATES, FUN=function(x) x$name )
             randpar = sapply(obj@RANDOM_VARIABLE_DEFINITION, FUN=function(x) x$name ) 
