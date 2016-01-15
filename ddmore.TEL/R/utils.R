@@ -99,7 +99,7 @@ print.dataList <- function(dataList) {
 
   # If title is present, print it
   if (!is.null(attr(dataList, "title"))) {    
-    cat(paste0("\n", attr(dataList, "title"), ":\n"))
+    message(paste0("\n", attr(dataList, "title"), ":\n"))
   }
 
   # Check headings are valid and use them as names if so
@@ -121,11 +121,11 @@ print.dataList <- function(dataList) {
   } else if (length(dataList) > 1) {
     for (i in 1:length(dataList)) {
 
-      cat("\n--- ", names(dataList)[[i]], " ---\n")
+      message("\n--- ", names(dataList)[[i]], " ---\n")
       # Call base printing functions 
       x <- dataList[[i]]
       if (length(x) == 0){
-        cat("(empty)\n")
+        message("(empty)\n")
       } else if (class(x) == 'data.frame'){
         print.data.frame(x)
       } else {
@@ -134,7 +134,7 @@ print.dataList <- function(dataList) {
 
     }
   } else {
-    cat("(empty)\n")
+    message("(empty)\n")
   }
 }
 
@@ -153,16 +153,16 @@ pprintList <- function(listObject, title=NULL) {
 print.listObject <- function(listObject){
 
   if (!is.null(attr(listObject, "title"))) {    
-    cat("\n", attr(listObject, "title"), ":\n", sep="")
+    message("\n", attr(listObject, "title"), ":\n", sep="")
   }
 
 	if (length(listObject) > 0) {
 		for (i in 1:length(listObject)) {
-	  	cat("\n--- ", names(listObject)[[i]], " ---\n")
+	  	message("\n--- ", names(listObject)[[i]], " ---\n")
       # Call base printing functions
       x <- listObject[[i]]
       if (length(x) == 0){
-        cat("(empty)\n")
+        message("(empty)\n")
       } else if (class(x) == 'data.frame'){
         print.data.frame(x)
       } else {
@@ -170,7 +170,7 @@ print.listObject <- function(listObject){
       }
 		}
 	} else {
-		cat("(empty)\n")
+		message("(empty)\n")
 	}
 }
 
