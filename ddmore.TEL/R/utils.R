@@ -338,7 +338,7 @@ parent.folder <- function(f) {
 
 #' Utilities to extract parts of the mdl file that shares the same name as the current SO.xml 
 #' 
-.getMdlInfoFromSO <- function(SOObject, what="MDL", fisServer = DDMORE.getServer()) {
+.getMdlInfoFromSO <- function(SOObject, what="mdl", fisServer = DDMORE.getServer()) {
 	
   # Look up MDL file, which is for now assumed to be in the same folder and shares the same name.
   mdlFile <- sub(x=SOObject@.pathToSourceXML, pattern="\\.SO\\.xml$", replacement=".mdl")
