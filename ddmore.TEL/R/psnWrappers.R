@@ -133,7 +133,7 @@ SSE.PsN <- function(model, command="sse", samples, seed, sseOptions="", subfolde
   outputObject
 }
 
-#' sim.PsN
+#' ncasim.PsN
 #' Simulate a number of samples with a given model (internally using the PsN script nca)
 #' @param model An object of class \linkS4class{mogObj} or an MDL file. Will be
 #' 		    passed on directly to execute().
@@ -153,7 +153,7 @@ SSE.PsN <- function(model, command="sse", samples, seed, sseOptions="", subfolde
 #'        in raw results file (if used). Default is 1.
 #' @param subfolder (Optional) Specify the name of a subfolder, within the directory
 #'        containing the model file, in which to store the results. Default
-#'        is a timestamped folder with prefix sim_.
+#'        is a timestamped folder with prefix ncasim_.
 #' @param ncaOptions (Optional) String containing extra PsN nca options to append
 #'        (see PsN nca documentation). Default is none.
 #' @param extraInputFiles (Optional) String or string vector of paths, either
@@ -163,7 +163,7 @@ SSE.PsN <- function(model, command="sse", samples, seed, sseOptions="", subfolde
 #' 
 #' @author Gunnar Yngman
 #' @export
-sim.PsN <- function(model, samples, seed, dv="DV", idv="TIME", vars="", inputVars=FALSE, rawresFile="", rawresOffset=1, subfolder=paste0("sim_",format(Sys.time(), "%Y%b%d%H%M%S")), ncaOptions="", extraInputFiles="", ...) {
+ncasim.PsN <- function(model, samples, seed, dv="DV", idv="TIME", vars="", inputVars=FALSE, rawresFile="", rawresOffset=1, subfolder=paste0("ncasim_",format(Sys.time(), "%Y%b%d%H%M%S")), ncaOptions="", extraInputFiles="", ...) {
   # Simple argument validation
   if (!(is.numeric(samples) && length(samples) == 1 && samples >= 20)) stop("Argument 'samples' is not single numeric and >=20")
   if (!((is.character(seed) || is.numeric(seed)) && length(seed) == 1)) stop("Argument 'seed' is not single numeric or string")
@@ -172,7 +172,7 @@ sim.PsN <- function(model, samples, seed, dv="DV", idv="TIME", vars="", inputVar
   if (!(is.character(vars) && !(any(vars == "") && length(vars) > 1))) stop("Argument 'vars' is not single string or string vector")
   if (!(is.logical(inputVars) && length(inputVars) == 1)) stop("Argument 'inputVars' is not single logical")
   if (!(is.character(rawresFile) && length(rawresFile) == 1)) stop("Argument 'rawresFile' is not single string")
-  if (!(is.numeric(rawresOffset) && length(rawresOffset) == 1 && rawresOffset >= 1)) stop("Argument 'rawresOffset' is not single numeric and >=1")
+  if (!(is.numeric(rawresOffset) && length(rawresOffset) == 1 && rawresOffset >= 0)) stop("Argument 'rawresOffset' is not single numeric and >=0")
   if (!(is.character(subfolder) && length(subfolder) == 1)) stop("Argument 'subfolder' is not single string")
   if (!(is.character(ncaOptions) && length(ncaOptions) == 1)) stop("Argument 'ncaOptions' is not single string")
   if (!(is.character(extraInputFiles) && !(any(extraInputFiles == "") && length(extraInputFiles) > 1))) stop("Argument 'extraInputFiles' is not single string or string vector")
@@ -202,6 +202,74 @@ sim.PsN <- function(model, samples, seed, dv="DV", idv="TIME", vars="", inputVar
   #TODO If collect is set to false we do not get result files back, and no SO object. Cannot handle that here
 
   outputObject <- execute(model, target="PsNgeneric", addargs=ncaCommand, subfolder=subfolder, importMultipleSO=FALSE, extraInputFiles=extraInputFiles, ...)
+
+  outputObject
+}
+
+#' sim.PsN
+#' Simulate a number of samples with a given model (internally using the PsN script sse),
+#' keeping the standard table output format for a complete population of the SO.
+#' @param model An object of class \linkS4class{mogObj} or an MDL file. Will be
+#' 		    passed on directly to execute().
+#' @param samples An integer indicating the number of samples to simulate.
+#'        Must be at least 20.
+#' @param seed A string or numeric with a random seed for the Perl pseudo-random number generator.
+#' @param vars (Optional) String or string vector containing extra variables
+#'        to append simulation output. Default is none.
+#' @param rawresFile (Optional) String indicating path of PsN raw results file,
+#'        e.g. from an earlier bootstrap execution, if simulating with uncertainty
+#'        (see PsN documentation). Default is none.
+#' @param rawresOffset (Optional) Integer indicating lines to skip (excluding header)
+#'        in raw results file (if used). Default is 1.
+#' @param subfolder (Optional) Specify the name of a subfolder, within the directory
+#'        containing the model file, in which to store the results. Default
+#'        is a timestamped folder with prefix sim_.
+#' @param sseOptions (Optional) String containing extra PsN sse options to append
+#'        (see PsN sse documentation). No estimation options allowed. Default is none.
+#' @param extraInputFiles (Optional) String or string vector of paths, either
+#'        absolute or relative (to the model file), to any additional files to be
+#'        included in the execution. Default is none or, if used, value of rawresFile.
+#' @return An object of class \linkS4class{StandardOutputObject}
+#' 
+#' @author Gunnar Yngman
+#' @export
+sim.PsN <- function(model, samples, seed, vars="", rawresFile="", rawresOffset=1, subfolder=paste0("sim_",format(Sys.time(), "%Y%b%d%H%M%S")), sseOptions="", extraInputFiles="", ...) {
+  # Simple argument validation
+  if (!(is.numeric(samples) && length(samples) == 1 && samples >= 1)) stop("Argument 'samples' is not single numeric and >=1")
+  if (!((is.character(seed) || is.numeric(seed)) && length(seed) == 1)) stop("Argument 'seed' is not single numeric or string")
+  if (!(is.character(vars) && !(any(vars == "") && length(vars) > 1))) stop("Argument 'vars' is not single string or string vector")
+  if (!(is.character(rawresFile) && length(rawresFile) == 1)) stop("Argument 'rawresFile' is not single string")
+  if (!(is.numeric(rawresOffset) && length(rawresOffset) == 1 && rawresOffset >= 0)) stop("Argument 'rawresOffset' is not single numeric and >=0")
+  if (!(is.character(subfolder) && length(subfolder) == 1)) stop("Argument 'subfolder' is not single string")
+  if (!(is.character(sseOptions) && length(sseOptions) == 1)) stop("Argument 'sseOptions' is not single string")
+  if (!(is.character(extraInputFiles) && !(any(extraInputFiles == "") && length(extraInputFiles) > 1))) stop("Argument 'extraInputFiles' is not single string or string vector")
+	
+	# Check for (illegal) estimation options
+	if (grepl("-alternative_models|-estimate_simulation|-add_models|-random_estimation_inits|-out_filter|-recompute", sseOptions)) stop("Argument 'sseOptions' contains estimation options")
+  
+	# --no-estimate_simulation and --keep_tables are necessary (for simulation and nmoutput2so merge)
+	sseCommand <- " --no-estimate_simulation --keep_tables "
+	
+  # Options for variables to include
+  if (!any(vars == "")) {
+    sseCommand <- paste0(sseCommand, " --append_columns=", paste(vars, collapse=","))
+  }
+
+  # Options for rawres/extra input files
+  if(any(extraInputFiles == "")) extraInputFiles <- NULL
+  if (rawresFile != "") {
+    sseCommand <- paste0(sseCommand, " --rawres_input=", rawresFile)
+    sseCommand <- paste0(sseCommand, " --offset_rawres=", rawresOffset)
+    if(is.null(extraInputFiles)) extraInputFiles <- rawresFile
+  }
+
+  # Final command including mandatory number of samples, seed and optional extra options
+  sseCommand <- paste0("sse --samples=", samples, " --seed=", seed, sseCommand, " ", sseOptions)
+
+  #TODO loading SO can take a long time, boolean option importSO to execute() would be nice
+  #TODO If collect is set to false we do not get result files back, and no SO object. Cannot handle that here
+
+  outputObject <- execute(model, target="PsNgeneric", addargs=sseCommand, subfolder=subfolder, importMultipleSO=FALSE, extraInputFiles=extraInputFiles, ...)
 
   outputObject
 }
