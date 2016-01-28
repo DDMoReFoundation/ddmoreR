@@ -4,9 +4,9 @@ require("methods")
 
 context("Test getEstimationInfo")
 
-test_that("Test getEstimationInfo parses hand coded warfarin_PK_ODE_SO_FULL-v0_2.SO.xml", {
+test_that("Test getEstimationInfo parses hand coded warfarin_PK_ODE_SO_FULL.xml", {
   
-  data.path <- system.file("tests//data//PharmMLSO/HandCoded//warfarin_PK_ODE_SO_FULL-v0_2.SO.xml",  
+  data.path <- system.file("tests//data//PharmMLSO/HandCoded//warfarin_PK_ODE_SO_FULL.xml",  
                           package = "ddmore")
   
   # Load in SO
