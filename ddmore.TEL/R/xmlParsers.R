@@ -61,7 +61,7 @@ ParseElement <- function(Node) {
 #' @param parentNode The parent xmlNode object that contains two decendant tags:
 #'   Definition and Table 
 #'
-#' @value Returns a list with two named elements: \code{description}, which holds all 
+#' @return Returns a list with two named elements: \code{description}, which holds all 
 #' the meta data about the columns in a data frame; \code{data}, which holds the
 #' actual values in a dataframe.
 #'
@@ -143,7 +143,7 @@ ParseDataSetInline <- function(parentNode) {
 #' @param parentNode The parent xmlNode object that contains two decendant tags:
 #'   Definition and ImportData 
 #'
-#' @value Returns a list with two named elements: \code{description}, which holds all 
+#' @return Returns a list with two named elements: \code{description}, which holds all 
 #' the meta data about the columns in a data frame; \code{data}, which holds the
 #' actual values in a dataframe.
 #'
@@ -203,7 +203,7 @@ ParseDataSetExternal <- function(parentNode) {
 #' @param matrixNode The Matrix xmlNode object that contains the decendant tags:
 #'   ct:RowNames, ct:ColumnNames,  and multiple entries of ct:MatrixRow
 #'
-#' @value Returns a dataframe with row and column names taken from the appropriate 
+#' @return Returns a dataframe with row and column names taken from the appropriate 
 #' tags in the Matrix structure. 
 #'
 ParseMatrix <- function(matrixNode) {
@@ -260,7 +260,7 @@ ParseMatrix <- function(matrixNode) {
 #' @param ImportDataNode The parent xmlNode object that contains three decendant tags:
 #'   path, format and delimiter.  
 #'
-#' @value Returns a list with two named elements: \code{description}, which holds all 
+#' @return Returns a list with two named elements: \code{description}, which holds all 
 #' the meta data about the columns in a data frame; \code{data}, which holds the
 #' actual values in a dataframe.
 #'
@@ -287,11 +287,12 @@ ParseImportData <- function(ImportDataNode) {
   return(df)
 }
 
-#' ParseDistribution
+#' @title ParseDistribution
 #'
-#'  Parse a distribution element in the PharmML SO strucutre
-#'  
-#'  Return a list of two elements: name - the name of the distribution, parameters - 
+#' @description Parse a distribution element in the PharmML SO strucutre
+#' 
+#' @param Node XML object
+#' @return Return a list of two elements: name - the name of the distribution, parameters - 
 #' a list of the parameter values. 
 #' 
 ParseDistribution <- function(Node) {

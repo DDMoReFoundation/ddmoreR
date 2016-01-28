@@ -9,7 +9,7 @@
 #' wrapper to the R subset function.
 #'
 #' @usage subset(dataObject, by, sourceDir=getwd(), deriveVariables=TRUE, 
-#' categoricalAsFactor=TRUE, recode=TRUE, asRaw=FALSE, …) 
+#' categoricalAsFactor=TRUE, recode=TRUE, asRaw=FALSE, ...) 
 #'
 #' @param dataObject  an object of class \code{dataObj}
 #' @param by an indexing variable, Boolean vector of length nrow(data) 
@@ -35,9 +35,10 @@
 #' myNewData <- subset(ThamDataObject, by=onlyObservations)
 #'
 #' ## Using information in the Task Properties object DATA block
-#' warfData <- 	getDataObjects("warfarin_PK_CONC.mdl",name="warf_PK_CONC_dat")
+#' warfData <- 	getDataObjects("warfarin_PK_CONC.mdl",name = "warf_PK_CONC_dat")
 #' warfTaskObject <- getTaskObjects("warfarin_PK_CONC.mdl")
-#' ignore <- createIndex(warfData,criteria=warfTaskObject@DATA$IGNORE)
+#' ignore <- createIndex(warfData, 
+#'     criteria=slot(warfTaskObject, name = "DATA")$IGNORE)
 #' newWarfData <- subset(warfData, by = ignore)
 #'
 #' @include Classes.R

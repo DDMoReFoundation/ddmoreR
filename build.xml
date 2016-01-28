@@ -90,7 +90,7 @@
         <equals arg1="${build.with.64.bit.r}" arg2="true" />
     </condition>
 
-    <condition property="build.options.vignettes" value="" else="--no-vignettes" >
+    <condition property="build.options.vignettes" value="" else="--no-build-vignettes" >
         <equals arg1="${build.vignette}" arg2="true" />
     </condition>
 

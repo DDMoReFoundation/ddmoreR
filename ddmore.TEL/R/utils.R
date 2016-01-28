@@ -8,7 +8,8 @@ ddmore.utils$debug <- FALSE
 #'
 #' The default at current for an empyt slot in the SO is a list of length 0, though 
 #' settting to NULL could be a future option. 
-#'
+#' @param slot an object
+#' @return single logical
 is.empty <- function(slot) {
   return(is.null(slot) || length(slot) == 0)
 }
@@ -67,7 +68,7 @@ message <- function (..., domain = NULL, appendLF = TRUE, file=stdout())
 #' @param listObject either a single or multiple SO elements that have the necessary Definition-Table element combination.
 #' @param title A character vector to be printed at the start of the output
 #' @param headings A list of names to print alongside the elements given, must be one for each element in listObject.
-#'
+#' @return dataList
 pprintDefTable <- function(listObject, title=NULL, headings=NULL) {
 
   # Fetch data DataFrame
@@ -93,7 +94,7 @@ pprintDefTable <- function(listObject, title=NULL, headings=NULL) {
 }
 
 #' Custom S3 print method for data tables made of Description-Table tag elements 
-#'
+#' @noRd
 #' @export
 print.dataList <- function(dataList) {
 
@@ -138,8 +139,8 @@ print.dataList <- function(dataList) {
   }
 }
 
-#' Pretty print a listObject
-#'
+# Pretty print a listObject
+#
 pprintList <- function(listObject, title=NULL) {
 
   attr(listObject, "title") <- title
@@ -148,7 +149,7 @@ pprintList <- function(listObject, title=NULL) {
 }
 
 #' Custom S3 print method for listObject 
-#'
+#' @noRd
 #' @export
 print.listObject <- function(listObject){
 
@@ -180,23 +181,23 @@ print.listObject <- function(listObject){
 #' to a factor then returns it
 #'
 #' @param object a data frame or a column of a data frame. 
-#'
+#' @return updated object
 ToFactor <- function(object) {
 
     if (class(object) == "data.frame"){    
-      output = lapply(object, ToFactor)
-      object = data.frame(output)
+      output <- lapply(object, ToFactor)
+      object <- data.frame(output)
 
     } else if (class(object) == "numeric") {
-      object = as.factor(object)
+      object <- as.factor(object)
 
     } else if (class(object) == "integer") {
-      object = as.factor(object)
+      object <- as.factor(object)
 
     } else if (class(object) == "character") {
-      object = as.factor(object)
+      object <- as.factor(object)
     } else if (class(object) == "factor") {
-      object = object
+      object <- object
     } else {
       warning("Object class not recognised. Skipping conversion ...")
     }
@@ -210,7 +211,7 @@ ToFactor <- function(object) {
 #' to numeric then returns it
 #'
 #' @param object a data frame or a column of a data frame. 
-#'
+#' @return updated object
 ToNumeric <- function(object) {
 
     if (class(object) == "data.frame"){
@@ -238,13 +239,16 @@ ToNumeric <- function(object) {
 ##############################################################
 #' URLencode
 #'
-#' As per the standard utility function utils::URLencode but encoding
+#' As per the standard utility function \code{utils::URLencode} but encoding
 #' the plus character in the URL string; this being a bug in URLencode.
 #'
 #' @param x URL or GET/POST string to be URL-encoded
-#' @param the resulting URL-encoded string
+#' @param \dots arguments to \code{utils::URLencode}
+#' @return the resulting URL-encoded string
 URLencode <- function(x, ...) {
-    gsub('[+]', '%2B', utils::URLencode(x, ...))
+    gsub(pattern = '[+]', 
+        replacement = '%2B', 
+        x = utils::URLencode(x, ...))
 }
 
 ##############################################################
@@ -253,10 +257,12 @@ URLencode <- function(x, ...) {
 #' Remove any enclosing double quotes around a string if present.
 #'
 #' @param x the input string
-#' @param the output string
+#' @return the output string
 strip_quotes <- function(x) {
 	if (!is.null(x)) {
-    	gsub("^\"(.*)\"$", "\\1", x)
+    	gsub(pattern = "^\"(.*)\"$", 
+            replacement = "\\1", 
+            x = x)
 	}
 }
 
@@ -266,7 +272,7 @@ strip_quotes <- function(x) {
 #' Add enclosing double quotes round a string if none are already present.
 #'
 #' @param x the input string
-#' @param the output string
+#' @return the output string
 add_quotes <- function(x) {
 	if (!is.null(x)) {
 		gsub("^(.*)$", "\"\\1\"", strip_quotes(x))
@@ -283,26 +289,38 @@ add_quotes <- function(x) {
 #' Note that the file/folder must exist.
 #'
 #' @param f file/folder for which to find its parent
-#' @param the absolute path to the parent folder of the input file/folder
+#' @return the absolute path to the parent folder of the input file/folder
 parent.folder <- function(f) {
     dirname(file_path_as_absolute(f))
 }
 
 
 ##############################################################
-#' .assignFun
+#' @name assignFun
+#' @aliases .assignFun
+#' @title Assign column into Environment
 #'
 #' Assigns column x of a data frame into an environment
+#' @param x single character or numeric
+#' @param dat data.frame
+#' @param env environment
+#' @return NULL. As a side effect, dat$x is assigned to env.
 .assignFun <- function(x, dat, env){
-  assign(x, dat[x], envir=env)
+  assign(x = x, value = dat[x], envir = env)
 }
 
 
 ##############################################################
-#' .rowEvaluate
+#' @name rowEvaluate
+#' @aliases .rowEvaluate
+#' @title Evaluate Code within a Data Frame and Update
 #'
 #' Evaluates a string containing R code on each row of a data frame and returns
-#' an updated data frame
+#' an updated data frame.
+#' @param dat data.frame
+#' @param codeString single character R expression
+#' @return data.frame
+
 .rowEvaluate <- function(dat, codeString){
   
   # Create empty environment in which to evaluate codeString
@@ -336,8 +354,8 @@ parent.folder <- function(f) {
 }
 
 
-#' Utilities to extract parts of the mdl file that shares the same name as the current SO.xml 
-#' 
+# Utilities to extract parts of the mdl file that shares the same name as the current SO.xml 
+# 
 .getMdlInfoFromSO <- function(SOObject, what="mdl", fisServer = DDMORE.getServer()) {
 	
   # Look up MDL file, which is for now assumed to be in the same folder and shares the same name.
@@ -380,27 +398,28 @@ parent.folder <- function(f) {
 }
 
 
-#' Utility function to check function arguments
+# Utility function to check function arguments
 .precondition.checkArgument <- function(condition, argument, message) {
     if(!condition) {
         stop(sprintf("Illegal Argument %s. %s", argument, message))
     }
 }
 
-#' logs debug message to output stream
+# logs debug message to output stream
 log.debug <- function(message) {
     if(ddmore.utils$debug) {
         message(sprintf("DEBUG: %s", message))
     }
 }
 
-#' sets debug mode
+# sets debug mode
 .setDebugMode <- function(debug = FALSE) {
     ddmore.utils$debug <- debug
 }
 
-#'
-#' Performs HTTP Post request.
+#' @name httpPost
+#' @aliases .httpPost
+#' @title Performs HTTP Post request.
 #' 
 #' It is a wrapper function for RCurl:::curlPerform
 #'

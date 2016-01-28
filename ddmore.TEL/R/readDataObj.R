@@ -36,7 +36,7 @@
 #' @rdname readDataObj-methods
 #'
 #' @examples
-#' mydata <- readDataObj(warfMOG@dataObj, sourceDir='C:\\SEE\\MDL_IDE\\workspace\\Product1\\models')
+#' mydata <- readDataObj(slot(warfMOG, name = "dataObj"), sourceDir='C:\\SEE\\MDL_IDE\\workspace\\Product1\\models')
 #' head(myData)
 #'
 #' @include Classes.R
@@ -132,14 +132,16 @@ setMethod("readDataObj", "mogObj", function(object, sourceDir=getwd(), deriveVar
 
 
 ################################################################################
-#' .importData
+#' @name importData
+#' @aliases .importData
+#' @title Import Data from Data Object
 #'
 #' Imports the data file from a data object (class dataObj) and returns a data frame.
 #
 #' @param dataObj object of class "dataObj"
 #' @param sourceDir if specified, the directory in which the data file is held,
 #'                  in case they are not in the current directory
-#'
+#' @return data.frame
 .importData <- function(dataObj, sourceDir=getwd(), ...) {
 	
 	if (is.null(dataObj@SOURCE[[1]]$file)) {

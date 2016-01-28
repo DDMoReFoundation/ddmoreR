@@ -1,7 +1,7 @@
 ################################################################################
-#' Estimate
+#' @title Estimate
 #'
-#' Submits a MDL file or MOG object (class \linkS4class{mogObj}) to the target
+#' @description Submits a MDL file or MOG object (class \linkS4class{mogObj}) to the target
 #' software for execution and processes the results.
 #'
 #' @param x An MDL file, or an object of class \linkS4class{mogObj}.
@@ -146,8 +146,10 @@ setGeneric("execute", function(x, target = NULL,
 })
 
 ################################################################################
-#' .buildWorkflow
-#' Builds execution workflow based on a named list of parameters.
+#' @name buildWorkflow
+#' @aliases .buildWorkflow
+#' @title Build Workflow
+#' @description Builds execution workflow based on a named list of parameters.
 #'
 #' @param clearUp see \code{execute} function
 #' @param importSO see \code{execute} function
@@ -228,12 +230,17 @@ DDMORE.performExecutionWorkflow <-
         return(submission)
     }
     
+#' @name setFinalSubmissionStatus
+#' @aliases .setFinalSubmissionStatus
+#' @title Set Final Submission Status
+#' @description Ensures that the submission has correct predefined 
+#' (one of SUBMISSION_FAILED, SUBMISSION_CANCELLED, SUBMISSION_COMPLETED, SUBMISSION_COMPLETED_WITH_ERRORS) final status set. 
 #'
-#' Ensures that the submission has correct predefined (one of SUBMISSION_FAILED, SUBMISSION_CANCELLED, SUBMISSION_COMPLETED, SUBMISSION_COMPLETED_WITH_ERRORS) final status set. 
-#'
-#' The use of the submission$status is optional by the *Step functions, and they are free to to use it if there is a need and set these to free-style text. 
+#' The use of the submission$status is optional by the *Step functions, 
+#' and they are free to to use it if there is a need and set these to free-style text. 
 #' 
-#'
+#' @inheritParams DDMORE.performSyncExecutionWorkflow
+#' @return updated submission object
 .setFinalSubmissionStatus <- function(submission) {
     .precondition.checkArgument("status" %in% names(submission) && !is.null(submission$status) , "submission$status", "Is required and should be not-null.")
     if(!submission$status %in% names(SUBMISSION_STATUSES) || !SUBMISSION_STATUSES[[submission$status]]$final) {

@@ -6,9 +6,11 @@ MOG_OBJECT_TYPES <- c("dataObj", "parObj", "mdlObj", "taskObj")
 
 
 ################################################################################
-#' .parseMDLFile
+#' @name parseMDLFile
+#' @aliases .parseMDLFile
+#' @title Parse MDL File
 #'
-#' Calls the MDL parser, providing a specified path to an MDL file, and returns a list of
+#' @description Calls the MDL parser, providing a specified path to an MDL file, and returns a list of
 #' all objects from that MDL file of a specified type. Optionally a name can be specified
 #' too to target a specific object. The recognised types are:
 #' \itemize{

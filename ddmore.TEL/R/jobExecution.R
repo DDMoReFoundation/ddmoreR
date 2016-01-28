@@ -122,9 +122,11 @@ DDMORE.prepareSubmissionStep <- function( executionType=NULL, workingDirectory =
 }
 
 ################################################################################
-#' .buildSubmissionJob
+#' @name buildSubmissionJob
+#' @aliases .buildSubmissionJob
+#' @title Build Submission Job
 #' 
-#' INTERNAL, this function is to be used by \code{DDMORE.performExecutionWorkflow}.
+#' @description INTERNAL, this function is to be used by \code{DDMORE.performExecutionWorkflow}.
 #'
 #' Helper function that creates a \code{FISJob} from list of submission parameters
 #'
@@ -155,7 +157,33 @@ DDMORE.prepareSubmissionStep <- function( executionType=NULL, workingDirectory =
 #' 
 #' Submits a job to the DDMORE server.
 #' 
-#' @param submission named list representing a submission.
+#' @param submission Named list containing information relating to the
+#'        submission of a job:
+#'        \itemize{
+#'          \item{\code{executionType}}
+#'            - Identifying the target software to use for the execution.
+#'          \item{\code{parameters}}
+#'            - Input parameters used to submit job with elements: \itemize{
+#'              \item{\code{parameters$modelFile}}
+#'                - MDL file that was executed; any leading path will be stripped off,
+#'                  and the .mdl file extension replaced with .SO.xml, to derive the
+#'                  filename of the Standard Output XML file. If \code{submission$job}
+#'                  is available (which it will be if called as part of \link{DDMORE.monitor})
+#'                  then the \code{job$controlFile} is used instead of the \code{modelFile}
+#'                  since this will include any relative file path prefix on the control
+#'                  file i.e. if the model file references its data file via a relative path.
+#'              \item{\code{parameters$importMultipleSO}}
+#'                - Whether multiple SOBlocks are expected in the SO XML results file.
+#'                  Default is FALSE. Note that if FALSE and multiple SOBlocks are encountered,
+#'                  an error will be thrown.
+#'              \item{\code{parameters$importDirectory}}
+#'              - the path of a directory, into which to copy the results. Default
+#'                  is a timestamped subdirectory of the input model source directory.}
+#'          \item{\code{status}}
+#'            - The status of the execution of the model file. If not "COMPLETED"
+#'              then this import into Standard Output object will not work.
+#'          \item{\code{fisJob}} - structure returned from \link{DDMORE.getJob}
+#'        }
 #' @param fisServer FISServer instance.
 #' 
 #' @return \code{submission} input submission with additional 'fisJob' element representing a job running on FIS.
@@ -185,13 +213,13 @@ DDMORE.submitJobStep <- function( submission, fisServer=DDMORE.getServer(), ...)
 #' specified execution request jobID, until the DDMORE server either reports the
 #' job as having completed successfully or as having failed.
 #' 
-#' @param submission Named list containing information relating to the
-#'        submission of the execution request. The only items required by
+#' The only submission items required by
 #'        this function are:
 #'        \itemize{
 #'          \item{\code{fisJob}} - A job returned by FIS during submission.
 #'        }
-#' @param fisServer \code{FISServer} instance.
+#' 
+#' @inheritParams DDMORE.submitJobStep
 #' 
 #' @return Updated \code{submission} named list augmented with the \code{status}
 #'         of the job and final FIS job state
@@ -229,13 +257,13 @@ DDMORE.pollStep <- function(submission, fisServer=DDMORE.getServer(), ...) {
 #' 
 #' Clears up Job working directories. 
 #' 
-#' @param submission Named list containing information relating to the
-#'        submission of the execution request. The only items required by
+#' The only submission items required by
 #'        this function are:
 #'        \itemize{
 #'          \item{\code{fisJob}} - A job returned by FIS during submission.
 #'        }
-#' @param fisServer \code{FISServer} instance.
+#' 
+#' @inheritParams DDMORE.submitJobStep
 #' 
 #' @return Updated \code{submission} named list.
 #' 
@@ -255,21 +283,7 @@ DDMORE.clearUpStep <- function(submission, fisServer=DDMORE.getServer(), ...) {
 #' 
 #' Import result files for Model submission.
 #' 
-#' 
-#' @param submission Named list containing information relating to the
-#'        submission of a job:
-#'        \itemize{
-#'          \item{\code{parameters}}
-#'            - Input parameters used to submit job.
-#'          \item{\code{parameters$importDirectory}}
-#'            - the path of a directory, into which to copy the results. Default
-#'              is a timestamped subdirectory of the input model source directory.
-#'          \item{\code{status}}
-#'            - The status of the execution of the model file. If not "COMPLETED"
-#'              then this import into Standard Output object will not work.
-#'          \item{\code{fisJob}} - structure returned from \link{DDMORE.getJob}
-#'        }
-#' @param fisServer - FISServer instance
+#' @inheritParams DDMORE.submitJobStep
 #' @return The 'submission' named list.
 #'
 #' @seealso \code{DDMORE.performExecutionWorkflow}
@@ -312,30 +326,7 @@ DDMORE.importFilesStep <- function(submission, fisServer, ... ) {
 #' FIXME This function returns \code{list} of \code{StandardOutputObject} or single 
 #' \code{StandardOutputObject} depending on the value of the \code{submission$parameters$importMultipleSO} flag.
 #' 
-#' @param submission Named list containing information relating to the
-#'        submission of a job:
-#'        \itemize{
-#'          \item{\code{executionType}}
-#'            - Identifying the target software to use for the execution.
-#'          \item{\code{parameters}}
-#'            - Input parameters used to submit job.
-#'          \item{\code{parameters$modelFile}}
-#'            - MDL file that was executed; any leading path will be stripped off,
-#'              and the .mdl file extension replaced with .SO.xml, to derive the
-#'              filename of the Standard Output XML file. If \code{submission$job}
-#'              is available (which it will be if called as part of \link{DDMORE.monitor})
-#'              then the \code{job$controlFile} is used instead of the \code{modelFile}
-#'              since this will include any relative file path prefix on the control
-#'              file i.e. if the model file references its data file via a relative path.
-#'          \item{\code{parameters$importMultipleSO}}
-#'            - Whether multiple SOBlocks are expected in the SO XML results file.
-#'              Default is FALSE. Note that if FALSE and multiple SOBlocks are encountered,
-#'              an error will be thrown.
-#'          \item{\code{status}}
-#'            - The status of the execution of the model file. If not "COMPLETED"
-#'              then this import into Standard Output object will not work.
-#'          \item{\code{fisJob}} - structure returned from \link{DDMORE.getJob}
-#'        }
+#' @inheritParams DDMORE.submitJobStep
 #' @return submission named list with 'so' element being an object of class \linkS4class{StandardOutputObject}, or if \code{multiple}
 #'         is TRUE, then a list of such objects.
 #' 
@@ -397,14 +388,13 @@ DDMORE.importSOStep <- function(submission, fisServer, ...) {
 #' submission status is set to SUBMISSION_COMPLETED_WITH_ERRORS.
 #' Otherwise the status of the submission is not modified.
 #' 
-#' @param submission Named list containing information relating to the
-#'        submission of the execution request. The only items required by
+#' The only items required by
 #'        this function are:
 #'        \itemize{
 #'          \item{\code{fisJob}} - A job returned by FIS during submission.
 #'          \item{\code{so}} - SO from the job's execution.
 #'        }
-#' @param fisServer \code{FISServer} instance.
+#' @inheritParams DDMORE.submitJobStep
 #' 
 #' @return Updated \code{submission} named list.
 #' 

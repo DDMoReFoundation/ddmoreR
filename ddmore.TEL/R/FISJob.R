@@ -203,11 +203,14 @@ setMethod("getConvReportLogFile", signature = signature("FISJob"),
 		  })
 
 ##############################################################
-#' .fisJobToJSON
+#' @name fisJobToJSON
+#' @aliases .fisJobToJSON
+#' @title Convert fisJob to JSON
 #'
 #' Converts FISJob objects to JSON representation.
 #'
 #' @usage .fisJobToJSON(object)
+#' @param fisJob FISJob object
 #'
 #' @return json character vector
 .fisJobToJSON <- function(fisJob) {

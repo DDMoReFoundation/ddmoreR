@@ -30,8 +30,8 @@
 #'  VARIABILITY=list(OTHER = list(dist="runif", args=list(min=1, max=10)))
 #')
 #' # We can use the function either on the arObj, or a mogObj
-#' startingValues(myMog@parObj, ml)
-#' startingValues(myMog, ml)
+#' startingValues(object = slot(myMog, name = "parObj"), size = ml)
+#' startingValues(object = myMog, size = ml)
 #' @include Classes.R
 #' @export
 #' @docType methods
@@ -87,9 +87,9 @@ setMethod("startingValues", signature=signature(object="parObj"),
 
 })
 
-#' .caller
-#' Function to apply do.call down a list
-#'
+# .caller
+# Function to apply do.call down a list
+#
 .caller <- function(theList){
   # Add argument n=1 if not already present
   funArgs <- theList$args
@@ -98,14 +98,16 @@ setMethod("startingValues", signature=signature(object="parObj"),
   return(res)
 }
 
-#' Function to assign values down a list
+# Function to assign values down a list
 .defaultAssigner <- function(x){
 
   list(dist="runif", args=list(min=0, max=1))
 
 }
 
-#' .createListTemplate
+#' @name createListTemplate
+#' @aliases .createListTemplate
+#' @title Create List Template
 #'
 #' Function that takes the names from a parObj object, and creates a list containing
 #' the default requirements of list(dist="runif", args=list(min=0, max=1)) for each 
