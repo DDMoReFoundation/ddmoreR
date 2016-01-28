@@ -67,6 +67,7 @@ setMethod("estimate", signature=signature(x="mogObj"),
 #'
 #' Submits a MDL file to the target software for execution and processes the results.
 #'
+#' @rdname execute
 #' @param x An MDL file to execute.
 #' @param target String specifying the target software. Currently, possible 
 #'        targets are "NONMEM", "PsN", "MONOLIX".
@@ -253,7 +254,7 @@ DDMORE.performExecutionWorkflow <-
 	return(submission)
 }
 	
-
+#' @rdname execute
 #' @seealso \code{execute}
 setMethod("execute", signature=signature(x="mogObj"), 
     function(x, target=NULL,
@@ -275,7 +276,10 @@ setMethod("execute", signature=signature(x="mogObj"),
   })
 
 ################################################################################
-#' Resolve Results Directory
+#' @name resolveResultsDirectory
+#' @aliases .resolveResultsDirectory
+#' 
+#' @title Resolve Results Directory
 #'
 #' Resolves a directory where the results of the execution would be placed if the MDL file was executed.
 #' 
@@ -283,7 +287,8 @@ setMethod("execute", signature=signature(x="mogObj"),
 #'
 #' @param x a model file path
 #' @param subFolderName name of the directory holding the result files 
-setGeneric(".resolveResultsDirectory", function(x, subFolderName=NULL) {
+setGeneric(".resolveResultsDirectory", 
+    function(x, subFolderName = NULL) {
 			
     if(is.null(x)) {
         stop("Tried to resolve results directory for null model file.");
@@ -298,10 +303,10 @@ setGeneric(".resolveResultsDirectory", function(x, subFolderName=NULL) {
     return(file.path(parent.folder(x), subFolderName))
 })
 
-
-#' @param x a model file path
-#' @param subFolderName name of the directory holding the result files 
-setMethod(".resolveResultsDirectory", signature=signature(x="mogObj"), function(x, subFolderName=NULL) {
+#' @rdname resolveResultsDirectory
+setMethod(".resolveResultsDirectory", 
+    signature = signature(x = "mogObj"), 
+    function(x, subFolderName = NULL) {
     # TODO: based on the 'estimate' method implementation
     return(file.path(getwd(), subFolderName))
 })

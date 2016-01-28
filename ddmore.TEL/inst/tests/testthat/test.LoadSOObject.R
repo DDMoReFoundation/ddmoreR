@@ -1,6 +1,6 @@
 library("ddmore")
 library("XML")
-require("methods")
+library("methods")
 
 testSlotsNotEmpty <- function(S4class, slotnames) {
 
