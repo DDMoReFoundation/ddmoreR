@@ -12,44 +12,66 @@
 # Data Block Parsers #
 # ================== #
 
-#' ParseElement
+#' @title Parse Element
 #'
-#' Investigates the name of the elements Children and runs the appropriate parser  
-#'
+#' @description Investigates the name of the elements Children and runs the appropriate parser  
+#' @param Node XML object
+#' @return list
+#' @examples
+#' dataPath <- system.file("tests", "data", "PharmMLSO", "HandCoded", 
+#'     "warfarin_PK_ODE_SO_FULL.xml",  
+#'     package = "ddmore")
+#' # read file
+#' root <- ddmore:::validateAndLoadXMLSOFile(file = dataPath)
+#' # SO Block
+#' soBlocks <- root[names(root) == "SOBlock"]
+#' SOChildren <- xmlChildren(x = soBlocks[[1]])
+#' # MLE
+#' children <- xmlChildren(x = SOChildren[["Estimation"]][["PopulationEstimates"]])
+#' ddmore:::ParseElement(Node = children[["MLE"]])
+
 ParseElement <- function(Node) {
-
-  # Check format of xml element 
-  ChildNames = names(xmlChildren(Node))
-
-  # Filter out comments 
-  ChildNames = ChildNames[ChildNames != 'comment']
   
-  OUT = FALSE
+  # Check format of xml element 
+  childNames <- names(xmlChildren(Node))
+  
+  # Filter out comments 
+  childNames <- childNames[childNames != 'comment']
+  
+  OUT <- FALSE
 
-  if (length(ChildNames) == 1) {
-      if ("Matrix" %in% ChildNames) {
+  if (length(childNames) == 1) {
+    switch(childNames, 
+      "Matrix" = {
         # Parse Node as a matrix 
-        OUT = ParseMatrix(Node[["Matrix"]])
-
-      } else if ("ImportData" %in% ChildNames) {
-        # Load data from external file
-        OUT = ParseImportData(Node[["ImportData"]])
-
-      }
-  } else if (length(ChildNames) == 2) {
-      if ("Definition" %in% ChildNames & "ImportData" %in% ChildNames) {
-        # Load data from external file
-        OUT = ParseDataSetExternal(Node)
-
-      } else if ("Definition" %in% ChildNames & "Table" %in% ChildNames) {
-        # Load data from external file
-        OUT = ParseDataSetInline(Node)
-      }
+        OUT <- ParseMatrix(Node[["Matrix"]])
+      }, 
+        "ImportData" = {
+          # Load data from external file
+          OUT <- ParseImportData(Node[["ImportData"]])
+      },
+      warning("block not parsed in ParseElement"))
+  } else {
+    if (length(childNames) == 2) {
+      switch(paste(sort(childNames), collapse = " "), 
+        "Definition ImportData" = {
+          # Load data from external file
+          OUT <- ParseDataSetExternal(Node)
+        }, 
+        "Definition Table" = {
+          # Load data from external file
+          OUT <- ParseDataSetInline(Node)
+        },
+        warning("expected ImportData or Table blocks with Definition in ParseElement, but found ",
+          paste(sort(childNames), collapse = " ")))
+    } else {
+      warning("expected 1 or 2 blocks in ParseElement, but found ", length(childNames))
+    }
   }
-   
+  
   if (class(OUT) == "logical") {
     stop(paste("Names of child element not recognised as a passable object in SO. Element child names are ", 
-      paste(ChildNames, collapse="\n      "), sep="\n     "))
+      paste(childNames, collapse="\n      "), sep="\n     "))
   }
   return(OUT)
 }
@@ -67,33 +89,28 @@ ParseElement <- function(Node) {
 #'
 ParseDataSetInline <- function(parentNode) {
   
-  parentNodeChildList = xmlChildren(parentNode)
+  parentNodeChildList <- xmlChildren(parentNode)
 
   # Error checking
   # Strip comments first
-  parentNodeChildNames = names(parentNodeChildList)[names(parentNodeChildList) != "comment"]
-  stopifnot(("Definition" %in% parentNodeChildNames & "Table" %in% parentNodeChildNames) | 
-   ("ds:Definition" %in% parentNodeChildNames & "ds:Table" %in% parentNodeChildNames))
-
+  parentNodeChildNames <- names(parentNodeChildList)[names(parentNodeChildList) != "comment"]
+  
   # Namespaces are not dealt with correctly in the R xml library, so two hardcoded 
-  # versions of this function are necessary until a workaround is found.  
-  if (xmlName(parentNode[[1]]) == "Definition" & xmlName(parentNode[[2]]) == "Table") {
-    descriptionRef = "Definition"
-    tableRef = "Table"
-    rowRef = "Row"
-    columnRef = "Column"
-  } else if (xmlName(parentNode[[1]]) == "ds:Definition" & xmlName(parentNode[[2]]) == "ds:Table") {
-    descriptionRef = "ds:Definition"
-    tableRef = "ds:Table"
-    rowRef = "ds:Row"
-    columnRef = "ds:Column"
-  }
-
-  definition = parentNodeChildList[[descriptionRef]]
-  table = parentNodeChildList[[tableRef]]
-      
+  # versions of this function are necessary until a workaround is found.
+  token <- ""
+  if (any(grepl(pattern = "^ds:", x = parentNodeChildNames))) { token <- "ds:" }
+  stopifnot(all(paste0(token, c("Definition", "Table")) %in% parentNodeChildNames))
+  
+  descriptionRef <- paste0(token, "Definition")
+  tableRef <- paste0(token, "Table")
+  rowRef <- paste0(token, "Row")
+  columnRef <- paste0(token, "Column")
+  
+  definition <- parentNodeChildList[[descriptionRef]]
+  table <- parentNodeChildList[[tableRef]]
+  
   # Extract all column Information and store in a data frame
-  columnInfo = as.data.frame(xmlSApply(definition, FUN = function(x) list(
+  columnInfo <- as.data.frame(xmlSApply(definition, FUN = function(x) list(
       xmlGetAttr(x, name="columnNum"), 
       xmlGetAttr(x, name="columnType"),
       xmlGetAttr(x, name="valueType"),
@@ -102,25 +119,25 @@ ParseDataSetInline <- function(parentNode) {
   ))
       
   # Filter out non Columns tags  
-  columnInfo = columnInfo[, names(columnInfo) == columnRef]
+  columnInfo <- columnInfo[, names(columnInfo) == columnRef]
   
   # Rename column headers to column ID
   names(columnInfo) <- unlist(columnInfo[4,])
-  columnInfo = columnInfo[-4, ]
+  columnInfo <- columnInfo[-4, ]
   # Rename rows to lable column info
   rownames(columnInfo) <- c("columnNum", "columnType", "valueType")
   
   # Get all Table Row elements
-  rowList = xmlChildren(table)
+  rowList <- xmlChildren(table)
     
   # List of values
-  rowData = lapply(rowList, FUN = function(x) xmlSApply(x, xmlValue))
+  rowData <- lapply(rowList, FUN = function(x) xmlSApply(x, xmlValue))
   
   # Filter out any Commnet lines 
-  rowData = rowData[names(rowData) != "comment"]
+  rowData <- rowData[names(rowData) != "comment"]
   
   # Convert to data frame 
-  temp = Reduce(rbind, rowData)
+  temp <- Reduce(rbind, rowData)
   if (length(rowData) == 1) {
     # reduced list is a character vector
     df = t(data.frame(temp))
@@ -386,43 +403,58 @@ ParseRawResults <- function(SOObject, RawResultsNode) {
 
 ParsePopulationEstimates <- function(SOObject, PopulationEstimatesNode) {
   
-  # Get list and reference to Child Nodes
-  children = xmlChildren(PopulationEstimatesNode)
-
-  for (child in children){
-    
-    if (xmlName(child) == "MLE") {
-      
-      # Parse XMl DataSet Structure	  
-      L = ParseElement(child)
-      # Update SO Object Slot
-      SOObject@Estimation@PopulationEstimates[["MLE"]] = list(
-      										description=L$description, 
-      										data=L$data)
-      
-    } else if (xmlName(child) == "Bayesian") {
-  	  # Fetch Children of Node
-      BayesianChildren = xmlChildren(child)
-      # Parse XMl DataSet Structure	and update SO	
-  	  for (BChild in c("PosteriorMean", "PosteriorMedian", "PosteriorMode")) {
-  	 	  L = ParseElement(BayesianChildren[[BChild]])
-  	  	SOObject@Estimation@PopulationEstimates[["Bayesian"]][[BChild]] = list(
-    									    	description=L$description, 
-        										data=L$data)
-      }
-    } else if (xmlName(child) == "Bootstrap") {
-      # Fetch Children of Node
-      BootstrapChildren = xmlChildren(child)
-      # Parse XMl DataSet Structure and update SO 
-      for (BChild in c("Mean", "Median")) {
-        L = ParseElement(BootstrapChildren[[BChild]])
-        SOObject@Estimation@PopulationEstimates[["Bootstrap"]][[BChild]] = list(
-                            description=L$description, 
-                            data=L$data)
-      }
+    # Get list and reference to Child Nodes
+    children <- xmlChildren(PopulationEstimatesNode)
+    L0 <- list(description = NULL, data = NULL)
+  
+    for (child in children) {
+        
+        switch(xmlName(child),
+            "MLE" = {
+                # Parse XMl DataSet Structure	  
+                L <- ParseElement(child)
+                # Update SO Object Slot
+                SOObject@Estimation@PopulationEstimates[["MLE"]] <- L[c("description", "data")]
+                #list(
+                #    description=L$description, 
+                #    data=L$data)
+            },
+            "Bayesian" = {
+                # Fetch Children of Node
+                BayesianChildren <- xmlChildren(child)
+                # Parse XMl DataSet Structure	and update SO	
+                for (BChild in c("PosteriorMean", "PosteriorMedian", "PosteriorMode")) {
+                    if (BChild %in% names(BayesianChildren)) {
+                        L <- ParseElement(BayesianChildren[[BChild]])
+                    } else {
+                        L <- L0
+                    }
+                    SOObject@Estimation@PopulationEstimates[["Bayesian"]][[BChild]] <- L[c("description", "data")]
+                    #list(
+                    #    description=L$description, 
+                    #    data=L$data)
+                }
+            },
+            "Bootstrap" = {
+                # Fetch Children of Node
+                BootstrapChildren <- xmlChildren(child)
+                # Parse XMl DataSet Structure and update SO 
+                for (BChild in c("Mean", "Median")) {
+                    if (BChild %in% names(BootstrapChildren)) {
+                        L <- ParseElement(BootstrapChildren[[BChild]])
+                    } else {
+                        L <- L0
+                    }
+                    SOObject@Estimation@PopulationEstimates[["Bootstrap"]][[BChild]] <- L[c("description", "data")]
+                    #list(
+                    #    description=L$description, 
+                    #    data=L$data)
+                }
+            },
+            warning("block ", xmlName(child), " ignored by ParsePopulationEstimates")
+        )
     }
-  }
-  return(SOObject)
+    return(SOObject)
 }
 
 
@@ -866,24 +898,25 @@ ParseTaskInformation <- function(SOObject, TaskInformationNode){
 ParseSimulation <- function(SOObject, SimulationNode) {
 
   # Get list of Child Nodes
-  children = xmlChildren(SimulationNode)
+  children <- xmlChildren(SimulationNode)
 
   # Iterate over Child nodes, updating SO if appropriate element is present 
   for (child in children) {
 	  
     if (xmlName(child) == "OriginalDataset" ) {
 		
-      tempList = xmlApply(child, 
-              FUN = function(x) xmlName(x) = xmlValue(x)) 
-      SOObject@Simulation@OriginalDataset = tempList
+      tempList <- xmlApply(child, 
+              FUN = function(x) { xmlName(x) <- xmlValue(x) }) 
+      SOObject@Simulation@OriginalDataset <- tempList
 	  
     }
 	
   }
 
   # Process all Simulation Blocks
-  SimulationBlockNodeList = SimulationNode[names(SimulationNode) == "SimulationBlock"]
-  SOObject@Simulation@SimulationBlock = lapply(SimulationBlockNodeList, ParseSimulationBlocks)
+  SimulationBlockNodeList <- SimulationNode[names(SimulationNode) == "SimulationBlock"]
+  SOObject@Simulation@SimulationBlock <- lapply(X = SimulationBlockNodeList, 
+    FUN = ParseSimulationBlocks)
 
   return(SOObject)
 }
@@ -892,48 +925,44 @@ ParseSimulationBlocks <- function(SimulationBlockNode) {
 	
 	# Error Checking of unexpected elements in each SimulationBlock block
 	expectedTags = c("SimulatedProfiles", "RandomEffects", "IndivParameters", 
-			"Covariates", "PopulationParameters", "Dosing", 
-			"RawResultsFile")
+        "Covariates", "PopulationParameters", "Dosing", 
+        "RawResultsFile")
 	unexpected = setdiff(names(SimulationBlockNode), expectedTags)
 	if (length(unexpected) != 0) {
 		warning(paste("The following unexpected elements were detected in a SimulationBlock attribute of the parent Simulation section of the PharmML SO.", 
-						paste(unexpected, collapse="\n      "), sep="\n      "))
+            paste(unexpected, collapse="\n      "), sep="\n      "))
 	}
 	
-  SimulationBlock = new("SimulationBlock")
-
-  for (child in xmlChildren(SimulationBlockNode)) {
-
-    if (xmlName(child) == "SimulatedProfiles" ) {
-      SimulationBlock@SimulatedProfiles = ParseElement(child)
-
-    } else if (xmlName(child) == "IndivParameters" ) {
-      SimulationBlock@IndivParameters = ParseElement(child)
-
-    } else if (xmlName(child) == "RandomEffects" ) {
-      SimulationBlock@IndivParameters = ParseElement(child)
-
-    } else if (xmlName(child) == "Covariates" ) {
-      SimulationBlock@Covariates = ParseElement(child)
-
-    } else if (xmlName(child) == "PopulationParameters" ) {
-      SimulationBlock@PopulationParameters = ParseElement(child)
-
-    } else if (xmlName(child) == "Dosing" ) {
-      SimulationBlock@Dosing = ParseElement(child)
-
-    } else if (xmlName(child) == "RawResultsFile" ) {
-      tempList = xmlApply(child, 
-              FUN = function(x) xmlName(x) = xmlValue(x)) 
-      SimulationBlock@RawResultsFile = tempList
-    } 
-
-
-
-
-  }
-  
-  return(SimulationBlock)
+    SimulationBlock <- new("SimulationBlock")
+    
+    for (child in xmlChildren(SimulationBlockNode)) {
+        switch(xmlName(child),
+            "SimulatedProfiles" = {
+                SimulationBlock@SimulatedProfiles <- ParseElement(child)
+            },
+            "IndivParameters" = {
+                SimulationBlock@IndivParameters <- ParseElement(child)
+            },
+            "RandomEffects" = {
+                SimulationBlock@IndivParameters <- ParseElement(child)
+            },
+            "Covariates" = {
+                SimulationBlock@Covariates <- ParseElement(child)
+            },
+            "PopulationParameters" = {
+                SimulationBlock@PopulationParameters <- ParseElement(child)
+            },
+            "Dosing" = {
+                SimulationBlock@Dosing <- ParseElement(child)
+            },
+            "RawResultsFile" = {
+                tempList <- xmlApply(X = child, 
+                    FUN = function(x) { xmlName(x) <- xmlValue(x) }) 
+                SimulationBlock@RawResultsFile <- tempList
+            }, warning("block ", xmlName(child), " not recognised in ParseSimulationBlocks")
+        )
+    }
+    return(SimulationBlock)
 }
 
 # ============================ #

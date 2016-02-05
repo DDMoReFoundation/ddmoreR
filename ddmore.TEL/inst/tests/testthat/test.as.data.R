@@ -1,9 +1,9 @@
-library("ddmore")
-library("XML")
-require("methods")
+#library("ddmore")
+#library("XML")
+#library("methods")
 
 # Clear workspace. 
-rm(list=ls())
+#rm(list=ls())
 
 # Switch this if you want to invoke actual FIS service. Mind that it must already be running.
 USE_MOCK <- TRUE

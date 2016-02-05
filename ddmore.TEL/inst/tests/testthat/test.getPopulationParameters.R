@@ -1,16 +1,17 @@
 library("ddmore")
 library("XML")
-require("methods")
+library("methods")
 
 context("Test getPopulationParameters from Handcoded PharmMLSO Version 0.2")
 
 test_that("Test getPopulationParameters returns a list of dataframes, one per estimate type.", {
   
-  data.path = system.file("tests//data//PharmMLSO/HandCoded//warfarin_PK_ODE_SO_FULL.xml",  
-                          package = "ddmore")
+  data.path <- system.file("tests", "data", "PharmMLSO", "HandCoded", 
+    "warfarin_PK_ODE_SO_FULL.xml",  
+    package = "ddmore")
   
   # Load in SO
-  SOObject = LoadSOObject(data.path)
+  SOObject <- LoadSOObject(data.path)
   
   # By default will return estimates,measures for precisions and confidence intervals; for each of: MLE Baysian and Bootstrap
   output = getPopulationParameters(SOObject)

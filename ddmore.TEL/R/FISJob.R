@@ -8,8 +8,7 @@ FIS_JOB_METADATA_DIR<-".fis"
 #### FIS Job class
 
 
-validity.FISJob <- function(object)
-{
+validity.FISJob <- function(object) {
     stopifnot(is.character(object@executionType))
     stopifnot(is.character(object@workingDirectory))
     stopifnot(is.character(object@executionFile))
@@ -71,7 +70,7 @@ setClass(
 #' @param resultsExcludeRegex (Optional) regular expression for file names that should not be included in the files result-set
 #'
 #' @return An S4 Object of class "FISJob".
-#'
+#' @import rjson
 #' @export
 #' @docType methods
 #' @rdname createFISJob

@@ -60,35 +60,33 @@ setClass("StandardOutputObject",
   	),
   # Validity Checking Function 
   validity = function(object) {
-    stopifnot(class(object@ToolSettings)=="list")
-    stopifnot(class(object@RawResults)=="RawResults")
-    stopifnot(class(object@TaskInformation)=="list")
-	  stopifnot(class(object@Estimation)=="Estimation")
-	  stopifnot(class(object@ModelDiagnostic)=="ModelDiagnostic")
-	  stopifnot(class(object@Simulation)=="Simulation")
-	  stopifnot(class(object@OptimalDesign)=="OptimalDesign")
-	  return(TRUE)
+    stopifnot("list" %in% class(object@ToolSettings))
+    stopifnot("RawResults" %in% class(object@RawResults))
+    stopifnot("list" %in% class(object@TaskInformation))
+	stopifnot("Estimation" %in% class(object@Estimation))
+    stopifnot("ModelDiagnostic" %in% class(object@ModelDiagnostic))
+	stopifnot("Simulation" %in% class(object@Simulation))
+	stopifnot("OptimalDesign" %in% class(object@OptimalDesign))
+	return(TRUE)
 	}
 )
 
-#' createSOObject
+#' Standard Output Object
 #'
-#' Create a new empty StandardOutput object 
+#' Create a new StandardOutputObject object 
 #'
-#' @return An S4 Object of class "StandardOutput".
+#' @return An S4 Object of class "StandardOutputObject".
 #'
 #' @export
 #' @docType methods
-#' @rdname createSOObject
-createSOObject <- function(...) {
-
-  SO <- new("StandardOutputObject")
-  # if (missing()) { 
-  # } 
+#' @rdname StandardOutputObject
+StandardOutputObject <- function(...) {
+  SO <- new("StandardOutputObject", ...)
   return(SO)
 }
 
 ##############################################################
+# called from jobExecution.R
 #' is.SOObject
 #'
 #' Determines if an object is of class "StandardOutputObject"
@@ -97,53 +95,50 @@ createSOObject <- function(...) {
 #'
 #' @return TRUE or FALSE
 #' @export
-is.SOObject <- function(obj) {
-    is(obj,"StandardOutputObject")
+is.SOObject <- function(x) {
+    is(object = x, class2 = "StandardOutputObject")
 }
 
 # ========================== #
 # Reader for RawData files   #
 # ========================== #
-#' readRawData 
-#'
-#'  
-#'
-#'
-#'
+# readRawData 
+#
+#  
 setGeneric(name="readRawData",
-           def=function(SOObject, fileIndex)
-          {
-             standardGeneric("readRawData")
-          }
-          )
-setMethod(f="readRawData",
-          signature="StandardOutputObject",
-          definition=function(SOObject, fileIndex)
-          {
-
-          # Mappers from id to file description
-          id2FileType <- lapply(SOObject@RawResults@Files, function(x) x[["Description"]])
-          names(id2FileType)<- tolower(names(id2FileType))
-
-          fileType2Id <- as.list(names(id2FileType))
-          names(fileType2Id) <- tolower(id2FileType)
-
-          fileIndex <- tolower(fileIndex)
-
-          # fileIndex can be file id or file description
-          if (fileIndex %in% names(id2FileType)){
+    def=function(SOObject, fileIndex) {
+        standardGeneric("readRawData")
+    }
+)
+setMethod(f = "readRawData",
+    signature = "StandardOutputObject",
+    definition = function(SOObject, fileIndex)
+    {
+        # Mappers from id to file description
+        id2FileType <- lapply(SOObject@RawResults@Files, function(x) x[["Description"]])
+        names(id2FileType)<- tolower(names(id2FileType))
+        
+        fileType2Id <- as.list(names(id2FileType))
+        names(fileType2Id) <- tolower(id2FileType)
+        
+        fileIndex <- tolower(fileIndex)
+        
+        # fileIndex can be file id or file description
+        if (fileIndex %in% names(id2FileType)) {
             fileElement <- SOObject@RawResults@Files[[fileIndex]]
-          } else if (fileIndex %in% names(fileType2Id)){           
-            fileElement <- SOObject@RawResults@Files[[fileType2Id[[fileIndex]]]]
-          } else {
-            stop(paste0("File Reference: ",
-              fileIndex," not found for either file id or file description"))
-          }
-
-          # TODO: Possibly need to add custom NA handelling here 
-          rawData <- read.csv(rawFile$path, na.strings=".")
-          return (rawData)
-}
+        } else { 
+            if (fileIndex %in% names(fileType2Id)) {
+                fileElement <- SOObject@RawResults@Files[[fileType2Id[[fileIndex]]]]
+            } else {
+                stop(paste0("File Reference: ",
+                    fileIndex," not found for either file id or file description"))
+            }
+        }
+        
+        # TODO: Possibly need to add custom NA handelling here 
+        rawData <- read.csv(rawFile$path, na.strings=".")
+        return (rawData)
+    }
 )
 
 
@@ -437,78 +432,89 @@ setMethod(f="as.data",
 #' 
 #' @export
 setGeneric(name="as.xpdb",
-           def=function(SOObject, inputDataPath)
-          {
-             standardGeneric("as.xpdb")
-          }
-          )
+    def=function(SOObject, inputDataPath) {
+    standardGeneric("as.xpdb")
+    }
+)
 setMethod(f="as.xpdb",
-          signature=signature(SOObject="StandardOutputObject", inputDataPath="character"),
-          definition=function(SOObject, inputDataPath)
-          {
+    signature=signature(SOObject="StandardOutputObject", inputDataPath="character"),
+    definition=function(SOObject, inputDataPath)
+    {
+        # create Merged data frame
+        xpose4_dataFrame <- as.data(SOObject, inputDataPath)
+        
+        # Assert that all "ETA_" column names are upper case so that they are compatible with expose. 
+        eta_cols_idx <- grep('ETA_', colnames(xpose4_dataFrame), ignore.case=TRUE)
+        colnames(xpose4_dataFrame)[eta_cols_idx] <- toupper(colnames(xpose4_dataFrame)[eta_cols_idx])
+        
+        library("xpose4")
+        # CREATE new Xpose database
+        myXpdb<-new("xpose.data",Runno=0,Doc=NULL)
+        
+        # TODO: Possibly need to check data types here
 
-            # create Merged data frame
-            xpose4_dataFrame <- as.data(SOObject, inputDataPath)
+        ## Map data.out to xpdb@Data
+        Data(myXpdb)<-xpose4_dataFrame
+        
+        ## Update xpdb@Prefs@Xvardef (variable definitions)
+        ###################################################
+        ## TODO: Infer these values from the full PharmML
+        
+    #            ## Fill in / Confirm information from PharmML
+    #            myXpdb@Prefs@Xvardef$id<-"ID"
+    #            myXpdb@Prefs@Xvardef$idv<-"TIME"
+        myXpdb@Prefs@Xvardef$occ<-NA
+    #            myXpdb@Prefs@Xvardef$dv<-"DV"
+    #            
+    #            ## Fill in / Confirm information from SO
+        myXpdb@Prefs@Xvardef$pred<-"PRED"
+        myXpdb@Prefs@Xvardef$ipred<-"IPRED"
+        myXpdb@Prefs@Xvardef$wres <- "WRES"
+        myXpdb@Prefs@Xvardef$iwres <- "IWRES"
 
-            # Assert that all "ETA_" column names are upper case so that they are compatible with expose. 
-            eta_cols_idx <- grep('ETA_', colnames(xpose4_dataFrame), ignore.case=TRUE)
-            colnames(xpose4_dataFrame)[eta_cols_idx] <- toupper(colnames(xpose4_dataFrame)[eta_cols_idx])
+            # Below are the hard-coded column definitions for the Warfarin-latest-ODE model.
+            # These are slightly different to the default ones that are assigned; so this
+            # may give rise to errors such as "ETAs are not properly set in the database"
+            # for certain plots.
+    #            myXpdb@Prefs@Xvardef$parms <- c("V","CL","KA","TLAG")
+    #            myXpdb@Prefs@Xvardef$covariates <- "logtWT"
+    #            myXpdb@Prefs@Xvardef$ranpar <- c("ETA_V","ETA_CL","ETA_KA","ETA_TLAG")
+                    
+        # TODO: Temporary workaround is to find model parameters from MDL file to populate 
+        # The Xvardef slot of the xpdb object
+        obj <- .getMdlInfoFromSO(SOObject, what='model')
+        params = sapply(obj@INDIVIDUAL_VARIABLES, FUN=function(x) x$name ) 
+        covariates = sapply(obj@COVARIATES, FUN=function(x) x$name )
+        randpar = sapply(obj@RANDOM_VARIABLE_DEFINITION, FUN=function(x) x$name ) 
 
-            library('xpose4')
-            # CREATE new Xpose database
-            myXpdb<-new("xpose.data",Runno=0,Doc=NULL)
-            
-            # TODO: Possibly need to check data types here
+        myXpdb@Prefs@Xvardef$parms <- toupper(params)
+        myXpdb@Prefs@Xvardef$covariates <- toupper(covariates)
+        myXpdb@Prefs@Xvardef$ranpar <- toupper(randpar)
 
-            ## Map data.out to xpdb@Data
-            Data(myXpdb)<-xpose4_dataFrame
-            
-            ## Update xpdb@Prefs@Xvardef (variable definitions)
-            ###################################################
-            ## TODO: Infer these values from the full PharmML
-            
-#            ## Fill in / Confirm information from PharmML
-#            myXpdb@Prefs@Xvardef$id<-"ID"
-#            myXpdb@Prefs@Xvardef$idv<-"TIME"
-            myXpdb@Prefs@Xvardef$occ<-NA
-#            myXpdb@Prefs@Xvardef$dv<-"DV"
-#            
-#            ## Fill in / Confirm information from SO
-            myXpdb@Prefs@Xvardef$pred<-"PRED"
-            myXpdb@Prefs@Xvardef$ipred<-"IPRED"
-            myXpdb@Prefs@Xvardef$wres <- "WRES"
-            myXpdb@Prefs@Xvardef$iwres <- "IWRES"
+        ## Ideally would also update xpdb@Prefs@Labels (variable labels for plots)
+        #myXpdb@Prefs@Labels
+              myXpdb@Prefs@Labels$OCC <- NA
+        
+        #####################################################
 
-      			# Below are the hard-coded column definitions for the Warfarin-latest-ODE model.
-      			# These are slightly different to the default ones that are assigned; so this
-      			# may give rise to errors such as "ETAs are not properly set in the database"
-      			# for certain plots.
-#            myXpdb@Prefs@Xvardef$parms <- c("V","CL","KA","TLAG")
-#            myXpdb@Prefs@Xvardef$covariates <- "logtWT"
-#            myXpdb@Prefs@Xvardef$ranpar <- c("ETA_V","ETA_CL","ETA_KA","ETA_TLAG")
-                        
-            # TODO: Temporary workaround is to find model parameters from MDL file to populate 
-            # The Xvardef slot of the xpdb object
-            obj <- .getMdlInfoFromSO(SOObject, what='model')
-            params = sapply(obj@INDIVIDUAL_VARIABLES, FUN=function(x) x$name ) 
-            covariates = sapply(obj@COVARIATES, FUN=function(x) x$name )
-            randpar = sapply(obj@RANDOM_VARIABLE_DEFINITION, FUN=function(x) x$name ) 
+        ## update runno
+        myXpdb@Runno <- 1
 
-            myXpdb@Prefs@Xvardef$parms <- toupper(params)
-            myXpdb@Prefs@Xvardef$covariates <- toupper(covariates)
-            myXpdb@Prefs@Xvardef$ranpar <- toupper(randpar)
+        return(myXpdb)
+    }
+)
 
-            ## Ideally would also update xpdb@Prefs@Labels (variable labels for plots)
-            #myXpdb@Prefs@Labels
-			      myXpdb@Prefs@Labels$OCC <- NA
-            
-            #####################################################
+# summary of object
 
-            ## update runno
-            myXpdb@Runno <- 1
-
-            return(myXpdb)
-          }
-          )
-
+setMethod("head", 
+    signature("StandardOutputObject"), 
+    function(x, ...) {
+    popEst <- slot(object = x, 
+            name = "Estimation")@PopulationEstimates$MLE$data[1, , drop = TRUE]
+    mode(popEst) <- "numeric"
+    list(`class(x)` = "S4 object of class StandardOutputObject",
+        `x@Estimation@PopulationEstimates$MLE$data` = popEst,
+        `x@Estimation@Residuals$ResidualTable$data` = head(slot(object = x, 
+            name = "Estimation")@Residuals$ResidualTable$data, ...))
+})
 

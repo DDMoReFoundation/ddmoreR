@@ -13,7 +13,9 @@
 #' @return Returns a newly created instance of the \link{StandardOutputObject} class
 #'         populated with the data from the single SOBlock section of the PharmML file
 #' @examples 
-#' mlx <- LoadSOObject("UseCase2.SO.xml")
+#' mlx <- LoadSOObject(file = system.file(package = "ddmore", 
+#'     "tests", "data", "PharmMLSO", "MachineGenerated", 
+#'     "UseCase2_TIMEchange_fixed.SO.xml"))
 #' @export
 #' @include StandardOutputObject.R xmlParsers.R 
 LoadSOObject <- function(file) {
@@ -35,22 +37,23 @@ LoadSOObject <- function(file) {
 	# (I (MSW) don't like this, can't we amend the xmlParsers.R to resolve the associated data files
 	# relative to the directory in which the .SO.xml file lives, but remaining in the current directory?)
 	old.wd <- getwd()
+    on.exit({
+        # Reset Working directory 
+        setwd(old.wd)
+    })
 	setwd(dirname(file))
 	
-	SOObject <- createSOObjectFromXMLSOBlock(soBlocks[[1]])
+	SOObject <- createSOObjectFromXMLSOBlock(soBlock = soBlocks[[1]])
 	
 	# Populate the (hidden) slot specifying the XML file from which this SO was parsed
-	SOObject@.pathToSourceXML <- file
+	slot(object = SOObject, name = ".pathToSourceXML") <- file
 
 	# Print out any errors in the SO Object to the R console to make it obvious if execution failed
 	.printSOMessages(
-		SOObject@TaskInformation$Messages$Errors,
-		SOObject@TaskInformation$Messages$Warnings,
-		SOObject@TaskInformation$Messages$Info
+		.getSOX(so = SOObject, type = "Errors"),
+		.getSOX(so = SOObject, type = "Warnings"),
+		.getSOX(so = SOObject, type = "Info")
 	)
-	
-	# Reset Working directory 
-	setwd(old.wd)
 	
 	SOObject
 }
@@ -92,6 +95,10 @@ LoadSOObjects <- function(file) {
 	# (I (MSW) don't like this, can't we amend the xmlParsers.R to resolve the associated data files
 	# relative to the directory in which the .SO.xml file lives, but remaining in the current directory?)
 	old.wd <- getwd()
+    on.exit({
+        # Reset Working directory 
+        setwd(old.wd)
+    })
 	setwd(dirname(file))
 
 	# Fetch List of SOBlock elements
@@ -106,25 +113,26 @@ LoadSOObjects <- function(file) {
   
 	# Populate the (hidden) slot specifying the XML file from which this SO was parsed
 	SOObjectList <- lapply(SOObjectList, function(SOObject) {
-		SOObject@.pathToSourceXML <- file
+		slot(object = SOObject, name = ".pathToSourceXML") <- file
 		SOObject
 	})
-
+    
 	# Print out any errors in the SO Object to the R console to make it obvious if execution failed
 	.printSOMessages(
-		unlist(lapply(SOObjectList, function(so) { so@TaskInformation$Messages$Errors }), recursive=FALSE),
-		unlist(lapply(SOObjectList, function(so) { so@TaskInformation$Messages$Warnings }), recursive=FALSE),
-		unlist(lapply(SOObjectList, function(so) { so@TaskInformation$Messages$Info }), recursive=FALSE)
+		unlist(lapply(X = SOObjectList, FUN = .getSOX, type = "Errors"), recursive=FALSE),
+		unlist(lapply(X = SOObjectList, FUN = .getSOX, type = "Warnings"), recursive=FALSE),
+		unlist(lapply(X = SOObjectList, FUN = .getSOX, type = "Info"), recursive=FALSE)
 	)
-
-	# Reset Working directory
-	setwd(old.wd)
 
 	names(SOObjectList) <- soObjNames
 	SOObjectList
 }
 
-# Check that the .SO.xml file exists; if so then parse the XML document and return a reference to the root node.
+# get messages out of SO objects
+.getSOX <- function(so, type) { slot(object = so, name = "TaskInformation")$Messages[[type]] }
+
+# Check that the .SO.xml file exists; 
+# if so then parse the XML document and return a reference to the root node.
 validateAndLoadXMLSOFile <- function(file) {
 	
 	# Error checking
@@ -133,14 +141,16 @@ validateAndLoadXMLSOFile <- function(file) {
 	}
 	
 	# Return a reference to the root node in the XML doc
-	xmlRoot(xmlTreeParse(file, useInternalNodes=TRUE)) # useInternalNodes is an important flag that avoids exponential memory usage!
+    # useInternalNodes is an important flag that avoids exponential memory usage!
+	xmlRoot(xmlTreeParse(file, useInternalNodes=TRUE)) 
 }
 
-# Process an SOBlock element from the SO XML tree and populate a StandardOutputObject object from the data contained within.
+# Process an SOBlock element from the SO XML tree 
+# and populate a StandardOutputObject object from the data contained within.
 createSOObjectFromXMLSOBlock <- function(soBlock) {
 	
 	# Generate Blank SO object
-	SOObject <- createSOObject()
+	SOObject <- StandardOutputObject()
 	
 	# Fetch all Components of the SO object that are defined
 	SOChildren <- xmlChildren(soBlock)
@@ -148,9 +158,9 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 	messageList <- list(parsed=list(), skipped=list())
 
 	# Error Checking of unexpected elements
-	expectedTags = c("ToolSettings", "RawResults", "TaskInformation", "Estimation", 
+	expectedTags <- c("ToolSettings", "RawResults", "TaskInformation", "Estimation", 
 			"Simulation", "ModelDiagnostic")
-	unexpected = setdiff(names(SOChildren), expectedTags)
+	unexpected <- setdiff(names(SOChildren), expectedTags)
 	if (length(unexpected) != 0) {
 		warning(paste("The following unexpected elements were detected in the PharmML SO. These will be ignored.", 
 						paste(unexpected, collapse="\n      "), sep="\n      "))
@@ -181,10 +191,10 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 	if ("Estimation" %in% names(SOChildren)){
 		
 		# Error Checking of unexpected elements in Estimation Block
-		expectedTags = c("PopulationEstimates", "PrecisionPopulationEstimates", 
+		expectedTags <- c("PopulationEstimates", "PrecisionPopulationEstimates", 
 				"IndividualEstimates", "PrecisionIndividualEstimates", "Residuals", 
 				"Predictions", "Likelihood")
-		unexpected = setdiff(names(SOChildren[["Estimation"]]), expectedTags)
+		unexpected <- setdiff(names(SOChildren[["Estimation"]]), expectedTags)
 		if (length(unexpected) != 0) {
 			warning(paste("The following unexpected elements were detected in the Estimation section of the PharmML SO. These will be ignored.", 
 							paste(unexpected, collapse="\n      "), sep="\n      "))
@@ -246,8 +256,8 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 	if ("Simulation" %in% names(SOChildren)){
 		
 		# Error Checking of unexpected elements of Simulation node
-		expectedTags = c("Description", "OriginalDataset", "SimulationBlock")
-		unexpected = setdiff(names(SOChildren[["Simulation"]]), expectedTags)
+		expectedTags <- c("Description", "OriginalDataset", "SimulationBlock")
+		unexpected <- setdiff(names(SOChildren[["Simulation"]]), expectedTags)
 		if (length(unexpected) != 0) {
 			warning(paste("The following unexpected elements were detected in the parent Simulation section of the PharmML SO. These will be ignored.", 
 							paste(unexpected, collapse="\n      "), sep="\n      "))
@@ -263,8 +273,8 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 	if ("ModelDiagnostic" %in% names(SOChildren)){
 		
 		# Error Checking of unexpected elements of Simulation node
-		expectedTags = c("DiagnosticPlotsIndividualParams", "DiagnosticPlotsStructuralModel")
-		unexpected = setdiff(names(SOChildren[["ModelDiagnostic"]]), expectedTags)
+		expectedTags <- c("DiagnosticPlotsIndividualParams", "DiagnosticPlotsStructuralModel")
+		unexpected <- setdiff(names(SOChildren[["ModelDiagnostic"]]), expectedTags)
 		if (length(unexpected) != 0) {
 			warning(paste("The following unexpected elements were detected in the ModelDiagnostic section of the PharmML SO. These will be ignored.", 
 							paste(unexpected, collapse="\n      "), sep="\n      "))

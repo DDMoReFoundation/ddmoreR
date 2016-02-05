@@ -71,14 +71,28 @@ SUBMISSION_STATUSES[[ SUBMISSION_COMPLETED_WITH_ERRORS ]] <- list(label = "Faile
 #'           \item{\code{parameters$executionFile}}
 #'             - An absolute path to the model file.
 #'             }
-DDMORE.prepareSubmissionStep <- function( executionType=NULL, workingDirectory = NULL, modelfile = NULL, extraInputFileExts=NULL, 
-                                       extraInputFiles=list(), commandParameters=NULL, outputSubFolderName = NULL, fisServer=DDMORE.getServer(), extraParams = list() ) {
-    .precondition.checkArgument(!is.null(executionType),'executionType', " Must be set and can't be NULL.")
-    .precondition.checkArgument(!is.null(modelfile), 'modelfile', "Must be set and can't be NULL.")
-    .precondition.checkArgument(!is.null(workingDirectory), 'workingDirectory',"Must be set and can't be NULL.")
-    .precondition.checkArgument(!is.null(outputSubFolderName), 'outputSubFolderName',"Must be set and can't be NULL.")
+DDMORE.prepareSubmissionStep <- function(
+    executionType=NULL, 
+    workingDirectory = NULL, 
+    modelfile = NULL, 
+    extraInputFileExts=NULL, 
+    extraInputFiles=list(), 
+    commandParameters=NULL, 
+    outputSubFolderName = NULL, 
+    fisServer=DDMORE.getServer(), 
+    extraParams = list() ) {
+    
+    .precondition.checkArgument(!is.null(executionType),
+        'executionType', " Must be set and can't be NULL.")
+    .precondition.checkArgument(!is.null(modelfile), 
+        'modelfile', "Must be set and can't be NULL.")
+    .precondition.checkArgument(!is.null(workingDirectory), 
+        'workingDirectory',"Must be set and can't be NULL.")
+    .precondition.checkArgument(!is.null(outputSubFolderName), 
+        'outputSubFolderName',"Must be set and can't be NULL.")
     if (!DDMORE.serverRunning(fisServer)) {
-        stop("Server(s) is/are not running, unable to submit job. Server health details have been made available in the DDMORE.serverHealthDetails object.")
+        stop("Server(s) is/are not running, unable to submit job.\n", 
+            "Server health details have been made available in the DDMORE.serverHealthDetails object.")
     }
     
     if (!file.exists(modelfile)) {
@@ -143,10 +157,10 @@ DDMORE.prepareSubmissionStep <- function( executionType=NULL, workingDirectory =
 #'
 .buildSubmissionJob <- function(parameters) {
     submittedJob <- createFISJob(executionType = parameters$executionType, 
-                                 executionFile = parameters$modelFile, 
-                                 workingDirectory = parameters$workingDirectory, 
-                                extraInputFiles = parameters$extraInputFiles, 
-                                commandParameters = parameters$commandParameters)
+        executionFile = parameters$modelFile, 
+        workingDirectory = parameters$workingDirectory, 
+        extraInputFiles = parameters$extraInputFiles, 
+        commandParameters = parameters$commandParameters)
     return(submittedJob)
 }
 
@@ -399,8 +413,10 @@ DDMORE.importSOStep <- function(submission, fisServer, ...) {
 #' @return Updated \code{submission} named list.
 #' 
 DDMORE.verifySOStep <- function(submission, fisServer=DDMORE.getServer(), ...) {
-    .precondition.checkArgument(!is.null(submission),'submission', " Must be set and can't be NULL.")
-    .precondition.checkArgument(!("fisJob" %in% names(submission)) || is.FISJob(submission$fisJob), "submission$fisJob", "Must be set and of type FISJob.")
+    .precondition.checkArgument(!is.null(submission),
+        "submission", " Must be set and can't be NULL.")
+    .precondition.checkArgument(!("fisJob" %in% names(submission)) || is.FISJob(submission$fisJob), 
+        "submission$fisJob", "Must be set and of type FISJob.")
 	multipleSO <- ifelse(is.null(submission$parameters$importMultipleSO), FALSE, submission$parameters$importMultipleSO)
     .precondition.checkArgument(!("so" %in% names(submission)) ||
 			(!multipleSO && is.SOObject(submission$so)) || (multipleSO && is.list(submission$so) && all(sapply(submission$so, is.SOObject))),

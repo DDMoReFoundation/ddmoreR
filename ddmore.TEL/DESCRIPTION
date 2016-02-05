@@ -9,10 +9,10 @@ Maintainer: Support at Mango Solutions <support@mango-solutions.com>
 Description: Initial implementation of the DDMORE R package. It integrates with FIS
     using REST API.
 License: TBD
-Depends:
-    R(>= 2.13),
-    RCurl(>= 1.95),
+Imports:
     rjson(>= 0.2.13),
+    RCurl(>= 1.95)
+Depends:
     RNMImport(>= 0.3.6),
     tools(>= 3.0.2),
     lattice(>= 0.20-14),
@@ -51,4 +51,5 @@ Collate:
     'as.mdl.R'
     "cleanUp.R"
 Suggests:
-    testthat
+    testthat,
+    xpose4
