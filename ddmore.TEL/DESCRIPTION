@@ -50,5 +50,7 @@ Collate:
     'updateParObj.R'
     'as.mdl.R'
     "cleanUp.R"
+	"simcyp.internal.R"
+	"simcyp.external.R"
 Suggests:
     testthat
