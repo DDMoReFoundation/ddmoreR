@@ -230,7 +230,7 @@ simcyp.execute <- function(executionCommand,
 				message(paste0("\tLoading Standard Output file: ", soPath))
 			}
 
-			result <- NULL#LoadSOObject(soPath)
+			result <- LoadSOObject(soPath)
 		}
 	} 
 	else 
