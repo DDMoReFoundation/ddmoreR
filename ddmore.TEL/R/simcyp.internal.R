@@ -246,6 +246,8 @@ simcyp.execute <- function(executionCommand,
 		message(title)
 		message(rep('#', nchar(title)), '\n')
 	}
+	
+	return(result)
 }
 
 ####################################################################################################
