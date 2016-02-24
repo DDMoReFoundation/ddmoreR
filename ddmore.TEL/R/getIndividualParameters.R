@@ -18,8 +18,11 @@
 #' @export 
 getIndividualParameters <- function(SOObject, what="Mean") { 
 
+	# Ensure 'measure of central tendency' parameter is processed in a case-insensitive manner
+	measureOfCentralTendency = tolower(what)
+
 	# Error checking
-	if (!(tolower(what) %in% c("mean", "mode", "median"))) {
+	if (!(measureOfCentralTendency %in% c("mean", "mode", "median"))) {
 		stop(paste0("Value for 'what' parameter was not recognised, received: ", what))
 	}
 
@@ -27,8 +30,8 @@ getIndividualParameters <- function(SOObject, what="Mean") {
 	estimateSlotNames = list(mean="Mean", mode="Mode", median="Median")
 	randomSlotNames = list(mean="EffectMean", mode="EffectMode", median="EffectMedian")
 
-	targetEstimateName = estimateSlotNames[[tolower(what)]]
-	targetRandomName = randomSlotNames[[tolower(what)]]
+	targetEstimateName = estimateSlotNames[[measureOfCentralTendency]]
+	targetRandomName = randomSlotNames[[measureOfCentralTendency]]
 
 	output = data.frame()
 
