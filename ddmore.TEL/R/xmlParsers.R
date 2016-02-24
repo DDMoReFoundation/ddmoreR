@@ -69,7 +69,7 @@ ParseElement <- function(Node) {
     }
   }
   
-  if (class(OUT) == "logical") {
+  if (is.logical(OUT)) {
     stop(paste("Names of child element not recognised as a passable object in SO. Element child names are ", 
       paste(childNames, collapse="\n      "), sep="\n     "))
   }
@@ -131,25 +131,25 @@ ParseDataSetInline <- function(parentNode) {
   rowList <- xmlChildren(table)
     
   # List of values
-  rowData <- lapply(rowList, FUN = function(x) xmlSApply(x, xmlValue))
+  rowData <- lapply(X = rowList, FUN = function(x) { xmlSApply(X = x, FUN = xmlValue) })
   
   # Filter out any Commnet lines 
   rowData <- rowData[names(rowData) != "comment"]
   
   # Convert to data frame 
-  temp <- Reduce(rbind, rowData)
+  temp <- Reduce(f = rbind, x = rowData)
   if (length(rowData) == 1) {
     # reduced list is a character vector
-    df = t(data.frame(temp))
-    rownames(df) <- NULL
-    colnames(df) <- names(columnInfo)
+    datf <- t(data.frame(temp))
+    rownames(datf) <- NULL
+    colnames(datf) <- names(columnInfo)
   } else {
     dimnames(temp) <- NULL
     # reduced list is a character matrix
-    df = data.frame(temp)
-    colnames(df) <- names(columnInfo)
+    datf <- data.frame(temp)
+    colnames(datf) <- names(columnInfo)
   }
-  return(list(description=columnInfo, data=df))
+  return(list(description = columnInfo, data = datf))
 }
 
 
@@ -206,11 +206,11 @@ ParseDataSetExternal <- function(parentNode) {
   rownames(columnInfo) <- c("columnNum", "columnType", "valueType")
   
   # Get all importData elements
-  df = ParseImportData(importData)
+  datf <- ParseImportData(importData)
 
-  colnames(df) <- names(columnInfo)
+  colnames(datf) <- names(columnInfo)
 
-  return(list(description=columnInfo, data=df))
+  return(list(description=columnInfo, data=datf))
 }
 
 #' ParseMatrix
@@ -249,23 +249,23 @@ ParseMatrix <- function(matrixNode) {
   output.matrix <- t(output.matrix.transposed)
   
   # Convert to Data Frame
-  df = as.data.frame(output.matrix)
+  datf = as.data.frame(output.matrix)
   
   # Update row and column names
-  if (nrow(df) != length(matrixRowNames)) {
+  if (nrow(datf) != length(matrixRowNames)) {
     warning("Number of row names given does not match matrix dimensions. Row names ignored.")
-    rownames(df) <- NULL
+    rownames(datf) <- NULL
   } else {
-    rownames(df) <- matrixRowNames
+    rownames(datf) <- matrixRowNames
   }
-  if (ncol(df) != length(matrixColumnNames)) {
+  if (ncol(datf) != length(matrixColumnNames)) {
     warning("Number of column names given does not match matrix dimensions. Column names ignored.")
-    colnames(df) <- NULL
+    colnames(datf) <- NULL
   } else {
-    colnames(df) <- matrixColumnNames
+    colnames(datf) <- matrixColumnNames
   }
   
-  return(df)
+  return(datf)
 }
 
 
@@ -284,24 +284,24 @@ ParseMatrix <- function(matrixNode) {
 ParseImportData <- function(ImportDataNode) {
 
   # Get rownames of matrix 
-  ImportDataChildren = xmlSApply(ImportDataNode, xmlValue)
+  ImportDataChildren <- xmlSApply(ImportDataNode, xmlValue)
   
-  metaData = names(ImportDataChildren)
+  metaData <- names(ImportDataChildren)
 
   stopifnot(("ds:path" %in% metaData) & ("ds:format" %in% metaData) 
     & ("ds:delimiter" %in% metaData) )
 
-  path = ImportDataChildren[["ds:path"]]
-  format = ImportDataChildren[["ds:format"]]
-  delimiter = ImportDataChildren[["ds:delimiter"]]
+  path <- ImportDataChildren[["ds:path"]]
+  format <- ImportDataChildren[["ds:format"]]
+  delimiter <- ImportDataChildren[["ds:delimiter"]]
 
   if (delimiter != "COMMA") {
     stop("Comma is the only delimiter currently supported by importData parsers.")
   }
 
-  df  = read.csv(path, sep=",", na.strings=".", header=T) 
+  datf <- read.csv(path, sep=",", na.strings=".", header=T) 
   
-  return(df)
+  return(datf)
 }
 
 #' @title ParseDistribution
@@ -314,12 +314,12 @@ ParseImportData <- function(ImportDataNode) {
 #' 
 ParseDistribution <- function(Node) {
 
-  subChildren = xmlChildren(Node)
-      
+  subChildren <- xmlChildren(Node)
+  
   for (subChild in subChildren){
-      
-    if (grepl("distribution", tolower(xmlName(subChild)))) {
     
+    if (grepl("distribution", tolower(xmlName(subChild)))) {
+      
       # Parse the distribution Tag
       distributionName = xmlName(subChild)
       parameterList = xmlApply(subChild, xmlValue)
@@ -327,10 +327,8 @@ ParseDistribution <- function(Node) {
     }
   }
 
-  distList = list(name = distributionName, parameters = parameterList)
-
+  distList <- list(name = distributionName, parameters = parameterList)
   return(distList)
-
 }
 
 
@@ -347,8 +345,8 @@ ParseDistribution <- function(Node) {
 ParseToolSettings <- function(SOObject, ToolSettingsNode) {  
   # Extract child tags and values as 
   # a list with names = tag names and elements = tag values
-  tempList = xmlApply(ToolSettingsNode, 
-  					  FUN = function(x) xmlName(x) = xmlValue(x)) 
+  tempList <- xmlApply(ToolSettingsNode, 
+    FUN = function(x) xmlName(x) = xmlValue(x)) 
   
   # Strip namespace parts in child element
   # DEPRICATED: Used to adress namespace issue with Xpath. 
@@ -357,16 +355,16 @@ ParseToolSettings <- function(SOObject, ToolSettingsNode) {
   #newNames = sapply(newNames, FUN = function(x)  x[[2]] )
   #names(tempList) <- newNames
   
-  SOObject@ToolSettings = tempList
+  SOObject@ToolSettings <- tempList
   return(SOObject)
 }
 
 ParseRawResults <- function(SOObject, RawResultsNode) {
   
-  objectIdNames = xmlSApply(RawResultsNode, xmlAttrs) 
+  objectIdNames <- xmlSApply(RawResultsNode, xmlAttrs) 
   
-  DataFileTempList = list()
-  GraphicsFileTempList = list()
+  DataFileTempList <- list()
+  GraphicsFileTempList <- list()
   
   for (i in seq(along=xmlChildren(RawResultsNode))) {
     
@@ -472,18 +470,18 @@ ParsePrecisionPopulationEstimates <- function(SOObject, PrecisionPopulationEstim
         
         if (xmlName(MLEChild) == "FIM"){
           # if FIM is present, parse matrix as data frame to SO {
-            DF = ParseElement(MLEChild)
-            SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["FIM"]] = DF 
+            datf = ParseElement(MLEChild)
+            SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["FIM"]] = datf 
         
         } else if(xmlName(MLEChild) == "CovarianceMatrix") {
           # if CovarianceMatrix is present, parse matrix as data frame to SO 
-          DF = ParseElement(MLEChild)
-          SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["CovarianceMatrix"]] = DF
+          datf = ParseElement(MLEChild)
+          SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["CovarianceMatrix"]] = datf
         
         } else if(xmlName(MLEChild) == "CorrelationMatrix") {
           # if CorrelationMatrix is present, parse matrix as data frame to SO 
-          DF = ParseElement(MLEChild)
-          SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["CorrelationMatrix"]] = DF
+          datf = ParseElement(MLEChild)
+          SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["CorrelationMatrix"]] = datf
         
         } else if(xmlName(MLEChild) == "StandardError") {
           # if StandardError is present, parse DataSet as data frame to SO 
