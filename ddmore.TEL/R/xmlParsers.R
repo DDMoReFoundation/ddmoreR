@@ -768,24 +768,24 @@ ParsePredictions <- function(SOObject, PredictionsNode) {
   return(SOObject)
 }
 
-ParseLikelihood <- function(SOObject, LikelihoodNode) {
+ParseOFMeasures <- function(SOObject, OFMeasuresNode) {
 	
   # Get list of Child Nodes
-  LikelihoodChildren = xmlChildren(LikelihoodNode)
+  OFMeasuresChildren <- xmlChildren(OFMeasuresNode)
   # Iterate over Child nodes, updating SO if appropriate element is present 
-  for (child in LikelihoodChildren) {
+  for (child in OFMeasuresChildren) {
     
     if (xmlName(child) == "Deviance") {
       
       # Extract Deviance
-      SOObject@Estimation@Likelihood$Deviance <- as.numeric(xmlValue(child))
+      SOObject@Estimation@OFMeasures$Deviance <- as.numeric(xmlValue(child))
 	  
 	  }
 	
     if (xmlName(child) == "LogLikelihood") {
       
       # Extract Likelihood
-      SOObject@Estimation@Likelihood$LogLikelihood = as.numeric(xmlValue(child))
+      SOObject@Estimation@OFMeasures$LogLikelihood <- as.numeric(xmlValue(child))
 	  
     }
 	
@@ -795,7 +795,7 @@ ParseLikelihood <- function(SOObject, LikelihoodNode) {
       L = ParseElement(child)
 	  
 	  # Update SO Object Slot
-	  SOObject@Estimation@Likelihood$IndividualContribToLL = list(
+	  SOObject@Estimation@OFMeasures$IndividualContribToLL <- list(
 			  description=L$description, 
 			  data=L$data)
 	  }
@@ -803,7 +803,7 @@ ParseLikelihood <- function(SOObject, LikelihoodNode) {
     if (xmlName(child) == "InformationCriteria") {
     
       # Fetch the values of the children for InformationCriteria 
-      SOObject@Estimation@Likelihood$InformationCriteria = lapply(xmlChildren(child), xmlValue)
+      SOObject@Estimation@OFMeasures$InformationCriteria <- lapply(xmlChildren(child), xmlValue)
     }
 	
   }
@@ -815,7 +815,7 @@ ParseLikelihood <- function(SOObject, LikelihoodNode) {
 ParseTaskInformation <- function(SOObject, TaskInformationNode){
 
   # Get list of Child Nodes
-  children = xmlChildren(TaskInformationNode)
+  children <- xmlChildren(TaskInformationNode)
 
   # Iterate over Child nodes, updating SO if appropriate element is present 
   

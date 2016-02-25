@@ -193,7 +193,7 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 		# Error Checking of unexpected elements in Estimation Block
 		expectedTags <- c("PopulationEstimates", "PrecisionPopulationEstimates", 
 				"IndividualEstimates", "PrecisionIndividualEstimates", "Residuals", 
-				"Predictions", "Likelihood")
+				"Predictions", "OFMeasures")
 		unexpected <- setdiff(names(SOChildren[["Estimation"]]), expectedTags)
 		if (length(unexpected) != 0) {
 			warning(paste("The following unexpected elements were detected in the Estimation section of the PharmML SO. These will be ignored.", 
@@ -242,11 +242,11 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:Predictions")
 		}
 		
-		if ("Likelihood" %in% names(SOChildren[["Estimation"]])){
-			SOObject <- ParseLikelihood(SOObject, SOChildren[["Estimation"]][["Likelihood"]])
-			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:Likelihood")
+		if ("OFMeasures" %in% names(SOChildren[["Estimation"]])){
+			SOObject <- ParseOFMeasures(SOObject, SOChildren[["Estimation"]][["OFMeasures"]])
+			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:OFMeasures")
 		} else {
-			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:Likelihood")
+			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:OFMeasures")
 		}
 		
 	} else {
