@@ -875,13 +875,13 @@ ParseTaskInformation <- function(SOObject, TaskInformationNode){
       # Extract NumberChains
       SOObject@TaskInformation$NumberChains <- list(
         description=as.character(xmlValue(child[['Description']])), 
-        value=as.numeric(xmlValue(child[["Integer"]]))
+        value=as.numeric(xmlValue(child[["Int"]]))
         )
 
     } else if (xmlName(child) == "NumberIterations") {
       
       # Extract NumberIterations
-      SOObject@TaskInformation$NumberIterations <- as.numeric(xmlValue(child[["Integer"]]))
+      SOObject@TaskInformation$NumberIterations <- as.numeric(xmlValue(child[["Int"]]))
 
     } 
   }
