@@ -634,7 +634,7 @@ ParsePrecisionPopulationEstimates <- function(SOObject, PrecisionPopulationEstim
                         }
                       }
                     }
-                  )
+                )
             }
         },
         # this should be dead code, since only MLE, Bayesian, OtherMethod permitted by class
