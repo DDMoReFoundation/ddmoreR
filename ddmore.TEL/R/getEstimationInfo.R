@@ -28,13 +28,13 @@ getEstimationInfo <- function(SOObject){
   }
 
   # Fetch Liklihood information
-  likelihood <- SOObject@Estimation@Likelihood
+  likelihood <- SOObject@Estimation@OFMeasures
   if ("IndividualContribToLL" %in% names(likelihood)) {
-    likelihood[["IndividualContribToLL"]] = likelihood[["IndividualContribToLL"]][["data"]]
+    likelihood[["IndividualContribToLL"]] <- likelihood[["IndividualContribToLL"]][["data"]]
   } 
   # Format as numeric 
   if ("InformationCriteria" %in% names(likelihood)) {
-    likelihood[["InformationCriteria"]] = lapply(likelihood$InformationCriteria, as.numeric)
+    likelihood[["InformationCriteria"]] <- lapply(likelihood$InformationCriteria, as.numeric)
   }
 
   # Fetch Messages 
@@ -73,7 +73,7 @@ getEstimationInfo <- function(SOObject){
     }
   }
 
-  list(Likelihood=likelihood, Messages=messages)
+  list(OFMeasures=likelihood, Messages=messages)
 }
 
 
@@ -81,45 +81,45 @@ getEstimationInfo <- function(SOObject){
 # Lower Level Getter functions: Not Currently used  #
 # ------------------------------------------------- #
 
-# #' Create a method to fetch the value of Likelihood Slot
-# setGeneric(name="getLikelihood",
+# #' Create a method to fetch the value of OFMeasures Slot
+# setGeneric(name="getOFMeasures",
 #            def=function(SOObject)
 #            {
-#               standardGeneric("getLikelihood")
+#               standardGeneric("getOFMeasures")
 #            }
 # )
-# setMethod(f="getLikelihood",
+# setMethod(f="getOFMeasures",
 #           signature="StandardOutputObject",
 #           definition=function(SOObject)
 #           { 
-#            Likelihood <- SOObject@Estimation@Likelihood
+#            OFMeasures <- SOObject@Estimation@OFMeasures
 
 #           L = list()
-#           if ("LogLikelihood" %in% names(Likelihood)) {
-#             A = list(LogLikelihood=Likelihood[["LogLikelihood"]])
+#           if ("LogLikelihood" %in% names(OFMeasures)) {
+#             A = list(LogLikelihood=OFMeasures[["LogLikelihood"]])
 #             L <- c(L, A)
 #           }
-#           if ("Deviance" %in% names(Likelihood)) {
-#             B <- list(Deviance=Likelihood[["Deviance"]]) 
+#           if ("Deviance" %in% names(OFMeasures)) {
+#             B <- list(Deviance=OFMeasures[["Deviance"]]) 
 #             L <- c(L, B)
 #           }
-#           if ("IndividualContribToLL" %in% names(Likelihood)) {
-#             C <- list(IndividualContribToLL=Likelihood[["IndividualContribToLL"]][["data"]]) 
+#           if ("IndividualContribToLL" %in% names(OFMeasures)) {
+#             C <- list(IndividualContribToLL=OFMeasures[["IndividualContribToLL"]][["data"]]) 
 #             L <- c(L, C)
 #           }          
-#           if ("AIC" %in% names(Likelihood[["InformationCriteria"]])) {
-#             D <- list(AIC=Likelihood[["InformationCriteria"]][["AIC"]])
+#           if ("AIC" %in% names(OFMeasures[["InformationCriteria"]])) {
+#             D <- list(AIC=OFMeasures[["InformationCriteria"]][["AIC"]])
 #             L <- c(L, D)
 #           }   
-#           if ("BIC" %in% names(Likelihood[["InformationCriteria"]])) {
-#             E <- list(BIC=Likelihood[["InformationCriteria"]][["BIC"]])
+#           if ("BIC" %in% names(OFMeasures[["InformationCriteria"]])) {
+#             E <- list(BIC=OFMeasures[["InformationCriteria"]][["BIC"]])
 #             L <- c(L, E)
 #           } 
-#           if ("DIC" %in% names(Likelihood[["InformationCriteria"]])) {
-#             F <- list(DIC=Likelihood[["InformationCriteria"]][["DIC"]])
+#           if ("DIC" %in% names(OFMeasures[["InformationCriteria"]])) {
+#             F <- list(DIC=OFMeasures[["InformationCriteria"]][["DIC"]])
 #             L <- c(L, F)
 #           }       
-#            pprintList(L, "Likelihood")
+#            pprintList(L, "OFMeasures")
 #           }
 # )
 

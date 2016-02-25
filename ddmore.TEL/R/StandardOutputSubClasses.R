@@ -48,7 +48,7 @@ setClass("RawResults",
 #' @slot PrecisionIndividualEstimates A list for now ...
 #' @slot ResidualsNPDE A list for now ...
 #' @slot Predictions A list for now ...
-#' @slot Likelihood A list for now ...
+#' @slot OFMeasures A list for now ...
 #' @slot SoftwareMessages A list for now ...
 #' 
 #' @author cmusselle
@@ -61,7 +61,7 @@ setClass("Estimation",
     PrecisionIndividualEstimates="list", 
     Residuals="list",
     Predictions="list",
-    Likelihood="list",
+    OFMeasures="list",
     SoftwareMessages="list"
     ),
   # Set Default Values to blank lists with names in place
@@ -72,7 +72,7 @@ setClass("Estimation",
    PrecisionIndividualEstimates = list(),
    Residuals = list(),
    Predictions = list(),
-   Likelihood = list()
+   OFMeasures = list()
    ),
   # Validity Checking Function 
   validity = function(object) {
@@ -82,7 +82,7 @@ setClass("Estimation",
     stopifnot(class(object@PrecisionIndividualEstimates)=="list") 
     stopifnot(class(object@Residuals)=="list")
     stopifnot(class(object@Predictions)=="list")
-    stopifnot(class(object@Likelihood)=="list")
+    stopifnot(class(object@OFMeasures)=="list")
 	return(TRUE)
 	}
 )
