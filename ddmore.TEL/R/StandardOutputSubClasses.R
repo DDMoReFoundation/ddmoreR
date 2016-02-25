@@ -76,13 +76,21 @@ setClass("Estimation",
    ),
   # Validity Checking Function 
   validity = function(object) {
-	stopifnot(class(object@PopulationEstimates)=="list")
-    stopifnot(class(object@PrecisionPopulationEstimates)=="list")
-    stopifnot(class(object@IndividualEstimates)=="list") 
-    stopifnot(class(object@PrecisionIndividualEstimates)=="list") 
-    stopifnot(class(object@Residuals)=="list")
-    stopifnot(class(object@Predictions)=="list")
-    stopifnot(class(object@OFMeasures)=="list")
+	stopifnot(is.list(object@PopulationEstimates))
+    # check permitted names
+    if (length(object@PopulationEstimates) > 0L) {
+        stopifnot(all(names(object@PopulationEstimates) %in% c("MLE", "Bayesian", "OtherMethod"))
+    }
+    stopifnot(is.list(object@PrecisionPopulationEstimates))
+    # check permitted names
+    if (length(object@PrecisionPopulationEstimates) > 0L) {
+        stopifnot(all(names(object@PopulationEstimates) %in% c("MLE", "Bayesian", "OtherMethod"))
+    }
+    stopifnot(is.list(object@IndividualEstimates)) 
+    stopifnot(is.list(object@PrecisionIndividualEstimates)) 
+    stopifnot(is.list(object@Residuals))
+    stopifnot(is.list(object@Predictions))
+    stopifnot(is.list(object@OFMeasures))
 	return(TRUE)
 	}
 )
