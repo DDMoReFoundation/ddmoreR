@@ -142,7 +142,10 @@ validateAndLoadXMLSOFile <- function(file) {
 	
 	# Return a reference to the root node in the XML doc
     # useInternalNodes is an important flag that avoids exponential memory usage!
-	xmlRoot(xmlTreeParse(file, useInternalNodes=TRUE)) 
+	# Want to be able to pass in a no-op handler function for "comment" nodes to strip comments out during parsing, i.e.
+	#  handlers=list("comment"=function(x,...){NULL})
+	# but this doesn't seem to be compatible with useInternalNodes=TRUE!
+	xmlRoot(xmlTreeParse(file, useInternalNodes=TRUE))
 }
 
 # Process an SOBlock element from the SO XML tree 
