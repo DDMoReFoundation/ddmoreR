@@ -9,13 +9,23 @@
 # Author: cmusselle
 
 .NODENAMES_NAMESPACE_PREFIX = "ds:"
+.NODENAME_COMMENT <- "comment"
+.NODENAME_DEFINITION <- "Definition"
 .NODENAME_EXTERNALFILE <- "ExternalFile"
+.NODENAME_MATRIX <- "Matrix"
 
 
 # ================== #
 # Data Block Parsers #
 # ================== #
 
+
+# Internal function that calls xmlChildren and then strips out any comment nodes. 
+.getChildNodes <- function(parentNode) {
+	childNodesList <- xmlChildren(parentNode)
+	childNodesList <- childNodesList[names(childNodesList) != .NODENAME_COMMENT]
+	childNodesList
+}
 
 # Internal function to retrieve a named node from a list of XML child nodes,
 # taking into account the "ds:" namespace prefix that may or may not be present.
@@ -48,85 +58,68 @@
 
 ParseElement <- function(node) {
   
-  # Check format of xml element 
-  childNames <- names(xmlChildren(node))
-  
-  # Filter out comments 
-  childNames <- childNames[childNames != 'comment']
-  
-  OUT <- FALSE
+  childNodes <- .getChildNodes(node)
+  childNames <- names(childNodes)
 
+  parsed <- NULL
+  
   if (length(childNames) == 1) {
-    switch(childNames, 
-      "Matrix" = {
-        # Parse Node as a matrix 
-        OUT <- ParseMatrix(.getChildNode(node, "Matrix"))
-      }, 
-      .NODENAME_EXTERNALFILE = {
-        # Load data from external file
-        OUT <- ParseExternalFile(getChildNode(node, .NODENAME_EXTERNALFILE))
-      },
-      warning("block not parsed in ParseElement"))
-  } else {
-    if (length(childNames) == 2) {
-      switch(paste(sort(childNames), collapse = " "), 
-        "Definition ExternalFile" = {
-          # Load data from external file
-          OUT <- ParseDataSetExternalFile(node)
-        }, 
-        "Definition Table" = {
-          # Load data from inline XML
-          OUT <- ParseDataSetInline(node)
-        },
-        warning("expected ExternalFile or Table blocks with Definition in ParseElement, but found ",
-          paste(childNames, collapse = " ")))
-    } else {
-      warning("expected 1 or 2 blocks in ParseElement, but found ", length(childNames))
-    }
+	if (childNames == .NODENAME_MATRIX) {
+		# Parse Node as a matrix 
+		parsed <- ParseMatrix(.getChildNode(childNodes, .NODENAME_MATRIX))		  
+	} else if (childNames == .NODENAME_EXTERNALFILE) {
+		# Load data from external file
+		parsed <- ParseExternalFile(.getChildNode(childNodes, .NODENAME_EXTERNALFILE))		  
+	}
+	else {
+		warning("expected Matrix or ExternalFile block in ParseElement, but found ",
+			paste(childNames, collapse = " "))
+	}
+  }
+  else if (length(childNames) == 2) {
+	combinedChildNames <- paste(sort(childNames), collapse = "|")
+	if (combinedChildNames == paste(c(.NODENAME_DEFINITION, .NODENAME_EXTERNALFILE), collapse="|")) {
+		# Load data from external file
+		parsed <- ParseDataSetExternalFile(.getChildNode(childNodes, .NODENAME_DEFINITION), .getChildNode(childNodes, .NODENAME_EXTERNALFILE))
+	}
+	else if (combinedChildNames == paste(c(.NODENAME_DEFINITION, "Table"), collapse="|")) {
+		# Load data from inline XML
+		parsed <- ParseDataSetInline(.getChildNode(childNodes, .NODENAME_DEFINITION), .getChildNode(childNodes, "Table"))
+	} else {
+	    warning("expected ExternalFile or Table blocks with Definition in ParseElement, but found ",
+			paste(childNames, collapse = " "))
+	}
+  }
+  else {
+	warning("expected 1 or 2 blocks in ParseElement, but found ", length(childNames))
   }
   
-  if (is.logical(OUT)) {
+  if (is.null(parsed)) {
     stop(paste("Names of child elements not recognised as a parsable object in the SO XML. Element child names are:\n   ", 
       paste(childNames, collapse="\n    ")))
   }
-  return(OUT)
+  return(parsed)
 }
 
 #' ParseDataSetInline
 #'
 #' Utility function to parse a DataSet xml structure as it appears in PharmML. 
 #'
-#' @param parentNode The parent xmlNode object that contains two decendant tags:
-#'   Definition and Table 
+#' @param definitionNode "Definition" xmlNode object
+#' @param tableNode "Table" xmlNode object
 #'
 #' @return Returns a list with two named elements: \code{description}, which holds all 
 #' the meta data about the columns in a data frame; \code{data}, which holds the
 #' actual values in a dataframe.
 #'
-ParseDataSetInline <- function(parentNode) {
-  
-  parentNodeChildList <- xmlChildren(parentNode)
+ParseDataSetInline <- function(definitionNode, tableNode) {
 
-  # Error checking
-  # Strip comments first
-  parentNodeChildNames <- names(parentNodeChildList)[names(parentNodeChildList) != "comment"]
-  
-  # Namespaces are not dealt with correctly in the R xml library, so two hardcoded 
-  # versions of this function are necessary until a workaround is found.
-  token <- ""
-  if (any(grepl(pattern = "^ds:", x = parentNodeChildNames))) { token <- "ds:" }
-  stopifnot(all(paste0(token, c("Definition", "Table")) %in% parentNodeChildNames))
-  
-  definitionTagName <- paste0(token, "Definition")
-  tableTagName <- paste0(token, "Table")
-  rowTagName <- paste0(token, "Row")
-  columnTagName <- paste0(token, "Column")
-  
-  definition <- .getChildNode(parentNodeChildList, definitionTagName)
-  table <- .getChildNode(parentNodeChildList, tableTagName)
+  rowTagName <- "Row"
+  columnTagName <- "Column"
+
   
   # Extract all column Information and store in a data frame
-  columnInfo <- as.data.frame(xmlSApply(definition, FUN = function(x) list(
+  columnInfo <- as.data.frame(xmlSApply(definitionNode, FUN = function(x) list(
       xmlGetAttr(x, name="columnNum"), 
       xmlGetAttr(x, name="columnType"),
       xmlGetAttr(x, name="valueType"),
@@ -144,13 +137,13 @@ ParseDataSetInline <- function(parentNode) {
   rownames(columnInfo) <- c("columnNum", "columnType", "valueType")
   
   # Get all Table Row elements
-  rowList <- xmlChildren(table)
+  rowList <- xmlChildren(tableNode)
     
   # List of values
   rowData <- lapply(X = rowList, FUN = function(x) { xmlSApply(X = x, FUN = xmlValue) })
   
   # Filter out any Commnet lines 
-  rowData <- rowData[names(rowData) != "comment"]
+  rowData <- rowData[names(rowData) != .NODENAME_COMMENT]
   
   # Convert to data frame 
   temp <- Reduce(f = rbind, x = rowData)
@@ -171,30 +164,16 @@ ParseDataSetInline <- function(parentNode) {
 #' ParseDataSetExternalFile
 #'
 #' Utility function to parse a DataSet xml structure as it appears in PharmML. 
-#'
-#' @param parentNode The parent xmlNode object that contains two decendant tags:
-#'   Definition and ExternalFile
+
+#' @param definitionNode "Definition" xmlNode object
+#' @param externalFileNode "ExternalFile" xmlNode object
 #'
 #' @return Returns a list with two named elements: \code{description}, which holds all 
 #' the meta data about the columns in a data frame; \code{data}, which holds the
 #' actual values in a dataframe.
 #'
-ParseDataSetExternalFile <- function(parentNode) {
-  
-  childNodes <- xmlChildren(parentNode)
+ParseDataSetExternalFile <- function(definitionNode, externalFileNode) {
 
-  # Strip comments from the list of child node names
-  #parentNodeChildNames <- names(parentNodeChildList)[names(parentNodeChildList) != "comment"]
-  
-  # Namespaces are not dealt with correctly in the R xml library, so
-  # have to check nodes both with and without the namespace prefix on
-  # their names until a workaround is found.  
-  definition <- .getChildNode(childNodes, "Definition")
-  externalFile <- .getChildNode(childNodes, .NODENAME_EXTERNALFILE)
-  if (is.null(externalFile)) {
-	externalFile <- childNodes[[paste0(.NODENAMES_NAMESPACE_PREFIX, .NODENAME_EXTERNALFILE)]]  
-  }
-  
   # Error checking
   if (is.null("definition")) {
 	  stop(paste("No expected Definition child node found within", xmlName(parentNode), "node when parsing a data set node"))
@@ -204,7 +183,7 @@ ParseDataSetExternalFile <- function(parentNode) {
   }
       
   # Extract all column Information and store in a data frame
-  columnInfo = as.data.frame(xmlSApply(definition, FUN = function(x) list(
+  columnInfo = as.data.frame(xmlSApply(definitionNode, FUN = function(x) list(
   		xmlGetAttr(x, name="columnNum"), 
     	xmlGetAttr(x, name="columnType"),
     	xmlGetAttr(x, name="valueType"),
@@ -222,7 +201,7 @@ ParseDataSetExternalFile <- function(parentNode) {
   rownames(columnInfo) <- c("columnNum", "columnType", "valueType")
   
   # Get all ExternalFile elements
-  datf <- ParseExternalFile(externalFile)
+  datf <- ParseExternalFile(externalFileNode)
 
   if (!is.empty(colnames(datf))) {
   	colnames(datf) <- names(columnInfo)
@@ -304,7 +283,7 @@ ParseExternalFile <- function(externalFileNode) {
   
   path <- externalFileAttrs[["path"]]
   format <- externalFileAttrs[["format"]]
-  delimiter <<- externalFileAttrs[["delimiter"]]
+  delimiter <- externalFileAttrs[["delimiter"]]
   
   if (is.null(path)) {
 	  stop("ExternalFile node must have the following mandatory attributes: path; optional attributes are: format, delimiter")
@@ -380,25 +359,23 @@ ParseToolSettings <- function(SOObject, ToolSettingsNode) {
   return(SOObject)
 }
 
-ParseRawResults <- function(SOObject, RawResultsNode) {
+ParseRawResults <- function(SOObject, rawResultsNode) {
   
-  objectIdNames <- xmlSApply(RawResultsNode, xmlAttrs) 
+  objectIdNames <- xmlSApply(rawResultsNode, xmlAttrs) 
   
   DataFileTempList <- list()
   GraphicsFileTempList <- list()
   
-  for (i in seq(along=xmlChildren(RawResultsNode))) {
+  for (i in seq(along=xmlChildren(rawResultsNode))) {
     
-    fileType = names(RawResultsNode[i])
+    fileType = names(rawResultsNode[i])
 
-    node = RawResultsNode[[i]]
+    node = rawResultsNode[[i]]
     
     if (! any(c('XMLCommentNode','XMLInternalCommentNode') %in% class(node)) ) {
 		
       # Extract child tags and values as a list with names = tag names and elements = tag values
       childTags = xmlSApply(node, xmlValue)
-	  
-	  as.list(childTags)
     
       # Add this as an element to the Final Files List 
       if (fileType == 'DataFile') {
