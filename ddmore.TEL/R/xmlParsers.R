@@ -520,13 +520,17 @@ ParsePrecisionPopulationEstimates <- function(SOObject, PrecisionPopulationEstim
                               description=L$description, 
                               data=L$data)
         } else if (xmlName(BayesianChild) == "PosteriorDistribution"){
+          # TODO check how should be implemented for v0.3
           distList = ParseDistribution(BayesianChild)
-          SOObject@Estimation@PrecisionIndividualEstimates = list(
-                                  PosteriorDistribution = distList
-                                  )
+          SOObject@Estimation@PrecisionIndividualEstimates <- list(
+              # StandardDeviation (needed?)
+              # EstimatesDistribution (renamed PosteriorDistribution)
+              # PercentilesCI (needed?)
+              EstimatesDistribution = distList
+              )
         } else if (xmlName(BayesianChild) == "PercentilesCI"){
-          L = ParseElement(BayesianChild)
-          SOObject@Estimation@PrecisionPopulationEstimates[["Bayesian"]][["PercentilesCI"]] = list(
+          L <- ParseElement(BayesianChild)
+          SOObject@Estimation@PrecisionPopulationEstimates[["Bayesian"]][["PercentilesCI"]] <- list(
                               description=L$description, 
                               data=L$data)
         }
@@ -539,13 +543,13 @@ ParsePrecisionPopulationEstimates <- function(SOObject, PrecisionPopulationEstim
       for (BootstrapChild in BootstrapChildren) {
 
         if (xmlName(BootstrapChild) == "PrecisionEstimates"){
-          L = ParseElement(BootstrapChild)
-          SOObject@Estimation@PrecisionPopulationEstimates[["Bootstrap"]][["PrecisionEstimates"]] = list(
+          L <- ParseElement(BootstrapChild)
+          SOObject@Estimation@PrecisionPopulationEstimates[["Bootstrap"]][["PrecisionEstimates"]] <- list(
                               description=L$description, 
                               data=L$data)
         } else if (xmlName(BootstrapChild) == "Percentiles"){
-          L = ParseElement(BootstrapChild)
-          SOObject@Estimation@PrecisionPopulationEstimates[["Bootstrap"]][["Percentiles"]] = list(
+          L <- ParseElement(BootstrapChild)
+          SOObject@Estimation@PrecisionPopulationEstimates[["Bootstrap"]][["Percentiles"]] <- list(
                               description=L$description, 
                               data=L$data)
         }
@@ -709,18 +713,16 @@ ParsePrecisionIndividualEstimates <- function(SOObject, PrecisionIndividualEstim
   distList = list()
   for (child in children){
     
-    if (xmlName(child) == "PosteriorDistributionIndividualEstimates") {
-      
-      distList = ParseDistribution(child)
-
+    if ("PosteriorDistributionIndividualEstimates" %in% xmlName(child)) {
+      distList <- ParseDistribution(child)
     }
   }
   
   # Update SO Object Slot
-  SOObject@Estimation@PrecisionIndividualEstimates = list(
-                          PosteriorDistribution = distList
-                          )
-                       
+  SOObject@Estimation@PrecisionIndividualEstimates <- list(
+      EstimatesDistribution = distList
+      )
+  
   return(SOObject)                                 
 }
 
