@@ -480,73 +480,89 @@ ParsePrecisionPopulationEstimates <- function(SOObject, PrecisionPopulationEstim
         "MLE" = {
           MLEChildren = xmlChildren(child)
           for (MLEChild in MLEChildren){
-            
-            if (xmlName(MLEChild) == "FIM"){
-              # if FIM is present, parse matrix as data frame to SO {
-                datf = ParseElement(MLEChild)
-                SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["FIM"]] = datf 
-            
-            } else if(xmlName(MLEChild) == "CovarianceMatrix") {
-              # if CovarianceMatrix is present, parse matrix as data frame to SO 
-              datf = ParseElement(MLEChild)
-              SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["CovarianceMatrix"]] = datf
-            
-            } else if(xmlName(MLEChild) == "CorrelationMatrix") {
-              # if CorrelationMatrix is present, parse matrix as data frame to SO 
-              datf = ParseElement(MLEChild)
-              SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["CorrelationMatrix"]] = datf
-            
-            } else if(xmlName(MLEChild) == "StandardError") {
-              # if StandardError is present, parse DataSet as data frame to SO 
-              L = ParseElement(MLEChild)
-              # Update SO Object Slot
-              SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["StandardError"]] = list(
-                              description=L$description, 
-                              data=L$data)
-            } else if(xmlName(MLEChild) == "RelativeStandardError") {
-              # if RelativeStandardError is present, parse DataSet as data frame to SO 
-              L = ParseElement(MLEChild)
-              # Update SO Object Slot
-              SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["RelativeStandardError"]] = list(
-                              description=L$description, 
-                              data=L$data)
-
-            } else if(xmlName(MLEChild) == "AsymptoticCI") {
-              # if AsymptoticCI is present, parse DataSet as data frame to SO 
-              L = ParseElement(MLEChild)
-              # Update SO Object Slot
-              SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["AsymptoticCI"]] = list(
-                              description=L$description, 
-                              data=L$data)
-            }
+            switch(xmlName(MLEChild), 
+                "FIM" = {
+                  # if FIM is present, parse matrix as data frame to SO {
+                    datf <- ParseElement(MLEChild)
+                    SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["FIM"]] <- datf 
+                },
+                "CovarianceMatrix" = {
+                  # if CovarianceMatrix is present, parse matrix as data frame to SO 
+                  datf <- ParseElement(MLEChild)
+                  SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["CovarianceMatrix"]] <- datf
+                },
+                "CorrelationMatrix" = {
+                  # if CorrelationMatrix is present, parse matrix as data frame to SO 
+                  datf <- ParseElement(MLEChild)
+                  SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["CorrelationMatrix"]] <- datf
+                },
+                "StandardError" = {
+                  # if StandardError is present, parse DataSet as data frame to SO 
+                  L <- ParseElement(MLEChild)
+                  # Update SO Object Slot
+                  SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["StandardError"]] <- list(
+                                  description=L$description, 
+                                  data=L$data)
+                },
+                "RelativeStandardError" = {
+                  # if RelativeStandardError is present, parse DataSet as data frame to SO 
+                  L <- ParseElement(MLEChild)
+                  # Update SO Object Slot
+                  SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["RelativeStandardError"]] <- list(
+                                  description=L$description, 
+                                  data=L$data)
+                },
+                "AsymptoticCI" = {
+                  # if AsymptoticCI is present, parse DataSet as data frame to SO 
+                  L <- ParseElement(MLEChild)
+                  # Update SO Object Slot
+                  SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["AsymptoticCI"]] <- list(
+                                  description=L$description, 
+                                  data=L$data)
+                },
+                "ConditionNumber" = {
+                  # TODO: check this!
+                  # if ConditionNumber is present, value is real
+                  L <- ParseElement(MLEChild)
+                  # Update SO Object Slot
+                  SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["ConditionNumber"]] <- L
+                },
+                warning("MLE sub-block ", xmlName(MLEChild), 
+                    " not recognized in ParsePrecisionPopulationEstimates")
           }
         },
         "Bayesian" = {
           # Fetch Children of Node
-          BayesianChildren = xmlChildren(child)
+          BayesianChildren <- xmlChildren(child)
           # Parse XMl DataSet Structure and update SO 
           for (BayesianChild in BayesianChildren) {
-
-            if (xmlName(BayesianChild) == "StandardDeviationPosterior"){
-              L = ParseElement(BayesianChild)
-              SOObject@Estimation@PrecisionPopulationEstimates[["Bayesian"]][["StandardDeviationPosterior"]] = list(
-                                  description=L$description, 
-                                  data=L$data)
-            } else if (xmlName(BayesianChild) == "PosteriorDistribution"){
-              # TODO check how should be implemented for v0.3
-              distList = ParseDistribution(BayesianChild)
-              SOObject@Estimation@PrecisionIndividualEstimates <- list(
-                  # StandardDeviation (needed?)
-                  # EstimatesDistribution (renamed PosteriorDistribution)
-                  # PercentilesCI (needed?)
-                  EstimatesDistribution = distList
-                  )
-            } else if (xmlName(BayesianChild) == "PercentilesCI"){
-              L <- ParseElement(BayesianChild)
-              SOObject@Estimation@PrecisionPopulationEstimates[["Bayesian"]][["PercentilesCI"]] <- list(
-                                  description=L$description, 
-                                  data=L$data)
-            }
+            
+            switch(xmlName(BayesianChild),
+                "StandardDeviation" = {
+                  L <- ParseElement(BayesianChild)
+                  SOObject@Estimation@PrecisionPopulationEstimates[["Bayesian"]][["StandardDeviation"]] <- list(
+                                      description=L$description, 
+                                      data=L$data)
+                },
+                "PosteriorDistribution" = {
+                  # TODO check how should be implemented for v0.3
+                  distList <- ParseDistribution(BayesianChild)
+                  SOObject@Estimation@PrecisionIndividualEstimates <- list(
+                      # StandardDeviation (needed?)
+                      # EstimatesDistribution (renamed PosteriorDistribution)
+                      # PercentilesCI (needed?)
+                      EstimatesDistribution = distList
+                      )
+                },
+                "PercentilesCI" = {
+                  L <- ParseElement(BayesianChild)
+                  SOObject@Estimation@PrecisionPopulationEstimates[["Bayesian"]][["PercentilesCI"]] <- list(
+                                      description=L$description, 
+                                      data=L$data)
+                },
+                warning("Bayesian sub-block ", xmlName(BayesianChild), 
+                    " not recognized in ParsePrecisionPopulationEstimates")
+            )
           }
         }, 
         "OtherMethod" = {
@@ -582,17 +598,17 @@ ParsePrecisionPopulationEstimates <- function(SOObject, PrecisionPopulationEstim
                       LLPChildren = xmlChildren(child)
                       # Parse XMl DataSet Structure and update SO 
                       for (LLPChild in LLPChildren) {
-
+                        
                         if (xmlName(LLPChild) == "PrecisionEstimates"){
-                          L = ParseElement(LLPChild)
-                          SOObject@Estimation@PrecisionPopulationEstimates[["LLP"]][["PrecisionEstimates"]] = list(
-                                              description=L$description, 
-                                              data=L$data)
+                          L <- ParseElement(LLPChild)
+                          SOObject@Estimation@PrecisionPopulationEstimates[["LLP"]][["PrecisionEstimates"]] <- list(
+                              description=L$description, 
+                              data=L$data)
                         } else if (xmlName(LLPChild) == "Percentiles"){
-                          L = ParseElement(LLPChild)
-                          SOObject@Estimation@PrecisionPopulationEstimates[["LLP"]][["Percentiles"]] = list(
-                                              description=L$description, 
-                                              data=L$data)
+                          L <- ParseElement(LLPChild)
+                          SOObject@Estimation@PrecisionPopulationEstimates[["LLP"]][["Percentiles"]] <- list(
+                              description=L$description, 
+                              data=L$data)
                         }
                       }
                     },
@@ -651,82 +667,61 @@ ParseIndividualEstimates <- function(SOObject, IndividualEstimatesNode) {
   # Iterate over Child nodes, updating SO if appropriate element is present 
   for (child in children){
     
-    if (xmlName(child) == "Estimates") {
-      subChildren = xmlChildren(child)
-      for (subChild in subChildren){
-        
-        if (xmlName(subChild) == "Mean"){
-          L = ParseElement(subChild)
+    switch(xmlName(child),
+        "Estimates" = {
+          subChildren = xmlChildren(child)
+          for (subChild in subChildren) {
+            
+            subBlockName <- xmlName(subChild)
+            if (length(subBlockName) != 1L) {
+                warning("expected exactly 1 Estimates sub-block name in ParseIndividualEstimates,\n", 
+                    "but sub-block name was: ", paste(subBlockName, collapse = ", "))
+            } else {
+                if (!subBlockName %in% c("Mean", "Median", "Mode", "Samples")) {
+                    warning("unexpected Estimates sub-block, ", subBlockName, ", in ParseIndividualEstimates")
+                }
+                # note that this permits invalid names (with warning)
+                L <- ParseElement(subChild)
+                # Update SO Object Slot
+                SOObject@Estimation@IndividualEstimates[["Estimates"]][[subBlockName]] <- list(
+                    description = L$description, 
+                    data = L$data)
+                
+            }
+          }
+        },
+        "RandomEffects" = {
+          # Fetch Children of Node
+          subChildren = xmlChildren(child)
+          # Parse XMl DataSet Structure and update SO 
+          for (subChild in subChildren) {
+            
+            subBlockName <- xmlName(subChild)
+            if (length(subBlockName) != 1L) {
+                warning("expected exactly 1 RandomEffects sub-block name in ParseIndividualEstimates,\n", 
+                    "but sub-block name was: ", paste(subBlockName, collapse = ", "))
+            } else {
+                if (!subBlockName %in% c("EffectMean", "EffectMedian", "EffectMode", "Samples")) {
+                    warning("unexpected RandomEffects sub-block, ", subBlockName, ", in ParseIndividualEstimates")
+                }
+                # note that this permits invalid names (with warning)
+                L <- ParseElement(subChild)
+                # Update SO Object Slot
+                SOObject@Estimation@IndividualEstimates[["RandomEffects"]][[subBlockName]] <- list(
+                    description = L$description, 
+                    data = L$data)
+                
+            }
+          }
+        },
+        "EtaShrinkage" = {
+          L = ParseElement(child)
           # Update SO Object Slot
-          SOObject@Estimation@IndividualEstimates[["Estimates"]][["Mean"]] = list(
-                          description=L$description, 
-                          data=L$data)
-        
-        } else if(xmlName(subChild) == "Median") {
-          L = ParseElement(subChild)
-          # Update SO Object Slot
-          SOObject@Estimation@IndividualEstimates[["Estimates"]][["Median"]] = list(
-                          description=L$description, 
-                          data=L$data)        
-
-        } else if(xmlName(subChild) == "Mode") {
-          L = ParseElement(subChild)
-          # Update SO Object Slot
-          SOObject@Estimation@IndividualEstimates[["Estimates"]][["Mode"]] = list(
-                          description=L$description, 
-                          data=L$data)        
-
-        } else if(xmlName(subChild) == "Samples") {
-          L = ParseElement(subChild)
-          # Update SO Object Slot
-          SOObject@Estimation@IndividualEstimates[["Estimates"]][["Samples"]] = list(
-                          description=L$description, 
-                          data=L$data)
+          SOObject@Estimation@IndividualEstimates[["EtaShrinkage"]] = list(
+                              description=L$description, 
+                              data=L$data)
         }
-        # Option of an else here 
-      }
-    } else if (xmlName(child) == "RandomEffects") {
-      # Fetch Children of Node
-      subChildren = xmlChildren(child)
-      # Parse XMl DataSet Structure and update SO 
-      for (subChild in subChildren) {
-
-        if (xmlName(subChild) == "EffectMean"){
-          L = ParseElement(subChild)
-          # Update SO Object Slot
-          SOObject@Estimation@IndividualEstimates[["RandomEffects"]][["EffectMean"]] = list(
-                          description=L$description, 
-                          data=L$data)
-
-        } else if (xmlName(subChild) == "EffectMedian"){
-          L = ParseElement(subChild)
-          # Update SO Object Slot
-          SOObject@Estimation@IndividualEstimates[["RandomEffects"]][["EffectMedian"]] = list(
-                          description=L$description, 
-                          data=L$data)
-
-        } else if (xmlName(subChild) == "EffectMode"){
-          L = ParseElement(subChild)
-          # Update SO Object Slot
-          SOObject@Estimation@IndividualEstimates[["RandomEffects"]][["EffectMode"]] = list(
-                          description=L$description, 
-                          data=L$data)
-
-        } else if (xmlName(subChild) == "Samples"){
-          L = ParseElement(subChild)
-          # Update SO Object Slot
-          SOObject@Estimation@IndividualEstimates[["RandomEffects"]][["Samples"]] = list(
-                          description=L$description, 
-                          data=L$data)
-        }
-      }
-    } else if (xmlName(child) == "EtaShrinkage") {
-      L = ParseElement(child)
-      # Update SO Object Slot
-      SOObject@Estimation@IndividualEstimates[["EtaShrinkage"]] = list(
-                          description=L$description, 
-                          data=L$data)
-    }
+    )
   }
   return(SOObject)
 }

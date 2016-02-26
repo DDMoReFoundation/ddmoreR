@@ -79,12 +79,16 @@ setClass("Estimation",
 	stopifnot(is.list(object@PopulationEstimates))
     # check permitted names
     if (length(object@PopulationEstimates) > 0L) {
-        stopifnot(all(names(object@PopulationEstimates) %in% c("MLE", "Bayesian", "OtherMethod"))
+        if (!all(names(object@PopulationEstimates) %in% c("MLE", "Bayesian", "OtherMethod"))) {
+            warning("only specified sub-block names (MLE, Bayesian, OtherMethod) permitted in Population estimates")
+        }
     }
     stopifnot(is.list(object@PrecisionPopulationEstimates))
     # check permitted names
     if (length(object@PrecisionPopulationEstimates) > 0L) {
-        stopifnot(all(names(object@PopulationEstimates) %in% c("MLE", "Bayesian", "OtherMethod"))
+        if (!all(names(object@PopulationEstimates) %in% c("MLE", "Bayesian", "OtherMethod"))) {
+            warning("only specified sub-block names (MLE, Bayesian, OtherMethod) permitted in Precision Population estimates")
+        }
     }
     stopifnot(is.list(object@IndividualEstimates)) 
     stopifnot(is.list(object@PrecisionIndividualEstimates)) 
