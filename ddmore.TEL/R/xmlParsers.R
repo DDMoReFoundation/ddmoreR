@@ -30,6 +30,7 @@
 .NODENAME_ETASHRINKAGE <- "EtaShrinkage"
 .NODENAME_RESIDUALTABLE <- "ResidualTable"
 .NODENAME_EPSSHRINKAGE <- "EpsShrinkage"
+.NODENAME_OTHERMETHOD <- "OtherMethod"
 
 
 .DATASET_DESCRIPTION <- "description"
@@ -415,72 +416,75 @@ ParseRawResults <- function(SOObject, rawResultsNode) {
 
 ParsePopulationEstimates <- function(SOObject, PopulationEstimatesNode) {
   
-    # Get list and reference to Child Nodes
-    children <- xmlChildren(PopulationEstimatesNode)
-    L0 <- list(description = NULL, data = NULL)
-  
-    for (child in children) {
-        
-        switch(xmlName(child),
-            "MLE" = {
-                # Parse XMl DataSet Structure	  
-                L <- ParseElement(child)
-                # Update SO Object Slot
-                SOObject@Estimation@PopulationEstimates[["MLE"]] <- L[c("description", "data")]
-            },
-            "Bayesian" = {
-                # Fetch Children of Node
-                BayesianChildren <- xmlChildren(child)
-                # Parse XMl DataSet Structure	and update SO	
-                for (BChild in c("PosteriorMean", "PosteriorMedian", "PosteriorMode")) {
-                    if (BChild %in% names(BayesianChildren)) {
-                        L <- ParseElement(BayesianChildren[[BChild]])
-                    } else {
-                        L <- L0
-                    }
-                    SOObject@Estimation@PopulationEstimates[["Bayesian"]][[BChild]] <- 
-                        L[c("description", "data")]
-                }
-            },
-            "OtherMethod" = {
-                # Fetch Children of Node
-                OtherMethodChildren <- xmlChildren(child)
-                if (!"method" %in% names(attributes(OtherMethodChildren))) {
-                    warning("malformed XML in ParsePopulationEstimates\n",
-                        "method attribute expected in OtherMethod sub-block (since v0.3)")
+    STUB_DATASET <- list(description = NULL, data = NULL)
+	
+	# Iterate over Child nodes, updating SO if appropriate element is present
+	for (child in .getChildNodes(PopulationEstimatesNode)) {
+		childNodeName <- xmlName(child)
+		
+		if (childNodeName == .NODENAME_MLE) {
+            # Parse XML DataSet Structure	  
+            L <- ParseElement(child)
+            # Update SO Object Slot
+            SOObject@Estimation@PopulationEstimates[[.NODENAME_MLE]] <- L[c(.DATASET_DESCRIPTION, .DATASET_DATA)]
+		}
+		
+		else if (childNodeName == .NODENAME_BAYESIAN) {
+            # Fetch Children of Node
+            BayesianChildren <- .getChildNodes(child)
+            # Parse XML DataSet Structure and update SO
+            for (BChild in c("PosteriorMean", "PosteriorMedian", "PosteriorMode")) {
+                if (BChild %in% names(BayesianChildren)) {
+                    L <- ParseElement(BayesianChildren[[BChild]])
                 } else {
-                    switch(attributes(OtherMethodChildren)[["method"]],
-                        # Parse XMl DataSet Structure and update SO 
-                        "Bootstrap" = {
-                            for (BChild in c("Mean", "Median")) {
-                                if (BChild %in% names(BootstrapChildren)) {
-                                    L <- ParseElement(BootstrapChildren[[BChild]])
-                                } else {
-                                    L <- L0
-                                }
-                                SOObject@Estimation@PopulationEstimates[["Bootstrap"]][[BChild]] <- 
-                                    L[c("description", "data")]
-                            }
-                        }, 
-                        "LLP" = { 
-                            warning("LLP not implemented for PopulationEstimates") 
-                            SOObject@Estimation@PopulationEstimates[["LLP"]] <- L0
-                        },
-                        "SIR" = { 
-                            warning("SIR not implemented for PopulationEstimates")
-                            SOObject@Estimation@PopulationEstimates[["SIR"]] <- L0
-                        },
-                        "MultiDimLLP"  = { 
-                            warning("MultiDimLLP not implemented for PopulationEstimates")
-                            SOObject@Estimation@PopulationEstimates[["MultiDimLLP"]] <- L0
-                        },
-                        warning("OtherMethod not recognised in ParsePopulationEstimates")
-                    )
+                    L <- STUB_DATASET
                 }
-            },
-            warning("block ", xmlName(child), " ignored by ParsePopulationEstimates")
-        )
-    }
+                SOObject@Estimation@PopulationEstimates[[.NODENAME_BAYESIAN]][[BChild]] <- 
+                    L[c(.DATASET_DESCRIPTION, .DATASET_DATA)]
+            }
+		}
+		
+		else if (childNodeName == .NODENAME_OTHERMETHOD) {
+            if (!"method" %in% names(xmlAttrs(child))) {
+                warning("Attribute \"method\" expected on PopulationEstimates::OtherMethod sub-block (since v0.3)")
+            } else {
+				method <- xmlAttrs(child)[["method"]]
+				otherMethodChildNodes <- .getChildNodes(child)
+                # Parse XML DataSet Structure and update SO 
+				if (method == .NODENAME_BOOTSTRAP) {
+                    for (BChild in c("Mean", "Median")) {
+                        if (BChild %in% names(otherMethodChildNodes)) {
+                            L <- ParseElement(otherMethodChildNodes[[BChild]])
+                        } else {
+                            L <- STUB_DATASET
+                        }
+                        SOObject@Estimation@PopulationEstimates[[.NODENAME_OTHERMETHOD]][[.NODENAME_BOOTSTRAP]][[BChild]] <- 
+                            L[c(.DATASET_DESCRIPTION, .DATASET_DATA)]
+                    }
+                }
+    			else if (method == .NODENAME_LLP) {
+                    warning("LLP not implemented for PopulationEstimates") 
+                    SOObject@Estimation@PopulationEstimates[[.NODENAME_OTHERMETHOD]][[.NODENAME_LLP]] <- STUB_DATASET
+                }
+				else if (method == .NODENAME_SIR) {
+                    warning("SIR not implemented for PopulationEstimates")
+                    SOObject@Estimation@PopulationEstimates[[.NODENAME_OTHERMETHOD]][[.NODENAME_SIR]] <- STUB_DATASET
+                }
+				else if (method == .NODENAME_MULTIDIMLLP) {
+                    warning("MultiDimLLP not implemented for PopulationEstimates")
+                    SOObject@Estimation@PopulationEstimates[[.NODENAME_OTHERMETHOD]][[.NODENAME_MULTIDIMLLP]] <- STUB_DATASET
+                }
+				else {
+					warning(paste("OtherMethod node encountered with unsupported method=", method, "on PopulationEstimates node, expected: Bootstrap, LLP, SIR, MultiDimLLP"))
+				}
+            }
+        }
+		
+		else {
+			warning(paste("Unexpected child node", childNodeName, "encountered on PopulationEstimates, expected: MLE, Bayesian, OtherMethod"))
+		}
+	}
+	
     return(SOObject)
 }
 
@@ -760,25 +764,26 @@ ParseIndividualEstimates <- function(SOObject, IndividualEstimatesNode) {
 }
 
 ParsePrecisionIndividualEstimates <- function(SOObject, PrecisionIndividualEstimatesNode) {
-  
-  # Get list of Child Nodes
-  children = xmlChildren(PrecisionIndividualEstimatesNode)
 
-  # Iterate over Child nodes, updating SO if appropriate element is present 
-  distList = list()
-  for (child in children){
-    
-    if ("PosteriorDistributionIndividualEstimates" %in% xmlName(child)) {
-      distList <- ParseDistribution(child)
-    }
-  }
+	# Iterate over Child nodes, updating SO if appropriate element is present
+	for (child in .getChildNodes(PrecisionIndividualEstimatesNode)) {
+		childNodeName <- xmlName(child)
+	
+		if (childNodeName == "PosteriorDistributionIndividualEstimates") {
+		  distList <- ParseDistribution(child)
+			
+		  # Update SO Object Slot
+		  SOObject@Estimation@PrecisionIndividualEstimates <- list(
+		      EstimatesDistribution = distList
+		      )
+		}
+		
+		else {
+			warning(paste("Unexpected child node", childNodeName, "encountered on PrecisionIndividualEstimates, expected: PosteriorDistributionIndividualEstimates"))
+		}
+	}
   
-  # Update SO Object Slot
-  SOObject@Estimation@PrecisionIndividualEstimates <- list(
-      EstimatesDistribution = distList
-      )
-  
-  return(SOObject)                                 
+	return(SOObject)                                 
 }
 
 ParseResiduals <- function(SOObject, ResidualsNode) {
