@@ -761,25 +761,24 @@ ParseIndividualEstimates <- function(SOObject, IndividualEstimatesNode) {
 
 ParsePrecisionIndividualEstimates <- function(SOObject, PrecisionIndividualEstimatesNode) {
   
-	# Iterate over Child nodes, updating SO if appropriate element is present
-	for (child in .getChildNodes(PrecisionIndividualEstimatesNode)) {
-		childNodeName <- xmlName(child)
-		
-		if (childNodeName == "PosteriorDistributionIndividualEstimates") {
-			distList <- ParseDistribution(child)
-			
-			# Update SO Object Slot
-			SOObject@Estimation@PrecisionIndividualEstimates = list(
-                          PosteriorDistribution = distList)
-		}
-		
-		else {
-			warning(paste("Unexpected child node", childNodeName, "encountered on PrecisionIndividualEstimates, expected: PosteriorDistributionIndividualEstimates"))
-		}
-		
-	}
-	
-	return(SOObject)                                 
+  # Get list of Child Nodes
+  children = xmlChildren(PrecisionIndividualEstimatesNode)
+
+  # Iterate over Child nodes, updating SO if appropriate element is present 
+  distList = list()
+  for (child in children){
+    
+    if ("PosteriorDistributionIndividualEstimates" %in% xmlName(child)) {
+      distList <- ParseDistribution(child)
+    }
+  }
+  
+  # Update SO Object Slot
+  SOObject@Estimation@PrecisionIndividualEstimates <- list(
+      EstimatesDistribution = distList
+      )
+  
+  return(SOObject)                                 
 }
 
 ParseResiduals <- function(SOObject, ResidualsNode) {
