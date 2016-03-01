@@ -12,7 +12,29 @@
 .NODENAME_COMMENT <- "comment"
 .NODENAME_DEFINITION <- "Definition"
 .NODENAME_EXTERNALFILE <- "ExternalFile"
+.NODENAME_TABLE <- "Table"
 .NODENAME_MATRIX <- "Matrix"
+.NODENAME_ROWNAMES <- "RowNames"
+.NODENAME_COLNAMES <- "ColumnNames"
+.NODENAME_MATRIXROW <- "MatrixRow"
+.NODENAME_DATAFILE <- "DataFile"
+.NODENAME_GRAPHICSFILE <- "GraphicsFile"
+.NODENAME_MLE = "MLE"
+.NODENAME_BAYESIAN = "Bayesian"
+.NODENAME_BOOTSTRAP = "Bootstrap"
+.NODENAME_LLP <- "LLP"
+.NODENAME_SIR <- "SIR"
+.NODENAME_MULTIDIMLLP <- "MultiDimLLP"
+.NODENAME_ESTIMATES <- "Estimates"
+.NODENAME_RANDOMEFFECTS <- "RandomEffects"
+.NODENAME_ETASHRINKAGE <- "EtaShrinkage"
+.NODENAME_RESIDUALTABLE <- "ResidualTable"
+.NODENAME_EPSSHRINKAGE <- "EpsShrinkage"
+.NODENAME_OTHERMETHOD <- "OtherMethod"
+
+
+.DATASET_DESCRIPTION <- "description"
+.DATASET_DATA <- "data"
 
 
 # ================== #
@@ -54,7 +76,7 @@
 #' SOChildren <- xmlChildren(x = soBlocks[[1]])
 #' # MLE
 #' children <- xmlChildren(x = SOChildren[["Estimation"]][["PopulationEstimates"]])
-#' ddmore:::ParseElement(Node = children[["MLE"]])
+#' ddmore:::ParseElement(node = children[["MLE"]])
 
 ParseElement <- function(node) {
   
@@ -72,7 +94,7 @@ ParseElement <- function(node) {
 		parsed <- ParseExternalFile(.getChildNode(childNodes, .NODENAME_EXTERNALFILE))		  
 	}
 	else {
-		warning("expected Matrix or ExternalFile block in ParseElement, but found ",
+		warning("Expected Matrix or ExternalFile block in ParseElement, but found ",
 			paste(childNames, collapse = " "))
 	}
   }
@@ -82,16 +104,16 @@ ParseElement <- function(node) {
 		# Load data from external file
 		parsed <- ParseDataSetExternalFile(.getChildNode(childNodes, .NODENAME_DEFINITION), .getChildNode(childNodes, .NODENAME_EXTERNALFILE))
 	}
-	else if (combinedChildNames == paste(c(.NODENAME_DEFINITION, "Table"), collapse="|")) {
+	else if (combinedChildNames == paste(c(.NODENAME_DEFINITION, .NODENAME_TABLE), collapse="|")) {
 		# Load data from inline XML
-		parsed <- ParseDataSetInline(.getChildNode(childNodes, .NODENAME_DEFINITION), .getChildNode(childNodes, "Table"))
+		parsed <- ParseDataSetInline(.getChildNode(childNodes, .NODENAME_DEFINITION), .getChildNode(childNodes, .NODENAME_TABLE))
 	} else {
-	    warning("expected ExternalFile or Table blocks with Definition in ParseElement, but found ",
+	    warning("Expected ExternalFile or Table blocks with Definition in ParseElement, but found ",
 			paste(childNames, collapse = " "))
 	}
   }
   else {
-	warning("expected 1 or 2 blocks in ParseElement, but found ", length(childNames))
+	warning("Expected 1 or 2 blocks in ParseElement, but found: ", paste(childNames, collapse=", "))
   }
   
   if (is.null(parsed)) {
@@ -137,13 +159,10 @@ ParseDataSetInline <- function(definitionNode, tableNode) {
   rownames(columnInfo) <- c("columnNum", "columnType", "valueType")
   
   # Get all Table Row elements
-  rowList <- xmlChildren(tableNode)
+  rowList <- .getChildNodes(tableNode)
     
   # List of values
   rowData <- lapply(X = rowList, FUN = function(x) { xmlSApply(X = x, FUN = xmlValue) })
-  
-  # Filter out any Commnet lines 
-  rowData <- rowData[names(rowData) != .NODENAME_COMMENT]
   
   # Convert to data frame 
   temp <- Reduce(f = rbind, x = rowData)
@@ -174,14 +193,6 @@ ParseDataSetInline <- function(definitionNode, tableNode) {
 #'
 ParseDataSetExternalFile <- function(definitionNode, externalFileNode) {
 
-  # Error checking
-  if (is.null("definition")) {
-	  stop(paste("No expected Definition child node found within", xmlName(parentNode), "node when parsing a data set node"))
-  }
-  if (is.null("externalFile")) {
-	  stop(paste("No expected ExternalFile child node found within", xmlName(parentNode), "node when parsing a data set node"))
-  }
-      
   # Extract all column Information and store in a data frame
   columnInfo = as.data.frame(xmlSApply(definitionNode, FUN = function(x) list(
   		xmlGetAttr(x, name="columnNum"), 
@@ -222,19 +233,19 @@ ParseDataSetExternalFile <- function(definitionNode, externalFileNode) {
 #'
 ParseMatrix <- function(matrixNode) {
   
-  if ( (length(matrixNode[["RowNames"]]) == 0) || (length(matrixNode[["ColumnNames"]]) == 0) ) {
+  if ( (length(matrixNode[[.NODENAME_ROWNAMES]]) == 0) || (length(matrixNode[[.NODENAME_COLNAMES]]) == 0) ) {
 	  warning("No RowNames or ColumnNames found for Matrix element. Skipping...")
 	  return(NULL)
   }
 	
   # Get rownames of matrix 
-  matrixRowNames <- xmlSApply(matrixNode[["RowNames"]], xmlValue)
+  matrixRowNames <- xmlSApply(matrixNode[[.NODENAME_ROWNAMES]], xmlValue)
   
   # Get colnames of matrix 
-  matrixColumnNames <- xmlSApply(matrixNode[["ColumnNames"]], xmlValue)
+  matrixColumnNames <- xmlSApply(matrixNode[[.NODENAME_COLNAMES]], xmlValue)
   
   # Get all Matrix Rows that contain data
-  matrixDataRows <- matrixNode[names(matrixNode) == "MatrixRow"]
+  matrixDataRows <- matrixNode[names(matrixNode) == .NODENAME_MATRIXROW]
 
   if (length(matrixDataRows) == 0) {
 	  warning("No MatrixRows found for Matrix element. Skipping...")
@@ -314,7 +325,7 @@ ParseExternalFile <- function(externalFileNode) {
 #' 
 ParseDistribution <- function(Node) {
 
-  subChildren <- xmlChildren(Node)
+  subChildren <- .getChildNodes(Node)
   
   for (subChild in subChildren){
     
@@ -360,38 +371,44 @@ ParseToolSettings <- function(SOObject, ToolSettingsNode) {
 }
 
 ParseRawResults <- function(SOObject, rawResultsNode) {
-  
-  objectIdNames <- xmlSApply(rawResultsNode, xmlAttrs) 
-  
-  DataFileTempList <- list()
-  GraphicsFileTempList <- list()
-  
-  for (i in seq(along=xmlChildren(rawResultsNode))) {
-    
-    fileType = names(rawResultsNode[i])
 
-    node = rawResultsNode[[i]]
-    
-    if (! any(c('XMLCommentNode','XMLInternalCommentNode') %in% class(node)) ) {
+	DataFileTempList <- list()
+	GraphicsFileTempList <- list()
+	
+	childNodes <- .getChildNodes(rawResultsNode)
+	for (i in seq(along=childNodes)) {
 		
-      # Extract child tags and values as a list with names = tag names and elements = tag values
-      childTags = xmlSApply(node, xmlValue)
-    
-      # Add this as an element to the Final Files List 
-      if (fileType == 'DataFile') {
-        DataFileTempList[objectIdNames[[i]]] = list(as.list(childTags))
-      } else if (fileType == 'GraphicsFile') {
-        GraphicsFileTempList[objectIdNames[[i]]] = list(as.list(childTags))
-      }
-    }
-  }
-  
-  # Assign Result to Files slot of RawResults
-  SOObject@RawResults@DataFiles = DataFileTempList
-  SOObject@RawResults@GraphicsFiles = GraphicsFileTempList
-  
-  return(SOObject)
+		fileType <- names(childNodes[i]) # Only one name
+		childNode <- childNodes[[i]]
+		objectId <- xmlAttrs(childNode)[['oid']]
+		
+		# Extract child tags and values as a list with names = tag names and elements = tag values
+		childTags = xmlSApply(childNode, xmlValue)
+		
+		# Add this as an element to the Final Files List 
+		if (fileType == .NODENAME_DATAFILE) {
+			if (.NODENAME_EXTERNALFILE %in% names(.getChildNodes(childNode))) {
+				externalFileNode <- .getChildNodes(childNode)[[.NODENAME_EXTERNALFILE]]
+				objectId <- xmlAttrs(externalFileNode)[['oid']] # objectId is on nested ExternalFile node instead of on the DataFile node itself as for GraphicsFile
+				DataFileTempList[objectId] <- list(ParseExternalFile(externalFileNode))
+			} else {
+				DataFileTempList[objectId] <- list(as.list(childTags))
+			}
+		} else if (fileType == .NODENAME_GRAPHICSFILE) {
+			GraphicsFileTempList[objectId] <- list(as.list(childTags))
+		} else {
+			warning(paste("Unexpected child node", fileType, "encountered on RawResults node, expected: DataFile, GraphicsFile"))
+		}
+		
+	}
+	
+	# Assign Result to Files slot of RawResults
+	SOObject@RawResults@DataFiles <- DataFileTempList
+	SOObject@RawResults@GraphicsFiles <- GraphicsFileTempList
+	
+	return(SOObject)	
 }
+
 
 # =========================== #
 # Parsers for Estimation Slot #
@@ -399,75 +416,81 @@ ParseRawResults <- function(SOObject, rawResultsNode) {
 
 ParsePopulationEstimates <- function(SOObject, PopulationEstimatesNode) {
   
-    # Get list and reference to Child Nodes
-    children <- xmlChildren(PopulationEstimatesNode)
-    L0 <- list(description = NULL, data = NULL)
-  
-    for (child in children) {
-        
-        switch(xmlName(child),
-            "MLE" = {
-                # Parse XMl DataSet Structure	  
-                L <- ParseElement(child)
-                # Update SO Object Slot
-                SOObject@Estimation@PopulationEstimates[["MLE"]] <- L[c("description", "data")]
-            },
-            "Bayesian" = {
-                # Fetch Children of Node
-                BayesianChildren <- xmlChildren(child)
-                # Parse XMl DataSet Structure	and update SO	
-                for (BChild in c("PosteriorMean", "PosteriorMedian", "PosteriorMode")) {
-                    if (BChild %in% names(BayesianChildren)) {
-                        L <- ParseElement(BayesianChildren[[BChild]])
-                    } else {
-                        L <- L0
-                    }
-                    SOObject@Estimation@PopulationEstimates[["Bayesian"]][[BChild]] <- 
-                        L[c("description", "data")]
-                }
-            },
-            "OtherMethod" = {
-                # Fetch Children of Node
-                OtherMethodChildren <- xmlChildren(child)
-                if (!"method" %in% names(attributes(OtherMethodChildren))) {
-                    warning("malformed XML in ParsePopulationEstimates\n",
-                        "method attribute expected in OtherMethod sub-block (since v0.3)")
+    STUB_DATASET <- list(description = NULL, data = NULL)
+	
+    # could check names here
+    #namesPresent <- xmlSApply(X = PopulationEstimatesNode, FUN = xmlName)
+    
+	# Iterate over legal nodes, updating SO if appropriate element is present
+    for (child in names(SOObject@Estimation@PopulationEstimates)) {
+	#for (child in .getChildNodes(PopulationEstimatesNode)) {
+		childNodeName <- xmlName(child)
+		
+		if (childNodeName == .NODENAME_MLE) {
+            # Parse XML DataSet Structure	  
+            L <- ParseElement(child)
+            # Update SO Object Slot
+            SOObject@Estimation@PopulationEstimates[[.NODENAME_MLE]] <- L[c(.DATASET_DESCRIPTION, .DATASET_DATA)]
+		}
+		
+		else if (childNodeName == .NODENAME_BAYESIAN) {
+            # Fetch Children of Node
+            BayesianChildren <- .getChildNodes(child)
+            # Parse XML DataSet Structure and update SO
+            for (BChild in c("PosteriorMean", "PosteriorMedian", "PosteriorMode")) {
+                if (BChild %in% names(BayesianChildren)) {
+                    L <- ParseElement(BayesianChildren[[BChild]])
                 } else {
-                    switch(attributes(OtherMethodChildren)[["method"]],
-                        # Parse XMl DataSet Structure and update SO 
-                        "Bootstrap" = {
-                            for (BChild in c("Mean", "Median")) {
-                                if (BChild %in% names(BootstrapChildren)) {
-                                    L <- ParseElement(BootstrapChildren[[BChild]])
-                                } else {
-                                    L <- L0
-                                }
-                                SOObject@Estimation@PopulationEstimates[["Bootstrap"]][[BChild]] <- 
-                                    L[c("description", "data")]
-                            }
-                        }, 
-                        "LLP" = { 
-                            warning("LLP not implemented for PopulationEstimates") 
-                            SOObject@Estimation@PopulationEstimates[["LLP"]] <- L0
-                        },
-                        "SIR" = { 
-                            warning("SIR not implemented for PopulationEstimates")
-                            SOObject@Estimation@PopulationEstimates[["SIR"]] <- L0
-                        },
-                        "MultiDimLLP"  = { 
-                            warning("MultiDimLLP not implemented for PopulationEstimates")
-                            SOObject@Estimation@PopulationEstimates[["MultiDimLLP"]] <- L0
-                        },
-                        warning("OtherMethod not recognised in ParsePopulationEstimates")
-                    )
+                    L <- STUB_DATASET
                 }
-            },
-            warning("block ", xmlName(child), " ignored by ParsePopulationEstimates")
-        )
-    }
+                SOObject@Estimation@PopulationEstimates[[.NODENAME_BAYESIAN]][[BChild]] <- 
+                    L[c(.DATASET_DESCRIPTION, .DATASET_DATA)]
+            }
+		}
+		
+		else if (childNodeName == .NODENAME_OTHERMETHOD) {
+            if (!"method" %in% names(xmlAttrs(child))) {
+                warning("Attribute \"method\" expected on PopulationEstimates::OtherMethod sub-block (since v0.3)")
+            } else {
+				method <- xmlAttrs(child)[["method"]]
+				otherMethodChildNodes <- .getChildNodes(child)
+                # Parse XML DataSet Structure and update SO 
+				if (method == .NODENAME_BOOTSTRAP) {
+                    for (BChild in c("Mean", "Median")) {
+                        if (BChild %in% names(otherMethodChildNodes)) {
+                            L <- ParseElement(otherMethodChildNodes[[BChild]])
+                        } else {
+                            L <- STUB_DATASET
+                        }
+                        SOObject@Estimation@PopulationEstimates[[.NODENAME_OTHERMETHOD]][[.NODENAME_BOOTSTRAP]][[BChild]] <- 
+                            L[c(.DATASET_DESCRIPTION, .DATASET_DATA)]
+                    }
+                }
+    			else if (method == .NODENAME_LLP) {
+                    warning("LLP not implemented for PopulationEstimates") 
+                    SOObject@Estimation@PopulationEstimates[[.NODENAME_OTHERMETHOD]][[.NODENAME_LLP]] <- STUB_DATASET
+                }
+				else if (method == .NODENAME_SIR) {
+                    warning("SIR not implemented for PopulationEstimates")
+                    SOObject@Estimation@PopulationEstimates[[.NODENAME_OTHERMETHOD]][[.NODENAME_SIR]] <- STUB_DATASET
+                }
+				else if (method == .NODENAME_MULTIDIMLLP) {
+                    warning("MultiDimLLP not implemented for PopulationEstimates")
+                    SOObject@Estimation@PopulationEstimates[[.NODENAME_OTHERMETHOD]][[.NODENAME_MULTIDIMLLP]] <- STUB_DATASET
+                }
+				else {
+					warning(paste("OtherMethod node encountered with unsupported method=", method, "on PopulationEstimates node, expected: Bootstrap, LLP, SIR, MultiDimLLP"))
+				}
+            }
+        }
+		
+		else {
+			warning(paste("Unexpected child node", childNodeName, "encountered on PopulationEstimates, expected: MLE, Bayesian, OtherMethod"))
+		}
+	}
+	
     return(SOObject)
 }
-
 
 ParsePrecisionPopulationEstimates <- function(SOObject, PrecisionPopulationEstimatesNode) {
   
@@ -480,89 +503,73 @@ ParsePrecisionPopulationEstimates <- function(SOObject, PrecisionPopulationEstim
         "MLE" = {
           MLEChildren = xmlChildren(child)
           for (MLEChild in MLEChildren){
-            switch(xmlName(MLEChild), 
-                "FIM" = {
-                  # if FIM is present, parse matrix as data frame to SO {
-                    datf <- ParseElement(MLEChild)
-                    SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["FIM"]] <- datf 
-                },
-                "CovarianceMatrix" = {
-                  # if CovarianceMatrix is present, parse matrix as data frame to SO 
-                  datf <- ParseElement(MLEChild)
-                  SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["CovarianceMatrix"]] <- datf
-                },
-                "CorrelationMatrix" = {
-                  # if CorrelationMatrix is present, parse matrix as data frame to SO 
-                  datf <- ParseElement(MLEChild)
-                  SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["CorrelationMatrix"]] <- datf
-                },
-                "StandardError" = {
-                  # if StandardError is present, parse DataSet as data frame to SO 
-                  L <- ParseElement(MLEChild)
-                  # Update SO Object Slot
-                  SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["StandardError"]] <- list(
-                                  description=L$description, 
-                                  data=L$data)
-                },
-                "RelativeStandardError" = {
-                  # if RelativeStandardError is present, parse DataSet as data frame to SO 
-                  L <- ParseElement(MLEChild)
-                  # Update SO Object Slot
-                  SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["RelativeStandardError"]] <- list(
-                                  description=L$description, 
-                                  data=L$data)
-                },
-                "AsymptoticCI" = {
-                  # if AsymptoticCI is present, parse DataSet as data frame to SO 
-                  L <- ParseElement(MLEChild)
-                  # Update SO Object Slot
-                  SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["AsymptoticCI"]] <- list(
-                                  description=L$description, 
-                                  data=L$data)
-                },
-                "ConditionNumber" = {
-                  # TODO: check this!
-                  # if ConditionNumber is present, value is real
-                  L <- ParseElement(MLEChild)
-                  # Update SO Object Slot
-                  SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["ConditionNumber"]] <- L
-                },
-                warning("MLE sub-block ", xmlName(MLEChild), 
-                    " not recognized in ParsePrecisionPopulationEstimates")
+            
+            if (xmlName(MLEChild) == "FIM"){
+              # if FIM is present, parse matrix as data frame to SO {
+                datf = ParseElement(MLEChild)
+                SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["FIM"]] = datf 
+            
+            } else if(xmlName(MLEChild) == "CovarianceMatrix") {
+              # if CovarianceMatrix is present, parse matrix as data frame to SO 
+              datf = ParseElement(MLEChild)
+              SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["CovarianceMatrix"]] = datf
+            
+            } else if(xmlName(MLEChild) == "CorrelationMatrix") {
+              # if CorrelationMatrix is present, parse matrix as data frame to SO 
+              datf = ParseElement(MLEChild)
+              SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["CorrelationMatrix"]] = datf
+            
+            } else if(xmlName(MLEChild) == "StandardError") {
+              # if StandardError is present, parse DataSet as data frame to SO 
+              L = ParseElement(MLEChild)
+              # Update SO Object Slot
+              SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["StandardError"]] = list(
+                              description=L$description, 
+                              data=L$data)
+            } else if(xmlName(MLEChild) == "RelativeStandardError") {
+              # if RelativeStandardError is present, parse DataSet as data frame to SO 
+              L = ParseElement(MLEChild)
+              # Update SO Object Slot
+              SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["RelativeStandardError"]] = list(
+                              description=L$description, 
+                              data=L$data)
+
+            } else if(xmlName(MLEChild) == "AsymptoticCI") {
+              # if AsymptoticCI is present, parse DataSet as data frame to SO 
+              L = ParseElement(MLEChild)
+              # Update SO Object Slot
+              SOObject@Estimation@PrecisionPopulationEstimates[["MLE"]][["AsymptoticCI"]] = list(
+                              description=L$description, 
+                              data=L$data)
+            }
           }
         },
         "Bayesian" = {
           # Fetch Children of Node
-          BayesianChildren <- xmlChildren(child)
+          BayesianChildren = xmlChildren(child)
           # Parse XMl DataSet Structure and update SO 
           for (BayesianChild in BayesianChildren) {
-            
-            switch(xmlName(BayesianChild),
-                "StandardDeviation" = {
-                  L <- ParseElement(BayesianChild)
-                  SOObject@Estimation@PrecisionPopulationEstimates[["Bayesian"]][["StandardDeviation"]] <- list(
-                                      description=L$description, 
-                                      data=L$data)
-                },
-                "PosteriorDistribution" = {
-                  # TODO check how should be implemented for v0.3
-                  distList <- ParseDistribution(BayesianChild)
-                  SOObject@Estimation@PrecisionIndividualEstimates <- list(
-                      # StandardDeviation (needed?)
-                      # EstimatesDistribution (renamed PosteriorDistribution)
-                      # PercentilesCI (needed?)
-                      EstimatesDistribution = distList
-                      )
-                },
-                "PercentilesCI" = {
-                  L <- ParseElement(BayesianChild)
-                  SOObject@Estimation@PrecisionPopulationEstimates[["Bayesian"]][["PercentilesCI"]] <- list(
-                                      description=L$description, 
-                                      data=L$data)
-                },
-                warning("Bayesian sub-block ", xmlName(BayesianChild), 
-                    " not recognized in ParsePrecisionPopulationEstimates")
-            )
+
+            if (xmlName(BayesianChild) == "StandardDeviationPosterior"){
+              L = ParseElement(BayesianChild)
+              SOObject@Estimation@PrecisionPopulationEstimates[["Bayesian"]][["StandardDeviationPosterior"]] = list(
+                                  description=L$description, 
+                                  data=L$data)
+            } else if (xmlName(BayesianChild) == "PosteriorDistribution"){
+              # TODO check how should be implemented for v0.3
+              distList = ParseDistribution(BayesianChild)
+              SOObject@Estimation@PrecisionIndividualEstimates <- list(
+                  # StandardDeviation (needed?)
+                  # EstimatesDistribution (renamed PosteriorDistribution)
+                  # PercentilesCI (needed?)
+                  EstimatesDistribution = distList
+                  )
+            } else if (xmlName(BayesianChild) == "PercentilesCI"){
+              L <- ParseElement(BayesianChild)
+              SOObject@Estimation@PrecisionPopulationEstimates[["Bayesian"]][["PercentilesCI"]] <- list(
+                                  description=L$description, 
+                                  data=L$data)
+            }
           }
         }, 
         "OtherMethod" = {
@@ -598,17 +605,17 @@ ParsePrecisionPopulationEstimates <- function(SOObject, PrecisionPopulationEstim
                       LLPChildren = xmlChildren(child)
                       # Parse XMl DataSet Structure and update SO 
                       for (LLPChild in LLPChildren) {
-                        
+
                         if (xmlName(LLPChild) == "PrecisionEstimates"){
-                          L <- ParseElement(LLPChild)
-                          SOObject@Estimation@PrecisionPopulationEstimates[["LLP"]][["PrecisionEstimates"]] <- list(
-                              description=L$description, 
-                              data=L$data)
+                          L = ParseElement(LLPChild)
+                          SOObject@Estimation@PrecisionPopulationEstimates[["LLP"]][["PrecisionEstimates"]] = list(
+                                              description=L$description, 
+                                              data=L$data)
                         } else if (xmlName(LLPChild) == "Percentiles"){
-                          L <- ParseElement(LLPChild)
-                          SOObject@Estimation@PrecisionPopulationEstimates[["LLP"]][["Percentiles"]] <- list(
-                              description=L$description, 
-                              data=L$data)
+                          L = ParseElement(LLPChild)
+                          SOObject@Estimation@PrecisionPopulationEstimates[["LLP"]][["Percentiles"]] = list(
+                                              description=L$description, 
+                                              data=L$data)
                         }
                       }
                     },
@@ -661,126 +668,166 @@ ParsePrecisionPopulationEstimates <- function(SOObject, PrecisionPopulationEstim
 }
 
 ParseIndividualEstimates <- function(SOObject, IndividualEstimatesNode) {
-  
-  # Get list of Child Nodes
-  children = xmlChildren(IndividualEstimatesNode)
-  # Iterate over Child nodes, updating SO if appropriate element is present 
-  for (child in children){
+	
+	# Iterate over Child nodes, updating SO if appropriate element is present
+	for (child in .getChildNodes(IndividualEstimatesNode)) {
+		childNodeName <- xmlName(child)
+		
+		if (childNodeName == .NODENAME_ESTIMATES) {
+
+	      subChildren = .getChildNodes(child)
+	      for (subChild in subChildren){
+	        
+	        if (xmlName(subChild) == "Mean"){
+	          L = ParseElement(subChild)
+	          # Update SO Object Slot
+	          SOObject@Estimation@IndividualEstimates[[.NODENAME_ESTIMATES]][["Mean"]] = list(
+	                          description=L$description, 
+	                          data=L$data)
+	        
+	        } else if(xmlName(subChild) == "Median") {
+	          L = ParseElement(subChild)
+	          # Update SO Object Slot
+	          SOObject@Estimation@IndividualEstimates[[.NODENAME_ESTIMATES]][["Median"]] = list(
+	                          description=L$description, 
+	                          data=L$data)        
+	
+	        } else if(xmlName(subChild) == "Mode") {
+	          L = ParseElement(subChild)
+	          # Update SO Object Slot
+	          SOObject@Estimation@IndividualEstimates[[.NODENAME_ESTIMATES]][["Mode"]] = list(
+	                          description=L$description, 
+	                          data=L$data)        
+	
+	        } else if(xmlName(subChild) == "Samples") {
+	          L = ParseElement(subChild)
+	          # Update SO Object Slot
+	          SOObject@Estimation@IndividualEstimates[[.NODENAME_ESTIMATES]][["Samples"]] = list(
+	                          description=L$description, 
+	                          data=L$data)
+	        }
+	        # Option of an else here 
+	      }
     
-    switch(xmlName(child),
-        "Estimates" = {
-          subChildren = xmlChildren(child)
-          for (subChild in subChildren) {
-            
-            subBlockName <- xmlName(subChild)
-            if (length(subBlockName) != 1L) {
-                warning("expected exactly 1 Estimates sub-block name in ParseIndividualEstimates,\n", 
-                    "but sub-block name was: ", paste(subBlockName, collapse = ", "))
-            } else {
-                if (!subBlockName %in% c("Mean", "Median", "Mode", "Samples")) {
-                    warning("unexpected Estimates sub-block, ", subBlockName, ", in ParseIndividualEstimates")
-                }
-                # note that this permits invalid names (with warning)
-                L <- ParseElement(subChild)
-                # Update SO Object Slot
-                SOObject@Estimation@IndividualEstimates[["Estimates"]][[subBlockName]] <- list(
-                    description = L$description, 
-                    data = L$data)
-                
-            }
-          }
-        },
-        "RandomEffects" = {
-          # Fetch Children of Node
-          subChildren = xmlChildren(child)
-          # Parse XMl DataSet Structure and update SO 
-          for (subChild in subChildren) {
-            
-            subBlockName <- xmlName(subChild)
-            if (length(subBlockName) != 1L) {
-                warning("expected exactly 1 RandomEffects sub-block name in ParseIndividualEstimates,\n", 
-                    "but sub-block name was: ", paste(subBlockName, collapse = ", "))
-            } else {
-                if (!subBlockName %in% c("EffectMean", "EffectMedian", "EffectMode", "Samples")) {
-                    warning("unexpected RandomEffects sub-block, ", subBlockName, ", in ParseIndividualEstimates")
-                }
-                # note that this permits invalid names (with warning)
-                L <- ParseElement(subChild)
-                # Update SO Object Slot
-                SOObject@Estimation@IndividualEstimates[["RandomEffects"]][[subBlockName]] <- list(
-                    description = L$description, 
-                    data = L$data)
-                
-            }
-          }
-        },
-        "EtaShrinkage" = {
-          L = ParseElement(child)
-          # Update SO Object Slot
-          SOObject@Estimation@IndividualEstimates[["EtaShrinkage"]] = list(
-                              description=L$description, 
-                              data=L$data)
-        }
-    )
-  }
-  return(SOObject)
+		}
+		
+		else if (childNodeName == .NODENAME_RANDOMEFFECTS) {
+			
+	      # Fetch Children of Node
+	      subChildren = .getChildNodes(child)
+	      # Parse XMl DataSet Structure and update SO 
+	      for (subChild in subChildren) {
+	
+	        if (xmlName(subChild) == "EffectMean"){
+	          L = ParseElement(subChild)
+	          # Update SO Object Slot
+	          SOObject@Estimation@IndividualEstimates[[.NODENAME_RANDOMEFFECTS]][["EffectMean"]] = list(
+	                          description=L$description, 
+	                          data=L$data)
+	
+	        } else if (xmlName(subChild) == "EffectMedian"){
+	          L = ParseElement(subChild)
+	          # Update SO Object Slot
+	          SOObject@Estimation@IndividualEstimates[[.NODENAME_RANDOMEFFECTS]][["EffectMedian"]] = list(
+	                          description=L$description, 
+	                          data=L$data)
+	
+	        } else if (xmlName(subChild) == "EffectMode"){
+	          L = ParseElement(subChild)
+	          # Update SO Object Slot
+	          SOObject@Estimation@IndividualEstimates[[.NODENAME_RANDOMEFFECTS]][["EffectMode"]] = list(
+	                          description=L$description, 
+	                          data=L$data)
+	
+	        } else if (xmlName(subChild) == "Samples"){
+	          L = ParseElement(subChild)
+	          # Update SO Object Slot
+	          SOObject@Estimation@IndividualEstimates[[.NODENAME_RANDOMEFFECTS]][["Samples"]] = list(
+	                          description=L$description, 
+	                          data=L$data)
+	        }
+	      }
+
+  		}
+		
+		else if (childNodeName == .NODENAME_ETASHRINKAGE) {
+	
+	      L = ParseElement(child)
+	      # Update SO Object Slot
+	      SOObject@Estimation@IndividualEstimates[[.NODENAME_ETASHRINKAGE]] = list(
+	                          description=L$description, 
+	                          data=L$data)
+		}
+		
+		else {
+			warning(paste("Unexpected child node", childNodeName, "encountered on IndividualEstimates, expected: Estimates, RandomEffects, EtaShrinkage"))
+		}
+	}
+	
+	return(SOObject)
 }
 
-
 ParsePrecisionIndividualEstimates <- function(SOObject, PrecisionIndividualEstimatesNode) {
-  
-  # Get list of Child Nodes
-  children = xmlChildren(PrecisionIndividualEstimatesNode)
 
-  # Iterate over Child nodes, updating SO if appropriate element is present 
-  distList = list()
-  for (child in children){
-    
-    if ("PosteriorDistributionIndividualEstimates" %in% xmlName(child)) {
-      distList <- ParseDistribution(child)
-    }
-  }
+	# Iterate over Child nodes, updating SO if appropriate element is present
+	for (child in .getChildNodes(PrecisionIndividualEstimatesNode)) {
+		childNodeName <- xmlName(child)
+	
+		if (childNodeName == "PosteriorDistributionIndividualEstimates") {
+		  distList <- ParseDistribution(child)
+			
+		  # Update SO Object Slot
+		  SOObject@Estimation@PrecisionIndividualEstimates <- list(
+		      EstimatesDistribution = distList
+		      )
+		}
+		
+		else {
+			warning(paste("Unexpected child node", childNodeName, "encountered on PrecisionIndividualEstimates, expected: PosteriorDistributionIndividualEstimates"))
+		}
+	}
   
-  # Update SO Object Slot
-  SOObject@Estimation@PrecisionIndividualEstimates <- list(
-      EstimatesDistribution = distList
-      )
-  
-  return(SOObject)                                 
+	return(SOObject)                                 
 }
 
 ParseResiduals <- function(SOObject, ResidualsNode) {
 
-  # Since SO 0.1 all residuals are in a single Dataset Table Structure
-  # called ResidualsTable
+  # Since SO 0.1 all residuals are in a single Dataset Table Structure called ResidualsTable
 
-  # Get list of Child Nodes
-  children = xmlChildren(ResidualsNode)
+	# Iterate over Child nodes, updating SO if appropriate element is present
+	for (child in .getChildNodes(ResidualsNode)) {
+		childNodeName <- xmlName(child)
+		
+		if (childNodeName == .NODENAME_RESIDUALTABLE) {
+			
+	      L = ParseElement(child)
+	
+	      # Update SO Object Slot
+	      SOObject@Estimation@Residuals[[.NODENAME_RESIDUALTABLE]] = list(
+	                          description=L$description, 
+	                          data=L$data) 
 
-  # Iterate over Child nodes, updating SO if appropriate element is present 
-  for (child in children){
+		}
+		
+		else if (xmlName(child) == .NODENAME_EPSSHRINKAGE) {
+			
+	      L = ParseElement(child)
+	
+	      # Update SO Object Slot
+	      SOObject@Estimation@Residuals[[.NODENAME_EPSSHRINKAGE]] = list(
+	                          description=L$description, 
+	                          data=L$data)
+
+		}
+		
+		else {
+			warning(paste("Unexpected child node", childNodeName, "encountered on Residuals, expected: ResidualTable, EpsShrinkage"))
+		}
+
+	}
     
-    if (xmlName(child) == "ResidualTable") {
-      L = ParseElement(child)
-
-      # Update SO Object Slot
-      SOObject@Estimation@Residuals[["ResidualTable"]] = list(
-                          description=L$description, 
-                          data=L$data) 
-
-    } else if (xmlName(child) == "EpsShrinkage") {
-      L = ParseElement(child)
-
-      # Update SO Object Slot
-      SOObject@Estimation@Residuals[["EpsShrinkage"]] = list(
-                          description=L$description, 
-                          data=L$data)      
-    } 
-  }
-    
-  return(SOObject)
+	return(SOObject)
 }
-
 
 ParsePredictions <- function(SOObject, PredictionsNode) {
 
@@ -795,146 +842,138 @@ ParsePredictions <- function(SOObject, PredictionsNode) {
 
 ParseOFMeasures <- function(SOObject, OFMeasuresNode) {
 	
-  # Get list of Child Nodes
-  OFMeasuresChildren <- xmlChildren(OFMeasuresNode)
-  # Iterate over Child nodes, updating SO if appropriate element is present 
-  for (child in OFMeasuresChildren) {
-    
-    if (xmlName(child) == "Deviance") {
-      
-      # Extract Deviance
-      SOObject@Estimation@OFMeasures$Deviance <- as.numeric(xmlValue(child))
-	  
-	  }
-	
-    if (xmlName(child) == "LogLikelihood") {
-      
-      # Extract Likelihood
-      SOObject@Estimation@OFMeasures$LogLikelihood <- as.numeric(xmlValue(child))
-	  
-    }
-	
-	  if (xmlName(child) == "IndividualContribToLL") {
+	# Iterate over Child nodes, updating SO if appropriate element is present
+	for (child in .getChildNodes(OFMeasuresNode)) {
+		childNodeName <- xmlName(child)
 		
-      # Extract IndividualContribToLL
-      L = ParseElement(child)
-	  
-	  # Update SO Object Slot
-	  SOObject@Estimation@OFMeasures$IndividualContribToLL <- list(
-			  description=L$description, 
-			  data=L$data)
-	  }
-
-    if (xmlName(child) == "InformationCriteria") {
-    
-      # Fetch the values of the children for InformationCriteria 
-      SOObject@Estimation@OFMeasures$InformationCriteria <- lapply(xmlChildren(child), xmlValue)
-    }
+		if (childNodeName == "Deviance") {
+	      # Extract Deviance
+	      SOObject@Estimation@OFMeasures$Deviance <- as.numeric(xmlValue(child))
+		}
 	
-  }
+		else if (childNodeName == "LogLikelihood") {
+	      # Extract Likelihood
+	      SOObject@Estimation@OFMeasures$LogLikelihood <- as.numeric(xmlValue(child))
+	  	}
+		
+		else if (childNodeName == "IndividualContribToLL") {
+		
+	      # Extract IndividualContribToLL
+	      L = ParseElement(child)
+		  
+		  # Update SO Object Slot
+		  SOObject@Estimation@OFMeasures$IndividualContribToLL <- list(
+				  description=L$description, 
+				  data=L$data)
+		  
+		}
+		  
+		else if (childNodeName == "InformationCriteria") {
+	      # Fetch the values of the children for InformationCriteria 
+	      SOObject@Estimation@OFMeasures$InformationCriteria <- lapply(.getChildNodes(child), xmlValue)
+		}
 
-  return(SOObject)
+		else {
+			warning(paste("Unexpected child node", childNodeName, "encountered on OFMeasures, expected: Deviance, LogLikelihood, IndividualContribToLL, InformationCriteria"))
+		}
+	}
+
+	return(SOObject)
 }
 
 
-ParseTaskInformation <- function(SOObject, TaskInformationNode){
-
-  # Get list of Child Nodes
-  children <- xmlChildren(TaskInformationNode)
-
-  # Iterate over Child nodes, updating SO if appropriate element is present 
+ParseTaskInformation <- function(SOObject, TaskInformationNode) {
   
   # Initialise counters
   err.msg.count = 1
   warn.msg.count = 1
   term.msg.count = 1
   info.msg.count = 1
-
-  for (child in children) {
+	
+	# Iterate over Child nodes, updating SO if appropriate element is present
+	for (child in .getChildNodes(TaskInformationNode)) {
+		childNodeName <- xmlName(child)
+		
+		if (childNodeName == "Message") {
+      
+	      # Record all message types in a nested list structure
+	
+	      # Get "type" Attribute
+	      message.type <- xmlGetAttr(child, "type")
+	
+	      # Pull out message content
+	      msg.content <- list( 
+	        "Toolname" = xmlValue(child[["Toolname"]][["String"]]), 
+	        "Name" = xmlValue(child[["Name"]][["String"]]),
+	        "Content" = xmlValue(child[["Content"]][["String"]]),  
+	        "Severity" = as.numeric(xmlValue(child[["Severity"]][["Int"]]))
+	        )
+	
+	      # Assign message content to appropriate list 
+	      
+	      # TODO: Error in current assignment opperation
+	      
+	      if (message.type == "ERROR"){
+	        SOObject@TaskInformation$Messages$Errors[[err.msg.count]] <- msg.content
+	        err.msg.count = err.msg.count + 1
+	      } else if (message.type == "WARNING") {
+	        SOObject@TaskInformation$Messages$Warnings[[warn.msg.count]]  <- msg.content
+	        warn.msg.count = warn.msg.count + 1
+	      } else if (message.type == "TERMINATION") {
+	        SOObject@TaskInformation$Messages$Terminations[[term.msg.count]] <- msg.content
+	        term.msg.count = term.msg.count + 1
+	      } else if (message.type == "INFORMATION") {
+	        SOObject@TaskInformation$Messages$Info[[info.msg.count]] <- msg.content
+	        info.msg.count = info.msg.count + 1
+	      }
+	  
+		}
+		
+		else if (childNodeName == "OutputFilePath") {
+      
+	      # Extract OutputFilePath
+	      SOObject@TaskInformation$OutputFilePath = as.character(xmlValue(child[['path']]))
     
-    if (xmlName(child) == "Message" ) {
-      
-      # Record all message types in a nested list structure
-
-      # Get "type" Attribute
-      message.type <- xmlGetAttr(child, "type")
-
-      # Pull out message content
-      msg.content <- list( 
-        "Toolname" = xmlValue(child[["Toolname"]][["String"]]), 
-        "Name" = xmlValue(child[["Name"]][["String"]]),
-        "Content" = xmlValue(child[["Content"]][["String"]]),  
-        "Severity" = as.numeric(xmlValue(child[["Severity"]][["Int"]]))
-        )
-
-      # Assign message content to appropriate list 
-      
-      # TODO: Error in current assignment opperation
-      
-      if (message.type == "ERROR"){
-        SOObject@TaskInformation$Messages$Errors[[err.msg.count]] <- msg.content
-        err.msg.count = err.msg.count + 1
-      } else if (message.type == "WARNING") {
-        SOObject@TaskInformation$Messages$Warnings[[warn.msg.count]]  <- msg.content
-        warn.msg.count = warn.msg.count + 1
-      } else if (message.type == "TERMINATION") {
-        SOObject@TaskInformation$Messages$Terminations[[term.msg.count]] <- msg.content
-        term.msg.count = term.msg.count + 1
-      } else if (message.type == "INFORMATION") {
-        SOObject@TaskInformation$Messages$Info[[info.msg.count]] <- msg.content
-        info.msg.count = info.msg.count + 1
-      }
-
-    } else if (xmlName(child) == "OutputFilePath") {
-      
-      # Extract OutputFilePath
-      SOObject@TaskInformation$OutputFilePath = as.character(xmlValue(child[['path']]))
-    
-    } else if (xmlName(child) == "RunTime") {
+	  	}
+		
+	  	else if (childNodeName == "RunTime") {
             
-      # Extract RunTime
-      SOObject@TaskInformation$RunTime = as.numeric(xmlValue(child[['Real']]))
-
-    } else if (xmlName(child) == "NumberChains") {
+	      # Extract RunTime
+	      SOObject@TaskInformation$RunTime = as.numeric(xmlValue(child[['Real']]))
+		  
+	  	}
+		
+    	else if (childNodeName == "NumberChains") {
       
-      # Extract NumberChains
-      SOObject@TaskInformation$NumberChains <- list(
-        description=as.character(xmlValue(child[['Description']])), 
-        value=as.numeric(xmlValue(child[["Int"]]))
-        )
+	      # Extract NumberChains
+	      SOObject@TaskInformation$NumberChains <- list(
+	        description=as.character(xmlValue(child[['Description']])), 
+	        value=as.numeric(xmlValue(child[["Int"]]))
+	        )
 
-    } else if (xmlName(child) == "NumberIterations") {
+		}
+		
+		else if (childNodeName == "NumberIterations") {
       
-      # Extract NumberIterations
-      SOObject@TaskInformation$NumberIterations <- as.numeric(xmlValue(child[["Int"]]))
+	      # Extract NumberIterations
+	      SOObject@TaskInformation$NumberIterations <- as.numeric(xmlValue(child[["Int"]]))
 
-    } 
-  }
+		}
+		
+		else {
+			warning(paste("Unexpected child node", childNodeName, "encountered on TaskInformation, expected: Message, OutputFilePath, RunTime, NumberChains, NumberIterations"))
+		}
+	}
 
-  return(SOObject)
+	return(SOObject)
 }
+
 
 # ======================= #
 # Simulation Slot Parsers #
 # ======================= #
 
 ParseSimulation <- function(SOObject, SimulationNode) {
-
-  # Get list of Child Nodes
-  children <- xmlChildren(SimulationNode)
-
-  # Iterate over Child nodes, updating SO if appropriate element is present 
-  for (child in children) {
-	  
-    if (xmlName(child) == "OriginalDataset" ) {
-		
-      tempList <- xmlApply(child, 
-              FUN = function(x) { xmlName(x) <- xmlValue(x) }) 
-      SOObject@Simulation@OriginalDataset <- tempList
-	  
-    }
-	
-  }
 
   # Process all Simulation Blocks
   SimulationBlockNodeList <- SimulationNode[names(SimulationNode) == "SimulationBlock"]
@@ -945,20 +984,11 @@ ParseSimulation <- function(SOObject, SimulationNode) {
 }
 
 ParseSimulationBlocks <- function(SimulationBlockNode) {
+
+	SimulationBlock <- new("SimulationBlock")
 	
-	# Error Checking of unexpected elements in each SimulationBlock block
-	expectedTags = c("SimulatedProfiles", "RandomEffects", "IndivParameters", 
-        "Covariates", "PopulationParameters", "Dosing", 
-        "RawResultsFile")
-	unexpected = setdiff(names(SimulationBlockNode), expectedTags)
-	if (length(unexpected) != 0) {
-		warning(paste("The following unexpected elements were detected in a SimulationBlock attribute of the parent Simulation section of the PharmML SO.", 
-            paste(unexpected, collapse="\n      "), sep="\n      "))
-	}
-	
-    SimulationBlock <- new("SimulationBlock")
-    
-    for (child in xmlChildren(SimulationBlockNode)) {
+	# Iterate over Child nodes, updating SO if appropriate element is present
+	for (child in .getChildNodes(SimulationBlockNode)) {
         switch(xmlName(child),
             "SimulatedProfiles" = {
                 SimulationBlock@SimulatedProfiles <- ParseElement(child)
@@ -982,7 +1012,8 @@ ParseSimulationBlocks <- function(SimulationBlockNode) {
                 tempList <- xmlApply(X = child, 
                     FUN = function(x) { xmlName(x) <- xmlValue(x) }) 
                 SimulationBlock@RawResultsFile <- tempList
-            }, warning("block ", xmlName(child), " not recognised in ParseSimulationBlocks")
+            },
+			warning(paste("Unexpected child node", xmlName(child), "encountered on SimulationBlock, expected: SimulatedProfiles, IndivParameters, RandomEffects, Covariates, PopulationParameters, Dosing, RawResultsFile"))
         )
     }
     return(SimulationBlock)
@@ -992,6 +1023,7 @@ ParseSimulationBlocks <- function(SimulationBlockNode) {
 # ModelDiagnostic Slot Parsers #
 # ============================ #
 
+# TODO update this for v0.3, and refactor to use new child node parsing pattern
 ParseModelDiagnostic <- function(SOObject, ModelDiagnosticNode) {
   
   # Error Checking of unexpected elements in each SimulationBlock block
@@ -1006,7 +1038,7 @@ ParseModelDiagnostic <- function(SOObject, ModelDiagnosticNode) {
 
   ModelDiagnosticSlot = new("ModelDiagnostic")
 
-  for (child in xmlChildren(ModelDiagnosticNode)) {
+  for (child in .getChildNodes(ModelDiagnosticNode)) {
 
     if (xmlName(child) == "DiagnosticPlotsStructuralModel" ) {
 
@@ -1026,18 +1058,18 @@ ParseModelDiagnostic <- function(SOObject, ModelDiagnosticNode) {
   return(SOObject)
 }
 
-
+# TODO update this for v0.3, and refactor to use new child node parsing pattern
 ParseDiagnosticPlotsStructuralModel <- function(DiagnosticPlotsStructuralNode) {
   
   outputList = list()
 
   # Get list of Child Nodes
-  children = xmlChildren(DiagnosticPlotsStructuralNode)
+  children = .getChildNodes(DiagnosticPlotsStructuralNode)
   # Iterate over Child nodes, updating SO if appropriate element is present 
   for (child in children){
     
     if (xmlName(child) == "IndivFits") {
-      subChildren = xmlChildren(child)
+      subChildren = .getChildNodes(child)
       for (subChild in subChildren){
         
         if (xmlName(subChild) == "ObservationTable"){

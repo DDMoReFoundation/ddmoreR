@@ -33,71 +33,12 @@ setClass("RawResults",
 )
 
 ##############################################################################
-#' The Estimation Object Class (S4) 
-#'
-#' An object to house all data associated with population and individual estimates, 
-#' precision, rediduals, predictions, liklihoods and output messages (and error
-#' messages) from individual modeling software. 
-#'
-#' As the input data is not well defined at current, the slots for most of this class
-#' are currently defined as lists for flexibility
-#' 
-#' @slot PopulationEstimates A list for now ...
-#' @slot PrecisionPopulationEstimates A list for now ...
-#' @slot IndividualEstimates A list for now ...
-#' @slot PrecisionIndividualEstimates A list for now ...
-#' @slot ResidualsNPDE A list for now ...
-#' @slot Predictions A list for now ...
-#' @slot OFMeasures A list for now ...
-#' @slot SoftwareMessages A list for now ...
-#' 
-#' @author cmusselle
-setClass("Estimation", 
-  # Define the slots
-  slots=c(
-    PopulationEstimates="list",
-    PrecisionPopulationEstimates="list",
-    IndividualEstimates="list", 
-    PrecisionIndividualEstimates="list", 
-    Residuals="list",
-    Predictions="list",
-    OFMeasures="list",
-    SoftwareMessages="list"
-    ),
-  # Set Default Values to blank lists with names in place
-  prototype = list(
-   PopulationEstimates = list(),
-   PrecisionPopulationEstimates = list(),
-   IndividualEstimates = list(),
-   PrecisionIndividualEstimates = list(),
-   Residuals = list(),
-   Predictions = list(),
-   OFMeasures = list()
-   ),
-  # Validity Checking Function 
-  validity = function(object) {
-	stopifnot(is.list(object@PopulationEstimates))
-    # check permitted names
-    if (length(object@PopulationEstimates) > 0L) {
-        if (!all(names(object@PopulationEstimates) %in% c("MLE", "Bayesian", "OtherMethod"))) {
-            warning("only specified sub-block names (MLE, Bayesian, OtherMethod) permitted in Population estimates")
-        }
-    }
-    stopifnot(is.list(object@PrecisionPopulationEstimates))
-    # check permitted names
-    if (length(object@PrecisionPopulationEstimates) > 0L) {
-        if (!all(names(object@PopulationEstimates) %in% c("MLE", "Bayesian", "OtherMethod"))) {
-            warning("only specified sub-block names (MLE, Bayesian, OtherMethod) permitted in Precision Population estimates")
-        }
-    }
-    stopifnot(is.list(object@IndividualEstimates)) 
-    stopifnot(is.list(object@PrecisionIndividualEstimates)) 
-    stopifnot(is.list(object@Residuals))
-    stopifnot(is.list(object@Predictions))
-    stopifnot(is.list(object@OFMeasures))
-	return(TRUE)
-	}
-)
+# The Estimation Object Class (S4) 
+# 
+# Moved to Estimation-Class.R
+#
+##############################################################################
+
 
 ##############################################################################
 #' The ModelDiagnosticEvaluation Object Class (S4) 
