@@ -220,7 +220,8 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 		}
 		
 		if ("IndividualEstimates" %in% names(SOChildren[["Estimation"]])){
-			SOObject <- ParseIndividualEstimates(SOObject, SOChildren[["Estimation"]][["IndividualEstimates"]])
+			#SOObject <- ParseIndividualEstimates(SOObject, SOChildren[["Estimation"]][["IndividualEstimates"]])
+			SOObject@Estimation@IndividualEstimates <- IndividualEstimates(SOChildren[["Estimation"]][["IndividualEstimates"]])
 			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:IndividualEstimates")
 		} else {
 			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:IndividualEstimates")

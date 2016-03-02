@@ -404,8 +404,57 @@ setClass(Class = "IndividualEstimates",
     validity = function(object) { return(TRUE) })
 
 
-IndividualEstimates <- function(...) {
-    new(Class = "IndividualEstimates", ...)
+IndividualEstimates <- function(xmlNodeIndividualEstimates = NULL, ...) {
+	newObj <- new(Class = "IndividualEstimates", ...)
+	
+	if (!is.null(xmlNodeIndividualEstimates)) {
+		for (child in .getChildNodes(xmlNodeIndividualEstimates)) {
+			childName <- xmlName(child)
+			switch(childName,
+				"Estimates" = {
+					for (randomEffectsChild in .getChildNodes(child)) {
+						randomEffectsChildName <- xmlName(randomEffectsChild)
+						if (randomEffectsChildName %in% c("Mean", "Median", "Mode")) {
+							L <- ParseElement(randomEffectsChild)
+							# Table expected - TODO call specific function
+							newObj@Estimates[[randomEffectsChildName]] <- DataSet()
+							# TODO: Do this on DataSet() constructor instead
+							newObj@Estimates[[randomEffectsChildName]]@description <- L$description
+							newObj@Estimates[[randomEffectsChildName]]@data <- L$data
+						} else {
+							warning(paste("Unexpected child node of IndividualEstimates::Estimates node encountered: ", randomEffectsChildName))
+						}
+					}
+				},
+				"RandomEffects" = {
+					for (randomEffectsChild in .getChildNodes(child)) {
+						randomEffectsChildName <- xmlName(randomEffectsChild)
+						if (randomEffectsChildName %in% c("EffectMean", "EffectMedian", "EffectMode")) {
+							L <- ParseElement(randomEffectsChild)
+							# Table expected - TODO call specific function
+							newObj@RandomEffects[[randomEffectsChildName]] <- DataSet()
+							# TODO: Do this on DataSet() constructor instead
+							newObj@RandomEffects[[randomEffectsChildName]]@description <- L$description
+							newObj@RandomEffects[[randomEffectsChildName]]@data <- L$data
+						} else {
+							warning(paste("Unexpected child node of IndividualEstimates::Estimates node encountered: ", randomEffectsChildName))
+						}
+					}
+				},
+				"EtaShrinkage" = {
+					L <- ParseElement(child)
+					# Table expected - TODO call specific function
+					newObj@EtaShrinkage <- DataSet()
+					# TODO: Do this on DataSet() constructor instead
+					newObj@EtaShrinkage@description <- L$description
+					newObj@EtaShrinkage@data <- L$data
+				},
+				warning(paste("Unexpected child node of PrecisionPopulationEstimates node encountered: ", childName))
+			)
+		} # end for
+	}
+
+	newObj
 }
 
 
