@@ -141,28 +141,102 @@ setMethod(f = "as.data.frame",
 #ddmore:::ParseElement(node = popEstMLE[["MLE"]])
 
 setClass(Class = "PopulationEstimates",
-    slots = c("MLE", "Bayesian", "OtherMethod"), 
+    slots = c("MLE", "BayesianPosteriorMean", "BayesianPosteriorMedian", "BayesianPosteriorMode", "OtherMethod"), 
     prototype = list(
         # Placeholder for MLE population estimates
         MLE = DataSet(), 
         # Placeholder for Bayesian population estimates.
-        Bayesian = data.frame(
-            PosteriorMean = numeric(0), 
-            PosteriorMedian = numeric(0),
-            PosteriorMode = numeric(0)
-            ), 
+        #Bayesian = data.frame(
+        #    PosteriorMean = numeric(0), 
+        #    PosteriorMedian = numeric(0),
+        #    PosteriorMode = numeric(0)
+        #    ),
+		BayesianPosteriorMean = DataSet(),
+		BayesianPosteriorMedian = DataSet(),
+		BayesianPosteriorMode = DataSet(),
         # Placeholder for Bootstrap population estimates.
-        OtherMethod = list()), 
+        OtherMethod = list()), # List of DataSet
     validity = function(object) {
-        stopifnot(is.data.frame(object@MLE))
-        stopifnot(is.data.frame(object@Bayesian))
-        stopifnot(is.list(object@OtherMethod))
+        #stopifnot(is.data.frame(object@MLE))
+        #stopifnot(is.data.frame(object@Bayesian))
+        #stopifnot(is.list(object@OtherMethod))
         return(TRUE)
     })
 
 
-PopulationEstimates <- function(...) {
-    new(Class = "PopulationEstimates", ...)
+PopulationEstimates <- function(xmlNodePopulationEstimates = NULL, ...) {
+    newObj <- new(Class = "PopulationEstimates", ...)
+	
+	if (!is.null(xmlNodePopulationEstimates)) {
+		for (child in .getChildNodes(xmlNodePopulationEstimates)) {
+			childName <- xmlName(child)
+			switch(childName,
+    			"MLE" = {
+					L <- ParseElement(child)
+					# TODO: Do this on DataSet() constructor instead
+			        #newObj@MLE <- DataSet()
+					newObj@MLE@description <- L$description
+					newObj@MLE@data <- L$data
+				},
+				"Bayesian" = {
+					# Fetch sub-children of Node
+			        bayesianChildren <- .getChildNodes(child)
+			        # Parse XML DataSet Structure and update SO
+					for (bayesianChildName in names(bayesianChildren)) {
+			            if (bayesianChildName %in% c("PosteriorMean", "PosteriorMedian", "PosteriorMode")) {
+			                L <- ParseElement(bayesianChildren[[bayesianChildName]])
+							# Dynamically update the appropriate slot
+							slot(newObj, paste0("Bayesian", bayesianChildName))@description <- L$description
+							slot(newObj, paste0("Bayesian", bayesianChildName))@data <- L$data
+			            }
+						else {
+							warning(paste("Unexpected child node of PopulationEstimates::Bayesian node encountered: ", bayesianChildName))
+						}
+			        }
+				},
+				"OtherMethod" = {
+					method <- xmlAttrs(child)[["method"]]
+					if (is.null(method)) {
+                		warning("Attribute \"method\" expected on PopulationEstimates::OtherMethod sub-block (since v0.3)")
+					}
+					otherMethodChildNodes <- .getChildNodes(child)
+                	# Parse XML DataSet Structure and update SO
+    				switch(method,
+						"Bootstrap" = {
+							newObj@OtherMethod[[method]] <- list()
+							for (otherMethodChildName in names(otherMethodChildNodes)) {
+								if (otherMethodChildName %in% c("Mean", "Median")) {
+                            		L <- ParseElement(otherMethodChildNodes[[otherMethodChildName]])
+									newObj@OtherMethod[[method]][[otherMethodChildName]] <- DataSet()
+									# TODO: Do this on DataSet() constructor instead
+									newObj@OtherMethod[[method]][[otherMethodChildName]]@description <- L$description
+									newObj@OtherMethod[[method]][[otherMethodChildName]]@data <- L$data
+									
+								}
+								else {
+									warning(paste("Unexpected child node of PopulationEstimates::OtherMethod node encountered: ", otherMethodChildName))
+								}
+							}
+						},
+						"LLP" = {
+							warning("LLP not implemented for PopulationEstimates::OtherMethod")
+						},
+						"SIR" = {
+							warning("SIR not implemented for PopulationEstimates::OtherMethod")
+						},
+						"MultiDimLLP" = {
+							warning("MultiDimLLP not implemented for PopulationEstimates::OtherMethod")
+						},
+						warning(paste("OtherMethod node encountered with unsupported method=", method, "on PopulationEstimates node, expected: Bootstrap, LLP, SIR, MultiDimLLP"))
+					)
+					
+				},
+				warning(paste("Unexpected child node of PopulationEstimates node encountered: ", childName))
+			)
+		} # end for
+	}
+	
+	newObj
 }
 
 

@@ -421,19 +421,21 @@ ParsePopulationEstimates <- function(SOObject, PopulationEstimatesNode) {
     # could check names here
     #namesPresent <- xmlSApply(X = PopulationEstimatesNode, FUN = xmlName)
     
+	childNodes = .getChildNodes(PopulationEstimatesNode)
+
 	# Iterate over legal nodes, updating SO if appropriate element is present
-    for (child in names(SOObject@Estimation@PopulationEstimates)) {
+    for (slotName in slotNames(SOObject@Estimation@PopulationEstimates)) {
 	#for (child in .getChildNodes(PopulationEstimatesNode)) {
-		childNodeName <- xmlName(child)
+		child <- childNodes[[slotName]]
 		
-		if (childNodeName == .NODENAME_MLE) {
+		if (slotName == .NODENAME_MLE) {
             # Parse XML DataSet Structure	  
             L <- ParseElement(child)
             # Update SO Object Slot
             SOObject@Estimation@PopulationEstimates[[.NODENAME_MLE]] <- L[c(.DATASET_DESCRIPTION, .DATASET_DATA)]
 		}
 		
-		else if (childNodeName == .NODENAME_BAYESIAN) {
+		else if (slotName == .NODENAME_BAYESIAN) {
             # Fetch Children of Node
             BayesianChildren <- .getChildNodes(child)
             # Parse XML DataSet Structure and update SO
@@ -448,7 +450,7 @@ ParsePopulationEstimates <- function(SOObject, PopulationEstimatesNode) {
             }
 		}
 		
-		else if (childNodeName == .NODENAME_OTHERMETHOD) {
+		else if (slotName == .NODENAME_OTHERMETHOD) {
             if (!"method" %in% names(xmlAttrs(child))) {
                 warning("Attribute \"method\" expected on PopulationEstimates::OtherMethod sub-block (since v0.3)")
             } else {
@@ -485,7 +487,7 @@ ParsePopulationEstimates <- function(SOObject, PopulationEstimatesNode) {
         }
 		
 		else {
-			warning(paste("Unexpected child node", childNodeName, "encountered on PopulationEstimates, expected: MLE, Bayesian, OtherMethod"))
+			warning(paste("Unexpected child node", slotName, "encountered on PopulationEstimates, expected: MLE, Bayesian, OtherMethod"))
 		}
 	}
 	
