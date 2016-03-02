@@ -489,8 +489,39 @@ setClass(Class = "PrecisionIndividualEstimates",
         return(TRUE) })
 
 
-PrecisionIndividualEstimates <- function(...) {
-    new(Class = "PrecisionIndividualEstimates", ...)
+PrecisionIndividualEstimates <- function(xmlNodeIndividualEstimates = NULL, ...) {
+    newObj <- new(Class = "PrecisionIndividualEstimates", ...)
+	
+	if (!is.null(xmlNodeIndividualEstimates)) {
+		for (child in .getChildNodes(xmlNodeIndividualEstimates)) {
+			childName <- xmlName(child)
+			switch(childName,
+				"StandardDeviation" = {
+					L <- ParseElement(child)
+					# Table expected - TODO call specific function
+					newObj@StandardDeviation <- DataSet()
+					# TODO: Do this on DataSet() constructor instead
+					newObj@StandardDeviation@description <- L$description
+					newObj@StandardDeviation@data <- L$data
+				},
+				"EstimatesDistribution" = {
+					# Table _or Sample_ expected - TODO cater for Sample too
+					warning("TODO: Parse Distribution block")
+				},
+				"PercentilesCI" = {
+					L <- ParseElement(child)
+					# Table expected - TODO call specific function
+					newObj@PercentilesCI <- DataSet()
+					# TODO: Do this on DataSet() constructor instead
+					newObj@PercentilesCI@description <- L$description
+					newObj@PercentilesCI@data <- L$data
+				},
+				warning(paste("Unexpected child node of PrecisionIndividualEstimates node encountered: ", childName))
+			)
+		}
+	}
+	myPrecisIndivEsts <<- newObj
+	newObj
 }
 
 
