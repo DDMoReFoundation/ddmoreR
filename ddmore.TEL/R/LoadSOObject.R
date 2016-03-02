@@ -212,7 +212,8 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 		}
 		
 		if ("PrecisionPopulationEstimates" %in% names(SOChildren[["Estimation"]])){
-			SOObject <- ParsePrecisionPopulationEstimates(SOObject, SOChildren[["Estimation"]][["PrecisionPopulationEstimates"]])
+			#SOObject <- ParsePrecisionPopulationEstimates(SOObject, SOChildren[["Estimation"]][["PrecisionPopulationEstimates"]])
+			SOObject@Estimation@PrecisionPopulationEstimates <- PrecisionPopulationEstimates(SOChildren[["Estimation"]][["PrecisionPopulationEstimates"]])
 			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:PrecisionPopulationEstimates")
 		} else {
 			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:PrecisionPopulationEstimates")

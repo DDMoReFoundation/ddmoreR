@@ -201,41 +201,26 @@ PopulationEstimates <- function(xmlNodePopulationEstimates = NULL, ...) {
 					}
 					otherMethodChildNodes <- .getChildNodes(child)
                 	# Parse XML DataSet Structure and update SO
-    				switch(method,
-						"Bootstrap" = {
-							newObj@OtherMethod[[method]] <- list()
-							for (otherMethodChildName in names(otherMethodChildNodes)) {
-								if (otherMethodChildName %in% c("Mean", "Median")) {
-                            		L <- ParseElement(otherMethodChildNodes[[otherMethodChildName]])
-									newObj@OtherMethod[[method]][[otherMethodChildName]] <- DataSet()
-									# TODO: Do this on DataSet() constructor instead
-									newObj@OtherMethod[[method]][[otherMethodChildName]]@description <- L$description
-									newObj@OtherMethod[[method]][[otherMethodChildName]]@data <- L$data
-									
-								}
-								else {
-									warning(paste("Unexpected child node of PopulationEstimates::OtherMethod node encountered: ", otherMethodChildName))
-								}
-							}
-						},
-						"LLP" = {
-							warning("LLP not implemented for PopulationEstimates::OtherMethod")
-						},
-						"SIR" = {
-							warning("SIR not implemented for PopulationEstimates::OtherMethod")
-						},
-						"MultiDimLLP" = {
-							warning("MultiDimLLP not implemented for PopulationEstimates::OtherMethod")
-						},
-						warning(paste("OtherMethod node encountered with unsupported method=", method, "on PopulationEstimates node, expected: Bootstrap, LLP, SIR, MultiDimLLP"))
-					)
-					
+					newObj@OtherMethod[[method]] <- list()
+					for (otherMethodChildName in names(otherMethodChildNodes)) {
+						if (otherMethodChildName %in% c("Mean", "Median")) {
+                    		L <- ParseElement(otherMethodChildNodes[[otherMethodChildName]])
+							newObj@OtherMethod[[method]][[otherMethodChildName]] <- DataSet()
+							# TODO: Do this on DataSet() constructor instead
+							newObj@OtherMethod[[method]][[otherMethodChildName]]@description <- L$description
+							newObj@OtherMethod[[method]][[otherMethodChildName]]@data <- L$data
+							
+						}
+						else {
+							warning(paste("Unexpected child node of PopulationEstimates::OtherMethod node encountered: ", otherMethodChildName))
+						}
+					}
 				},
 				warning(paste("Unexpected child node of PopulationEstimates node encountered: ", childName))
 			)
 		} # end for
 	}
-	
+
 	newObj
 }
 
@@ -265,8 +250,10 @@ setClass(Class = "PrecisionPopulationEstimates",
         # RelativeStandardError, AsymptoticCI, ConditionNumber
         MLE = list(), 
         # StandardDeviation, PosteriorDistribution, PercentilesCI
-        Bayesian = list(), 
-        OtherMethod = list()), 
+        Bayesian = list(),
+    	# CovarianceMatrix, CorrelationMatrix, StandardDeviation, StandardError,
+		# AsymptoticCI, PosteriorDistribution, PercentilesCI
+        OtherMethod = list()), # list of lists since can have multiple OtherMethod blks
     validity = function(object) {
         if (length(object@MLE) > 0L) {
             stopifnot(all(names(object@MLE) %in% c(
@@ -274,16 +261,116 @@ setClass(Class = "PrecisionPopulationEstimates",
                 "RelativeStandardError", "AsymptoticCI", "ConditionNumber")))
         }
         if (length(object@Bayesian) > 0L) {
-            stopifnot(all(names(object@MLE) %in% c(
+            stopifnot(all(names(object@Bayesian) %in% c(
                 "StandardDeviation", "PosteriorDistribution", "PercentilesCI")))
         }
-        return(TRUE) })
+		if (length(object@OtherMethod) > 0L) {
+			stopifnot(all(names(object@OtherMethod) %in% c(
+				"CovarianceMatrix", "CorrelationMatrix", "StandardDeviation", "StandardError",
+				"AsymptoticCI", "PosteriorDistribution", "PercentilesCI")))
+		}
+        return(TRUE)
+	}
+)
 
 
-PrecisionPopulationEstimates <- function(...) {
-    new(Class = "PrecisionPopulationEstimates", ...)
+PrecisionPopulationEstimates <- function(xmlNodePrecisionPopulationEstimates = NULL, ...) {
+    newObj <- new(Class = "PrecisionPopulationEstimates", ...)
+	
+	if (!is.null(xmlNodePrecisionPopulationEstimates)) {
+		for (child in .getChildNodes(xmlNodePrecisionPopulationEstimates)) {
+			childName <- xmlName(child)
+			switch(childName,
+				"MLE" = {
+	        		for (mleChild in .getChildNodes(child)) {
+						mleChildName <- xmlName(mleChild)
+						if (mleChildName %in% c("FIM", "CovarianceMatrix", "CorrelationMatrix")) {
+							L <- ParseElement(mleChild)
+							# Matrix expected - TODO call specific function
+							newObj@MLE[[mleChildName]] <- DataSet()
+							# TODO: Do this on DataSet() constructor instead
+							newObj@MLE[[mleChildName]]@description <- L$description
+							newObj@MLE[[mleChildName]]@data <- L$data
+						}
+						else if (mleChildName %in% c("StandardError", "RelativeStandardError", "AsymptoticCI")) {
+							L <- ParseElement(mleChild)
+							# Table expected - TODO call specific function
+							newObj@MLE[[mleChildName]] <- DataSet()
+							# TODO: Do this on DataSet() constructor instead
+							newObj@MLE[[mleChildName]]@description <- L$description
+							newObj@MLE[[mleChildName]]@data <- L$data
+						}
+						else if (mleChildName %in% c("ConditionNumber")) {
+							newObj@MLE[[mleChildName]] <- xmlValue(mleChild)
+						}
+						else {
+							warning(paste("Unexpected child node of PrecisionPopulationEstimates::MLE node encountered: ", mleChildName))
+						}
+					}
+				},
+				"Bayesian" = {
+					for (bayesianChild in .getChildNodes(child)) {
+						bayesianChildName <- xmlName(bayesianChild)
+						if (bayesianChildName %in% c("StandardDeviation", "PercentilesCI")) {
+							L <- ParseElement(bayesianChild)
+							# Table expected - TODO call specific function
+							newObj@Bayesian[[bayesianChildName]] <- DataSet()
+							# TODO: Do this on DataSet() constructor instead
+							newObj@Bayesian[[bayesianChildName]]@description <- L$description
+							newObj@Bayesian[[bayesianChildName]]@data <- L$data
+						}
+						else if (bayesianChildName %in% c("PosteriorDistribution")) {
+							# Table _or Sample_ expected - TODO cater for Sample too
+							warning("TODO: Parse Distribution block")
+							#newObj@Bayesian[[bayesianChildName]] <- ParseElement(bayesianChild)
+						}
+						else {
+							warning(paste("Unexpected child node of PrecisionPopulationEstimates::Bayesian node encountered: ", bayesianChildName))
+						}
+					}
+				},
+				"OtherMethod" = {
+					method <- xmlAttrs(child)[["method"]]
+					if (is.null(method)) {
+                		warning("Attribute \"method\" expected on PrecisionPopulationEstimates::OtherMethod sub-block (since v0.3)")
+					}
+					otherMethodChildNodes <- .getChildNodes(child)
+                	# Parse XML DataSet Structure and update SO
+					newObj@OtherMethod[[method]] <- list()
+					for (otherMethodChildName in names(otherMethodChildNodes)) {
+						if (otherMethodChildName %in% c("CovarianceMatrix", "CorrelationMatrix")) {
+							# Matrix expected - TODO call specific function
+                			L <- ParseElement(otherMethodChildNodes[[otherMethodChildName]])
+							newObj@OtherMethod[[method]][[otherMethodChildName]] <- DataSet()
+							# TODO: Do this on DataSet() constructor instead
+							newObj@OtherMethod[[method]][[otherMethodChildName]]@description <- L$description
+							newObj@OtherMethod[[method]][[otherMethodChildName]]@data <- L$data
+						}
+						else if (otherMethodChildName %in% c("StandardDeviation", "StandardError", "AsymptoticCI", "PercentilesCI")) {
+							# Table expected - TODO call specific function
+                			L <- ParseElement(otherMethodChildNodes[[otherMethodChildName]])
+							newObj@OtherMethod[[method]][[otherMethodChildName]] <- DataSet()
+							# TODO: Do this on DataSet() constructor instead
+							newObj@OtherMethod[[method]][[otherMethodChildName]]@description <- L$description
+							newObj@OtherMethod[[method]][[otherMethodChildName]]@data <- L$data
+						}
+						else if (otherMethodChildName %in% c("PosteriorDistribution")) {
+							# Table _or Sample_ expected - TODO cater for Sample too
+							warning("TODO: Parse Distribution block")
+						}
+						else {
+							warning(paste("Unexpected child node of PrecisionPopulationEstimates::OtherMethod node encountered: ", otherMethodChildName))
+						}
+					}
+				},
+				warning(paste("Unexpected child node of PrecisionPopulationEstimates node encountered: ", childName))
+			)
+		} # end for
+	}
+
+	newObj
 }
-
+				
 
 #' The IndividualEstimates Object Class (S4) 
 #'
