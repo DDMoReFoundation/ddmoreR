@@ -549,8 +549,25 @@ setClass(Class = "Residuals",
     validity = function(object) { return(TRUE) })
 
 
-Residuals <- function(...) {
-    new(Class = "Residuals", ...)
+Residuals <- function(xmlNodeResiduals = NULL, ...) {
+    newObj <- new(Class = "Residuals", ...)
+
+	if (!is.null(xmlNodeResiduals)) {
+		for (child in .getChildNodes(xmlNodeResiduals)) {
+			childName <- xmlName(child)
+			if (childName %in% c("ResidualTable", "EpsShrinkage")) {
+				L <- ParseElement(child)
+				# Table expected - TODO call specific function
+				# TODO: Do this on DataSet() constructor instead
+				slot(newObj, childName)@description <- L$description
+				slot(newObj, childName)@data <- L$data
+			} else {
+				warning(paste("Unexpected child node of Residuals node encountered: ", childName))
+			}
+		}
+	}
+
+	newObj
 }
 
 

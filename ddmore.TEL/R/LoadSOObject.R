@@ -236,7 +236,8 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 		}
 		
 		if ("Residuals" %in% names(SOChildren[["Estimation"]])){
-			SOObject <- ParseResiduals(SOObject, SOChildren[["Estimation"]][["Residuals"]])
+			#SOObject <- ParseResiduals(SOObject, SOChildren[["Estimation"]][["Residuals"]])
+			SOObject@Estimation@Residuals <- Residuals(SOChildren[["Estimation"]][["Residuals"]])
 			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:Residuals")
 		} else {
 			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:Residuals")
