@@ -529,9 +529,8 @@ PrecisionIndividualEstimates <- function(xmlNodeIndividualEstimates = NULL, ...)
 #'
 #' An object to house all data associated with the residuals
 #' 
-#' @slot Estimates object list
-#' @slot Bayesian object list
-#' @slot OtherMethod object list
+#' @slot ResidualTable DataSet object
+#' @slot EpsShrinkage DataSet object
 #' 
 #' @name Residuals-class
 #' @rdname Residuals-class
@@ -575,9 +574,7 @@ Residuals <- function(xmlNodeResiduals = NULL, ...) {
 #
 # An object to house all data associated with the Predictions
 # 
-# @slot Estimates object list
-# @slot Bayesian object list
-# @slot OtherMethod object list
+# @slot ...
 # 
 # @name Predictions-class
 # @rdname Predictions-class
@@ -680,7 +677,7 @@ setClass("Estimation",
         IndividualEstimates = "IndividualEstimates", 
         PrecisionIndividualEstimates = "PrecisionIndividualEstimates", 
         Residuals = "Residuals",
-        Predictions = "list",
+        Predictions = "DataSet",
         OFMeasures = "OFMeasures",
         TargetToolMessages = "list"),
     # Set Default Values to blank lists with names in place
@@ -691,7 +688,7 @@ setClass("Estimation",
         PrecisionIndividualEstimates = PrecisionIndividualEstimates(),
         Residuals = Residuals(),
         # TODO
-        Predictions = list(),
+        Predictions = DataSet(),
         OFMeasures = OFMeasures(), 
         TargetToolMessages = list()),
     # Validity Checking Function 
@@ -701,7 +698,7 @@ setClass("Estimation",
         stopifnot(validObject(object@IndividualEstimates)) 
         stopifnot(validObject(object@PrecisionIndividualEstimates)) 
         stopifnot(validObject(object@Residuals))
-        #stopifnot(validObject(object@Predictions))
+        stopifnot(validObject(object@Predictions))
         stopifnot(validObject(object@OFMeasures))
         return(TRUE)
     }
