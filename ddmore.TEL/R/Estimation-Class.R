@@ -141,6 +141,7 @@ setMethod(f = "as.data.frame",
 #ddmore:::ParseElement(node = popEstMLE[["MLE"]])
 
 setClass(Class = "PopulationEstimates",
+	# TODO BayesianXXX to be split out into nested class
     slots = c("MLE", "BayesianPosteriorMean", "BayesianPosteriorMedian", "BayesianPosteriorMode", "OtherMethod"), 
     prototype = list(
         # Placeholder for MLE population estimates
@@ -156,6 +157,7 @@ setClass(Class = "PopulationEstimates",
 		BayesianPosteriorMode = DataSet(),
         # Placeholder for Bootstrap population estimates.
         OtherMethod = list()), # List of DataSet
+	# TODO implement checking
     validity = function(object) {
         #stopifnot(is.data.frame(object@MLE))
         #stopifnot(is.data.frame(object@Bayesian))
@@ -244,7 +246,8 @@ PopulationEstimates <- function(xmlNodePopulationEstimates = NULL, ...) {
 #' validObject(est)
 
 setClass(Class = "PrecisionPopulationEstimates",
-    slots = c("MLE", "Bayesian", "OtherMethod"), 
+    slots = c("MLE", "Bayesian", "OtherMethod"),
+    # TODO implement nested classes
     prototype = list(
         # FIM, CovarianceMatrix, CorrelationMatrix, StandardError, 
         # RelativeStandardError, AsymptoticCI, ConditionNumber
@@ -254,6 +257,7 @@ setClass(Class = "PrecisionPopulationEstimates",
     	# CovarianceMatrix, CorrelationMatrix, StandardDeviation, StandardError,
 		# AsymptoticCI, PosteriorDistribution, PercentilesCI
         OtherMethod = list()), # list of lists since can have multiple OtherMethod blks
+	# TODO implement checking
     validity = function(object) {
         if (length(object@MLE) > 0L) {
             stopifnot(all(names(object@MLE) %in% c(
@@ -264,11 +268,12 @@ setClass(Class = "PrecisionPopulationEstimates",
             stopifnot(all(names(object@Bayesian) %in% c(
                 "StandardDeviation", "PosteriorDistribution", "PercentilesCI")))
         }
-		if (length(object@OtherMethod) > 0L) {
-			stopifnot(all(names(object@OtherMethod) %in% c(
-				"CovarianceMatrix", "CorrelationMatrix", "StandardDeviation", "StandardError",
-				"AsymptoticCI", "PosteriorDistribution", "PercentilesCI")))
-		}
+		# TODO OtherMethod is a list of lists, rework this appropriately
+#		if (length(object@OtherMethod) > 0L) {
+#			stopifnot(all(names(object@OtherMethod) %in% c(
+#				"CovarianceMatrix", "CorrelationMatrix", "StandardDeviation", "StandardError",
+#				"AsymptoticCI", "PosteriorDistribution", "PercentilesCI")))
+#		}
         return(TRUE)
 	}
 )
@@ -401,6 +406,7 @@ setClass(Class = "IndividualEstimates",
             EffectMedian = DataSet(), 
             EffectMode = DataSet()), 
         EtaShrinkage = DataSet()),
+	# TODO implement checking
     validity = function(object) { return(TRUE) })
 
 
@@ -485,7 +491,7 @@ setClass(Class = "PrecisionIndividualEstimates",
         EstimatesDistribution = list(),
         PercentilesCI = DataSet()), 
     validity = function(object) { 
-        # TODO
+        # TODO implement checking
         return(TRUE) })
 
 
@@ -544,7 +550,8 @@ PrecisionIndividualEstimates <- function(xmlNodeIndividualEstimates = NULL, ...)
 setClass(Class = "Residuals",
     slots = c("ResidualTable", "EpsShrinkage"), 
     prototype = list(
-        ResidualTable = DataSet(), EpsShrinkage = DataSet()), 
+        ResidualTable = DataSet(), EpsShrinkage = DataSet()),
+	# TODO implement checking
     validity = function(object) { return(TRUE) })
 
 
@@ -570,29 +577,6 @@ Residuals <- function(xmlNodeResiduals = NULL, ...) {
 }
 
 
-# The Predictions Object Class (S4) 
-#
-# An object to house all data associated with the Predictions
-# 
-# @slot ...
-# 
-# @name Predictions-class
-# @rdname Predictions-class
-# @exportClass Predictions
-# @aliases Predictions
-# @examples
-# pred <- new(Class = "Predictions")
-# print(pred)
-# validObject(pred)
-
-# TODO
-#setClass(Class = "Predictions",
-#    slots = c(), 
-#    prototype = c(), 
-#    validity = function(object) { return(TRUE) })
-    
-
-
 #' The OFMeasures Object Class (S4) 
 #'
 #' An object to house all data associated with the objective function measures
@@ -613,21 +597,52 @@ Residuals <- function(xmlNodeResiduals = NULL, ...) {
 setClass(Class = "OFMeasures",
     slots = c("Likelihood", "LogLikelihood", "Deviance", 
         "ToolObjFunction", "IndividualContribToLL", "InformationCriteria"), 
-    prototype = list(Likelihood = numeric(0), 
+    prototype = list(
+		Likelihood = numeric(0), 
         LogLikelihood = numeric(0), 
         Deviance = numeric(0), 
-        # TODO update to ToolObjFunction
         ToolObjFunction = numeric(0), 
         IndividualContribToLL = DataSet(), 
         # TODO update to InformationCriteria
-        InformationCriteria = numeric(0)), 
+        InformationCriteria = list(AIC = numeric(0), BIC = numeric(0), DIC = numeric(0))),
     validity = function(object) { 
         # TODO implement checking
         return(TRUE) })
 
 
-OFMeasures <- function(...) {
-    new(Class = "OFMeasures", ...)
+OFMeasures <- function(xmlNodeOFMeasures = NULL, ...) {
+	newObj <- new(Class = "OFMeasures", ...)
+	
+	if (!is.null(xmlNodeOFMeasures)) {
+		for (child in .getChildNodes(xmlNodeOFMeasures)) {
+			childName <- xmlName(child)
+			if (childName %in% c("Likelihood", "LogLikelihood", "Deviance", "ToolObjFunction")) {
+				slot(newObj, childName) <- xmlValue(child)
+			}
+			else if (childName %in% c("IndividualContribToLL")) {
+				L <- ParseElement(child)
+				# Table expected - TODO call specific function
+				# TODO: Do this on DataSet() constructor instead
+				slot(newObj, childName)@description <- L$description
+				slot(newObj, childName)@data <- L$data
+			}
+			else if (childName %in% c("InformationCriteria")) {
+				for (icChild in .getChildNodes(child)) {
+					icChildName <- xmlName(icChild)
+					if (icChildName %in% c("AIC", "BIC", "DIC")) {
+						slot(newObj, childName)[[icChildName]] <- xmlValue(icChild)
+					} else {
+						warning(paste("Unexpected child node of OFMeasures::InformationCriteria node encountered: ", icChildName))
+					}
+				}
+			}
+			else {
+				warning(paste("Unexpected child node of OFMeasures node encountered: ", childName))
+			}
+		} # end for
+	}
+
+	newObj
 }
 
 

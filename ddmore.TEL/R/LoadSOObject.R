@@ -257,7 +257,8 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 		}
 		
 		if ("OFMeasures" %in% names(SOChildren[["Estimation"]])){
-			SOObject <- ParseOFMeasures(SOObject, SOChildren[["Estimation"]][["OFMeasures"]])
+			#SOObject <- ParseOFMeasures(SOObject, SOChildren[["Estimation"]][["OFMeasures"]])
+			SOObject@Estimation@OFMeasures <- OFMeasures(SOChildren[["Estimation"]][["OFMeasures"]])
 			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:OFMeasures")
 		} else {
 			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:OFMeasures")
