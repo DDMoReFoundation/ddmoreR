@@ -520,7 +520,7 @@ PrecisionIndividualEstimates <- function(xmlNodeIndividualEstimates = NULL, ...)
 			)
 		}
 	}
-	myPrecisIndivEsts <<- newObj
+	
 	newObj
 }
 
