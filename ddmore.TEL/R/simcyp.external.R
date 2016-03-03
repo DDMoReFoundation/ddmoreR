@@ -83,7 +83,7 @@ simcyp.generateMultiplePopulations <- function(populationIds,
 					"by the populationIds list"))
 	}
 	
-	cmd <- simcyp.getCommonValues()$executionCommands$generateMultiPops
+	cmd <- simcyp.executionCommand.generateMultiplePopulations
 	params <- list(p = popIds, n = popSizes)
 
 	return(simcyp.execute(cmd, params))
@@ -150,7 +150,7 @@ simcyp.generateSinglePopulation <- function(populationId,
 					"function instead"))
 	}
 
-	cmd <- simcyp.getCommonValues()$executionCommands$generateSinglePop
+	cmd <- simcyp.executionCommand.generateSinglePopulation
 	popId <- simcyp.validatePopulationId(populationId)
 	popSize <- simcyp.validatePopulationSize(populationSize)
 	params <- list(p = popId, n = popSize)
@@ -273,27 +273,18 @@ simcyp.getOutputIds <- function(silentMode = FALSE)
 	if (exists("simcyp.getOutputIds.result") == FALSE) 
 	{
 		oldwd <- getwd()
-		tempwd <- file.path(oldwd, "getOutputIds-result")
-
-		if (dir.create(tempwd)) 
-		{
-			setwd(tempwd)
-			
-			cmd <- simcyp.getCommonValues()$executionCommands$getOutputIds
-			params <- list(u = NULL)
-
-			simcyp.execute(cmd, params, silentMode)
-
-			simcyp.getOutputIds.result <<- simcyp.parseOutputFile()
-
-			setwd(oldwd)
-
-			unlink(tempwd, TRUE, TRUE)
-		} 
-		else 
-		{
-			return(NULL)
-		}
+		setwd(tempdir())
+		
+		simcyp.createGlobals()
+		
+		cmd <- simcyp.executionCommand.getOutputIds
+		params <- list(u = NULL)
+		
+		simcyp.execute(cmd, params, silentMode)
+		
+		assign("simcyp.getOutputIds.result", simcyp.parseOutputFile(), globalenv())
+		
+		setwd(oldwd)
 	}
 
 	return(simcyp.getOutputIds.result)
@@ -335,27 +326,18 @@ simcyp.getPopulationIds <- function(silentMode = FALSE)
 	if (exists("simcyp.getPopulationIds.result") == FALSE) 
 	{
 		oldwd <- getwd()
-		tempwd <- file.path(oldwd, "getPopIds-result")
+		setwd(tempdir())
+		
+		simcyp.createGlobals()
+		
+		cmd <- simcyp.executionCommand.getPopulationIds
+		params <- list(q = NULL)
 
-		if (dir.create(tempwd)) 
-		{
-			setwd(tempwd)
-			
-			cmd <- simcyp.getCommonValues()$executionCommands$getPopIds
-			params <- list(q = NULL)
+		simcyp.execute(cmd, params, silentMode)
 
-			simcyp.execute(cmd, params, silentMode)
+		assign("simcyp.getPopulationIds.result", simcyp.parseOutputFile(), globalenv())
 
-			simcyp.getPopulationIds.result <<- simcyp.parseOutputFile()
-
-			setwd(oldwd)
-
-			unlink(tempwd, TRUE, TRUE)
-		} 
-		else 
-		{
-			return(NULL)
-		}
+		setwd(oldwd)
 	}
 
 	return(simcyp.getPopulationIds.result)
@@ -383,11 +365,11 @@ simcyp.getPopulationIds <- function(silentMode = FALSE)
 #' @export
 simcyp.getResultsDirectory <- function()
 {
-	if (exists("simcyp.getResultsDirectory.result")) 
+	if (exists("simcyp.output.folder.root")) 
 	{
-		if (file.exists(simcyp.getResultsDirectory.result)) 
+		if (file.exists(simcyp.output.folder.root)) 
 		{
-			return(simcyp.getResultsDirectory.result)
+			return(simcyp.output.folder.root)
 		}
 	}
 	
@@ -511,8 +493,8 @@ simcyp.simulate <- function(workspaceFile,
 					"or .wksz)"))
 	}
 
-	cmd <- simcyp.getCommonValues()$executionCommands$simulate
-	params <- list(w = workspaceFile)
+	cmd <- simcyp.executionCommand.simulate
+	params <- list(w = file_path_as_absolute(workspaceFile))
 	
 	return(simcyp.execute(cmd, params))
 }
