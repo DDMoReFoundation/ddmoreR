@@ -88,7 +88,7 @@ ParseElement <- function(node) {
   if (length(childNames) == 1) {
 	if (childNames == .NODENAME_MATRIX) {
 		# Parse Node as a matrix 
-		parsed <- ParseMatrix(.getChildNode(childNodes, .NODENAME_MATRIX))		  
+		parsed <- ParseMatrix(.getChildNode(childNodes, .NODENAME_MATRIX))
 	} else if (childNames == .NODENAME_EXTERNALFILE) {
 		# Load data from external file
 		parsed <- ParseExternalFile(.getChildNode(childNodes, .NODENAME_EXTERNALFILE))		  
@@ -102,11 +102,15 @@ ParseElement <- function(node) {
 	combinedChildNames <- paste(sort(childNames), collapse = "|")
 	if (combinedChildNames == paste(c(.NODENAME_DEFINITION, .NODENAME_EXTERNALFILE), collapse="|")) {
 		# Load data from external file
-		parsed <- ParseDataSetExternalFile(.getChildNode(childNodes, .NODENAME_DEFINITION), .getChildNode(childNodes, .NODENAME_EXTERNALFILE))
+		parsed <- DataSet( # new object out of the data
+			ParseDataSetExternalFile(.getChildNode(childNodes, .NODENAME_DEFINITION), .getChildNode(childNodes, .NODENAME_EXTERNALFILE))
+		)
 	}
 	else if (combinedChildNames == paste(c(.NODENAME_DEFINITION, .NODENAME_TABLE), collapse="|")) {
 		# Load data from inline XML
-		parsed <- ParseDataSetInline(.getChildNode(childNodes, .NODENAME_DEFINITION), .getChildNode(childNodes, .NODENAME_TABLE))
+		parsed <- DataSet( # create new object out of the data
+			ParseDataSetInline(.getChildNode(childNodes, .NODENAME_DEFINITION), .getChildNode(childNodes, .NODENAME_TABLE))
+		)
 	} else {
 	    warning("Expected ExternalFile or Table blocks with Definition in ParseElement, but found ",
 			paste(childNames, collapse = " "))
@@ -324,6 +328,7 @@ ParseExternalFile <- function(externalFileNode) {
 #' a list of the parameter values. 
 #' 
 ParseDistribution <- function(Node) {
+	# TODO Rewrite this for SO v0.3
 
   subChildren <- .getChildNodes(Node)
   

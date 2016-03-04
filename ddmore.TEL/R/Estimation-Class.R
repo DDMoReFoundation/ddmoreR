@@ -32,12 +32,20 @@ setClass(Class = "DataSet",
 #' Instantiate a new object of class DataSet
 #' 
 #' Calls \code{new} trivially
+#' @param data optional list containing "description" dataframe, "data" dataframe to populate with
 #' @param dots arguments to \code{new}
 #' @return object of class DataSet
 #' @export
 
-DataSet <- function(...) {
-    new(Class = "DataSet", ...)
+DataSet <- function(data = NULL, ...) {
+    newObj <- new(Class = "DataSet", ...)
+	
+	if (!is.null(data)) {
+		newObj@description <- data$description
+		newObj@data <- data$data
+	}
+	
+	newObj
 }
 
 
@@ -174,11 +182,7 @@ PopulationEstimates <- function(xmlNodePopulationEstimates = NULL, ...) {
 			childName <- xmlName(child)
 			switch(childName,
     			"MLE" = {
-					L <- ParseElement(child)
-					# TODO: Do this on DataSet() constructor instead
-			        #newObj@MLE <- DataSet()
-					newObj@MLE@description <- L$description
-					newObj@MLE@data <- L$data
+					newObj@MLE <- ParseElement(child)
 				},
 				"Bayesian" = {
 					# Fetch sub-children of Node
@@ -186,10 +190,8 @@ PopulationEstimates <- function(xmlNodePopulationEstimates = NULL, ...) {
 			        # Parse XML DataSet Structure and update SO
 					for (bayesianChildName in names(bayesianChildren)) {
 			            if (bayesianChildName %in% c("PosteriorMean", "PosteriorMedian", "PosteriorMode")) {
-			                L <- ParseElement(bayesianChildren[[bayesianChildName]])
 							# Dynamically update the appropriate slot
-							slot(newObj, paste0("Bayesian", bayesianChildName))@description <- L$description
-							slot(newObj, paste0("Bayesian", bayesianChildName))@data <- L$data
+							slot(newObj, paste0("Bayesian", bayesianChildName)) <- ParseElement(bayesianChildren[[bayesianChildName]])
 			            }
 						else {
 							warning(paste("Unexpected child node of PopulationEstimates::Bayesian node encountered: ", bayesianChildName))
@@ -206,12 +208,7 @@ PopulationEstimates <- function(xmlNodePopulationEstimates = NULL, ...) {
 					newObj@OtherMethod[[method]] <- list()
 					for (otherMethodChildName in names(otherMethodChildNodes)) {
 						if (otherMethodChildName %in% c("Mean", "Median")) {
-                    		L <- ParseElement(otherMethodChildNodes[[otherMethodChildName]])
-							newObj@OtherMethod[[method]][[otherMethodChildName]] <- DataSet()
-							# TODO: Do this on DataSet() constructor instead
-							newObj@OtherMethod[[method]][[otherMethodChildName]]@description <- L$description
-							newObj@OtherMethod[[method]][[otherMethodChildName]]@data <- L$data
-							
+							newObj@OtherMethod[[method]][[otherMethodChildName]] <- ParseElement(otherMethodChildNodes[[otherMethodChildName]])
 						}
 						else {
 							warning(paste("Unexpected child node of PopulationEstimates::OtherMethod node encountered: ", otherMethodChildName))
@@ -290,20 +287,12 @@ PrecisionPopulationEstimates <- function(xmlNodePrecisionPopulationEstimates = N
 	        		for (mleChild in .getChildNodes(child)) {
 						mleChildName <- xmlName(mleChild)
 						if (mleChildName %in% c("FIM", "CovarianceMatrix", "CorrelationMatrix")) {
-							L <- ParseElement(mleChild)
-							# Matrix expected - TODO call specific function
-							newObj@MLE[[mleChildName]] <- DataSet()
-							# TODO: Do this on DataSet() constructor instead
-							newObj@MLE[[mleChildName]]@description <- L$description
-							newObj@MLE[[mleChildName]]@data <- L$data
+							# Matrix expected - TODO call specific function ?
+							newObj@MLE[[mleChildName]] <- ParseElement(mleChild)
 						}
 						else if (mleChildName %in% c("StandardError", "RelativeStandardError", "AsymptoticCI")) {
-							L <- ParseElement(mleChild)
-							# Table expected - TODO call specific function
-							newObj@MLE[[mleChildName]] <- DataSet()
-							# TODO: Do this on DataSet() constructor instead
-							newObj@MLE[[mleChildName]]@description <- L$description
-							newObj@MLE[[mleChildName]]@data <- L$data
+							# Table expected - TODO call specific function ?
+							newObj@MLE[[mleChildName]] <- ParseElement(mleChild)
 						}
 						else if (mleChildName %in% c("ConditionNumber")) {
 							newObj@MLE[[mleChildName]] <- xmlValue(mleChild)
@@ -317,12 +306,8 @@ PrecisionPopulationEstimates <- function(xmlNodePrecisionPopulationEstimates = N
 					for (bayesianChild in .getChildNodes(child)) {
 						bayesianChildName <- xmlName(bayesianChild)
 						if (bayesianChildName %in% c("StandardDeviation", "PercentilesCI")) {
-							L <- ParseElement(bayesianChild)
-							# Table expected - TODO call specific function
-							newObj@Bayesian[[bayesianChildName]] <- DataSet()
-							# TODO: Do this on DataSet() constructor instead
-							newObj@Bayesian[[bayesianChildName]]@description <- L$description
-							newObj@Bayesian[[bayesianChildName]]@data <- L$data
+							# Table expected - TODO call specific function ?
+							newObj@Bayesian[[bayesianChildName]] <- ParseElement(bayesianChild)
 						}
 						else if (bayesianChildName %in% c("PosteriorDistribution")) {
 							# Table _or Sample_ expected - TODO cater for Sample too
@@ -344,20 +329,12 @@ PrecisionPopulationEstimates <- function(xmlNodePrecisionPopulationEstimates = N
 					newObj@OtherMethod[[method]] <- list()
 					for (otherMethodChildName in names(otherMethodChildNodes)) {
 						if (otherMethodChildName %in% c("CovarianceMatrix", "CorrelationMatrix")) {
-							# Matrix expected - TODO call specific function
-                			L <- ParseElement(otherMethodChildNodes[[otherMethodChildName]])
-							newObj@OtherMethod[[method]][[otherMethodChildName]] <- DataSet()
-							# TODO: Do this on DataSet() constructor instead
-							newObj@OtherMethod[[method]][[otherMethodChildName]]@description <- L$description
-							newObj@OtherMethod[[method]][[otherMethodChildName]]@data <- L$data
+							# Matrix expected - TODO call specific function ?
+							newObj@OtherMethod[[method]][[otherMethodChildName]] <- ParseElement(otherMethodChildNodes[[otherMethodChildName]])
 						}
 						else if (otherMethodChildName %in% c("StandardDeviation", "StandardError", "AsymptoticCI", "PercentilesCI")) {
-							# Table expected - TODO call specific function
-                			L <- ParseElement(otherMethodChildNodes[[otherMethodChildName]])
-							newObj@OtherMethod[[method]][[otherMethodChildName]] <- DataSet()
-							# TODO: Do this on DataSet() constructor instead
-							newObj@OtherMethod[[method]][[otherMethodChildName]]@description <- L$description
-							newObj@OtherMethod[[method]][[otherMethodChildName]]@data <- L$data
+							# Table expected - TODO call specific function ?
+							newObj@OtherMethod[[method]][[otherMethodChildName]] <- L <- ParseElement(otherMethodChildNodes[[otherMethodChildName]])
 						}
 						else if (otherMethodChildName %in% c("PosteriorDistribution")) {
 							# Table _or Sample_ expected - TODO cater for Sample too
@@ -421,12 +398,8 @@ IndividualEstimates <- function(xmlNodeIndividualEstimates = NULL, ...) {
 					for (randomEffectsChild in .getChildNodes(child)) {
 						randomEffectsChildName <- xmlName(randomEffectsChild)
 						if (randomEffectsChildName %in% c("Mean", "Median", "Mode")) {
-							L <- ParseElement(randomEffectsChild)
-							# Table expected - TODO call specific function
-							newObj@Estimates[[randomEffectsChildName]] <- DataSet()
-							# TODO: Do this on DataSet() constructor instead
-							newObj@Estimates[[randomEffectsChildName]]@description <- L$description
-							newObj@Estimates[[randomEffectsChildName]]@data <- L$data
+							# Table expected - TODO call specific function ?
+							newObj@Estimates[[randomEffectsChildName]] <- ParseElement(randomEffectsChild)
 						} else {
 							warning(paste("Unexpected child node of IndividualEstimates::Estimates node encountered: ", randomEffectsChildName))
 						}
@@ -436,24 +409,16 @@ IndividualEstimates <- function(xmlNodeIndividualEstimates = NULL, ...) {
 					for (randomEffectsChild in .getChildNodes(child)) {
 						randomEffectsChildName <- xmlName(randomEffectsChild)
 						if (randomEffectsChildName %in% c("EffectMean", "EffectMedian", "EffectMode")) {
-							L <- ParseElement(randomEffectsChild)
-							# Table expected - TODO call specific function
-							newObj@RandomEffects[[randomEffectsChildName]] <- DataSet()
-							# TODO: Do this on DataSet() constructor instead
-							newObj@RandomEffects[[randomEffectsChildName]]@description <- L$description
-							newObj@RandomEffects[[randomEffectsChildName]]@data <- L$data
+							# Table expected - TODO call specific function ?
+							newObj@RandomEffects[[randomEffectsChildName]] <- ParseElement(randomEffectsChild)
 						} else {
 							warning(paste("Unexpected child node of IndividualEstimates::Estimates node encountered: ", randomEffectsChildName))
 						}
 					}
 				},
 				"EtaShrinkage" = {
-					L <- ParseElement(child)
-					# Table expected - TODO call specific function
-					newObj@EtaShrinkage <- DataSet()
-					# TODO: Do this on DataSet() constructor instead
-					newObj@EtaShrinkage@description <- L$description
-					newObj@EtaShrinkage@data <- L$data
+					# Table expected - TODO call specific function ?
+					newObj@EtaShrinkage <- ParseElement(child)
 				},
 				warning(paste("Unexpected child node of PrecisionPopulationEstimates node encountered: ", childName))
 			)
@@ -503,24 +468,16 @@ PrecisionIndividualEstimates <- function(xmlNodeIndividualEstimates = NULL, ...)
 			childName <- xmlName(child)
 			switch(childName,
 				"StandardDeviation" = {
-					L <- ParseElement(child)
-					# Table expected - TODO call specific function
-					newObj@StandardDeviation <- DataSet()
-					# TODO: Do this on DataSet() constructor instead
-					newObj@StandardDeviation@description <- L$description
-					newObj@StandardDeviation@data <- L$data
+					# Table expected - TODO call specific function ?
+					newObj@StandardDeviation <- ParseElement(child)
 				},
 				"EstimatesDistribution" = {
 					# Table _or Sample_ expected - TODO cater for Sample too
 					warning("TODO: Parse Distribution block")
 				},
 				"PercentilesCI" = {
-					L <- ParseElement(child)
-					# Table expected - TODO call specific function
-					newObj@PercentilesCI <- DataSet()
-					# TODO: Do this on DataSet() constructor instead
-					newObj@PercentilesCI@description <- L$description
-					newObj@PercentilesCI@data <- L$data
+					# Table expected - TODO call specific function ?
+					newObj@PercentilesCI <- ParseElement(child)
 				},
 				warning(paste("Unexpected child node of PrecisionIndividualEstimates node encountered: ", childName))
 			)
@@ -562,11 +519,8 @@ Residuals <- function(xmlNodeResiduals = NULL, ...) {
 		for (child in .getChildNodes(xmlNodeResiduals)) {
 			childName <- xmlName(child)
 			if (childName %in% c("ResidualTable", "EpsShrinkage")) {
-				L <- ParseElement(child)
-				# Table expected - TODO call specific function
-				# TODO: Do this on DataSet() constructor instead
-				slot(newObj, childName)@description <- L$description
-				slot(newObj, childName)@data <- L$data
+				# Table expected - TODO call specific function ?
+				slot(newObj, childName) <- ParseElement(child)
 			} else {
 				warning(paste("Unexpected child node of Residuals node encountered: ", childName))
 			}
@@ -620,11 +574,8 @@ OFMeasures <- function(xmlNodeOFMeasures = NULL, ...) {
 				slot(newObj, childName) <- xmlValue(child)
 			}
 			else if (childName %in% c("IndividualContribToLL")) {
-				L <- ParseElement(child)
-				# Table expected - TODO call specific function
-				# TODO: Do this on DataSet() constructor instead
-				slot(newObj, childName)@description <- L$description
-				slot(newObj, childName)@data <- L$data
+				# Table expected - TODO call specific function ?
+				slot(newObj, childName) <- ParseElement(child)
 			}
 			else if (childName %in% c("InformationCriteria")) {
 				for (icChild in .getChildNodes(child)) {
