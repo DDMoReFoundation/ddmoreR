@@ -39,6 +39,19 @@ setClass("RawResults",
 #
 ##############################################################################
 
+##############################################################################
+# The Simulation Block Object Class (S4) 
+# 
+# Moved to Simulation-Class.R
+#
+##############################################################################
+
+##############################################################################
+# The Optimal Design Block Object Class (S4) 
+# 
+# Moved to OptimalDesign-Class.R
+#
+##############################################################################
 
 ##############################################################################
 #' The ModelDiagnosticEvaluation Object Class (S4) 
@@ -70,158 +83,6 @@ setClass("ModelDiagnostic",
 	return(TRUE)
 	}
 )
-
-
-##############################################################################
-#' The Simulation Object Class (S4) 
-#' 
-#' An object to house all data associated with model simulation runs.
-#'  
-#' @slot OriginalData Details and reference to the original data file.
-#' @slot SimulationBlock A list of SimulationBlock S4 classes that contain
-#'       details of each individual simulation run.
-#' 
-#' @author cmusselle
-setClass("Simulation", 
-  # Define the slots
-  slots=c(
-    OriginalDataset="list", 
-    SimulationBlock = "list"
-    ),
-  # Set Default Values to blank lists with names in place
-  prototype = list(
-    OriginalDataset=list(), 
-    SimulationBlock = list()
-),
-  # Validity Checking Function 
-  validity = function(object) {
-      stopifnot(class(object@OriginalDataset) == "list")
-      stopifnot(class(object@SimulationBlock) == "list")
-	  return(TRUE)
-	}
-)
-
-##############################################################################
-#' The SimulationBlock Object Class (S4) 
-#' 
-#' An object to house all data associated with a single simulation run
-#' 
-#' @slot SimulatedProfiles A list containing the data as a dataframe and a description header 
-#' @slot IndivParameters A list containing the data as a dataframe and a description header
-#' @slot Covariates A list containing the data as a dataframe and a description header
-#' @slot PopulationParameters A list containing the data as a dataframe and a description header
-#' @slot Dosing A list containing the data as a dataframe and a description header
-#' @slot RawResultsFile containing the path to the file containing the raw results
-#' 
-#' @author cmusselle
-setClass("SimulationBlock", 
-  # Define the slots
-  slots=c(
-    SimulatedProfiles="list",
-    IndivParameters="list", 
-    Covariates = "list",
-    PopulationParameters = "list",
-    Dosing = "list",
-    RawResultsFile = "list"
-    ),
-  # Set Default Values to blank lists with names in place
-  prototype = list(
-    SimulatedProfiles = list(),
-    IndivParameters = list(), 
-    Covariates = list(),
-    PopulationParameters = list(),
-    Dosing = list(),
-    RawResultsFile = list()
-),
-  # Validity Checking Function 
-  validity = function(object) {
-    stopifnot(class(object@SimulatedProfiles) == "list")
-    stopifnot(class(object@IndivParameters) == "list")
-    stopifnot(class(object@Covariates) == "list")
-    stopifnot(class(object@PopulationParameters) == "list")
-    stopifnot(class(object@Dosing) == "list")
-    stopifnot(class(object@RawResultsFile) == "list")
-    return(TRUE)
-  }
-)
-
-##############################################################################
-#' The OptimalDesign Object Class (S4) 
-#' 
-#' An object to house all data associated with design evaluation and optimisation
-#' 
-#' As the input data is not well defined at current, the slots for most of this class
-#' are currently defined as lists for flexibility
-#' 
-#' @slot OptimalDesignBlock A list of all OptimalDesignBlock elements from the SO
-#' 
-#' @author cmusselle
-setClass("OptimalDesign", 
-  # Define the slots
-  slots=c(
-    OptimalDesignBlock="list"
-    ),
-  # Set Default Values to blank lists with names in place
-  prototype = list(
-  	OptimalDesignBlock = list()
-  	),
-  # Validity Checking Function 
-  validity = function(object) {
-	  stopifnot(class(object@OptimalDesignBlock)=="list")
-	return(TRUE)
-	}
-)
-
-
-##############################################################################
-#' The OptimalDesignBlock Object Class (S4) 
-#' 
-#' An object to house all data associated with a single simulation run
-#' 
-#' @slot SimulatedProfiles A list containing the data as a dataframe and a description header 
-#' @slot IndivParameters A list containing the data as a dataframe and a description header
-#' @slot Covariates A list containing the data as a dataframe and a description header
-#' @slot PopulationParameters A list containing the data as a dataframe and a description header
-#' @slot Dosing A list containing the data as a dataframe and a description header
-#' @slot RawResultsFile containing the path to the file containing the raw results
-#' 
-#' @author cmusselle
-
-
-# XXXX: Still working on this, may not work
-
-# setClass("OptimalDesignBlock", 
-#   # Define the slots
-#   slots=c(
-#     FIM="matrix",
-#     CovarianceMatrix="matrix", 
-#     Parameters = "list",
-#     Criteria = "list",
-#     Tests = "list",
-#     SimulatedDatasets = "list",
-#     Design = "list"
-#     ),
-#   # Set Default Values to blank lists with names in place
-#   prototype = list(
-#     FIM = "matrix",
-#     CovarianceMatrix = "matrix", 
-#     Parameters = "list",
-#     Criteria = "list",
-#     Tests = "list",
-#     SimulatedDatasets = "list",
-#     Design = "list"
-# ),
-#   # Validity Checking Function 
-#   validity = function(object) {
-#     stopifnot(class(object@SimulatedProfiles) == "list")
-#     stopifnot(class(object@IndivParameters) == "list")
-#     stopifnot(class(object@Covariates) == "list")
-#     stopifnot(class(object@PopulationParameters) == "list")
-#     stopifnot(class(object@Dosing) == "list")
-#     stopifnot(class(object@RawResultsFile) == "list")
-#     return(TRUE)
-#   }
-# )
 
 
 #
