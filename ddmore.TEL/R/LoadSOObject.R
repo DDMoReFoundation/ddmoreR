@@ -267,7 +267,7 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 	if ("Simulation" %in% names(SOChildren)){
 		
 		# Error Checking of unexpected elements of Simulation node
-		expectedTags <- c("Description", "OriginalDataset", "SimulationBlock")
+		expectedTags <- c("SimulationBlock")
 		unexpected <- setdiff(names(SOChildren[["Simulation"]]), expectedTags)
 		if (length(unexpected) != 0) {
 			warning(paste("The following unexpected elements were detected in the parent Simulation section of the PharmML SO. These will be ignored.", 
@@ -282,6 +282,26 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 		messageList[["parsed"]] <- append(messageList[["parsed"]], "Simulation")	
 	} else {
 		messageList[["skipped"]] <- append(messageList[["skipped"]], "Simulation")
+	}
+	
+	if ("OptimalDesign" %in% names(SOChildren)){
+		
+		# Error Checking of unexpected elements of OptimalDesign node
+		expectedTags <- c("OptimalDesignBlock")
+		unexpected <- setdiff(names(SOChildren[["OptimalDesign"]]), expectedTags)
+		if (length(unexpected) != 0) {
+			warning(paste("The following unexpected elements were detected in the parent OptimalDesign section of the PharmML SO. These will be ignored.", 
+							paste(unexpected, collapse="\n      "), sep="\n      "))
+		} 
+		
+		# Parse all OptimalDesign Blocks within the Simulation node
+		optimalDesignBlockNodeList <- SOChildren[["OptimalDesign"]][names(SOChildren[["OptimalDesign"]]) == "OptimalDesignBlock"]
+		SOObject@OptimalDesign <- lapply(
+				X = optimalDesignBlockNodeList, FUN = OptimalDesignBlock)
+		
+		messageList[["parsed"]] <- append(messageList[["parsed"]], "OptimalDesign")	
+	} else {
+		messageList[["skipped"]] <- append(messageList[["skipped"]], "OptimalDesign")
 	}
 	
 	

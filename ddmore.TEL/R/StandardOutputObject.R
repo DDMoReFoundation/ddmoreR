@@ -43,7 +43,7 @@ setClass("StandardOutputObject",
     Estimation = "Estimation",
     ModelDiagnostic = "ModelDiagnostic",
     Simulation = "list", # of SimulationBlock objects
-    OptimalDesign = "OptimalDesign",
+    OptimalDesign = "list", # of OptimalDesignBlock objects
 	# The absolute path to the XML file that was parsed to create this SO
 	.pathToSourceXML = "character"
     ),
@@ -56,7 +56,7 @@ setClass("StandardOutputObject",
   	Estimation = new("Estimation"),
     ModelDiagnostic = new("ModelDiagnostic"),
   	Simulation = list(),
-	OptimalDesign = new("OptimalDesign")
+	OptimalDesign = list()
   	),
   # Validity Checking Function 
   validity = function(object) {

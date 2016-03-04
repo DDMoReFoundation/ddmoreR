@@ -39,7 +39,7 @@ script.files = c(
     "utils", "import", "execute", "conversion", "readDataObj", "updateParObj",
     "getDataObjects", "getParameterObjects", "getPopulationParameters", "getModelObjects", "getTaskPropertiesObjects", "getMDLObjects",
     "FISServer", "FISJob", "server", "jobExecution", "psnWrappers", "xmlParsers", "StandardOutputSubClasses", "StandardOutputObject",
-	"LoadSOObject", "Estimation-Class", "Simulation-Class"
+	"LoadSOObject", "Estimation-Class", "Simulation-Class", "OptimalDesign-Class"
 )
 
 sapply(script.files, function(s) {

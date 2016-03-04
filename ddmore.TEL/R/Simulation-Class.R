@@ -11,7 +11,7 @@
 #' @slot Regressors DataSet object
 #' @slot PopulationParameters DataSet object
 #' @slot Dosing DataSet object
-#' @slot RawResultsFile path as a string
+#' @slot RawResultsFile file path as a string
 #' 
 #' @name SimulationBlock-class
 #' @rdname SimulationBlock-class

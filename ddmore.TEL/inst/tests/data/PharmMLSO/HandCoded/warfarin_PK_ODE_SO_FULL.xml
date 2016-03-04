@@ -1244,7 +1244,6 @@
                         <ds:Column columnId="Type1Error" columnType="statPrecision" valueType="real" columnNum="7"/>
                         <ds:Column columnId="PredictedPower" columnType="statPrecision" valueType="real" columnNum="8"/>
                         <ds:Column columnId="TargetPower" columnType="statPrecision" valueType="real" columnNum="9"/>
-                        <ds:Column columnId="NumberSubject" columnType="undefined" valueType="real" columnNum="10"/>
                     </Definition> 
                     <Table xmlns="http://www.pharmml.org/pharmml/0.8/Dataset">
                         <Row>

@@ -558,9 +558,9 @@ setClass("Estimation",
         IndividualEstimates = IndividualEstimates(),
         PrecisionIndividualEstimates = PrecisionIndividualEstimates(),
         Residuals = Residuals(),
-        # TODO
         Predictions = DataSet(),
         OFMeasures = OFMeasures(), 
+        # TODO
         TargetToolMessages = list()),
     # Validity Checking Function 
     validity = function(object) {
