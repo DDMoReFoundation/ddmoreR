@@ -42,7 +42,7 @@ setClass("StandardOutputObject",
     TaskInformation = "list",
     Estimation = "Estimation",
     ModelDiagnostic = "ModelDiagnostic",
-    Simulation = "Simulation",
+    Simulation = "list", # of SimulationBlock objects
     OptimalDesign = "OptimalDesign",
 	# The absolute path to the XML file that was parsed to create this SO
 	.pathToSourceXML = "character"
@@ -55,7 +55,7 @@ setClass("StandardOutputObject",
       "Warnings"=NULL, "Termination"=NULL, "Info"=NULL) ),
   	Estimation = new("Estimation"),
     ModelDiagnostic = new("ModelDiagnostic"),
-  	Simulation = new("Simulation"),
+  	Simulation = list(),
 	OptimalDesign = new("OptimalDesign")
   	),
   # Validity Checking Function 

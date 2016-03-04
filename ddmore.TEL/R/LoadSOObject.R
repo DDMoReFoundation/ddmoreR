@@ -264,11 +264,6 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 		messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation")
 	}
 	
-	
-	# TODO remove this obviously
-	return(SOObject)
-	
-	
 	if ("Simulation" %in% names(SOChildren)){
 		
 		# Error Checking of unexpected elements of Simulation node
@@ -279,12 +274,20 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 							paste(unexpected, collapse="\n      "), sep="\n      "))
 		} 
 		
-		# Parse the Simulation node
-		SOObject <- ParseSimulation(SOObject, SOChildren[["Simulation"]])
+		# Parse all Simulation Blocks within the Simulation node
+		simulationBlockNodeList <- SOChildren[["Simulation"]][names(SOChildren[["Simulation"]]) == "SimulationBlock"]
+		SOObject@Simulation <- lapply(
+			X = simulationBlockNodeList, FUN = SimulationBlock)
+		
 		messageList[["parsed"]] <- append(messageList[["parsed"]], "Simulation")	
 	} else {
 		messageList[["skipped"]] <- append(messageList[["skipped"]], "Simulation")
 	}
+	
+	
+	# TODO remove this obviously
+	return(SOObject)
+
 	
 	if ("ModelDiagnostic" %in% names(SOChildren)){
 		
