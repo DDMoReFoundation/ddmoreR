@@ -87,11 +87,13 @@ ParseElement <- function(node) {
   
   if (length(childNames) == 1) {
 	if (childNames == .NODENAME_MATRIX) {
-		# Parse Node as a matrix 
+		# Parse Node as a matrix, is returned as a dataframe
 		parsed <- ParseMatrix(.getChildNode(childNodes, .NODENAME_MATRIX))
 	} else if (childNames == .NODENAME_EXTERNALFILE) {
 		# Load data from external file
-		parsed <- ParseExternalFile(.getChildNode(childNodes, .NODENAME_EXTERNALFILE))		  
+		parsed <- DataSet( # new object out of the data
+			ParseExternalFile(.getChildNode(childNodes, .NODENAME_EXTERNALFILE))
+		)
 	}
 	else {
 		warning("Expected Matrix or ExternalFile block in ParseElement, but found ",
