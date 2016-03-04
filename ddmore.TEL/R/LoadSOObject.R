@@ -245,12 +245,8 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 		
 		if ("Predictions" %in% names(SOChildren[["Estimation"]])){
 			#SOObject <- ParsePredictions(SOObject, SOChildren[["Estimation"]][["Predictions"]])
-			# Table expected - TODO call specific function
-			L <- ParseElement(SOChildren[["Estimation"]][["Predictions"]])
-			SOObject@Estimation@Predictions <- DataSet()
-			# TODO: Do this on DataSet() constructor instead
-			SOObject@Estimation@Predictions@description <- L$description
-			SOObject@Estimation@Predictions@data <- L$data
+			# Table expected - TODO call specific function ?
+			SOObject@Estimation@Predictions <- ParseElement(SOChildren[["Estimation"]][["Predictions"]])
 			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:Predictions")
 		} else {
 			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:Predictions")
@@ -267,6 +263,11 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 	} else {
 		messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation")
 	}
+	
+	
+	# TODO remove this obviously
+	return(SOObject)
+	
 	
 	if ("Simulation" %in% names(SOChildren)){
 		
