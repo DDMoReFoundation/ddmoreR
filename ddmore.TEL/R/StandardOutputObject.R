@@ -60,13 +60,13 @@ setClass("StandardOutputObject",
   	),
   # Validity Checking Function 
   validity = function(object) {
-    stopifnot("list" %in% class(object@ToolSettings))
+    stopifnot(class(object@ToolSettings) == "list")
     stopifnot("RawResults" %in% class(object@RawResults))
     stopifnot("list" %in% class(object@TaskInformation))
 	stopifnot("Estimation" %in% class(object@Estimation))
     stopifnot("ModelDiagnostic" %in% class(object@ModelDiagnostic))
-	stopifnot("Simulation" %in% class(object@Simulation))
-	stopifnot("OptimalDesign" %in% class(object@OptimalDesign))
+	stopifnot(class(object@Simulation) == "list")
+	stopifnot(class(object@OptimalDesign) == "list")
 	return(TRUE)
 	}
 )
