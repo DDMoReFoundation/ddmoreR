@@ -17,7 +17,12 @@
 #'     "tests", "data", "PharmMLSO", "MachineGenerated", 
 #'     "UseCase2_TIMEchange_fixed.SO.xml"))
 #' @export
-#' @include StandardOutputObject.R xmlParsers.R 
+#' @include StandardOutputObject.R
+#' @include Simulation-Class.R
+#' @include OptimalDesign-Class.R
+#' @include ModelDiagnostic-Class.R
+#' @include Estimation-Class.R
+#' @include xmlParsers.R 
 LoadSOObject <- function(file) {
 	
 	file <- file_path_as_absolute(file)
@@ -73,7 +78,12 @@ LoadSOObject <- function(file) {
 #'         populated with the data from the individual SOBlock sections of the PharmML file
 #' 
 #' @export
-#' @include StandardOutputObject.R xmlParsers.R 
+#' @include StandardOutputObject.R
+#' @include Simulation-Class.R
+#' @include OptimalDesign-Class.R
+#' @include ModelDiagnostic-Class.R
+#' @include Estimation-Class.R
+#' @include xmlParsers.R 
 LoadSOObjects <- function(file) {
 	
 	file <- file_path_as_absolute(file)
@@ -304,23 +314,11 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 		messageList[["skipped"]] <- append(messageList[["skipped"]], "OptimalDesign")
 	}
 	
-	
-	# TODO remove this obviously
-	return(SOObject)
-
-	
 	if ("ModelDiagnostic" %in% names(SOChildren)){
+
+		# Parse the ModelDiagnostic block
+		SOObject@ModelDiagnostic <- ModelDiagnostic(SOChildren[["ModelDiagnostic"]])
 		
-		# Error Checking of unexpected elements of Simulation node
-		expectedTags <- c("DiagnosticPlotsIndividualParams", "DiagnosticPlotsStructuralModel")
-		unexpected <- setdiff(names(SOChildren[["ModelDiagnostic"]]), expectedTags)
-		if (length(unexpected) != 0) {
-			warning(paste("The following unexpected elements were detected in the ModelDiagnostic section of the PharmML SO. These will be ignored.", 
-							paste(unexpected, collapse="\n      "), sep="\n      "))
-		}
-		
-		# Parse the Simulation node
-		SOObject <- ParseModelDiagnostic(SOObject, SOChildren[["ModelDiagnostic"]])
 		messageList[["parsed"]] <- append(messageList[["parsed"]], "ModelDiagnostic")	
 	} else {
 		messageList[["skipped"]] <- append(messageList[["skipped"]], "ModelDiagnostic")

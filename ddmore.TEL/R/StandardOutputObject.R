@@ -14,8 +14,6 @@
 #' The Standard Output Object Class (S4) 
 #'
 #' The initial design here is to have a differnt subclasss for each SO section: 
-#' 
-#' @include StandardOutputSubClasses.R 
 #'
 #' @slot ToolSettings A list object to capture settings from executed tool.
 #' @slot RawResults An object of S4 class "RawResults"
@@ -33,7 +31,8 @@
 #' to house all data associated with ...  
 #' 
 #' @author cmusselle
-#' @include StandardOutputSubClasses.R 
+#' @include StandardOutputSubClasses.R
+#' @include Estimation-Class.R
 setClass("StandardOutputObject", 
   # Define the slots
   slots=c(

@@ -26,6 +26,10 @@ Collate:
     'Classes.R'
     'readDataObj.R'
     'StandardOutputSubClasses.R'
+    "Estimation-Class.R"
+    "Simulation-Class.R"
+    "OptimalDesign-Class.R"
+    "ModelDiagnostic-Class.R"
     'StandardOutputObject.R'
     'LoadSOObject.R'
     'conversion.R'
