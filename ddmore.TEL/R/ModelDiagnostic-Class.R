@@ -28,20 +28,7 @@ setClass(Class = "DiagnosticStructuralModel",
 )
 
 setMethod("initialize", "DiagnosticStructuralModel", function(.Object, xmlNodeDiagnosticStructuralModel = NULL) {
-			
-	if (!is.null(xmlNodeDiagnosticStructuralModel)) {
-		for (child in .getChildNodes(xmlNodeDiagnosticStructuralModel)) {
-			childName <- xmlName(child)
-			if (childName %in% slotNames(.Object)) {
-				slot(.Object, childName) <- ParseElement(child)
-			} else {
-				warning(paste("Unexpected child node of DiagnosticStructuralModel node encountered: ", childName))
-			}
-			
-		} # end for
-	}
-	
-	.Object
+	.genericParseElements(.Object, xmlNodeDiagnosticStructuralModel)
 })
 
 
@@ -75,21 +62,8 @@ setClass(Class = "DiagnosticIndividualParams",
 )
 
 setMethod("initialize", "DiagnosticIndividualParams", function(.Object, xmlNodeDiagnosticIndividualParams = NULL) {
-
-	if (!is.null(xmlNodeDiagnosticIndividualParams)) {
-		for (child in .getChildNodes(xmlNodeDiagnosticIndividualParams)) {
-			childName <- xmlName(child)
-			if (childName %in% slotNames(.Object)) {
-				slot(.Object, childName) <- ParseElement(child)
-			} else {
-				warning(paste("Unexpected child node of DiagnosticIndividualParams node encountered: ", childName))
-			}
-		} # end for
-	}
-	
-	.Object
+	.genericParseElements(.Object, xmlNodeDiagnosticIndividualParams)
 })
-
 
 
 #' The ModelDiagnostic Object Class (S4) 

@@ -60,6 +60,49 @@
 	node
 }
 
+# Each custom S4 class's initialize function is intended to delegate to this function
+# that will parse the child nodes of the provided XML node into the corresponding
+# slots of the provided new instance of the S4 class.
+# Note that child nodes that can't be simply parsed by the ParseElement() function,
+# need to be explicitly parsed in the initialize function instead.
+.genericParseElements <- function(newObj, xmlNode = NULL, customParseChildNodeNames = NULL) {
+	
+	if (!is.null(xmlNode)) {
+		for (child in .getChildNodes(xmlNode)) {
+			childName <- xmlName(child)
+			if (childName %in% setdiff(slotNames(newObj), customParseChildNodeNames)) {
+				slot(newObj, childName) <- ParseElement(child)
+			} else {
+				warning(paste("Unexpected child node of", xmlName(xmlNode), "node encountered:", childName))
+			}
+		} # end for
+	}
+	
+	newObj
+	
+}
+
+#.genericParseElements <- function(xmlNode, newS4Obj) {
+#	slotNames <- slotNames(newS4Obj)
+#	for (child in .getChildNodes(xmlNode)) {
+#		childName <- gsub(.NODENAMES_NAMESPACE_PREFIX, '', xmlName(child))
+#		if (childName %in% slotNames) {
+#			slotType <- class(slot(newS4Obj, childName))
+#			switch (slotType,
+#				"Matrix"
+#			)
+#			
+#			L <- ParseElement(child)
+#			# Table expected - TODO call specific function
+#			# TODO: Do this on DataSet() constructor instead
+#			slot(newObj, childName)@description <- L$description
+#			slot(newObj, childName)@data <- L$data
+#		} else {
+#			warning(paste("Unexpected child node of ", xmlName(xmlNode),  " node encountered: ", childName))
+#		}
+#	}
+#}
+
 #' @title Parse Element
 #'
 #' @description Investigates the name of the elements Children and runs the appropriate parser  

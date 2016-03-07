@@ -43,32 +43,28 @@ setClass(Class = "SimulationBlock",
 	}
 )
 
-SimulationBlock <- function(xmlNodeSimulationBlock = NULL, ...) {
-    newObj <- new(Class = "SimulationBlock", ...)
-
+setMethod("initialize", "SimulationBlock", function(.Object, xmlNodeSimulationBlock = NULL) {
+	
 	if (!is.null(xmlNodeSimulationBlock)) {
-		newObj@replicate <- xmlAttrs(xmlNodeSimulationBlock)[["replicate"]]
+		
+		.Object <- .genericParseElements(.Object, xmlNodeSimulationBlock, c("SimulatedProfiles", "RawResultsFile"))
+		
+		.Object@replicate <- xmlAttrs(xmlNodeSimulationBlock)[["replicate"]]
+		
+		# Custom parsing of child nodes that aren't simply handled by ParseElement()
 		for (child in .getChildNodes(xmlNodeSimulationBlock)) {
 			childName <- xmlName(child)
-			if (childName %in% c("SimulatedProfiles")) {
+			if (childName == "SimulatedProfiles") {
 				# Add each SimulatedProfile to the end of the list
-				slot(newObj, childName) <- c(slot(newObj, childName), SimulatedProfiles(child))
-			} else if (childName %in% c(
-					"IndivParameters", "RandomEffects", "Covariates", "Regressors", "PopulationParameters", "Dosing")) {
-				# Table expected - TODO call specific function ?
-				slot(newObj, childName) <- ParseElement(child)
-			}
-			else if (childName %in% c("RawResultsFile")) {
-				newObj@RawResultsFile <- xmlValue(.getChildNode(.getChildNodes(child), "path"))
-			}
-			else {
-				warning(paste("Unexpected child node of SimulationBlock node encountered: ", childName))
+				slot(.Object, childName) <- c(slot(.Object, childName), SimulatedProfiles(child))
+			} else if (childName == "RawResultsFile") {
+				.Object@RawResultsFile <- xmlValue(.getChildNode(.getChildNodes(child), "path"))
 			}
 		} # end for
 	}
 
-	newObj
-}
+	.Object
+})
 
 
 #' The SimulatedProfiles Object Class (S4) 
@@ -101,20 +97,19 @@ setClass(Class = "SimulatedProfiles",
 	}
 )
 
-SimulatedProfiles <- function(xmlNodeSimulatedProfiles = NULL, ...) {
-    newObj <- new(Class = "SimulatedProfiles", ...)
+setMethod("initialize", "SimulatedProfiles", function(.Object, xmlNodeSimulatedProfiles = NULL) {
 	
 	if (!is.null(xmlNodeSimulatedProfiles)) {
 		spAttrs <- xmlAttrs(xmlNodeSimulatedProfiles)
 		for (spAttrName in names(spAttrs)) {
 			if (spAttrName %in% c("name", "extFileNo")) {
-				slot(newObj, spAttrName) <- spAttrs[[spAttrName]]
+				slot(.Object, spAttrName) <- spAttrs[[spAttrName]]
 			}
 		}
-		newObj@DataSet <- ParseElement(xmlNodeSimulatedProfiles)
+		.Object@DataSet <- ParseElement(xmlNodeSimulatedProfiles)
 	}
 	
-	newObj
-}
+	.Object
+})
 
 
