@@ -168,7 +168,10 @@ ParseDataSetInline <- function(definitionNode, tableNode) {
   rowList <- .getChildNodes(tableNode)
     
   # List of values
-  rowData <- lapply(X = rowList, FUN = function(x) { xmlSApply(X = x, FUN = xmlValue) })
+  rowData <- lapply(rowList, FUN = function(r) {
+	  res <- xmlSApply(X = r, FUN = xmlValue)
+	  res[names(res)!=.NODENAME_COMMENT]
+  })
   
   # Convert to data frame 
   temp <- Reduce(f = rbind, x = rowData)
@@ -181,6 +184,11 @@ ParseDataSetInline <- function(definitionNode, tableNode) {
     dimnames(temp) <- NULL
     # reduced list is a character matrix
     datf <- data.frame(temp)
+	if (length(colnames(datf)) != length(columnInfo)) {
+		stop(paste0("Mismatch in number of columns in column header information versus actual row data encountered while parsing inline data set (i.e. pair of <Definition>, <Table> blocks).\n",
+			"  Columns defined in header: ", paste(colnames(columnInfo), collapse=", "), "\n",
+			"  Data: ", length(rownames(datf)), "x", length(colnames(datf)), " dataframe"))
+	}
     colnames(datf) <- names(columnInfo)
   }
   return(list(description = columnInfo, data = datf))
