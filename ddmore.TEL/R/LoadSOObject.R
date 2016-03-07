@@ -1,3 +1,4 @@
+
 ################################################################################
 #' LoadSOObject
 #'
@@ -23,6 +24,7 @@
 #' @include ModelDiagnostic-Class.R
 #' @include Estimation-Class.R
 #' @include xmlParsers.R 
+
 LoadSOObject <- function(file) {
 	
 	file <- file_path_as_absolute(file)
@@ -78,12 +80,7 @@ LoadSOObject <- function(file) {
 #'         populated with the data from the individual SOBlock sections of the PharmML file
 #' 
 #' @export
-#' @include StandardOutputObject.R
-#' @include Simulation-Class.R
-#' @include OptimalDesign-Class.R
-#' @include ModelDiagnostic-Class.R
-#' @include Estimation-Class.R
-#' @include xmlParsers.R 
+
 LoadSOObjects <- function(file) {
 	
 	file <- file_path_as_absolute(file)
@@ -141,8 +138,9 @@ LoadSOObjects <- function(file) {
 # get messages out of SO objects
 .getSOX <- function(so, type) { slot(object = so, name = "TaskInformation")$Messages[[type]] }
 
-# Check that the .SO.xml file exists; 
-# if so then parse the XML document and return a reference to the root node.
+#'
+#' Check that the .SO.xml file exists; if so then parse the XML document and return a reference to the root node.
+#'  
 validateAndLoadXMLSOFile <- function(file) {
 	
 	# Error checking
@@ -158,8 +156,16 @@ validateAndLoadXMLSOFile <- function(file) {
 	xmlRoot(xmlTreeParse(file, useInternalNodes=TRUE))
 }
 
-# Process an SOBlock element from the SO XML tree 
-# and populate a StandardOutputObject object from the data contained within.
+#'
+#' Process an SOBlock element from the SO XML tree and populate a StandardOutputObject object from the data contained within.
+#'
+#' @include StandardOutputObject.R
+#' @include Simulation-Class.R
+#' @include OptimalDesign-Class.R
+#' @include ModelDiagnostic-Class.R
+#' @include Estimation-Class.R
+#' @include xmlParsers.R
+#'  
 createSOObjectFromXMLSOBlock <- function(soBlock) {
 	
 	# Generate Blank SO object
@@ -215,7 +221,7 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 		
 		if ("PopulationEstimates" %in% names(SOChildren[["Estimation"]])){
 			#SOObject <- ParsePopulationEstimates(SOObject, SOChildren[["Estimation"]][["PopulationEstimates"]])
-			SOObject@Estimation@PopulationEstimates <- PopulationEstimates(SOChildren[["Estimation"]][["PopulationEstimates"]])
+			SOObject@Estimation@PopulationEstimates <- new (Class = "PopulationEstimates", SOChildren[["Estimation"]][["PopulationEstimates"]])
 			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:PopulationEstimates")
 		} else {
 			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:PopulationEstimates")
@@ -223,7 +229,7 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 		
 		if ("PrecisionPopulationEstimates" %in% names(SOChildren[["Estimation"]])){
 			#SOObject <- ParsePrecisionPopulationEstimates(SOObject, SOChildren[["Estimation"]][["PrecisionPopulationEstimates"]])
-			SOObject@Estimation@PrecisionPopulationEstimates <- PrecisionPopulationEstimates(SOChildren[["Estimation"]][["PrecisionPopulationEstimates"]])
+			SOObject@Estimation@PrecisionPopulationEstimates <- new (Class = "PrecisionPopulationEstimates", SOChildren[["Estimation"]][["PrecisionPopulationEstimates"]])
 			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:PrecisionPopulationEstimates")
 		} else {
 			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:PrecisionPopulationEstimates")
@@ -231,7 +237,7 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 		
 		if ("IndividualEstimates" %in% names(SOChildren[["Estimation"]])){
 			#SOObject <- ParseIndividualEstimates(SOObject, SOChildren[["Estimation"]][["IndividualEstimates"]])
-			SOObject@Estimation@IndividualEstimates <- IndividualEstimates(SOChildren[["Estimation"]][["IndividualEstimates"]])
+			SOObject@Estimation@IndividualEstimates <- new (Class = "IndividualEstimates", SOChildren[["Estimation"]][["IndividualEstimates"]])
 			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:IndividualEstimates")
 		} else {
 			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:IndividualEstimates")
@@ -239,7 +245,7 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 		
 		if ("PrecisionIndividualEstimates" %in% names(SOChildren[["Estimation"]])){
 			#SOObject <- ParsePrecisionIndividualEstimates(SOObject, SOChildren[["Estimation"]][["PrecisionIndividualEstimates"]])
-			SOObject@Estimation@PrecisionIndividualEstimates <- PrecisionIndividualEstimates(SOChildren[["Estimation"]][["PrecisionIndividualEstimates"]])
+			SOObject@Estimation@PrecisionIndividualEstimates <- new (Class = "PrecisionIndividualEstimates", SOChildren[["Estimation"]][["PrecisionIndividualEstimates"]])
 			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:PrecisionIndividualEstimates")
 		} else {
 			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:PrecisionIndividualEstimates")
@@ -247,7 +253,7 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 		
 		if ("Residuals" %in% names(SOChildren[["Estimation"]])){
 			#SOObject <- ParseResiduals(SOObject, SOChildren[["Estimation"]][["Residuals"]])
-			SOObject@Estimation@Residuals <- Residuals(SOChildren[["Estimation"]][["Residuals"]])
+			SOObject@Estimation@Residuals <- new (Class = "Residuals", SOChildren[["Estimation"]][["Residuals"]])
 			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:Residuals")
 		} else {
 			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:Residuals")
@@ -264,7 +270,7 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 		
 		if ("OFMeasures" %in% names(SOChildren[["Estimation"]])){
 			#SOObject <- ParseOFMeasures(SOObject, SOChildren[["Estimation"]][["OFMeasures"]])
-			SOObject@Estimation@OFMeasures <- OFMeasures(SOChildren[["Estimation"]][["OFMeasures"]])
+			SOObject@Estimation@OFMeasures <- new (Class = "OFMeasures", SOChildren[["Estimation"]][["OFMeasures"]])
 			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:OFMeasures")
 		} else {
 			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:OFMeasures")
