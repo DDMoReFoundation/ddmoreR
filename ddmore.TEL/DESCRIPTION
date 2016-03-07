@@ -30,6 +30,7 @@ Collate:
     "Simulation-Class.R"
     "OptimalDesign-Class.R"
     "ModelDiagnostic-Class.R"
+    "RawResults-Class.R"
     'StandardOutputObject.R'
     'LoadSOObject.R'
     'conversion.R'

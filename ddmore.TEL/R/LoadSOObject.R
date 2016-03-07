@@ -164,6 +164,7 @@ validateAndLoadXMLSOFile <- function(file) {
 #' @include OptimalDesign-Class.R
 #' @include ModelDiagnostic-Class.R
 #' @include Estimation-Class.R
+#' @include RawResults-Class.R
 #' @include xmlParsers.R
 #'  
 createSOObjectFromXMLSOBlock <- function(soBlock) {
@@ -194,7 +195,7 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 	}
 	
 	if ("RawResults" %in% names(SOChildren)){
-		SOObject <- ParseRawResults(SOObject, SOChildren[["RawResults"]])
+		SOObject@RawResults <- new (Class = "RawResults", SOChildren[["RawResults"]])
 		messageList[["parsed"]] <- append(messageList[["parsed"]], "RawResults")
 	} else {
 		messageList[["skipped"]] <- append(messageList[["skipped"]], "RawResults")
