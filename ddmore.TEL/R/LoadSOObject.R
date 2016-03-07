@@ -287,7 +287,9 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 		# Parse all Simulation Blocks within the Simulation node
 		simulationBlockNodeList <- SOChildren[["Simulation"]][names(SOChildren[["Simulation"]]) == "SimulationBlock"]
 		SOObject@Simulation <- lapply(
-			X = simulationBlockNodeList, FUN = SimulationBlock)
+			X = simulationBlockNodeList,
+			FUN = function(xmlNodeSimulationBlock) { new (Class = "SimulationBlock", xmlNodeSimulationBlock = xmlNodeSimulationBlock) }
+		)
 		
 		messageList[["parsed"]] <- append(messageList[["parsed"]], "Simulation")	
 	} else {
@@ -307,7 +309,9 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 		# Parse all OptimalDesign Blocks within the Simulation node
 		optimalDesignBlockNodeList <- SOChildren[["OptimalDesign"]][names(SOChildren[["OptimalDesign"]]) == "OptimalDesignBlock"]
 		SOObject@OptimalDesign <- lapply(
-				X = optimalDesignBlockNodeList, FUN = OptimalDesignBlock)
+				X = optimalDesignBlockNodeList,
+				FUN = function(xmlNodeOptimalDesignBlock) { new (Class = "OptimalDesignBlock", xmlNodeOptimalDesignBlock = xmlNodeOptimalDesignBlock) }
+		)
 		
 		messageList[["parsed"]] <- append(messageList[["parsed"]], "OptimalDesign")	
 	} else {
@@ -317,7 +321,7 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 	if ("ModelDiagnostic" %in% names(SOChildren)){
 
 		# Parse the ModelDiagnostic block
-		SOObject@ModelDiagnostic <- ModelDiagnostic(SOChildren[["ModelDiagnostic"]])
+		SOObject@ModelDiagnostic <- new (Class = "ModelDiagnostic", xmlNodeModelDiagnostic = SOChildren[["ModelDiagnostic"]])
 		
 		messageList[["parsed"]] <- append(messageList[["parsed"]], "ModelDiagnostic")	
 	} else {

@@ -21,6 +21,8 @@
 #' sb <- new(Class = "SimulationBlock")
 #' print(sb)
 #' validObject(sb)
+#' 
+#' @include xmlParsers.R
 
 setClass(Class = "SimulationBlock",
 	slots = c(
@@ -43,11 +45,15 @@ setClass(Class = "SimulationBlock",
 	}
 )
 
+#' Initialisation function / Constructor for SimulationBlock S4 class
+#' @param .Object new instance of the class
+#' @param xmlNodeSimulationBlock XML Node representation of the block
+#' @include xmlParsers.R
 setMethod("initialize", "SimulationBlock", function(.Object, xmlNodeSimulationBlock = NULL) {
 	
 	if (!is.null(xmlNodeSimulationBlock)) {
 		
-		.Object <- .genericParseElements(.Object, xmlNodeSimulationBlock, c("SimulatedProfiles", "RawResultsFile"))
+		.Object <- .genericParseElements(.Object, xmlNodeSimulationBlock, customParseChildNodeNames = c("SimulatedProfiles", "RawResultsFile"))
 		
 		.Object@replicate <- xmlAttrs(xmlNodeSimulationBlock)[["replicate"]]
 		
@@ -56,11 +62,11 @@ setMethod("initialize", "SimulationBlock", function(.Object, xmlNodeSimulationBl
 			childName <- xmlName(child)
 			if (childName == "SimulatedProfiles") {
 				# Add each SimulatedProfile to the end of the list
-				slot(.Object, childName) <- c(slot(.Object, childName), SimulatedProfiles(child))
+				slot(.Object, childName) <- c(slot(.Object, childName), new (Class = "SimulatedProfiles", xmlNodeSimulatedProfiles = child))
 			} else if (childName == "RawResultsFile") {
 				.Object@RawResultsFile <- xmlValue(.getChildNode(.getChildNodes(child), "path"))
 			}
-		} # end for
+		}
 	}
 
 	.Object
@@ -82,6 +88,8 @@ setMethod("initialize", "SimulationBlock", function(.Object, xmlNodeSimulationBl
 #' sp <- new(Class = "SimulatedProfiles")
 #' print(sp)
 #' validObject(sp)
+#' 
+#' @include xmlParsers.R
 
 setClass(Class = "SimulatedProfiles",
 	slots = c(
@@ -97,6 +105,10 @@ setClass(Class = "SimulatedProfiles",
 	}
 )
 
+#' Initialisation function / Constructor for SimulatedProfiles S4 class
+#' @param .Object new instance of the class
+#' @param xmlNodeSimulatedProfiles XML Node representation of the block
+#' @include xmlParsers.R
 setMethod("initialize", "SimulatedProfiles", function(.Object, xmlNodeSimulatedProfiles = NULL) {
 	
 	if (!is.null(xmlNodeSimulatedProfiles)) {
