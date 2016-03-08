@@ -279,6 +279,16 @@ add_quotes <- function(x) {
 	}
 }
 
+##############################################################
+#' capitalise_first
+#'
+#' Capitalise the first letter of a string.
+#'
+#' @param x the input string
+#' @return the output string
+capitalise_first <- function(s) {
+	paste0(toupper(substring(s, 1,1)), substring(s, 2))
+}
 
 ##############################################################
 #' parent.folder

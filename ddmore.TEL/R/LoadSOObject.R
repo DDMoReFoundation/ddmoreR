@@ -57,9 +57,9 @@ LoadSOObject <- function(file) {
 
 	# Print out any errors in the SO Object to the R console to make it obvious if execution failed
 	.printSOMessages(
-		.getSOX(so = SOObject, type = "Errors"),
-		.getSOX(so = SOObject, type = "Warnings"),
-		.getSOX(so = SOObject, type = "Info")
+		getSOMessages(so = SOObject, type = "ERROR"),
+		getSOMessages(so = SOObject, type = "WARNING"),
+		getSOMessages(so = SOObject, type = "INFORMATION")
 	)
 	
 	SOObject
@@ -126,9 +126,9 @@ LoadSOObjects <- function(file) {
     
 	# Print out any errors in the SO Object to the R console to make it obvious if execution failed
 	.printSOMessages(
-		unlist(lapply(X = SOObjectList, FUN = .getSOX, type = "Errors"), recursive=FALSE),
-		unlist(lapply(X = SOObjectList, FUN = .getSOX, type = "Warnings"), recursive=FALSE),
-		unlist(lapply(X = SOObjectList, FUN = .getSOX, type = "Info"), recursive=FALSE)
+		unlist(lapply(X = SOObjectList, FUN = getSOMessages, type = "ERROR"), recursive=FALSE),
+		unlist(lapply(X = SOObjectList, FUN = getSOMessages, type = "WARNING"), recursive=FALSE),
+		unlist(lapply(X = SOObjectList, FUN = getSOMessages, type = "INFORMATION"), recursive=FALSE)
 	)
 
 	names(SOObjectList) <- soObjNames
@@ -136,7 +136,10 @@ LoadSOObjects <- function(file) {
 }
 
 # get messages out of SO objects
-.getSOX <- function(so, type) { slot(object = so, name = "TaskInformation")$Messages[[type]] }
+getSOMessages <- function(so, type) {
+	slotName <- paste0(capitalise_first(tolower(type)), "Messages")
+	slot(so@TaskInformation, slotName)
+}
 
 #'
 #' Check that the .SO.xml file exists; if so then parse the XML document and return a reference to the root node.
@@ -165,8 +168,9 @@ validateAndLoadXMLSOFile <- function(file) {
 #' @include ModelDiagnostic-Class.R
 #' @include Estimation-Class.R
 #' @include RawResults-Class.R
+#' @include TaskInformation-Class.R
 #' @include xmlParsers.R
-#'  
+#' 
 createSOObjectFromXMLSOBlock <- function(soBlock) {
 	
 	# Generate Blank SO object
@@ -188,7 +192,11 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 	
 	# Error checking of expected XML structure + Parser Execution
 	if ("ToolSettings" %in% names(SOChildren)){
-		SOObject <- ParseToolSettings(SOObject, SOChildren[["ToolSettings"]])
+		
+		# Extract child tags and values as a list with names = tag names and elements = tag values
+		SOObject@ToolSettings <- xmlApply(SOChildren[["ToolSettings"]], xmlValue)
+		names(SOObject@ToolSettings) <- xmlApply(SOChildren[["ToolSettings"]], function(x) { xmlAttrs(x)[["oid"]] })
+		
 		messageList[["parsed"]] <- append(messageList[["parsed"]], "ToolSettings")
 	} else {
 		messageList[["skipped"]] <- append(messageList[["skipped"]], "ToolSettings")
@@ -202,7 +210,7 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 	}
 	
 	if ("TaskInformation" %in% names(SOChildren)){
-		SOObject <- ParseTaskInformation(SOObject, SOChildren[["TaskInformation"]])
+		SOObject@TaskInformation <- new (Class = "TaskInformation", .getChildNode(SOChildren, "TaskInformation"))
 		messageList[["parsed"]] <- append(messageList[["parsed"]], "TaskInformation")
 	} else {
 		messageList[["skipped"]] <- append(messageList[["skipped"]], "TaskInformation")

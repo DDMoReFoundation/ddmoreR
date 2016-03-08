@@ -38,7 +38,7 @@ setClass("StandardOutputObject",
   slots=c(
     ToolSettings = "list", 
     RawResults = "RawResults",
-    TaskInformation = "list",
+    TaskInformation = "TaskInformation",
     Estimation = "Estimation",
     ModelDiagnostic = "ModelDiagnostic",
     Simulation = "list", # of SimulationBlock objects
@@ -50,8 +50,7 @@ setClass("StandardOutputObject",
   prototype = list(
     ToolSettings = list(),
     RawResults = new("RawResults"),
-    TaskInformation = list( Messages = list("Errors"=NULL, 
-      "Warnings"=NULL, "Termination"=NULL, "Info"=NULL) ),
+    TaskInformation = new("TaskInformation"),
   	Estimation = new("Estimation"),
     ModelDiagnostic = new("ModelDiagnostic"),
   	Simulation = list(),
@@ -60,10 +59,10 @@ setClass("StandardOutputObject",
   # Validity Checking Function 
   validity = function(object) {
     stopifnot(class(object@ToolSettings) == "list")
-    stopifnot("RawResults" %in% class(object@RawResults))
-    stopifnot("list" %in% class(object@TaskInformation))
-	stopifnot("Estimation" %in% class(object@Estimation))
-    stopifnot("ModelDiagnostic" %in% class(object@ModelDiagnostic))
+    stopifnot(class(object@RawResults) == "RawResults")
+    stopifnot(class(object@TaskInformation) == "TaskInformation")
+	stopifnot(class(object@Estimation) == "Estimation")
+    stopifnot(class(object@ModelDiagnostic) == "ModelDiagnostic")
 	stopifnot(class(object@Simulation) == "list")
 	stopifnot(class(object@OptimalDesign) == "list")
 	return(TRUE)
