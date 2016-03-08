@@ -61,8 +61,8 @@ setMethod("initialize", "SimulationBlock", function(.Object, xmlNodeSimulationBl
 		for (child in .getChildNodes(xmlNodeSimulationBlock)) {
 			childName <- xmlName(child)
 			if (childName == "SimulatedProfiles") {
-				# Add each SimulatedProfile to the end of the list
-				slot(.Object, childName) <- c(slot(.Object, childName), new (Class = "SimulatedProfiles", xmlNodeSimulatedProfiles = child))
+				# Append each SimulatedProfile to the end of the list
+				slot(.Object, childName) <- as.list(c(slot(.Object, childName), new (Class = "SimulatedProfiles", xmlNodeSimulatedProfiles = child)))
 			} else if (childName == "RawResultsFile") {
 				.Object@RawResultsFile <- xmlValue(.getChildNode(.getChildNodes(child), "path"))
 			}
