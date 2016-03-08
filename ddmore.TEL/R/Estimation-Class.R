@@ -276,12 +276,11 @@ setMethod("initialize", "PrecisionPopulationEstimatesOtherMethod", function(.Obj
 
 #' The PrecisionPopulationEstimates Object Class (S4) 
 #'
-#' An object to house all data associated with precision of the population 
-#' estimates
+#' An object to house all data associated with the precision of the population estimates.
 #' 
-#' @slot MLE object list
-#' @slot Bayesian object list
-#' @slot OtherMethod object list
+#' @slot MLE instance of PrecisionPopulationEstimatesMLE S4 class
+#' @slot Bayesian instance of PrecisionPopulationEstimatesBayesian class
+#' @slot OtherMethod list of instances of PrecisionPopulationEstimatesOtherMethod class
 #' 
 #' @name PrecisionPopulationEstimates-class
 #' @rdname PrecisionPopulationEstimates-class
@@ -408,12 +407,11 @@ setMethod("initialize", "IndividualEstimates", function(.Object, xmlNodeIndividu
 
 #' The PrecisionIndividualEstimates Object Class (S4) 
 #'
-#' An object to house all data associated with the individual
-#' estimates
+#' An object to house all data associated with the precision of the individual estimates.
 #' 
-#' @slot Estimates object list
-#' @slot Bayesian object list
-#' @slot OtherMethod object list
+#' @slot StandardDeviation DataSet object
+#' @slot EstimatesDistribution DataSet or DataSetDistribution object
+#' @slot PercentilesCI DataSet object
 #' 
 #' @name PrecisionIndividualEstimates-class
 #' @rdname PrecisionIndividualEstimates-class
@@ -426,38 +424,19 @@ setMethod("initialize", "IndividualEstimates", function(.Object, xmlNodeIndividu
 
 setClass(Class = "PrecisionIndividualEstimates",
     slots = c("StandardDeviation", "EstimatesDistribution", "PercentilesCI"), 
-    prototype = list(StandardDeviation = DataSet(), 
-        # TODO make SOTableDistrib
-        EstimatesDistribution = list(),
-        PercentilesCI = DataSet()), 
+    prototype = list(
+		StandardDeviation = DataSet(), 
+        EstimatesDistribution = DataSet(),
+        PercentilesCI = DataSet()
+	), 
     validity = function(object) { 
         # TODO implement checking
-        return(TRUE) })
-
-setMethod("initialize", "PrecisionIndividualEstimates", function(.Object, xmlNodeIndividualEstimates = NULL) {
-	
-	if (!is.null(xmlNodeIndividualEstimates)) {
-		for (child in .getChildNodes(xmlNodeIndividualEstimates)) {
-			childName <- xmlName(child)
-			switch(childName,
-				"StandardDeviation" = {
-					# Table expected - TODO call specific function ?
-					.Object@StandardDeviation <- ParseElement(child)
-				},
-				"EstimatesDistribution" = {
-					# Table _or Sample_ expected - TODO call specific function ?
-					.Object@EstimatesDistribution <- ParseElement(child)
-				},
-				"PercentilesCI" = {
-					# Table expected - TODO call specific function ?
-					.Object@PercentilesCI <- ParseElement(child)
-				},
-				warning(paste("Unexpected child node of PrecisionIndividualEstimates node encountered: ", childName))
-			)
-		}
+        return(TRUE)
 	}
-	
-	.Object
+)
+
+setMethod("initialize", "PrecisionIndividualEstimates", function(.Object, xmlNodePrecisionIndividualEstimates = NULL) {
+	.genericParseElements(.Object, xmlNodePrecisionIndividualEstimates)
 })
 
 
