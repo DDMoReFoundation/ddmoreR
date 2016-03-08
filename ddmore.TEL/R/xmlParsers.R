@@ -65,12 +65,14 @@
 # slots of the provided new instance of the S4 class.
 # Note that child nodes that can't be simply parsed by the ParseElement() function,
 # need to be explicitly parsed in the initialize function instead.
-.genericParseElements <- function(newObj, xmlNode = NULL, customParseChildNodeNames = NULL) {
+.genericParseElements <- function(newObj, xmlNode = NULL, customParseChildNodeNames = c()) {
 	
 	if (!is.null(xmlNode)) {
 		for (child in .getChildNodes(xmlNode)) {
 			childName <- xmlName(child)
-			if (childName %in% setdiff(slotNames(newObj), customParseChildNodeNames)) {
+			if (childName %in% customParseChildNodeNames) {
+				# Skip - custom parsing to be done by the class's initialize function instead
+			} else if (childName %in% slotNames(newObj)) {
 				slot(newObj, childName) <- ParseElement(child)
 			} else {
 				warning(paste("Unexpected child node of", xmlName(xmlNode), "node encountered:", childName))
@@ -79,7 +81,6 @@
 	}
 	
 	newObj
-	
 }
 
 #.genericParseElements <- function(xmlNode, newS4Obj) {
