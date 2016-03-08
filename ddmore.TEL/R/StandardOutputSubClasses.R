@@ -46,9 +46,9 @@
 #
 
 
-#' The DataSet Object Class (S4) 
+#' The DataSet Object Class (S4)
 #'
-#' An object to house all data associated with the data set
+#' An object to house all data associated with a data set
 #' 
 #' @slot description header information for dataset
 #' @slot data matrix information with one column for each column in description
@@ -74,9 +74,8 @@ setClass(Class = "DataSet",
         	stopifnot(all(rownames(object@description) == c("columnNum", "columnType", "valueType")))
         	return(TRUE) })
 
-#' Instantiate a new object of class DataSet
+#' Instantiate a new object of class DataSet.
 #' 
-#' Calls \code{new} trivially
 #' @param data optional list containing "description" dataframe, "data" dataframe to populate with
 #' @param dots arguments to \code{new}
 #' @return object of class DataSet
@@ -136,4 +135,70 @@ setMethod(f = "as.data.frame",
 		}
 		return(out)
 	})
+
+
+#' The DataSetDistribution Object Class (S4)
+#'
+#' An object to house all data associated with a Sample/Distribution,
+#' which for the purposes of representation within the SO class
+#' structure, is a \linkS4class{DataSetj} class augmented with a distributionName
+#' and optional distributionParameters.
+#' 
+#' @slot distributionName the name of the distribution
+#' @slot distributionParameters named list of the parameters, the list names
+#' 								being the parameter names and the values in
+#' 								the list being the parameter values
+#' @slot description (Optional) header information for dataset
+#' @slot data (Optional) matrix information with one column for each column in description
+#' 
+#' @name DataSetDistribution-class
+#' @rdname DataSetDistribution-class
+#' @exportClass DataSetDistribution
+#' @aliases DataSetDistribution
+#' @examples
+#' dsd <- new(Class = "DataSetDistribution") 
+#' print(dsd)
+#' validObject(dsd)
+
+setClass(Class = "DataSetDistribution",
+	contains = "DataSet", # superclass
+	slots = c("distributionName", "distributionParameters"),
+	prototype = list(
+		distributionName = character(0),
+		distributionParameters = list()
+		# Leave these slots from the superclass as null since they are optional for Distribution
+		#description = 
+		#data = 
+	),
+	validity = function(object) {
+		# TODO implement this checking
+    	return(TRUE)
+	}
+)
+
+#' Instantiate a new object of class DataSetDistribution.
+#' 
+#' @param distributionName the name of the distribution
+#' @param distributionParameters named list of the parameters, the list names
+#'  							 being the parameter names and the values in
+#' 	 							 the list being the parameter values
+#' @param data optional list containing "description" dataframe, "data" dataframe to populate with
+#' @param dots arguments to \code{new}
+#' @return object of class DataSetDistribution
+#' @export
+
+DataSetDistribution <- function(distributionName, distributionParameters = NULL, data = NULL, ...) {
+    newObj <- new(Class = "DataSetDistribution", ...)
+	
+	newObj@distributionName <- distributionName
+	if (!is.null(distributionParameters)) {
+		newObj@distributionParameters <- distributionParameters
+	}
+	if (!is.null(data)) {
+		newObj@description <- data$description
+		newObj@data <- data$data
+	}
+	
+	newObj
+}
 

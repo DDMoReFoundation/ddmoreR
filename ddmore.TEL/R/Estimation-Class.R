@@ -211,9 +211,8 @@ setMethod("initialize", "PrecisionPopulationEstimates", function(.Object, xmlNod
 							.Object@Bayesian[[bayesianChildName]] <- ParseElement(bayesianChild)
 						}
 						else if (bayesianChildName %in% c("PosteriorDistribution")) {
-							# Table _or Sample_ expected - TODO cater for Sample too
-							warning("TODO: Parse Distribution block")
-							#.Object@Bayesian[[bayesianChildName]] <- ParseElement(bayesianChild)
+							# Table _or Sample_ expected - TODO call specific function ?
+							.Object@Bayesian[[bayesianChildName]] <- ParseElement(bayesianChild)
 						}
 						else {
 							warning(paste("Unexpected child node of PrecisionPopulationEstimates::Bayesian node encountered: ", bayesianChildName))
@@ -235,11 +234,11 @@ setMethod("initialize", "PrecisionPopulationEstimates", function(.Object, xmlNod
 						}
 						else if (otherMethodChildName %in% c("StandardDeviation", "StandardError", "AsymptoticCI", "PercentilesCI")) {
 							# Table expected - TODO call specific function ?
-							.Object@OtherMethod[[method]][[otherMethodChildName]] <- L <- ParseElement(otherMethodChildNodes[[otherMethodChildName]])
+							.Object@OtherMethod[[method]][[otherMethodChildName]] <- ParseElement(otherMethodChildNodes[[otherMethodChildName]])
 						}
 						else if (otherMethodChildName %in% c("PosteriorDistribution")) {
-							# Table _or Sample_ expected - TODO cater for Sample too
-							warning("TODO: Parse Distribution block")
+							# Table _or Sample_ expected - TODO call specific function ?
+							.Object@OtherMethod[[method]][[otherMethodChildName]] <- ParseElement(otherMethodChildNodes[[otherMethodChildName]])
 						}
 						else {
 							warning(paste("Unexpected child node of PrecisionPopulationEstimates::OtherMethod node encountered: ", otherMethodChildName))
@@ -367,8 +366,8 @@ setMethod("initialize", "PrecisionIndividualEstimates", function(.Object, xmlNod
 					.Object@StandardDeviation <- ParseElement(child)
 				},
 				"EstimatesDistribution" = {
-					# Table _or Sample_ expected - TODO cater for Sample too
-					warning("TODO: Parse Distribution block")
+					# Table _or Sample_ expected - TODO call specific function ?
+					.Object@EstimatesDistribution <- ParseElement(child)
 				},
 				"PercentilesCI" = {
 					# Table expected - TODO call specific function ?

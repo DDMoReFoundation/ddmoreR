@@ -17,6 +17,7 @@
 .NODENAME_ROWNAMES <- "RowNames"
 .NODENAME_COLNAMES <- "ColumnNames"
 .NODENAME_MATRIXROW <- "MatrixRow"
+.NODENAME_DISTRIBUTION <- "Distribution"
 
 .DATASET_DESCRIPTION <- "description"
 .DATASET_DATA <- "data"
@@ -109,47 +110,57 @@
 
 ParseElement <- function(node) {
   
-  childNodes <- .getChildNodes(node)
-  childNames <- names(childNodes)
+	childNodes <- .getChildNodes(node)
+	childNames <- names(childNodes)
 
-  parsed <- NULL
-  
-  if (length(childNames) == 1) {
-	if (childNames == .NODENAME_MATRIX) {
-		# Parse Node as a matrix, is returned as a dataframe
-		parsed <- ParseMatrix(.getChildNode(childNodes, .NODENAME_MATRIX))
-	} else if (childNames == .NODENAME_EXTERNALFILE) {
-		# Load data from external file
-		parsed <- DataSet( # new object out of the data
-			ParseExternalFile(.getChildNode(childNodes, .NODENAME_EXTERNALFILE))
-		)
+	parsed <- NULL
+
+	if (length(childNames) == 1) {
+		if (childNames == .NODENAME_MATRIX) {
+			# Parse Node as a matrix, is returned as a dataframe
+			parsed <- ParseMatrix(.getChildNode(childNodes, .NODENAME_MATRIX))
+		}
+		else if (childNames == .NODENAME_EXTERNALFILE) {
+			# Load data from external file
+			parsed <- DataSet( # new object out of the data
+				ParseExternalFile(.getChildNode(childNodes, .NODENAME_EXTERNALFILE))
+			)
+		}
+		else if (childNames == .NODENAME_DISTRIBUTION) {
+			parsedDSD <- ParseDataSetDistribution(.getChildNode(childNodes, .NODENAME_DISTRIBUTION))
+			parsed <- DataSetDistribution( # new object out of the data
+				parsedDSD$distributionName,
+				parsedDSD$distributionParameters,
+				list(description = parsedDSD$description, data = parsedDSD$data)
+			)
+		}
+		else {
+			warning("Expected Matrix, ExternalFile or Distribution block in ParseElement, but found ",
+				paste(childNames, collapse = " "))
+		}
+	}
+	else if (length(childNames) == 2) {
+		combinedChildNames <- paste(sort(childNames), collapse = "|")
+		if (combinedChildNames == paste(c(.NODENAME_DEFINITION, .NODENAME_EXTERNALFILE), collapse="|")) {
+			# Load data from external file
+			parsed <- DataSet( # new object out of the data
+				ParseDataSetExternalFile(.getChildNode(childNodes, .NODENAME_DEFINITION), .getChildNode(childNodes, .NODENAME_EXTERNALFILE))
+			)
+		}
+		else if (combinedChildNames == paste(c(.NODENAME_DEFINITION, .NODENAME_TABLE), collapse="|")) {
+			# Load data from inline XML
+			parsed <- DataSet( # create new object out of the data
+				ParseDataSetInline(.getChildNode(childNodes, .NODENAME_DEFINITION), .getChildNode(childNodes, .NODENAME_TABLE))
+			)
+		}
+		else {
+		    warning("Expected ExternalFile or Table blocks with Definition in ParseElement, but found ",
+				paste(childNames, collapse = " "))
+		}
 	}
 	else {
-		warning("Expected Matrix or ExternalFile block in ParseElement, but found ",
-			paste(childNames, collapse = " "))
+		warning("Expected 1 or 2 blocks in ParseElement, but found: ", paste(childNames, collapse=", "))
 	}
-  }
-  else if (length(childNames) == 2) {
-	combinedChildNames <- paste(sort(childNames), collapse = "|")
-	if (combinedChildNames == paste(c(.NODENAME_DEFINITION, .NODENAME_EXTERNALFILE), collapse="|")) {
-		# Load data from external file
-		parsed <- DataSet( # new object out of the data
-			ParseDataSetExternalFile(.getChildNode(childNodes, .NODENAME_DEFINITION), .getChildNode(childNodes, .NODENAME_EXTERNALFILE))
-		)
-	}
-	else if (combinedChildNames == paste(c(.NODENAME_DEFINITION, .NODENAME_TABLE), collapse="|")) {
-		# Load data from inline XML
-		parsed <- DataSet( # create new object out of the data
-			ParseDataSetInline(.getChildNode(childNodes, .NODENAME_DEFINITION), .getChildNode(childNodes, .NODENAME_TABLE))
-		)
-	} else {
-	    warning("Expected ExternalFile or Table blocks with Definition in ParseElement, but found ",
-			paste(childNames, collapse = " "))
-	}
-  }
-  else {
-	warning("Expected 1 or 2 blocks in ParseElement, but found: ", paste(childNames, collapse=", "))
-  }
   
   if (is.null(parsed)) {
     stop(paste("Names of child elements not recognised as a parsable object in the SO XML. Element child names are:\n   ", 
@@ -362,31 +373,45 @@ ParseExternalFile <- function(externalFileNode) {
 }
 
 
-#' @title ParseDistribution
+#' @title ParseDataSetDistribution
 #'
-#' @description Parse a distribution element in the PharmML SO strucutre
+#' @description Parse a Distribution element in the PharmML SO structure.
 #' 
-#' @param Node XML object
-#' @return Return a list of two elements: name - the name of the distribution, parameters - 
-#' a list of the parameter values. 
+#' @param xmlNodeDataSetDistribution XML node
+#' @return Returns a list with three named elements:
+#' 			\code{distributionName}, which is the "name" attribute of the nested ProbOnto node;
+#' 			\code{distributionParameters}, which is a named list of the Parameters of the distribution,
+#' 										   the list names being the parameter names and the values in
+#' 										   the list being the parameter values;
+#'			\code{description}, which holds all the meta data about the columns in a data frame;
+#' 			\code{data}, which holds the actual values in a dataframe
+#' 			 
 #' 
-ParseDistribution <- function(Node) {
-	# TODO Rewrite this for SO v0.3
+ParseDataSetDistribution <- function(xmlNodeDataSetDistribution) {
 
-  subChildren <- .getChildNodes(Node)
-  
-  for (subChild in subChildren){
-    
-    if (grepl("distribution", tolower(xmlName(subChild)))) {
-      
-      # Parse the distribution Tag
-      distributionName = xmlName(subChild)
-      parameterList = xmlApply(subChild, xmlValue)
-    
-    }
-  }
-
-  distList <- list(name = distributionName, parameters = parameterList)
-  return(distList)
+	xmlNodeProbOnto <- xmlChildren(xmlNodeDataSetDistribution)[["ProbOnto"]]
+	
+	retval <- list()
+	retval$distributionName <- xmlAttrs(xmlNodeProbOnto)[["name"]]
+	retval$distributionParameters <- list()
+	
+	for (child in .getChildNodes(xmlNodeProbOnto)) {
+		childName <- xmlName(child)
+		switch(childName,
+			"DataSet" = {
+				dataSet <- ParseElement(child)
+				retval$description <- dataSet@description
+				retval$data <- dataSet@data
+			},
+			"Parameter" = {
+				paramName <- xmlAttrs(child)[["name"]]
+				paramValue <- xmlValue(child)
+				retval$distributionParameters[[paramName]] <- paramValue
+			},
+			warning(paste("Unexpected child node of Distribution::ProbOnto nested node encountered:", childName))
+		)
+	}
+	
+	retval
 }
 
