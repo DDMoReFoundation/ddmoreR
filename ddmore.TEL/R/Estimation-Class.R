@@ -126,6 +126,153 @@ setMethod("initialize", "PopulationEstimates", function(.Object, xmlNodePopulati
 	.Object
 })
 
+#' The PrecisionPopulationEstimatesMLE Object Class (S4) 
+#'
+#' An object to house all data associated with the MLE-related data of the
+#' precision of the population estimates.
+#' 
+#' @slot FIM data.frame (Matrix)
+#' @slot CovarianceMatrix data.frame (Matrix)
+#' @slot CorrelationMatrix data.frame (Matrix)
+#' @slot StandardError DataSet object
+#' @slot RelativeStandardError DataSet object
+#' @slot AsymptoticCI DataSet object
+#' @slot ConditionNumber real
+#' 
+#' @name PrecisionPopulationEstimatesMLE-class
+#' @rdname PrecisionPopulationEstimatesMLE-class
+#' @exportClass PrecisionPopulationEstimatesMLE
+#' @aliases PrecisionPopulationEstimatesMLE
+#' @examples
+#' mle <- new(Class = "PrecisionPopulationEstimatesMLE")
+#' print(mle)
+#' validObject(mle)
+#' 
+#' @include xmlParsers.R
+
+setClass(Class = "PrecisionPopulationEstimatesMLE",
+	slots = c("FIM", "CovarianceMatrix", "CorrelationMatrix", "StandardError", 
+            "RelativeStandardError", "AsymptoticCI", "ConditionNumber"),
+	prototype = list(
+		FIM = data.frame(),
+		CovarianceMatrix = data.frame(),
+		CorrelationMatrix = data.frame(),
+		StandardError = DataSet(),
+		RelativeStandardError = DataSet(),
+		AsymptoticCI = DataSet(),
+		ConditionNumber = numeric(0)
+	),
+	validity = function(object) {
+		# TODO implement checking
+		return(TRUE)
+	}
+)
+
+#' Initialisation function / Constructor for PrecisionPopulationEstimatesMLE S4 class
+#' @param .Object new instance of the class
+#' @param xmlNodePrecisionPopEstsMLE XML Node representation of the block
+#' @include xmlParsers.R
+setMethod("initialize", "PrecisionPopulationEstimatesMLE", function(.Object, xmlNodePrecisionPopEstsMLE = NULL) {
+	if (!is.null(xmlNodePrecisionPopEstsMLE)) {
+		.Object <- .genericParseElements(.Object, xmlNodePrecisionPopEstsMLE, customParseChildNodeNames = c("ConditionNumber"))
+		xmlNodeCondNum <- .getChildNode(.getChildNodes(xmlNodePrecisionPopEstsMLE), "ConditionNumber")
+		if (!is.null(xmlNodeCondNum)) {
+			.Object@ConditionNumber <- xmlValue(xmlNodeCondNum)
+		}
+	}
+	.Object
+})
+
+#' The PrecisionPopulationEstimatesBayesian Object Class (S4) 
+#'
+#' An object to house all data associated with the Bayesian-related data of the
+#' precision of the population estimates.
+#' 
+#' @slot StandardDeviation DataSet
+#' @slot PosteriorDistribution DataSet or DataSetDistribution object
+#' @slot PercentilesCI DataSet
+#' 
+#' @name PrecisionPopulationEstimatesBayesian-class
+#' @rdname PrecisionPopulationEstimatesBayesian-class
+#' @exportClass PrecisionPopulationEstimatesBayesian
+#' @aliases PrecisionPopulationEstimatesBayesian
+#' @examples
+#' bayes <- new(Class = "PrecisionPopulationEstimatesBayesian")
+#' print(bayes)
+#' validObject(bayes)
+#' 
+#' @include xmlParsers.R
+
+setClass(Class = "PrecisionPopulationEstimatesBayesian",
+	slots = c("StandardDeviation", "PosteriorDistribution", "PercentilesCI"),
+	prototype = list(
+		StandardDeviation = DataSet(),
+		PosteriorDistribution = DataSet(),
+		PercentilesCI = DataSet()
+	),
+	validity = function(object) {
+		# TODO implement checking
+		return(TRUE)
+	}
+)
+
+#' Initialisation function / Constructor for PrecisionPopulationEstimatesBayesian S4 class
+#' @param .Object new instance of the class
+#' @param xmlNodePrecisionPopEstsBayesian XML Node representation of the block
+#' @include xmlParsers.R
+setMethod("initialize", "PrecisionPopulationEstimatesBayesian", function(.Object, xmlNodePrecisionPopEstsBayesian = NULL) {
+	.genericParseElements(.Object, xmlNodePrecisionPopEstsBayesian)
+})
+
+#' The PrecisionPopulationEstimatesOtherMethod Object Class (S4) 
+#'
+#' An object to house all data associated with one of the OtherMethod-related
+#' sets of data of the precision of the population estimates.
+#' 
+#' @slot CovarianceMatrix data.frame (Matrix)
+#' @slot CorrelationMatrix data.frame (Matrix)
+#' @slot StandardDeviation DataSet object
+#' @slot StandardError DataSet object
+#' @slot AsymptoticCI DataSet object
+#' @slot PosteriorDistribution DataSet or DataSetDistribution object
+#' @slot PercentilesCI DataSet object
+#' 
+#' @name PrecisionPopulationEstimatesOtherMethod-class
+#' @rdname PrecisionPopulationEstimatesOtherMethod-class
+#' @exportClass PrecisionPopulationEstimatesOtherMethod
+#' @aliases PrecisionPopulationEstimatesOtherMethod
+#' @examples
+#' om <- new(Class = "PrecisionPopulationEstimatesOtherMethod")
+#' print(om)
+#' validObject(om)
+#' 
+#' @include xmlParsers.R
+
+setClass(Class = "PrecisionPopulationEstimatesOtherMethod",
+	slots = c("CovarianceMatrix", "CorrelationMatrix", "StandardDeviation", "StandardError",
+			  "AsymptoticCI", "PosteriorDistribution", "PercentilesCI"),
+	prototype = list(
+		CovarianceMatrix = data.frame(),
+		CorrelationMatrix = data.frame(),
+		StandardDeviation = DataSet(),
+		StandardError = DataSet(),
+		AsymptoticCI = DataSet(),
+		PosteriorDistribution = DataSet(),
+		PercentilesCI = DataSet()
+	),
+	validity = function(object) {
+		# TODO implement checking
+		return(TRUE)
+	}
+)
+
+#' Initialisation function / Constructor for PrecisionPopulationEstimatesOtherMethod S4 class
+#' @param .Object new instance of the class
+#' @param xmlNodePrecisionPopEstsOtherMethod XML Node representation of the block
+#' @include xmlParsers.R
+setMethod("initialize", "PrecisionPopulationEstimatesOtherMethod", function(.Object, xmlNodePrecisionPopEstsOtherMethod = NULL) {
+	.genericParseElements(.Object, xmlNodePrecisionPopEstsOtherMethod)
+})
 
 #' The PrecisionPopulationEstimates Object Class (S4) 
 #'
@@ -147,33 +294,13 @@ setMethod("initialize", "PopulationEstimates", function(.Object, xmlNodePopulati
 
 setClass(Class = "PrecisionPopulationEstimates",
     slots = c("MLE", "Bayesian", "OtherMethod"),
-    # TODO implement nested classes
     prototype = list(
-        # FIM, CovarianceMatrix, CorrelationMatrix, StandardError, 
-        # RelativeStandardError, AsymptoticCI, ConditionNumber
-        MLE = list(), 
-        # StandardDeviation, PosteriorDistribution, PercentilesCI
-        Bayesian = list(),
-    	# CovarianceMatrix, CorrelationMatrix, StandardDeviation, StandardError,
-		# AsymptoticCI, PosteriorDistribution, PercentilesCI
-        OtherMethod = list()), # list of lists since can have multiple OtherMethod blks
-	# TODO implement checking
+        MLE = new (Class = "PrecisionPopulationEstimatesMLE"), 
+        Bayesian = new (Class = "PrecisionPopulationEstimatesBayesian"),
+        OtherMethod = list() # list of OtherMethod objects since can have multiple such blocks
+	),
     validity = function(object) {
-        if (length(object@MLE) > 0L) {
-            stopifnot(all(names(object@MLE) %in% c(
-                "FIM", "CovarianceMatrix", "CorrelationMatrix", "StandardError", 
-                "RelativeStandardError", "AsymptoticCI", "ConditionNumber")))
-        }
-        if (length(object@Bayesian) > 0L) {
-            stopifnot(all(names(object@Bayesian) %in% c(
-                "StandardDeviation", "PosteriorDistribution", "PercentilesCI")))
-        }
-		# TODO OtherMethod is a list of lists, rework this appropriately
-#		if (length(object@OtherMethod) > 0L) {
-#			stopifnot(all(names(object@OtherMethod) %in% c(
-#				"CovarianceMatrix", "CorrelationMatrix", "StandardDeviation", "StandardError",
-#				"AsymptoticCI", "PosteriorDistribution", "PercentilesCI")))
-#		}
+		# TODO implement this checking
         return(TRUE)
 	}
 )
@@ -185,65 +312,17 @@ setMethod("initialize", "PrecisionPopulationEstimates", function(.Object, xmlNod
 			childName <- xmlName(child)
 			switch(childName,
 				"MLE" = {
-	        		for (mleChild in .getChildNodes(child)) {
-						mleChildName <- xmlName(mleChild)
-						if (mleChildName %in% c("FIM", "CovarianceMatrix", "CorrelationMatrix")) {
-							# Matrix expected - TODO call specific function ?
-							.Object@MLE[[mleChildName]] <- ParseElement(mleChild)
-						}
-						else if (mleChildName %in% c("StandardError", "RelativeStandardError", "AsymptoticCI")) {
-							# Table expected - TODO call specific function ?
-							.Object@MLE[[mleChildName]] <- ParseElement(mleChild)
-						}
-						else if (mleChildName %in% c("ConditionNumber")) {
-							.Object@MLE[[mleChildName]] <- xmlValue(mleChild)
-						}
-						else {
-							warning(paste("Unexpected child node of PrecisionPopulationEstimates::MLE node encountered: ", mleChildName))
-						}
-					}
+					.Object@MLE <- new (Class = "PrecisionPopulationEstimatesMLE", child)
 				},
 				"Bayesian" = {
-					for (bayesianChild in .getChildNodes(child)) {
-						bayesianChildName <- xmlName(bayesianChild)
-						if (bayesianChildName %in% c("StandardDeviation", "PercentilesCI")) {
-							# Table expected - TODO call specific function ?
-							.Object@Bayesian[[bayesianChildName]] <- ParseElement(bayesianChild)
-						}
-						else if (bayesianChildName %in% c("PosteriorDistribution")) {
-							# Table _or Sample_ expected - TODO call specific function ?
-							.Object@Bayesian[[bayesianChildName]] <- ParseElement(bayesianChild)
-						}
-						else {
-							warning(paste("Unexpected child node of PrecisionPopulationEstimates::Bayesian node encountered: ", bayesianChildName))
-						}
-					}
+					.Object@Bayesian <- new (Class = "PrecisionPopulationEstimatesBayesian", child)
 				},
 				"OtherMethod" = {
 					method <- xmlAttrs(child)[["method"]]
 					if (is.null(method)) {
                 		warning("Attribute \"method\" expected on PrecisionPopulationEstimates::OtherMethod sub-block (since v0.3)")
 					}
-					otherMethodChildNodes <- .getChildNodes(child)
-                	# Parse XML DataSet Structure and update SO
-					.Object@OtherMethod[[method]] <- list()
-					for (otherMethodChildName in names(otherMethodChildNodes)) {
-						if (otherMethodChildName %in% c("CovarianceMatrix", "CorrelationMatrix")) {
-							# Matrix expected - TODO call specific function ?
-							.Object@OtherMethod[[method]][[otherMethodChildName]] <- ParseElement(otherMethodChildNodes[[otherMethodChildName]])
-						}
-						else if (otherMethodChildName %in% c("StandardDeviation", "StandardError", "AsymptoticCI", "PercentilesCI")) {
-							# Table expected - TODO call specific function ?
-							.Object@OtherMethod[[method]][[otherMethodChildName]] <- ParseElement(otherMethodChildNodes[[otherMethodChildName]])
-						}
-						else if (otherMethodChildName %in% c("PosteriorDistribution")) {
-							# Table _or Sample_ expected - TODO call specific function ?
-							.Object@OtherMethod[[method]][[otherMethodChildName]] <- ParseElement(otherMethodChildNodes[[otherMethodChildName]])
-						}
-						else {
-							warning(paste("Unexpected child node of PrecisionPopulationEstimates::OtherMethod node encountered: ", otherMethodChildName))
-						}
-					}
+					.Object@OtherMethod[[method]] <- new (Class = "PrecisionPopulationEstimatesOtherMethod", child)
 				},
 				warning(paste("Unexpected child node of PrecisionPopulationEstimates node encountered: ", childName))
 			)
@@ -252,7 +331,7 @@ setMethod("initialize", "PrecisionPopulationEstimates", function(.Object, xmlNod
 
 	.Object
 })
-				
+
 
 #' The IndividualEstimates Object Class (S4) 
 #'
