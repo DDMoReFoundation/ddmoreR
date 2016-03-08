@@ -37,6 +37,10 @@ setClass("RawResults",
 	}
 )
 
+#' Initialisation function / Constructor for RawResults S4 class
+#' @param .Object new instance of the class
+#' @param xmlNodeRawResults XML Node representation of the block
+#' @include xmlParsers.R
 setMethod("initialize", "RawResults", function(.Object, xmlNodeRawResults = NULL) {
 	
 	if (!is.null(xmlNodeRawResults)) {
@@ -51,7 +55,7 @@ setMethod("initialize", "RawResults", function(.Object, xmlNodeRawResults = NULL
 			childTags = xmlSApply(childNode, xmlValue)
 			
 			# Add this as an element to the Final Files List 
-			if (fileType == .NODENAME_DATAFILE) {
+			if (fileType == "DataFile") {
 				if (.NODENAME_EXTERNALFILE %in% names(.getChildNodes(childNode))) {
 					externalFileNode <- .getChildNodes(childNode)[[.NODENAME_EXTERNALFILE]]
 					objectId <- xmlAttrs(externalFileNode)[['oid']] # objectId is on nested ExternalFile node instead of on the DataFile node itself as for GraphicsFile
@@ -59,7 +63,7 @@ setMethod("initialize", "RawResults", function(.Object, xmlNodeRawResults = NULL
 				} else {
 					.Object@DataFiles[objectId] <- list(as.list(childTags))
 				}
-			} else if (fileType == .NODENAME_GRAPHICSFILE) {
+			} else if (fileType == "GraphicsFile") {
 				.Object@GraphicsFiles[objectId] <- list(as.list(childTags))
 			} else {
 				warning(paste("Unexpected child node", fileType, "encountered on RawResults node, expected: DataFile, GraphicsFile"))
