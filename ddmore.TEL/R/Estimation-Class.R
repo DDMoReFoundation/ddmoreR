@@ -1,11 +1,89 @@
 
+#' The PopulationEstimatesBayesian Object Class (S4) 
+#'
+#' An object to house all data associated with the Bayesian-related data of the population estimates.
+#' 
+#' @slot PosteriorMean DataSet object
+#' @slot PosteriorMedian DataSet object
+#' @slot PosteriorMode DataSet object
+#' 
+#' @name PopulationEstimatesBayesian-class
+#' @rdname PopulationEstimatesBayesian-class
+#' @exportClass PopulationEstimatesBayesian
+#' @aliases PopulationEstimatesBayesian
+#' @examples
+#' bayes <- new(Class = "PopulationEstimatesBayesian")
+#' print(bayes)
+#' validObject(bayes)
+#' 
+#' @include xmlParsers.R
+
+setClass(Class = "PopulationEstimatesBayesian",
+	slots = c("PosteriorMean", "PosteriorMedian", "PosteriorMode"),
+	prototype = list(
+		PosteriorMean = DataSet(),
+		PosteriorMedian = DataSet(),
+		PosteriorMode = DataSet()
+	),
+	validity = function(object) {
+		# TODO implement checking
+		return(TRUE)
+	}
+)
+
+#' Initialisation function / Constructor for PopulationEstimatesBayesian S4 class
+#' @param .Object new instance of the class
+#' @param xmlNodePopulationEstimatesBayesian XML Node representation of the block
+#' @include xmlParsers.R
+setMethod("initialize", "PopulationEstimatesBayesian", function(.Object, xmlNodePopulationEstimatesBayesian = NULL) {
+	.genericParseElements(.Object, xmlNodePopulationEstimatesBayesian)
+})
+
+#' The PopulationEstimatesOtherMethod Object Class (S4) 
+#'
+#' An object to house all data associated with a set of OtherMethod-related data of the population estimates.
+#' 
+#' @slot Mean DataSet object
+#' @slot Median DataSet object
+#' 
+#' @name PopulationEstimatesOtherMethod-class
+#' @rdname PopulationEstimatesOtherMethod-class
+#' @exportClass PopulationEstimatesOtherMethod
+#' @aliases PopulationEstimatesOtherMethod
+#' @examples
+#' om <- new(Class = "PopulationEstimatesOtherMethod")
+#' print(om)
+#' validObject(om)
+#' 
+#' @include xmlParsers.R
+
+setClass(Class = "PopulationEstimatesOtherMethod",
+	slots = c("Mean", "Median"),
+	prototype = list(
+		Mean = DataSet(),
+		Median = DataSet()
+	),
+	validity = function(object) {
+		# TODO implement checking
+		return(TRUE)
+	}
+)
+
+#' Initialisation function / Constructor for PopulationEstimatesOtherMethod S4 class
+#' @param .Object new instance of the class
+#' @param xmlNodePopulationEstimatesOtherMethod XML Node representation of the block
+#' @include xmlParsers.R
+setMethod("initialize", "PopulationEstimatesOtherMethod", function(.Object, xmlNodePopulationEstimatesOtherMethod = NULL) {
+	.genericParseElements(.Object, xmlNodePopulationEstimatesOtherMethod)
+})
+
 #' The PopulationEstimates Object Class (S4) 
 #'
-#' An object to house all data associated with population stimates
+#' An object to house all data associated with population estimates.
 #' 
-#' @slot MLE object DataSet
-#' @slot Bayesian object data.frame
-#' @slot OtherMethod object list
+#' @slot MLE DataSet object
+#' @slot Bayesian \linkS4class{PopulationEstimatesBayesian} object
+#' @slot OtherMethod list of \linkS4class{PopulationEstimatesBayesian} objects
 #' 
 #' @name PopulationEstimates-class
 #' @rdname PopulationEstimates-class
@@ -54,29 +132,18 @@
 #ddmore:::ParseElement(node = popEstMLE[["MLE"]])
 
 setClass(Class = "PopulationEstimates",
-	# TODO BayesianXXX to be split out into nested class
-    slots = c("MLE", "BayesianPosteriorMean", "BayesianPosteriorMedian", "BayesianPosteriorMode", "OtherMethod"), 
+    slots = c("MLE", "Bayesian", "OtherMethod"), 
     prototype = list(
-        # Placeholder for MLE population estimates
-        MLE = DataSet(), 
-        # Placeholder for Bayesian population estimates.
-        #Bayesian = data.frame(
-        #    PosteriorMean = numeric(0), 
-        #    PosteriorMedian = numeric(0),
-        #    PosteriorMode = numeric(0)
-        #    ),
-		BayesianPosteriorMean = DataSet(),
-		BayesianPosteriorMedian = DataSet(),
-		BayesianPosteriorMode = DataSet(),
-        # Placeholder for Bootstrap population estimates.
-        OtherMethod = list()), # List of DataSet
-	# TODO implement checking
+        MLE = DataSet(),
+        Bayesian = new (Class = "PopulationEstimatesBayesian"),
+        OtherMethod = list() # of PopulationEstimatesOtherMethod objects
+	),
     validity = function(object) {
-        #stopifnot(is.data.frame(object@MLE))
-        #stopifnot(is.data.frame(object@Bayesian))
+		# TODO implement checking
         #stopifnot(is.list(object@OtherMethod))
         return(TRUE)
-})
+	}
+)
 
 setMethod("initialize", "PopulationEstimates", function(.Object, xmlNodePopulationEstimates = NULL) {
 	
@@ -88,35 +155,14 @@ setMethod("initialize", "PopulationEstimates", function(.Object, xmlNodePopulati
 					.Object@MLE <- ParseElement(child)
 				},
 				"Bayesian" = {
-					# Fetch sub-children of Node
-			        bayesianChildren <- .getChildNodes(child)
-			        # Parse XML DataSet Structure and update SO
-					for (bayesianChildName in names(bayesianChildren)) {
-			            if (bayesianChildName %in% c("PosteriorMean", "PosteriorMedian", "PosteriorMode")) {
-							# Dynamically update the appropriate slot
-							slot(.Object, paste0("Bayesian", bayesianChildName)) <- ParseElement(bayesianChildren[[bayesianChildName]])
-			            }
-						else {
-							warning(paste("Unexpected child node of PopulationEstimates::Bayesian node encountered: ", bayesianChildName))
-						}
-			        }
+					.Object@Bayesian <- new (Class = "PopulationEstimatesBayesian", child)
 				},
 				"OtherMethod" = {
 					method <- xmlAttrs(child)[["method"]]
 					if (is.null(method)) {
-                		warning("Attribute \"method\" expected on PopulationEstimates::OtherMethod sub-block (since v0.3)")
+                		stop("Attribute \"method\" required on PopulationEstimates::OtherMethod sub-block (since v0.3)")
 					}
-					otherMethodChildNodes <- .getChildNodes(child)
-                	# Parse XML DataSet Structure and update SO
-					.Object@OtherMethod[[method]] <- list()
-					for (otherMethodChildName in names(otherMethodChildNodes)) {
-						if (otherMethodChildName %in% c("Mean", "Median")) {
-							.Object@OtherMethod[[method]][[otherMethodChildName]] <- ParseElement(otherMethodChildNodes[[otherMethodChildName]])
-						}
-						else {
-							warning(paste("Unexpected child node of PopulationEstimates::OtherMethod node encountered: ", otherMethodChildName))
-						}
-					}
+					.Object@OtherMethod[[method]] <- new (Class = "PopulationEstimatesOtherMethod", child)
 				},
 				warning(paste("Unexpected child node of PopulationEstimates node encountered: ", childName))
 			)
@@ -319,7 +365,7 @@ setMethod("initialize", "PrecisionPopulationEstimates", function(.Object, xmlNod
 				"OtherMethod" = {
 					method <- xmlAttrs(child)[["method"]]
 					if (is.null(method)) {
-                		warning("Attribute \"method\" expected on PrecisionPopulationEstimates::OtherMethod sub-block (since v0.3)")
+                		stop("Attribute \"method\" required on PrecisionPopulationEstimates::OtherMethod sub-block (since v0.3)")
 					}
 					.Object@OtherMethod[[method]] <- new (Class = "PrecisionPopulationEstimatesOtherMethod", child)
 				},
@@ -571,7 +617,6 @@ setClass(Class = "OFMeasures",
         Deviance = numeric(0), 
         ToolObjFunction = numeric(0), 
         IndividualContribToLL = DataSet(), 
-        # TODO update to InformationCriteria
         InformationCriteria = list(AIC = numeric(0), BIC = numeric(0), DIC = numeric(0))
 	),
     validity = function(object) { 
