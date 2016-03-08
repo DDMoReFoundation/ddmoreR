@@ -1,7 +1,7 @@
 
 #' The SimulationBlock Object Class (S4) 
 #'
-#' An object to house all data associated with a Simulation Block
+#' An object to house all data associated with a Simulation Block.
 #' 
 #' @slot replicate integer
 #' @slot SimulatedProfiles list of SimulatedProfiles objects
@@ -28,17 +28,16 @@ setClass(Class = "SimulationBlock",
 	slots = c(
 		"replicate", "SimulatedProfiles", "IndivParameters", "RandomEffects",
 		"Covariates", "Regressors", "PopulationParameters", "Dosing", "RawResultsFile"),
-	# TODO implement nested classes
 	prototype = list(
-			replicate = integer(0),
-			SimulatedProfiles = list(),
-			IndivParameters = DataSet(),
-			RandomEffects = DataSet(),
-			Covariates = DataSet(),
-			Regressors = DataSet(),
-			PopulationParameters = DataSet(),
-			Dosing = DataSet(),
-			RawResultsFile = character(0)),
+		replicate = integer(0),
+		SimulatedProfiles = list(), # of SimulatedProfiles objects
+		IndivParameters = DataSet(),
+		RandomEffects = DataSet(),
+		Covariates = DataSet(),
+		Regressors = DataSet(),
+		PopulationParameters = DataSet(),
+		Dosing = DataSet(),
+		RawResultsFile = character(0)),
 	validity = function(object) {
 		# TODO implement checking
     	return(TRUE)
@@ -75,11 +74,12 @@ setMethod("initialize", "SimulationBlock", function(.Object, xmlNodeSimulationBl
 
 #' The SimulatedProfiles Object Class (S4) 
 #'
-#' An object to house all data associated with Simulation Block Simulated Profiles
+#' An object to house all data associated with Simulation Block Simulated Profiles.
 #' 
 #' @slot name string
 #' @slot extFileNo integer
 #' @slot DataSet DataSet object
+#' 
 #' @name SimulatedProfiles-class
 #' @rdname SimulatedProfiles-class
 #' @exportClass SimulatedProfiles
@@ -92,13 +92,12 @@ setMethod("initialize", "SimulationBlock", function(.Object, xmlNodeSimulationBl
 #' @include xmlParsers.R
 
 setClass(Class = "SimulatedProfiles",
-	slots = c(
-			"name", "extFileNo", "DataSet"),
-	# TODO implement nested classes
+	slots = c("name", "extFileNo", "DataSet"),
 	prototype = list(
-			name = character(0),
-			extFileNo = integer(0),
-			DataSet = DataSet()),
+		name = character(0),
+		extFileNo = integer(0),
+		DataSet = DataSet()
+	),
 	validity = function(object) {
 		# TODO implement checking
 		return(TRUE)
@@ -123,5 +122,4 @@ setMethod("initialize", "SimulatedProfiles", function(.Object, xmlNodeSimulatedP
 	
 	.Object
 })
-
 

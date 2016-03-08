@@ -2,7 +2,7 @@
 
 #' The DiagnosticStructuralModel Object Class (S4) 
 #'
-#' An object to house all data associated with Diagnostic Structural Model
+#' An object to house all data associated with Diagnostic Structural Model.
 #' 
 #' @slot IndivObservationPrediction DataSet object
 #' @slot VPC DataSet object
@@ -21,8 +21,9 @@
 setClass(Class = "DiagnosticStructuralModel",
 	slots = c("IndivObservationPrediction", "VPC"),
 	prototype = list(
-			IndivObservationPrediction = DataSet(),
-			VPC = DataSet()),
+		IndivObservationPrediction = DataSet(),
+		VPC = DataSet()
+	),
 	validity = function(object) {
 		# TODO implement checking
 		return(TRUE)
@@ -40,11 +41,11 @@ setMethod("initialize", "DiagnosticStructuralModel", function(.Object, xmlNodeDi
 
 #' The DiagnosticIndividualParams Object Class (S4) 
 #'
-#' An object to house all data associated with Diagnostic Individual Parameters
+#' An object to house all data associated with Diagnostic Individual Parameters.
 #' 
 #' @slot RandomEffects DataSet object
 #' @slot IndivParamsCovariates DataSet object
-#' @slot DistributionIndivParams TODO Sample _or_ Table
+#' @slot DistributionIndivParams DataSet or DataSetDistribution object
 #' 
 #' @name DiagnosticIndividualParams-class
 #' @rdname DiagnosticIndividualParams-class
@@ -60,9 +61,10 @@ setMethod("initialize", "DiagnosticStructuralModel", function(.Object, xmlNodeDi
 setClass(Class = "DiagnosticIndividualParams",
 	slots = c("RandomEffects", "IndivParamsCovariates", "DistributionIndivParams"),
 	prototype = list(
-			RandomEffects = DataSet(),
-			IndivParamsCovariates = DataSet(),
-			DistributionIndivParams = DataSet()), # TODO Sample _or_ Table
+		RandomEffects = DataSet(),
+		IndivParamsCovariates = DataSet(),
+		DistributionIndivParams = DataSet()
+	),
 	validity = function(object) {
 		# TODO implement checking
 		return(TRUE)
@@ -80,7 +82,7 @@ setMethod("initialize", "DiagnosticIndividualParams", function(.Object, xmlNodeD
 
 #' The ModelDiagnostic Object Class (S4) 
 #'
-#' An object to house all data associated with Model Diagnostic
+#' An object to house all data associated with Model Diagnostic.
 #' 
 #' @slot DiagnosticStructuralModel object
 #' @slot DiagnosticIndividualParams object
@@ -99,8 +101,8 @@ setMethod("initialize", "DiagnosticIndividualParams", function(.Object, xmlNodeD
 setClass(Class = "ModelDiagnostic",
 	slots = c("DiagnosticStructuralModel", "DiagnosticIndividualParams"),
 	prototype = list(
-			DiagnosticStructuralModel = new (Class="DiagnosticStructuralModel"),
-			DiagnosticIndividualParams = new (Class="DiagnosticIndividualParams")),
+		DiagnosticStructuralModel = new (Class = "DiagnosticStructuralModel"),
+		DiagnosticIndividualParams = new (Class = "DiagnosticIndividualParams")),
 	validity = function(object) {
 		# TODO implement checking
 		return(TRUE)

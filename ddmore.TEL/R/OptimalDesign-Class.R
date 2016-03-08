@@ -1,7 +1,7 @@
 
 #' The OptimalDesignBlock Object Class (S4) 
 #'
-#' An object to house all data associated with Optimal Design
+#' An object to house all data associated with Optimal Design.
 #' 
 #' @slot type string
 #' @slot blockNumber integer
@@ -26,20 +26,20 @@
 
 setClass(Class = "OptimalDesignBlock",
 	slots = c( #"type", - on parent OptimalDesign node
-			"blockNumber",
-			"FIM", "CovarianceMatrix",
-			"ParameterPrecision", "Criteria", "Tests",
-			"SimulatedData", "Design"),
+		"blockNumber",
+		"FIM", "CovarianceMatrix",
+		"ParameterPrecision", "Criteria", "Tests",
+		"SimulatedData", "Design"),
 	prototype = list(
-			#type = character(0), - on parent OptimalDesign node
-			blockNumber = integer(0),
-			FIM = data.frame(), # matrix
-			CovarianceMatrix = data.frame(), # matrix
-			ParameterPrecision = DataSet(),
-			Criteria = DataSet(),
-			Tests = DataSet(),
-			SimulatedData = character(0),
-			Design = character(0)),
+		#type = character(0), - on parent OptimalDesign node
+		blockNumber = integer(0),
+		FIM = data.frame(), # matrix
+		CovarianceMatrix = data.frame(), # matrix
+		ParameterPrecision = DataSet(),
+		Criteria = DataSet(),
+		Tests = DataSet(),
+		SimulatedData = character(0),
+		Design = character(0)),
 	validity = function(object) {
 		# TODO implement checking
 		return(TRUE)

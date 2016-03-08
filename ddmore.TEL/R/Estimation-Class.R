@@ -145,6 +145,10 @@ setClass(Class = "PopulationEstimates",
 	}
 )
 
+#' Initialisation function / Constructor for PopulationEstimates S4 class
+#' @param .Object new instance of the class
+#' @param xmlNodePopulationEstimates XML Node representation of the block
+#' @include xmlParsers.R
 setMethod("initialize", "PopulationEstimates", function(.Object, xmlNodePopulationEstimates = NULL) {
 	
 	if (!is.null(xmlNodePopulationEstimates)) {
@@ -350,6 +354,10 @@ setClass(Class = "PrecisionPopulationEstimates",
 	}
 )
 
+#' Initialisation function / Constructor for PrecisionPopulationEstimates S4 class
+#' @param .Object new instance of the class
+#' @param xmlNodePrecisionPopulationEstimates XML Node representation of the block
+#' @include xmlParsers.R
 setMethod("initialize", "PrecisionPopulationEstimates", function(.Object, xmlNodePrecisionPopulationEstimates = NULL) {
 	
 	if (!is.null(xmlNodePrecisionPopulationEstimates)) {
@@ -490,6 +498,10 @@ setClass(Class = "IndividualEstimates",
 	}
 )
 
+#' Initialisation function / Constructor for IndividualEstimates S4 class
+#' @param .Object new instance of the class
+#' @param xmlNodeIndividualEstimates XML Node representation of the block
+#' @include xmlParsers.R
 setMethod("initialize", "IndividualEstimates", function(.Object, xmlNodeIndividualEstimates = NULL) {
 	
 	if (!is.null(xmlNodeIndividualEstimates)) {
@@ -545,6 +557,10 @@ setClass(Class = "PrecisionIndividualEstimates",
 	}
 )
 
+#' Initialisation function / Constructor for PrecisionIndividualEstimates S4 class
+#' @param .Object new instance of the class
+#' @param xmlNodePrecisionIndividualEstimates XML Node representation of the block
+#' @include xmlParsers.R
 setMethod("initialize", "PrecisionIndividualEstimates", function(.Object, xmlNodePrecisionIndividualEstimates = NULL) {
 	.genericParseElements(.Object, xmlNodePrecisionIndividualEstimates)
 })
@@ -552,7 +568,7 @@ setMethod("initialize", "PrecisionIndividualEstimates", function(.Object, xmlNod
 
 #' The Residuals Object Class (S4) 
 #'
-#' An object to house all data associated with the residuals
+#' An object to house all data associated with the residuals.
 #' 
 #' @slot ResidualTable DataSet object
 #' @slot EpsShrinkage DataSet object
@@ -589,7 +605,7 @@ setMethod("initialize", "Residuals", function(.Object, xmlNodeResiduals = NULL) 
 
 #' The OFMeasures Object Class (S4) 
 #'
-#' An object to house all data associated with the objective function measures
+#' An object to house all data associated with the objective function measures.
 #' 
 #' @slot Likelihood real value
 #' @slot LogLikelihood real value
@@ -622,8 +638,13 @@ setClass(Class = "OFMeasures",
     validity = function(object) { 
         # TODO implement checking
         return(TRUE)
-	})
+	}
+)
 
+#' Initialisation function / Constructor for OFMeasures S4 class
+#' @param .Object new instance of the class
+#' @param xmlNodeOFMeasures XML Node representation of the block
+#' @include xmlParsers.R
 setMethod("initialize", "OFMeasures", function(.Object, xmlNodeOFMeasures = NULL) {
 	
 	if (!is.null(xmlNodeOFMeasures)) {
@@ -662,9 +683,6 @@ setMethod("initialize", "OFMeasures", function(.Object, xmlNodeOFMeasures = NULL
 #' An object to house all data associated with population and individual estimates, 
 #' precision, rediduals, predictions, liklihoods and output messages (and error
 #' messages) from individual modeling software. 
-#'
-#' As the input data is not well defined at current, the slots for most of this class
-#' are currently defined as lists for flexibility
 #' 
 #' @slot PopulationEstimates object of class PopulationEstimates
 #' @slot PrecisionPopulationEstimates object of class PrecisionPopulationEstimates
@@ -673,7 +691,7 @@ setMethod("initialize", "OFMeasures", function(.Object, xmlNodeOFMeasures = NULL
 #' @slot Residuals object of class Residuals
 #' @slot Predictions object of class Predictions
 #' @slot OFMeasures object of class OFMeasures
-#' @slot TargetToolMessages object of class TargetToolMessages
+#' @slot TargetToolMessages TODO
 #' 
 #' @name Estimation-class
 #' @rdname Estimation-class
@@ -685,7 +703,6 @@ setMethod("initialize", "OFMeasures", function(.Object, xmlNodeOFMeasures = NULL
 #' validObject(est)
 
 setClass("Estimation", 
-    # Define the slots
     slots = c(
         PopulationEstimates = "PopulationEstimates",
         PrecisionPopulationEstimates = "PrecisionPopulationEstimates",
@@ -694,8 +711,8 @@ setClass("Estimation",
         Residuals = "Residuals",
         Predictions = "DataSet",
         OFMeasures = "OFMeasures",
-        TargetToolMessages = "list"),
-    # Set Default Values to blank lists with names in place
+        TargetToolMessages = "list"
+	),
     prototype = list(
         PopulationEstimates = new (Class = "PopulationEstimates"),
         PrecisionPopulationEstimates = new (Class = "PrecisionPopulationEstimates"),
@@ -705,9 +722,10 @@ setClass("Estimation",
         Predictions = new (Class = "DataSet"),
         OFMeasures = new (Class = "OFMeasures"), 
         # TODO
-        TargetToolMessages = list()),
-    # Validity Checking Function 
+        TargetToolMessages = list()
+	),
     validity = function(object) {
+    	# Validity Checking Function, TODO: enhance this
         stopifnot(validObject(object@PopulationEstimates))
         stopifnot(validObject(object@PrecisionPopulationEstimates))
         stopifnot(validObject(object@IndividualEstimates)) 
@@ -719,6 +737,10 @@ setClass("Estimation",
     }
 )
 
+#' Initialisation function / Constructor for Estimation S4 class
+#' @param .Object new instance of the class
+#' @param xmlNodeEstimation XML Node representation of the block
+#' @include xmlParsers.R
 setMethod("initialize", "Estimation", function(.Object, xmlNodeEstimation = NULL) {
 	# TODO Move the parsing of the node from LoadSOObject.R to here
 	.Object
