@@ -278,9 +278,9 @@ setMethod("initialize", "PrecisionPopulationEstimatesOtherMethod", function(.Obj
 #'
 #' An object to house all data associated with the precision of the population estimates.
 #' 
-#' @slot MLE instance of PrecisionPopulationEstimatesMLE S4 class
-#' @slot Bayesian instance of PrecisionPopulationEstimatesBayesian class
-#' @slot OtherMethod list of instances of PrecisionPopulationEstimatesOtherMethod class
+#' @slot MLE instance of \linkS4class{PrecisionPopulationEstimatesMLE} S4 class
+#' @slot Bayesian instance of \linkS4class{PrecisionPopulationEstimatesBayesian} class
+#' @slot OtherMethod list of instances of \linkS4class{PrecisionPopulationEstimatesOtherMethod} class
 #' 
 #' @name PrecisionPopulationEstimates-class
 #' @rdname PrecisionPopulationEstimates-class
@@ -332,37 +332,117 @@ setMethod("initialize", "PrecisionPopulationEstimates", function(.Object, xmlNod
 })
 
 
+#' The IndividualEstimatesParamEstimates Object Class (S4) 
+#'
+#' An object to house all data associated with the parameter estimates related data
+#' of the individual estimates.
+#' 
+#' @slot Mean DataSet object
+#' @slot Median DataSet object
+#' @slot Mode DataSet object
+#' 
+#' @name IndividualEstimatesParamEstimates-class
+#' @rdname IndividualEstimatesParamEstimates-class
+#' @exportClass IndividualEstimatesParamEstimates
+#' @aliases IndividualEstimatesParamEstimates
+#' @examples
+#' paramEsts <- new(Class = "IndividualEstimatesParamEstimates")
+#' print(paramEsts)
+#' validObject(paramEsts)
+#' 
+#' @include xmlParsers.R
+
+setClass(Class = "IndividualEstimatesParamEstimates",
+	slots = c("Mean", "Median", "Mode"),
+	prototype = list(
+		Mean = DataSet(),
+		Median = DataSet(),
+		Mode = DataSet()
+	),
+	validity = function(object) {
+		# TODO implement checking
+		return(TRUE)
+	}
+)
+
+#' Initialisation function / Constructor for IndividualEstimatesParamEstimates S4 class
+#' @param .Object new instance of the class
+#' @param xmlNodeIndividualEstimatesParamEstimates XML Node representation of the block
+#' @include xmlParsers.R
+setMethod("initialize", "IndividualEstimatesParamEstimates", function(.Object, xmlNodeIndividualEstimatesParamEstimates = NULL) {
+	.genericParseElements(.Object, xmlNodeIndividualEstimatesParamEstimates)
+})
+
+#' The IndividualEstimatesRandomEffects Object Class (S4) 
+#'
+#' An object to house all data associated with the random effects related data
+#' of the individual estimates.
+#' 
+#' @slot EffectMean DataSet object
+#' @slot EffectMedian DataSet object
+#' @slot EffectMode DataSet object
+#' 
+#' @name IndividualEstimatesRandomEffects-class
+#' @rdname IndividualEstimatesRandomEffects-class
+#' @exportClass IndividualEstimatesRandomEffects
+#' @aliases IndividualEstimatesRandomEffects
+#' @examples
+#' ranEffs <- new(Class = "IndividualEstimatesRandomEffects")
+#' print(ranEffs)
+#' validObject(ranEffs)
+#' 
+#' @include xmlParsers.R
+
+setClass(Class = "IndividualEstimatesRandomEffects",
+	slots = c("EffectMean", "EffectMedian", "EffectMode"),
+	prototype = list(
+		EffectMean = DataSet(),
+		EffectMedian = DataSet(),
+		EffectMode = DataSet()
+	),
+	validity = function(object) {
+		# TODO implement checking
+		return(TRUE)
+	}
+)
+
+#' Initialisation function / Constructor for IndividualEstimatesRandomEffects S4 class
+#' @param .Object new instance of the class
+#' @param xmlNodeIndividualEstimatesRandomEffects XML Node representation of the block
+#' @include xmlParsers.R
+setMethod("initialize", "IndividualEstimatesRandomEffects", function(.Object, xmlNodeIndividualEstimatesRandomEffects = NULL) {
+	.genericParseElements(.Object, xmlNodeIndividualEstimatesRandomEffects)
+})
+
 #' The IndividualEstimates Object Class (S4) 
 #'
-#' An object to house all data associated with the individual
-#' estimates
+#' An object to house all data associated with the individual estimates.
 #' 
-#' @slot Estimates object list
-#' @slot Bayesian object list
-#' @slot OtherMethod object list
+#' @slot Estimates instance of \linkS4class{IndividualEstimatesParamEstimates} S4 class
+#' @slot RandomEffects instance of \linkS4class{IndividualEstimatesRandomEffects} S4 class
+#' @slot EtaShrinkage DataSet object
 #' 
 #' @name IndividualEstimates-class
 #' @rdname IndividualEstimates-class
 #' @exportClass IndividualEstimates
 #' @aliases IndividualEstimates
 #' @examples
-#' est <- new(Class = "IndividualEstimates")
-#' print(est)
-#' validObject(est)
+#' indivEst <- new(Class = "IndividualEstimates")
+#' print(indivEst)
+#' validObject(indivEst)
 
 setClass(Class = "IndividualEstimates",
     slots = c("Estimates", "RandomEffects", "EtaShrinkage"), 
-    prototype = list(Estimates = list(
-            Mean = DataSet(), 
-            Median = DataSet(), 
-            Mode = DataSet()), 
-        RandomEffects = list(
-            EffectMean = DataSet(), 
-            EffectMedian = DataSet(), 
-            EffectMode = DataSet()), 
-        EtaShrinkage = DataSet()),
-	# TODO implement checking
-    validity = function(object) { return(TRUE) })
+    prototype = list(
+		Estimates = new (Class = "IndividualEstimatesParamEstimates"),
+        RandomEffects = new (Class = "IndividualEstimatesRandomEffects"),
+        EtaShrinkage = DataSet()
+	),
+    validity = function(object) {
+		# TODO implement checking
+		return(TRUE)
+	}
+)
 
 setMethod("initialize", "IndividualEstimates", function(.Object, xmlNodeIndividualEstimates = NULL) {
 	
@@ -371,26 +451,10 @@ setMethod("initialize", "IndividualEstimates", function(.Object, xmlNodeIndividu
 			childName <- xmlName(child)
 			switch(childName,
 				"Estimates" = {
-					for (randomEffectsChild in .getChildNodes(child)) {
-						randomEffectsChildName <- xmlName(randomEffectsChild)
-						if (randomEffectsChildName %in% c("Mean", "Median", "Mode")) {
-							# Table expected - TODO call specific function ?
-							.Object@Estimates[[randomEffectsChildName]] <- ParseElement(randomEffectsChild)
-						} else {
-							warning(paste("Unexpected child node of IndividualEstimates::Estimates node encountered: ", randomEffectsChildName))
-						}
-					}
-				},
+					.Object@Estimates <- new (Class = "IndividualEstimatesParamEstimates", child)
+    			},
 				"RandomEffects" = {
-					for (randomEffectsChild in .getChildNodes(child)) {
-						randomEffectsChildName <- xmlName(randomEffectsChild)
-						if (randomEffectsChildName %in% c("EffectMean", "EffectMedian", "EffectMode")) {
-							# Table expected - TODO call specific function ?
-							.Object@RandomEffects[[randomEffectsChildName]] <- ParseElement(randomEffectsChild)
-						} else {
-							warning(paste("Unexpected child node of IndividualEstimates::Estimates node encountered: ", randomEffectsChildName))
-						}
-					}
+					.Object@RandomEffects <- new (Class = "IndividualEstimatesRandomEffects", child)
 				},
 				"EtaShrinkage" = {
 					# Table expected - TODO call specific function ?
@@ -459,9 +523,14 @@ setMethod("initialize", "PrecisionIndividualEstimates", function(.Object, xmlNod
 setClass(Class = "Residuals",
     slots = c("ResidualTable", "EpsShrinkage"), 
     prototype = list(
-        ResidualTable = DataSet(), EpsShrinkage = DataSet()),
+        ResidualTable = DataSet(),
+		EpsShrinkage = DataSet()
+	),
 	# TODO implement checking
-    validity = function(object) { return(TRUE) })
+    validity = function(object) {
+		return(TRUE)
+	}
+)
 
 #' Initialisation function / Constructor for Residuals S4 class
 #' @param .Object new instance of the class
@@ -476,9 +545,12 @@ setMethod("initialize", "Residuals", function(.Object, xmlNodeResiduals = NULL) 
 #'
 #' An object to house all data associated with the objective function measures
 #' 
-#' @slot Estimates object list
-#' @slot Bayesian object list
-#' @slot OtherMethod object list
+#' @slot Likelihood real value
+#' @slot LogLikelihood real value
+#' @slot Deviance real value
+#' @slot ToolObjFunction real value
+#' @slot IndividualContribToLL DataSet object
+#' @slot InformationCriteria named list of AIC, BIC, DIC real values
 #' 
 #' @name OFMeasures-class
 #' @rdname OFMeasures-class
@@ -491,7 +563,8 @@ setMethod("initialize", "Residuals", function(.Object, xmlNodeResiduals = NULL) 
 
 setClass(Class = "OFMeasures",
     slots = c("Likelihood", "LogLikelihood", "Deviance", 
-        "ToolObjFunction", "IndividualContribToLL", "InformationCriteria"), 
+			  "ToolObjFunction", "IndividualContribToLL",
+			  "InformationCriteria"), 
     prototype = list(
 		Likelihood = numeric(0), 
         LogLikelihood = numeric(0), 
@@ -499,7 +572,8 @@ setClass(Class = "OFMeasures",
         ToolObjFunction = numeric(0), 
         IndividualContribToLL = DataSet(), 
         # TODO update to InformationCriteria
-        InformationCriteria = list(AIC = numeric(0), BIC = numeric(0), DIC = numeric(0))),
+        InformationCriteria = list(AIC = numeric(0), BIC = numeric(0), DIC = numeric(0))
+	),
     validity = function(object) { 
         # TODO implement checking
         return(TRUE)
@@ -536,16 +610,6 @@ setMethod("initialize", "OFMeasures", function(.Object, xmlNodeOFMeasures = NULL
 	.Object
 })
 
-
-
-
-# TODO
-#setClass(Class = "TargetToolMessages",
-#    slots = c(), 
-#    prototype = c(), 
-#    validity = function(object) { return(TRUE) })
-    
-    
 
 ##############################################################################
 #' The Estimation Object Class (S4) 
