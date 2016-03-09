@@ -126,17 +126,24 @@ parseSODataElement <- function(xmlNode) {
 			parsedEF <- parseExternalFile(.getChildNode(childNodes, .NODENAME_EXTERNALFILE))
 			parsed <- new (Class = "DataSet",
 				description = parsedEF$description,
-				data = parsedEF$data
+				data = as.matrix(parsedEF$data)
 			)
 		}
 		else if (childNames == .NODENAME_DISTRIBUTION) {
 			parsedDSD <- parseDataSetDistribution(.getChildNode(childNodes, .NODENAME_DISTRIBUTION))
-			parsed <- new (Class = "DataSetDistribution",
-				distributionName = parsedDSD$distributionName,
-				distributionParameters <- parsedDSD$distributionParameters,
-				description = parsedDSD$description,
-				data = parsedDSD$data
-			)
+			if (!is.null(parsedDSD$data)) {
+				parsed <- new (Class = "DataSetDistribution",
+					distributionName = parsedDSD$distributionName,
+					distributionParameters <- parsedDSD$distributionParameters,
+					description = parsedDSD$description,
+					data = as.matrix(parsedDSD$data)
+				)
+			} else {
+				parsed <- new (Class = "DataSetDistribution",
+					distributionName = parsedDSD$distributionName,
+					distributionParameters <- parsedDSD$distributionParameters
+				)
+			}
 		}
 		else {
 			warning("Expected Matrix, ExternalFile or Distribution block in ParseElement, but found ",
@@ -150,7 +157,7 @@ parseSODataElement <- function(xmlNode) {
 			parsedDSEF <- parseDataSetExternalFile(.getChildNode(childNodes, .NODENAME_DEFINITION), .getChildNode(childNodes, .NODENAME_EXTERNALFILE))
 			parsed <- new (Class = "DataSet",
 				description = parsedDSEF$description,
-				data = parsedDSEF$data
+				data = as.matrix(parsedDSEF$data)
 			)
 		}
 		else if (combinedChildNames == paste(c(.NODENAME_DEFINITION, .NODENAME_TABLE), collapse="|")) {
@@ -158,7 +165,7 @@ parseSODataElement <- function(xmlNode) {
 			parsedDSI <- parseDataSetInline(.getChildNode(childNodes, .NODENAME_DEFINITION), .getChildNode(childNodes, .NODENAME_TABLE))
 			parsed <- new (Class = "DataSet",
 				description = parsedDSI$description,
-				data = parsedDSI$data
+				data = as.matrix(parsedDSI$data)
 			)
 		}
 		else {
@@ -391,7 +398,7 @@ parseExternalFile <- function(externalFileNode) {
 #' 			\code{distributionParameters}, which is a named list of the Parameters of the distribution,
 #' 										   the list names being the parameter names and the values in
 #' 										   the list being the parameter values;
-#'			\code{description}, which holds all the meta data about the columns in a data frame;
+#'			\code{description}, which holds all the meta data about the columns in a dataframe;
 #' 			\code{data}, which holds the actual values in a dataframe
 #' 			 
 #' 

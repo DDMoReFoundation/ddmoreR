@@ -25,21 +25,17 @@
 #' @include StandardOutputObjectXmlParsers.R
 
 setClass(Class = "OptimalDesignBlock",
-	slots = c( #"type", - on parent OptimalDesign node
-		"blockNumber",
-		"FIM", "CovarianceMatrix",
-		"ParameterPrecision", "Criteria", "Tests",
-		"SimulatedData", "Design"),
-	prototype = list(
-		#type = character(0), - on parent OptimalDesign node
-		blockNumber = integer(0),
-		FIM = data.frame(), # matrix
-		CovarianceMatrix = data.frame(), # matrix
-		ParameterPrecision = DataSet(),
-		Criteria = DataSet(),
-		Tests = DataSet(),
-		SimulatedData = character(0),
-		Design = character(0)),
+	slots = c(
+		# type = "character", - on parent OptimalDesign node
+		blockNumber = "integer",
+		FIM = "data.frame",
+		CovarianceMatrix = "data.frame",
+		ParameterPrecision = "DataSet",
+		Criteria = "DataSet",
+		Tests = "DataSet",
+		SimulatedData = "character",
+		Design = "character"
+	),
 	validity = function(object) {
 		# TODO implement checking
 		return(TRUE)
@@ -58,8 +54,8 @@ setMethod("initialize", "OptimalDesignBlock", function(.Object, xmlNodeOptimalDe
 		spAttrs <- xmlAttrs(xmlNodeOptimalDesignBlock)
 		# Parse attributes of the OptimalDesignBlock node
 		for (spAttrName in names(spAttrs)) {
-			if (spAttrName %in% c("blockNumber")) {
-				slot(.Object, spAttrName) <- spAttrs[[spAttrName]]
+			if (spAttrName == "blockNumber") {
+				slot(.Object, spAttrName) <- as.integer(spAttrs[[spAttrName]])
 			}
 		}
 		# Custom parsing of child nodes that aren't simply handled by parseSODataElement()

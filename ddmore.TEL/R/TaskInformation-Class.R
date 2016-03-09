@@ -4,10 +4,10 @@
 #' An object to house all data associated with Task Information,
 #' primarily messages emitted by the target tool.
 #' 
-#' @slot ErrorMessages list
-#' @slot WarningMessages list
-#' @slot TerminationMessages list
-#' @slot InfoMessages list
+#' @slot ErrorMessages list of named lists containing attributes Toolname, Name, Content, Severity (integer)
+#' @slot WarningMessages list of named lists containing attributes Toolname, Name, Content, Severity (integer)
+#' @slot TerminationMessages list of named lists containing attributes Toolname, Name, Content, Severity (integer)
+#' @slot InformationMessages list of named lists containing attributes Toolname, Name, Content, Severity (integer)
 #' @slot OutputFilePath string
 #' @slot RunTime real
 #' @slot NumberChains integer
@@ -26,17 +26,15 @@
 #' @include utils.R
 
 setClass(Class = "TaskInformation",
-	slots = c("ErrorMessages", "WarningMessages", "TerminationMessages", "InformationMessages",
-			  "OutputFilePath", "RunTime", "NumberChains", "NumberIterations"),
-	prototype = list(
-		ErrorMessages = list(),
-		WarningMessages = list(),
-		TerminationMessages = list(),
-		InformationMessages = list(),
-		OutputFilePath = character(0),
-		RunTime = numeric(0),
-		NumberChains = integer(0),
-		NumberIterations = integer(0)
+	slots = c(
+		ErrorMessages = "list",
+		WarningMessages = "list",
+		TerminationMessages = "list",
+		InformationMessages = "list",
+		OutputFilePath = "character",
+		RunTime = "numeric",
+		NumberChains = "integer",
+		NumberIterations = "integer"
 	),
 	validity = function(object) {
 		# TODO implement checking

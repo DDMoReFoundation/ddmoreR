@@ -19,10 +19,9 @@
 #' @include StandardOutputObjectXmlParsers.R
 
 setClass(Class = "DiagnosticStructuralModel",
-	slots = c("IndivObservationPrediction", "VPC"),
-	prototype = list(
-		IndivObservationPrediction = DataSet(),
-		VPC = DataSet()
+	slots = c(
+		IndivObservationPrediction = "DataSet",
+		VPC = "DataSet"
 	),
 	validity = function(object) {
 		# TODO implement checking
@@ -59,11 +58,10 @@ setMethod("initialize", "DiagnosticStructuralModel", function(.Object, xmlNodeDi
 #' @include StandardOutputObjectXmlParsers.R
 
 setClass(Class = "DiagnosticIndividualParams",
-	slots = c("RandomEffects", "IndivParamsCovariates", "DistributionIndivParams"),
-	prototype = list(
-		RandomEffects = DataSet(),
-		IndivParamsCovariates = DataSet(),
-		DistributionIndivParams = DataSet()
+	slots = c(
+		RandomEffects = "DataSet",
+		IndivParamsCovariates = "DataSet",
+		DistributionIndivParams = "DataSet" # or DataSetDistribution
 	),
 	validity = function(object) {
 		# TODO implement checking
@@ -99,10 +97,10 @@ setMethod("initialize", "DiagnosticIndividualParams", function(.Object, xmlNodeD
 #' @include StandardOutputObjectXmlParsers.R
 
 setClass(Class = "ModelDiagnostic",
-	slots = c("DiagnosticStructuralModel", "DiagnosticIndividualParams"),
-	prototype = list(
-		DiagnosticStructuralModel = new (Class = "DiagnosticStructuralModel"),
-		DiagnosticIndividualParams = new (Class = "DiagnosticIndividualParams")),
+	slots = c(
+		DiagnosticStructuralModel = "DiagnosticStructuralModel",
+		DiagnosticIndividualParams = "DiagnosticIndividualParams"
+	),
 	validity = function(object) {
 		# TODO implement checking
 		return(TRUE)

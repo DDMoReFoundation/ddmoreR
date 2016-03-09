@@ -19,11 +19,10 @@
 #' @include StandardOutputObjectXmlParsers.R
 
 setClass(Class = "PopulationEstimatesBayesian",
-	slots = c("PosteriorMean", "PosteriorMedian", "PosteriorMode"),
-	prototype = list(
-		PosteriorMean = DataSet(),
-		PosteriorMedian = DataSet(),
-		PosteriorMode = DataSet()
+	slots = c(
+		PosteriorMean = "DataSet",
+		PosteriorMedian = "DataSet",
+		PosteriorMode = "DataSet"
 	),
 	validity = function(object) {
 		# TODO implement checking
@@ -58,10 +57,9 @@ setMethod("initialize", "PopulationEstimatesBayesian", function(.Object, xmlNode
 #' @include StandardOutputObjectXmlParsers.R
 
 setClass(Class = "PopulationEstimatesOtherMethod",
-	slots = c("Mean", "Median"),
-	prototype = list(
-		Mean = DataSet(),
-		Median = DataSet()
+	slots = c(
+		Mean = "DataSet",
+		Median = "DataSet"
 	),
 	validity = function(object) {
 		# TODO implement checking
@@ -132,11 +130,10 @@ setMethod("initialize", "PopulationEstimatesOtherMethod", function(.Object, xmlN
 #ddmore:::parseSODataElement(node = popEstMLE[["MLE"]])
 
 setClass(Class = "PopulationEstimates",
-    slots = c("MLE", "Bayesian", "OtherMethod"), 
-    prototype = list(
-        MLE = DataSet(),
-        Bayesian = new (Class = "PopulationEstimatesBayesian"),
-        OtherMethod = list() # of PopulationEstimatesOtherMethod objects
+    slots = c(
+		MLE = "DataSet",
+		Bayesian = "PopulationEstimatesBayesian",
+		OtherMethod = "list" # of PopulationEstimatesOtherMethod objects
 	),
     validity = function(object) {
 		# TODO implement checking
@@ -201,16 +198,14 @@ setMethod("initialize", "PopulationEstimates", function(.Object, xmlNodePopulati
 #' @include StandardOutputObjectXmlParsers.R
 
 setClass(Class = "PrecisionPopulationEstimatesMLE",
-	slots = c("FIM", "CovarianceMatrix", "CorrelationMatrix", "StandardError", 
-            "RelativeStandardError", "AsymptoticCI", "ConditionNumber"),
-	prototype = list(
-		FIM = data.frame(),
-		CovarianceMatrix = data.frame(),
-		CorrelationMatrix = data.frame(),
-		StandardError = DataSet(),
-		RelativeStandardError = DataSet(),
-		AsymptoticCI = DataSet(),
-		ConditionNumber = numeric(0)
+	slots = c(
+		FIM = "data.frame",
+		CovarianceMatrix = "data.frame",
+		CorrelationMatrix = "data.frame",
+		StandardError = "DataSet",
+		RelativeStandardError = "DataSet",
+		AsymptoticCI = "DataSet",
+		ConditionNumber = "numeric"
 	),
 	validity = function(object) {
 		# TODO implement checking
@@ -227,7 +222,7 @@ setMethod("initialize", "PrecisionPopulationEstimatesMLE", function(.Object, xml
 		.Object <- .genericParseElements(.Object, xmlNodePrecisionPopEstsMLE, customParseChildNodeNames = c("ConditionNumber"))
 		xmlNodeCondNum <- .getChildNode(.getChildNodes(xmlNodePrecisionPopEstsMLE), "ConditionNumber")
 		if (!is.null(xmlNodeCondNum)) {
-			.Object@ConditionNumber <- xmlValue(xmlNodeCondNum)
+			.Object@ConditionNumber <- as.numeric(xmlValue(xmlNodeCondNum))
 		}
 	}
 	.Object
@@ -254,11 +249,10 @@ setMethod("initialize", "PrecisionPopulationEstimatesMLE", function(.Object, xml
 #' @include StandardOutputObjectXmlParsers.R
 
 setClass(Class = "PrecisionPopulationEstimatesBayesian",
-	slots = c("StandardDeviation", "PosteriorDistribution", "PercentilesCI"),
-	prototype = list(
-		StandardDeviation = DataSet(),
-		PosteriorDistribution = DataSet(),
-		PercentilesCI = DataSet()
+	slots = c(
+		StandardDeviation = "DataSet",
+		PosteriorDistribution = "DataSet", # or DataSetDistribution
+		PercentilesCI = "DataSet"
 	),
 	validity = function(object) {
 		# TODO implement checking
@@ -299,16 +293,14 @@ setMethod("initialize", "PrecisionPopulationEstimatesBayesian", function(.Object
 #' @include StandardOutputObjectXmlParsers.R
 
 setClass(Class = "PrecisionPopulationEstimatesOtherMethod",
-	slots = c("CovarianceMatrix", "CorrelationMatrix", "StandardDeviation", "StandardError",
-			  "AsymptoticCI", "PosteriorDistribution", "PercentilesCI"),
-	prototype = list(
-		CovarianceMatrix = data.frame(),
-		CorrelationMatrix = data.frame(),
-		StandardDeviation = DataSet(),
-		StandardError = DataSet(),
-		AsymptoticCI = DataSet(),
-		PosteriorDistribution = DataSet(),
-		PercentilesCI = DataSet()
+	slots = c(
+		CovarianceMatrix = "data.frame",
+		CorrelationMatrix = "data.frame",
+		StandardDeviation = "DataSet",
+		StandardError = "DataSet",
+		AsymptoticCI = "DataSet",
+		PosteriorDistribution = "DataSet", # or DataSetDistribution
+		PercentilesCI = "DataSet"
 	),
 	validity = function(object) {
 		# TODO implement checking
@@ -330,7 +322,8 @@ setMethod("initialize", "PrecisionPopulationEstimatesOtherMethod", function(.Obj
 #' 
 #' @slot MLE instance of \linkS4class{PrecisionPopulationEstimatesMLE} S4 class
 #' @slot Bayesian instance of \linkS4class{PrecisionPopulationEstimatesBayesian} class
-#' @slot OtherMethod list of instances of \linkS4class{PrecisionPopulationEstimatesOtherMethod} class
+#' @slot OtherMethod list of instances of \linkS4class{PrecisionPopulationEstimatesOtherMethod}
+#'					 class (since can have multiple such blocks)
 #' 
 #' @name PrecisionPopulationEstimates-class
 #' @rdname PrecisionPopulationEstimates-class
@@ -342,11 +335,10 @@ setMethod("initialize", "PrecisionPopulationEstimatesOtherMethod", function(.Obj
 #' validObject(est)
 
 setClass(Class = "PrecisionPopulationEstimates",
-    slots = c("MLE", "Bayesian", "OtherMethod"),
-    prototype = list(
-        MLE = new (Class = "PrecisionPopulationEstimatesMLE"), 
-        Bayesian = new (Class = "PrecisionPopulationEstimatesBayesian"),
-        OtherMethod = list() # list of OtherMethod objects since can have multiple such blocks
+    slots = c(
+		MLE = "PrecisionPopulationEstimatesMLE",
+		Bayesian = "PrecisionPopulationEstimatesBayesian",
+		OtherMethod = "list" # of OtherMethod objects
 	),
     validity = function(object) {
 		# TODO implement this checking
@@ -407,11 +399,10 @@ setMethod("initialize", "PrecisionPopulationEstimates", function(.Object, xmlNod
 #' @include StandardOutputObjectXmlParsers.R
 
 setClass(Class = "IndividualEstimatesParamEstimates",
-	slots = c("Mean", "Median", "Mode"),
-	prototype = list(
-		Mean = DataSet(),
-		Median = DataSet(),
-		Mode = DataSet()
+	slots = c(
+		Mean = "DataSet",
+		Median = "DataSet",
+		Mode = "DataSet"
 	),
 	validity = function(object) {
 		# TODO implement checking
@@ -448,11 +439,10 @@ setMethod("initialize", "IndividualEstimatesParamEstimates", function(.Object, x
 #' @include StandardOutputObjectXmlParsers.R
 
 setClass(Class = "IndividualEstimatesRandomEffects",
-	slots = c("EffectMean", "EffectMedian", "EffectMode"),
-	prototype = list(
-		EffectMean = DataSet(),
-		EffectMedian = DataSet(),
-		EffectMode = DataSet()
+	slots = c(
+		EffectMean = "DataSet",
+		EffectMedian = "DataSet",
+		EffectMode = "DataSet"
 	),
 	validity = function(object) {
 		# TODO implement checking
@@ -486,11 +476,10 @@ setMethod("initialize", "IndividualEstimatesRandomEffects", function(.Object, xm
 #' validObject(indivEst)
 
 setClass(Class = "IndividualEstimates",
-    slots = c("Estimates", "RandomEffects", "EtaShrinkage"), 
-    prototype = list(
-		Estimates = new (Class = "IndividualEstimatesParamEstimates"),
-        RandomEffects = new (Class = "IndividualEstimatesRandomEffects"),
-        EtaShrinkage = DataSet()
+    slots = c(
+		Estimates = "IndividualEstimatesParamEstimates",
+		RandomEffects = "IndividualEstimatesRandomEffects",
+		EtaShrinkage = "DataSet"
 	),
     validity = function(object) {
 		# TODO implement checking
@@ -545,12 +534,11 @@ setMethod("initialize", "IndividualEstimates", function(.Object, xmlNodeIndividu
 #' validObject(est)
 
 setClass(Class = "PrecisionIndividualEstimates",
-    slots = c("StandardDeviation", "EstimatesDistribution", "PercentilesCI"), 
-    prototype = list(
-		StandardDeviation = DataSet(), 
-        EstimatesDistribution = DataSet(),
-        PercentilesCI = DataSet()
-	), 
+    slots = c(
+		StandardDeviation = "DataSet",
+		EstimatesDistribution = "DataSet", # or DataSetDistribution
+		PercentilesCI = "DataSet"
+	),
     validity = function(object) { 
         # TODO implement checking
         return(TRUE)
@@ -583,11 +571,10 @@ setMethod("initialize", "PrecisionIndividualEstimates", function(.Object, xmlNod
 #' validObject(res)
 
 setClass(Class = "Residuals",
-    slots = c("ResidualTable", "EpsShrinkage"), 
-    prototype = list(
-        ResidualTable = DataSet(),
-		EpsShrinkage = DataSet()
-	),
+    slots = c(
+		ResidualTable = "DataSet",
+		EpsShrinkage = "DataSet"
+	), 
 	# TODO implement checking
     validity = function(object) {
 		return(TRUE)
@@ -624,15 +611,15 @@ setMethod("initialize", "Residuals", function(.Object, xmlNodeResiduals = NULL) 
 #' validObject(meas)
 
 setClass(Class = "OFMeasures",
-    slots = c("Likelihood", "LogLikelihood", "Deviance", 
-			  "ToolObjFunction", "IndividualContribToLL",
-			  "InformationCriteria"), 
+    slots = c(
+		Likelihood = "numeric",
+		LogLikelihood = "numeric",
+		Deviance = "numeric",
+		ToolObjFunction = "numeric",
+		IndividualContribToLL = "DataSet",
+		InformationCriteria = "list"
+	), 
     prototype = list(
-		Likelihood = numeric(0), 
-        LogLikelihood = numeric(0), 
-        Deviance = numeric(0), 
-        ToolObjFunction = numeric(0), 
-        IndividualContribToLL = DataSet(), 
         InformationCriteria = list(AIC = numeric(0), BIC = numeric(0), DIC = numeric(0))
 	),
     validity = function(object) { 
@@ -651,7 +638,7 @@ setMethod("initialize", "OFMeasures", function(.Object, xmlNodeOFMeasures = NULL
 		for (child in .getChildNodes(xmlNodeOFMeasures)) {
 			childName <- xmlName(child)
 			if (childName %in% c("Likelihood", "LogLikelihood", "Deviance", "ToolObjFunction")) {
-				slot(.Object, childName) <- xmlValue(child)
+				slot(.Object, childName) <- as.numeric(xmlValue(child))
 			}
 			else if (childName %in% c("IndividualContribToLL")) {
 				# Table expected - TODO call specific function ?
@@ -710,15 +697,6 @@ setClass("Estimation",
         Residuals = "Residuals",
         Predictions = "DataSet",
         OFMeasures = "OFMeasures"
-	),
-    prototype = list(
-        PopulationEstimates = new (Class = "PopulationEstimates"),
-        PrecisionPopulationEstimates = new (Class = "PrecisionPopulationEstimates"),
-        IndividualEstimates = new (Class = "IndividualEstimates"),
-        PrecisionIndividualEstimates = new (Class = "PrecisionIndividualEstimates"),
-        Residuals = new (Class = "Residuals"),
-        Predictions = new (Class = "DataSet"),
-        OFMeasures = new (Class = "OFMeasures")
 	),
     validity = function(object) {
     	# Validity Checking Function, TODO: enhance this

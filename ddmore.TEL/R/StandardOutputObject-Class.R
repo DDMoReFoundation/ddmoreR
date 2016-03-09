@@ -48,17 +48,6 @@ setClass("StandardOutputObject",
 		# The absolute path to the XML file that was parsed to create this SO
 		.pathToSourceXML = "character"
 	),
-	# Set default values to blank instances of the nested classes
-	prototype = list(
-		ToolSettings = list(),
-		RawResults = new("RawResults"),
-		TaskInformation = new("TaskInformation"),
-		Estimation = new("Estimation"),
-		ModelDiagnostic = new("ModelDiagnostic"),
-		Simulation = list(),
-		OptimalDesign = list(),
-		.pathToSourceXML = character(0)
-	),
 	# Validity Checking Function 
 	validity = function(object) {
 		stopifnot(class(object@ToolSettings) == "list")

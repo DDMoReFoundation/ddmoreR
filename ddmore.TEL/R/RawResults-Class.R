@@ -21,13 +21,8 @@
 setClass("RawResults", 
 	# Define the slots
 	slots=c(
-		DataFiles="list", 
-		GraphicsFiles="list"
-	),
-	# Set Default Values to blank lists with names in place
-	prototype = list(
-		DataFiles = list(), 
-		GraphicsFiles = list()
+		DataFiles = "list", 
+		GraphicsFiles = "list"
 	),
 	# Validity Checking Function 
 	validity = function(object) {

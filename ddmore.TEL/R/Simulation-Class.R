@@ -26,21 +26,19 @@
 
 setClass(Class = "SimulationBlock",
 	slots = c(
-		"replicate", "SimulatedProfiles", "IndivParameters", "RandomEffects",
-		"Covariates", "Regressors", "PopulationParameters", "Dosing", "RawResultsFile"),
-	prototype = list(
-		replicate = integer(0),
-		SimulatedProfiles = list(), # of SimulatedProfiles objects
-		IndivParameters = DataSet(),
-		RandomEffects = DataSet(),
-		Covariates = DataSet(),
-		Regressors = DataSet(),
-		PopulationParameters = DataSet(),
-		Dosing = DataSet(),
-		RawResultsFile = character(0)),
+		replicate = "integer",
+		SimulatedProfiles = "list",
+		IndivParameters = "DataSet",
+		RandomEffects = "DataSet",
+		Covariates = "DataSet",
+		Regressors = "DataSet",
+		PopulationParameters = "DataSet",
+		Dosing = "DataSet",
+		RawResultsFile = "character"
+	),
 	validity = function(object) {
 		# TODO implement checking
-    	return(TRUE)
+		return(TRUE)
 	}
 )
 
@@ -54,7 +52,7 @@ setMethod("initialize", "SimulationBlock", function(.Object, xmlNodeSimulationBl
 		
 		.Object <- .genericParseElements(.Object, xmlNodeSimulationBlock, customParseChildNodeNames = c("SimulatedProfiles", "RawResultsFile"))
 		
-		.Object@replicate <- xmlAttrs(xmlNodeSimulationBlock)[["replicate"]]
+		.Object@replicate <- as.integer(xmlAttrs(xmlNodeSimulationBlock)[["replicate"]])
 		
 		# Custom parsing of child nodes that aren't simply handled by parseSODataElement()
 		for (child in .getChildNodes(xmlNodeSimulationBlock)) {
@@ -92,11 +90,10 @@ setMethod("initialize", "SimulationBlock", function(.Object, xmlNodeSimulationBl
 #' @include StandardOutputObjectXmlParsers.R
 
 setClass(Class = "SimulatedProfiles",
-	slots = c("name", "extFileNo", "DataSet"),
-	prototype = list(
-		name = character(0),
-		extFileNo = integer(0),
-		DataSet = DataSet()
+	slots = c(
+		name = "character",
+		extFileNo = "integer",
+		DataSet = "DataSet"
 	),
 	validity = function(object) {
 		# TODO implement checking
@@ -113,9 +110,10 @@ setMethod("initialize", "SimulatedProfiles", function(.Object, xmlNodeSimulatedP
 	if (!is.null(xmlNodeSimulatedProfiles)) {
 		spAttrs <- xmlAttrs(xmlNodeSimulatedProfiles)
 		for (spAttrName in names(spAttrs)) {
-			if (spAttrName %in% c("name", "extFileNo")) {
-				slot(.Object, spAttrName) <- spAttrs[[spAttrName]]
-			}
+			switch (spAttrName,
+				"name" = slot(.Object, spAttrName) <- spAttrs[[spAttrName]],
+				"extFileNo" = slot(.Object, spAttrName) <- as.integer(spAttrs[[spAttrName]])
+			)
 		}
 		.Object@DataSet <- parseSODataElement(xmlNodeSimulatedProfiles)
 	}

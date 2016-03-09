@@ -10,8 +10,8 @@
 #'
 #' An object to house all data associated with a data set
 #' 
-#' @slot description header information for dataset
-#' @slot data matrix information with one column for each column in description
+#' @slot description dataframe containing column header information for dataset
+#' @slot data matrix containing actual data with one column for each column in description
 #' 
 #' @name DataSet-class
 #' @rdname DataSet-class
@@ -26,19 +26,27 @@
 #' validObject(dat)
 
 setClass(Class = "DataSet",
-    	slots = c("description", "data"), 
-    	prototype = list(description = data.frame(Col1 = c("1", "unknown", "real")), 
-        		data = matrix(data = NA_real_, ncol = 1, nrow = 1)), 
-    	validity = function(object) { 
-        	stopifnot(ncol(object@description) == ncol(object@data))
-        	stopifnot(all(rownames(object@description) == c("columnNum", "columnType", "valueType")))
-        	return(TRUE) })
+	slots = c(
+		description = "data.frame",
+		data = "matrix"
+	),
+    prototype = list(
+		# TODO: Shouldn't this just be creating an empty data frame / matrix?
+		description = data.frame(Col1 = c("1", "unknown", "real")),
+		data = matrix(data = NA_real_, ncol = 1, nrow = 1)
+	),
+	validity = function(object) { 
+    	stopifnot(ncol(object@description) == ncol(object@data))
+    	stopifnot(all(rownames(object@description) == c("columnNum", "columnType", "valueType")))
+    	return(TRUE)
+	}
+)
 
 #' Initialisation function / Constructor for \linkS4class{DataSet} S4 class
 #' 
 #' @param .Object new instance of the class
-#' @param description dataframe containing column header information
-#' @param data dataframe containing actual data
+#' @slot description dataframe containing column header information for dataset
+#' @slot data matrix containing actual data with one column for each column in description
 #' 
 #' @include StandardOutputObjectXmlParsers.R
 setMethod("initialize", "DataSet", function(.Object, description = NULL, data = NULL) {
@@ -49,11 +57,6 @@ setMethod("initialize", "DataSet", function(.Object, description = NULL, data = 
 	}
 	.Object
 })
-
-# TODO remove this and refactor
-DataSet <- function() {
-	new (Class = "DataSet")
-}
 
 
 #' Coerce \linkS4class{DataSet} object to data.frame
@@ -111,8 +114,8 @@ setMethod(f = "as.data.frame",
 #' @slot distributionParameters named list of the parameters, the list names
 #' 								being the parameter names and the values in
 #' 								the list being the parameter values
-#' @slot description (Optional) header information for dataset
-#' @slot data (Optional) matrix information with one column for each column in description
+#' @slot description (Optional) dataframe containing column header information for dataset
+#' @slot data (Optional) matrix containing actual data with one column for each column in description
 #' 
 #' @name DataSetDistribution-class
 #' @rdname DataSetDistribution-class
@@ -125,13 +128,9 @@ setMethod(f = "as.data.frame",
 
 setClass(Class = "DataSetDistribution",
 	contains = "DataSet", # superclass
-	slots = c("distributionName", "distributionParameters"),
-	prototype = list(
-		distributionName = character(0),
-		distributionParameters = list()
-		# Leave these slots from the superclass as null since they are optional for Distribution
-		#description = 
-		#data = 
+	slots = c(
+		distributionName = "character",
+		distributionParameters = "list"
 	),
 	validity = function(object) {
 		# TODO implement this checking
@@ -147,8 +146,8 @@ setClass(Class = "DataSetDistribution",
 #' @param distributionParameters (Optional) named list of the distributions parameters, the
 #' 								 list names being the parameter names and the values in the
 #' 								 list being the parameter values
-#' @param description dataframe containing column header information
-#' @param data dataframe containing actual data
+#' @slot description (Optional) dataframe containing column header information for dataset
+#' @slot data (Optional) matrix containing actual data with one column for each column in description
 #' 
 #' @include StandardOutputObjectXmlParsers.R
 setMethod("initialize", "DataSetDistribution",
@@ -159,6 +158,6 @@ setMethod("initialize", "DataSetDistribution",
 		.Object@distributionParameters <- distributionParameters
 	}
 	
-	callNextMethod(description, data)
+	callNextMethod(.Object, description, data)
 })
 
