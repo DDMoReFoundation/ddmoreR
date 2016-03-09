@@ -34,26 +34,29 @@ setClass(Class = "DataSet",
         	stopifnot(all(rownames(object@description) == c("columnNum", "columnType", "valueType")))
         	return(TRUE) })
 
-#' Instantiate a new object of class DataSet.
+#' Initialisation function / Constructor for \linkS4class{DataSet} S4 class
 #' 
-#' @param data optional list containing "description" dataframe, "data" dataframe to populate with
-#' @param dots arguments to \code{new}
-#' @return object of class DataSet
-#' @export
-
-DataSet <- function(data = NULL, ...) {
-    newObj <- new(Class = "DataSet", ...)
+#' @param .Object new instance of the class
+#' @param description dataframe containing column header information
+#' @param data dataframe containing actual data
+#' 
+#' @include StandardOutputObjectXmlParsers.R
+setMethod("initialize", "DataSet", function(.Object, description = NULL, data = NULL) {
 	
 	if (!is.null(data)) {
-		newObj@description <- data$description
-		newObj@data <- data$data
+		.Object@description <- description
+		.Object@data <- data
 	}
-	
-	newObj
+	.Object
+})
+
+# TODO remove this and refactor
+DataSet <- function() {
+	new (Class = "DataSet")
 }
 
 
-#' Coerce DataSet object to data.frame
+#' Coerce \linkS4class{DataSet} object to data.frame
 #' 
 #' Make Data useable in R session
 #' @param x DataSet object
@@ -136,29 +139,26 @@ setClass(Class = "DataSetDistribution",
 	}
 )
 
-#' Instantiate a new object of class DataSetDistribution.
+#' Initialisation function / Constructor for \linkS4class{DataSetDistribution} S4 class,
+#' subclass of \linkS4class{DataSet} S4 class.
 #' 
+#' @param .Object new instance of the class
 #' @param distributionName the name of the distribution
-#' @param distributionParameters named list of the parameters, the list names
-#'  							 being the parameter names and the values in
-#' 	 							 the list being the parameter values
-#' @param data optional list containing "description" dataframe, "data" dataframe to populate with
-#' @param dots arguments to \code{new}
-#' @return object of class DataSetDistribution
-#' @export
-
-DataSetDistribution <- function(distributionName, distributionParameters = NULL, data = NULL, ...) {
-    newObj <- new(Class = "DataSetDistribution", ...)
+#' @param distributionParameters (Optional) named list of the distributions parameters, the
+#' 								 list names being the parameter names and the values in the
+#' 								 list being the parameter values
+#' @param description dataframe containing column header information
+#' @param data dataframe containing actual data
+#' 
+#' @include StandardOutputObjectXmlParsers.R
+setMethod("initialize", "DataSetDistribution",
+		function(.Object, distributionName, distributionParameters = NULL, description = NULL, data = NULL) {
 	
-	newObj@distributionName <- distributionName
+	.Object@distributionName <- distributionName
 	if (!is.null(distributionParameters)) {
-		newObj@distributionParameters <- distributionParameters
-	}
-	if (!is.null(data)) {
-		newObj@description <- data$description
-		newObj@data <- data$data
+		.Object@distributionParameters <- distributionParameters
 	}
 	
-	newObj
-}
+	callNextMethod(description, data)
+})
 

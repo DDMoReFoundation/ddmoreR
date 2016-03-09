@@ -81,7 +81,7 @@
 #			
 #			L <- parseSODataElement(child)
 #			# Table expected - TODO call specific function
-#			# TODO: Do this on DataSet() constructor instead
+#			# TODO: Do this on DataSet constructor instead
 #			slot(newObj, childName)@description <- L$description
 #			slot(newObj, childName)@data <- L$data
 #		} else {
@@ -123,16 +123,19 @@ parseSODataElement <- function(xmlNode) {
 		}
 		else if (childNames == .NODENAME_EXTERNALFILE) {
 			# Load data from external file
-			parsed <- DataSet( # new object out of the data
-				parseExternalFile(.getChildNode(childNodes, .NODENAME_EXTERNALFILE))
+			parsedEF <- parseExternalFile(.getChildNode(childNodes, .NODENAME_EXTERNALFILE))
+			parsed <- new (Class = "DataSet",
+				description = parsedEF$description,
+				data = parsedEF$data
 			)
 		}
 		else if (childNames == .NODENAME_DISTRIBUTION) {
 			parsedDSD <- parseDataSetDistribution(.getChildNode(childNodes, .NODENAME_DISTRIBUTION))
-			parsed <- DataSetDistribution( # new object out of the data
-				parsedDSD$distributionName,
-				parsedDSD$distributionParameters,
-				list(description = parsedDSD$description, data = parsedDSD$data)
+			parsed <- new (Class = "DataSetDistribution",
+				distributionName = parsedDSD$distributionName,
+				distributionParameters <- parsedDSD$distributionParameters,
+				description = parsedDSD$description,
+				data = parsedDSD$data
 			)
 		}
 		else {
@@ -144,14 +147,18 @@ parseSODataElement <- function(xmlNode) {
 		combinedChildNames <- paste(sort(childNames), collapse = "|")
 		if (combinedChildNames == paste(c(.NODENAME_DEFINITION, .NODENAME_EXTERNALFILE), collapse="|")) {
 			# Load data from external file
-			parsed <- DataSet( # new object out of the data
-				parseDataSetExternalFile(.getChildNode(childNodes, .NODENAME_DEFINITION), .getChildNode(childNodes, .NODENAME_EXTERNALFILE))
+			parsedDSEF <- parseDataSetExternalFile(.getChildNode(childNodes, .NODENAME_DEFINITION), .getChildNode(childNodes, .NODENAME_EXTERNALFILE))
+			parsed <- new (Class = "DataSet",
+				description = parsedDSEF$description,
+				data = parsedDSEF$data
 			)
 		}
 		else if (combinedChildNames == paste(c(.NODENAME_DEFINITION, .NODENAME_TABLE), collapse="|")) {
 			# Load data from inline XML
-			parsed <- DataSet( # create new object out of the data
-				parseDataSetInline(.getChildNode(childNodes, .NODENAME_DEFINITION), .getChildNode(childNodes, .NODENAME_TABLE))
+			parsedDSI <- parseDataSetInline(.getChildNode(childNodes, .NODENAME_DEFINITION), .getChildNode(childNodes, .NODENAME_TABLE))
+			parsed <- new (Class = "DataSet",
+				description = parsedDSI$description,
+				data = parsedDSI$data
 			)
 		}
 		else {
