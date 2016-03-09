@@ -1,49 +1,9 @@
-# ====================================== #
-# Sub classes for Standard Output Object #
-# ====================================== # 
-#
-## Author: cmusselle, ccampbell, mwise
 
-
-##############################################################################
-# The Estimation Object Class (S4) 
-# 
-# Moved to Estimation-Class.R
+# ========================================================================================== #
+# Common class definitions shared between higher-level classes within the SO class structure #
+# ========================================================================================== #
 #
-##############################################################################
-
-##############################################################################
-# The Simulation Block Object Class (S4) 
-# 
-# Moved to Simulation-Class.R
-#
-##############################################################################
-
-##############################################################################
-# The Optimal Design Block Object Class (S4) 
-# 
-# Moved to OptimalDesign-Class.R
-#
-##############################################################################
-
-##############################################################################
-# The ModelDiagnosticEvaluation Object Class (S4) 
-#
-# Moved to ModelDiagnostic-Class.R
-#
-##############################################################################
-
-##############################################################################
-# The RawResults Object Class (S4) 
-#
-# Moved to RawResults-Class.R
-#
-##############################################################################
-
-
-#
-# Common class definitions shared between higher-level classes within the SO class structure.
-#
+# Authors: cmusselle, ccampbell, mwise
 
 
 #' The DataSet Object Class (S4)

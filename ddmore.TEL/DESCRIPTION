@@ -25,7 +25,7 @@ Collate:
     'utils.R'
     'Classes.R'
     'readDataObj.R'
-    'StandardOutputSubClasses.R'
+    'StandardOutputObjectCommonClasses.R'
     "Estimation-Class.R"
     "Simulation-Class.R"
     "OptimalDesign-Class.R"
