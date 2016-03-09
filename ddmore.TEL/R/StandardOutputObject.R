@@ -2,37 +2,39 @@
 # Standard Output Object #
 # ====================== #
 # 
-# This file contains all code for the top level S4 class of StandardOutputObject 
-# and the associated getting/setting and loading PharmML methods. 
+# This file contains all code for the top level S4 class of StandardOutputObject.
+# Classes for individual slots within the StandardOutputObject class structure are
+# stored in separate files, named xxx-Class.R.
 #
-# The subclasses that make up the individual slots of StandardOutputObject are stored 
-# in a separate file called StandardOutputSubClasses.R
-#
-# Author: cmusselle
+# Author: cmusselle, ccampbell, mwise
+
 
 ###############################################################################
 #' The Standard Output Object Class (S4) 
 #'
-#' The initial design here is to have a differnt subclasss for each SO section: 
+#' Contains slots having specific classes for each SO section.
 #'
-#' @slot ToolSettings A list object to capture settings from executed tool.
-#' @slot RawResults An object of S4 class "RawResults"
-#' @slot Estimation An object of S4 class "Estimation" to house all data associated 
-#' with population and individual estimates, precision, rediduals, predictions, 
-#' liklihoods and output messages (and error messages) from individual modeling 
-#' software. 
-#' @slot TaskInformation list (nested) containing all standard output messages from 
-#' the task executed.
-#' @slot ModelDiagnosticEvaluation An object of S4 class "ModelDiagnosticEvaluation" 
-#' to house all data associated with model diagnostics and model comparisons.
-#' @slot SimulationExploration An object of S4 class "SimulationExploration" 
-#' to house all data associated with ... 
-#' @slot OptimalDesign An object of S4 class "OptimalDesign" 
-#' to house all data associated with ...  
+#' @slot ToolSettings A named list containing the settings relating to the execution tool,
+#' 					  specifically, relevant file paths
+#' @slot RawResults An object of S4 class \linkS4class{RawResults}
+#' @slot TaskInformation An object of S4 class \linkS4class{TaskInformation} containing
+#' 						 output messages from the task that was executed
+#' @slot Estimation An object of S4 class \linkS4class{Estimation}, housing all data
+#' 					associated with population and individual estimates, precision,
+#' 					residuals, predictions, likelihoods and output messages
+#' 					(and error messages) from individual modelling software 
+#' @slot ModelDiagnostic An object of S4 class \linkS4class{ModelDiagnostic}
+#' 						 housing all data associated with model diagnostics
+#' 						 and model comparisons
+#' @slot Simulation A list of objects of S4 class \linkS4class{SimulationBlock}
+#' 					housing data produced from a simulation task
+#' @slot OptimalDesign A list of objects of S4 class \linkS4class{OptimalDesignBlock}
+#'					   housing results produced by Optimal Design
+#' @slot .pathToSourceXML (Internal) The absolute path to the XML file from which
+#' 						  this SO object was created
 #' 
 #' @author cmusselle
-#' @include StandardOutputSubClasses.R
-#' @include Estimation-Class.R
+
 setClass("StandardOutputObject", 
   # Define the slots
   slots=c(
@@ -46,7 +48,7 @@ setClass("StandardOutputObject",
 	# The absolute path to the XML file that was parsed to create this SO
 	.pathToSourceXML = "character"
     ),
-  # Set Default Values to blank instances of the subclasses
+  # Set Default Values to blank instances of the nested classes
   prototype = list(
     ToolSettings = list(),
     RawResults = new("RawResults"),
@@ -54,7 +56,8 @@ setClass("StandardOutputObject",
   	Estimation = new("Estimation"),
     ModelDiagnostic = new("ModelDiagnostic"),
   	Simulation = list(),
-	OptimalDesign = list()
+	OptimalDesign = list(),
+	.pathToSourceXML = character(0)
   	),
   # Validity Checking Function 
   validity = function(object) {
@@ -69,39 +72,25 @@ setClass("StandardOutputObject",
 	}
 )
 
-#' Standard Output Object
-#'
-#' Create a new StandardOutputObject object 
-#'
-#' @return An S4 Object of class "StandardOutputObject".
-#'
-#' @export
-#' @docType methods
-#' @rdname StandardOutputObject
-StandardOutputObject <- function(...) {
-  SO <- new("StandardOutputObject", ...)
-  return(SO)
-}
 
-##############################################################
-# called from jobExecution.R
 #' is.SOObject
 #'
-#' Determines if an object is of class "StandardOutputObject"
+#' Determines if an object is of class "StandardOutputObject".
 #'
 #' @usage is.SOObject(object)
 #'
 #' @return TRUE or FALSE
 #' @export
+# Called from jobExecution.R
 is.SOObject <- function(x) {
     is(object = x, class2 = "StandardOutputObject")
 }
+
 
 # ========================== #
 # Reader for RawData files   #
 # ========================== #
 # readRawData 
-#
 #  
 setGeneric(name="readRawData",
     def=function(SOObject, fileIndex) {
@@ -138,8 +127,6 @@ setMethod(f = "readRawData",
         return (rawData)
     }
 )
-
-
 
 
 #' mergeByPosition

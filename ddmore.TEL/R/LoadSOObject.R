@@ -160,13 +160,14 @@ validateAndLoadXMLSOFile <- function(file) {
 }
 
 #'
-#' Process an SOBlock element from the SO XML tree and populate a StandardOutputObject object from the data contained within.
+#' Process an SOBlock element from the SO XML tree and populate a
+#' \linkS4class{StandardOutputObject} object from the data contained within.
 #'
 #' @include StandardOutputObject.R
+#' @include Estimation-Class.R
 #' @include Simulation-Class.R
 #' @include OptimalDesign-Class.R
 #' @include ModelDiagnostic-Class.R
-#' @include Estimation-Class.R
 #' @include RawResults-Class.R
 #' @include TaskInformation-Class.R
 #' @include xmlParsers.R
@@ -174,16 +175,15 @@ validateAndLoadXMLSOFile <- function(file) {
 createSOObjectFromXMLSOBlock <- function(soBlock) {
 	
 	# Generate Blank SO object
-	SOObject <- StandardOutputObject()
+	SOObject <- new (Class = "StandardOutputObject")
 	
 	# Fetch all Components of the SO object that are defined
-	SOChildren <- xmlChildren(soBlock)
+	SOChildren <- .getChildNodes(soBlock)
 	
 	messageList <- list(parsed=list(), skipped=list())
 
-	# Error Checking of unexpected elements
-	expectedTags <- c("ToolSettings", "RawResults", "TaskInformation", "Estimation", 
-			"Simulation", "ModelDiagnostic")
+	# Error checking of unexpected elements
+	expectedTags <- grep(pattern = '^[^\\.]', x = slotNames("StandardOutputObject"), value = TRUE) # Slots of SO class excluding those we want to treat as hidden i.e. .pathToSourceXML
 	unexpected <- setdiff(names(SOChildren), expectedTags)
 	if (length(unexpected) != 0) {
 		warning(paste("The following unexpected elements were detected in the PharmML SO. These will be ignored.", 
@@ -191,113 +191,40 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 	}
 	
 	# Error checking of expected XML structure + Parser Execution
-	if ("ToolSettings" %in% names(SOChildren)){
+	if ("ToolSettings" %in% names(SOChildren)) {
 		
 		# Extract child tags and values as a list with names = tag names and elements = tag values
-		SOObject@ToolSettings <- xmlApply(SOChildren[["ToolSettings"]], xmlValue)
-		names(SOObject@ToolSettings) <- xmlApply(SOChildren[["ToolSettings"]], function(x) { xmlAttrs(x)[["oid"]] })
+		xmlNodeToolSettings <- SOChildren[["ToolSettings"]]
+		SOObject@ToolSettings <- xmlApply(xmlNodeToolSettings, xmlValue)
+		names(SOObject@ToolSettings) <- xmlApply(xmlNodeToolSettings, function(x) { xmlAttrs(x)[["oid"]] })
 		
 		messageList[["parsed"]] <- append(messageList[["parsed"]], "ToolSettings")
 	} else {
 		messageList[["skipped"]] <- append(messageList[["skipped"]], "ToolSettings")
 	}
 	
-	if ("RawResults" %in% names(SOChildren)){
-		SOObject@RawResults <- new (Class = "RawResults", SOChildren[["RawResults"]])
+	if ("RawResults" %in% names(SOChildren)) {
+		SOObject@RawResults <- new (Class = "RawResults", .getChildNode(SOChildren, "RawResults"))
 		messageList[["parsed"]] <- append(messageList[["parsed"]], "RawResults")
 	} else {
 		messageList[["skipped"]] <- append(messageList[["skipped"]], "RawResults")
 	}
 	
-	if ("TaskInformation" %in% names(SOChildren)){
+	if ("TaskInformation" %in% names(SOChildren)) {
 		SOObject@TaskInformation <- new (Class = "TaskInformation", .getChildNode(SOChildren, "TaskInformation"))
 		messageList[["parsed"]] <- append(messageList[["parsed"]], "TaskInformation")
 	} else {
 		messageList[["skipped"]] <- append(messageList[["skipped"]], "TaskInformation")
 	}
 	
-	if ("Estimation" %in% names(SOChildren)){
-		
-		# Error Checking of unexpected elements in Estimation Block
-		expectedTags <- c("PopulationEstimates", "PrecisionPopulationEstimates", 
-				"IndividualEstimates", "PrecisionIndividualEstimates", "Residuals", 
-				"Predictions", "OFMeasures")
-		unexpected <- setdiff(names(SOChildren[["Estimation"]]), expectedTags)
-		if (length(unexpected) != 0) {
-			warning(paste("The following unexpected elements were detected in the Estimation section of the PharmML SO. These will be ignored.", 
-							paste(unexpected, collapse="\n      "), sep="\n      "))
-		}
-		
-		if ("PopulationEstimates" %in% names(SOChildren[["Estimation"]])){
-			#SOObject <- ParsePopulationEstimates(SOObject, SOChildren[["Estimation"]][["PopulationEstimates"]])
-			SOObject@Estimation@PopulationEstimates <- new (Class = "PopulationEstimates", SOChildren[["Estimation"]][["PopulationEstimates"]])
-			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:PopulationEstimates")
-		} else {
-			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:PopulationEstimates")
-		}
-		
-		if ("PrecisionPopulationEstimates" %in% names(SOChildren[["Estimation"]])){
-			#SOObject <- ParsePrecisionPopulationEstimates(SOObject, SOChildren[["Estimation"]][["PrecisionPopulationEstimates"]])
-			SOObject@Estimation@PrecisionPopulationEstimates <- new (Class = "PrecisionPopulationEstimates", SOChildren[["Estimation"]][["PrecisionPopulationEstimates"]])
-			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:PrecisionPopulationEstimates")
-		} else {
-			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:PrecisionPopulationEstimates")
-		}
-		
-		if ("IndividualEstimates" %in% names(SOChildren[["Estimation"]])){
-			#SOObject <- ParseIndividualEstimates(SOObject, SOChildren[["Estimation"]][["IndividualEstimates"]])
-			SOObject@Estimation@IndividualEstimates <- new (Class = "IndividualEstimates", SOChildren[["Estimation"]][["IndividualEstimates"]])
-			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:IndividualEstimates")
-		} else {
-			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:IndividualEstimates")
-		}
-		
-		if ("PrecisionIndividualEstimates" %in% names(SOChildren[["Estimation"]])){
-			#SOObject <- ParsePrecisionIndividualEstimates(SOObject, SOChildren[["Estimation"]][["PrecisionIndividualEstimates"]])
-			SOObject@Estimation@PrecisionIndividualEstimates <- new (Class = "PrecisionIndividualEstimates", SOChildren[["Estimation"]][["PrecisionIndividualEstimates"]])
-			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:PrecisionIndividualEstimates")
-		} else {
-			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:PrecisionIndividualEstimates")
-		}
-		
-		if ("Residuals" %in% names(SOChildren[["Estimation"]])){
-			#SOObject <- ParseResiduals(SOObject, SOChildren[["Estimation"]][["Residuals"]])
-			SOObject@Estimation@Residuals <- new (Class = "Residuals", SOChildren[["Estimation"]][["Residuals"]])
-			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:Residuals")
-		} else {
-			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:Residuals")
-		}
-		
-		if ("Predictions" %in% names(SOChildren[["Estimation"]])){
-			#SOObject <- ParsePredictions(SOObject, SOChildren[["Estimation"]][["Predictions"]])
-			# Table expected - TODO call specific function ?
-			SOObject@Estimation@Predictions <- ParseElement(SOChildren[["Estimation"]][["Predictions"]])
-			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:Predictions")
-		} else {
-			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:Predictions")
-		}
-		
-		if ("OFMeasures" %in% names(SOChildren[["Estimation"]])){
-			#SOObject <- ParseOFMeasures(SOObject, SOChildren[["Estimation"]][["OFMeasures"]])
-			SOObject@Estimation@OFMeasures <- new (Class = "OFMeasures", SOChildren[["Estimation"]][["OFMeasures"]])
-			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:OFMeasures")
-		} else {
-			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:OFMeasures")
-		}
-		
+	if ("Estimation" %in% names(SOChildren)) {
+		SOObject@Estimation <- new (Class = "Estimation", .getChildNode(SOChildren, "Estimation"))
+		messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation")
 	} else {
 		messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation")
 	}
 	
-	if ("Simulation" %in% names(SOChildren)){
-		
-		# Error Checking of unexpected elements of Simulation node
-		expectedTags <- c("SimulationBlock")
-		unexpected <- setdiff(names(SOChildren[["Simulation"]]), expectedTags)
-		if (length(unexpected) != 0) {
-			warning(paste("The following unexpected elements were detected in the parent Simulation section of the PharmML SO. These will be ignored.", 
-							paste(unexpected, collapse="\n      "), sep="\n      "))
-		} 
+	if ("Simulation" %in% names(SOChildren)) {
 		
 		# Parse all Simulation Blocks within the Simulation node
 		simulationBlockNodeList <- SOChildren[["Simulation"]][names(SOChildren[["Simulation"]]) == "SimulationBlock"]
@@ -306,20 +233,12 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 			FUN = function(xmlNodeSimulationBlock) { new (Class = "SimulationBlock", xmlNodeSimulationBlock = xmlNodeSimulationBlock) }
 		)
 		
-		messageList[["parsed"]] <- append(messageList[["parsed"]], "Simulation")	
+		messageList[["parsed"]] <- append(messageList[["parsed"]], "Simulation")
 	} else {
 		messageList[["skipped"]] <- append(messageList[["skipped"]], "Simulation")
 	}
 	
-	if ("OptimalDesign" %in% names(SOChildren)){
-		
-		# Error Checking of unexpected elements of OptimalDesign node
-		expectedTags <- c("OptimalDesignBlock")
-		unexpected <- setdiff(names(SOChildren[["OptimalDesign"]]), expectedTags)
-		if (length(unexpected) != 0) {
-			warning(paste("The following unexpected elements were detected in the parent OptimalDesign section of the PharmML SO. These will be ignored.", 
-							paste(unexpected, collapse="\n      "), sep="\n      "))
-		} 
+	if ("OptimalDesign" %in% names(SOChildren)) {
 		
 		# Parse all OptimalDesign Blocks within the Simulation node
 		optimalDesignBlockNodeList <- SOChildren[["OptimalDesign"]][names(SOChildren[["OptimalDesign"]]) == "OptimalDesignBlock"]
@@ -333,10 +252,10 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 		messageList[["skipped"]] <- append(messageList[["skipped"]], "OptimalDesign")
 	}
 	
-	if ("ModelDiagnostic" %in% names(SOChildren)){
+	if ("ModelDiagnostic" %in% names(SOChildren)) {
 
 		# Parse the ModelDiagnostic block
-		SOObject@ModelDiagnostic <- new (Class = "ModelDiagnostic", xmlNodeModelDiagnostic = SOChildren[["ModelDiagnostic"]])
+		SOObject@ModelDiagnostic <- new (Class = "ModelDiagnostic", .getChildNode(SOChildren, "ModelDiagnostic"))
 		
 		messageList[["parsed"]] <- append(messageList[["parsed"]], "ModelDiagnostic")	
 	} else {
@@ -344,6 +263,7 @@ createSOObjectFromXMLSOBlock <- function(soBlock) {
 	}
 	
 	# Run validation functions on S4 Class and subclasses
+	# TODO Call top-level validation and it should cascade down
 	validObject(SOObject)
 	validObject(SOObject@RawResults)
 	validObject(SOObject@Estimation)

@@ -691,7 +691,6 @@ setMethod("initialize", "OFMeasures", function(.Object, xmlNodeOFMeasures = NULL
 #' @slot Residuals object of class Residuals
 #' @slot Predictions object of class Predictions
 #' @slot OFMeasures object of class OFMeasures
-#' @slot TargetToolMessages TODO
 #' 
 #' @name Estimation-class
 #' @rdname Estimation-class
@@ -710,8 +709,7 @@ setClass("Estimation",
         PrecisionIndividualEstimates = "PrecisionIndividualEstimates", 
         Residuals = "Residuals",
         Predictions = "DataSet",
-        OFMeasures = "OFMeasures",
-        TargetToolMessages = "list"
+        OFMeasures = "OFMeasures"
 	),
     prototype = list(
         PopulationEstimates = new (Class = "PopulationEstimates"),
@@ -720,9 +718,7 @@ setClass("Estimation",
         PrecisionIndividualEstimates = new (Class = "PrecisionIndividualEstimates"),
         Residuals = new (Class = "Residuals"),
         Predictions = new (Class = "DataSet"),
-        OFMeasures = new (Class = "OFMeasures"), 
-        # TODO
-        TargetToolMessages = list()
+        OFMeasures = new (Class = "OFMeasures")
 	),
     validity = function(object) {
     	# Validity Checking Function, TODO: enhance this
@@ -742,7 +738,22 @@ setClass("Estimation",
 #' @param xmlNodeEstimation XML Node representation of the block
 #' @include xmlParsers.R
 setMethod("initialize", "Estimation", function(.Object, xmlNodeEstimation = NULL) {
-	# TODO Move the parsing of the node from LoadSOObject.R to here
+	
+	if (!is.null(xmlNodeEstimation)) {
+		for (child in .getChildNodes(xmlNodeEstimation)) {
+			childName <- xmlName(child)
+			if (childName %in% c("Predictions")) {
+				slot(.Object, childName) <- ParseElement(child)
+			}
+			else if (childName %in% slotNames(.Object)) {
+				slot(.Object, childName) <- new (Class = childName, child)
+			}
+			else {
+				warning(paste("Unexpected child node of Estimation node encountered:", childName))
+			}
+		}
+	}
+
 	.Object
 })
 
