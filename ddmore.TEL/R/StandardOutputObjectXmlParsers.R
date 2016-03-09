@@ -49,7 +49,7 @@
 # Each custom S4 class's initialize function is intended to delegate to this function
 # that will parse the child nodes of the provided XML node into the corresponding
 # slots of the provided new instance of the S4 class.
-# Note that child nodes that can't be simply parsed by the ParseElement() function,
+# Note that child nodes that can't be simply parsed by the parseSODataElement() function,
 # need to be explicitly parsed in the initialize function instead.
 .genericParseElements <- function(newObj, xmlNode = NULL, customParseChildNodeNames = c()) {
 	
@@ -59,7 +59,7 @@
 			if (childName %in% customParseChildNodeNames) {
 				# Skip - custom parsing to be done by the class's initialize function instead
 			} else if (childName %in% slotNames(newObj)) {
-				slot(newObj, childName) <- ParseElement(child)
+				slot(newObj, childName) <- parseSODataElement(child)
 			} else {
 				warning(paste("Unexpected child node of", xmlName(xmlNode), "node encountered:", childName))
 			}
@@ -79,7 +79,7 @@
 #				"Matrix"
 #			)
 #			
-#			L <- ParseElement(child)
+#			L <- parseSODataElement(child)
 #			# Table expected - TODO call specific function
 #			# TODO: Do this on DataSet() constructor instead
 #			slot(newObj, childName)@description <- L$description
@@ -90,11 +90,12 @@
 #	}
 #}
 
-#' @title Parse Element
+#' @title Parse SO Data Element
 #'
-#' @description Investigates the name of the elements Children and runs the appropriate parser  
-#' @param node - XML object
-#' @return list
+#' @description Investigates the name of the element's children and runs the appropriate parser.
+#' 
+#' @param xmlNode - XML object
+#' @return object of appropriate type
 #' @examples
 #' dataPath <- system.file("tests", "data", "PharmMLSO", "HandCoded", 
 #'     "warfarin_PK_ODE_SO_FULL.xml",  
@@ -106,11 +107,11 @@
 #' SOChildren <- xmlChildren(x = soBlocks[[1]])
 #' # MLE
 #' children <- xmlChildren(x = SOChildren[["Estimation"]][["PopulationEstimates"]])
-#' ddmore:::ParseElement(node = children[["MLE"]])
+#' ddmore:::parseSODataElement(node = children[["MLE"]])
 
-ParseElement <- function(node) {
+parseSODataElement <- function(xmlNode) {
   
-	childNodes <- .getChildNodes(node)
+	childNodes <- .getChildNodes(xmlNode)
 	childNames <- names(childNodes)
 
 	parsed <- NULL
@@ -118,16 +119,16 @@ ParseElement <- function(node) {
 	if (length(childNames) == 1) {
 		if (childNames == .NODENAME_MATRIX) {
 			# Parse Node as a matrix, is returned as a dataframe
-			parsed <- ParseMatrix(.getChildNode(childNodes, .NODENAME_MATRIX))
+			parsed <- parseMatrix(.getChildNode(childNodes, .NODENAME_MATRIX))
 		}
 		else if (childNames == .NODENAME_EXTERNALFILE) {
 			# Load data from external file
 			parsed <- DataSet( # new object out of the data
-				ParseExternalFile(.getChildNode(childNodes, .NODENAME_EXTERNALFILE))
+				parseExternalFile(.getChildNode(childNodes, .NODENAME_EXTERNALFILE))
 			)
 		}
 		else if (childNames == .NODENAME_DISTRIBUTION) {
-			parsedDSD <- ParseDataSetDistribution(.getChildNode(childNodes, .NODENAME_DISTRIBUTION))
+			parsedDSD <- parseDataSetDistribution(.getChildNode(childNodes, .NODENAME_DISTRIBUTION))
 			parsed <- DataSetDistribution( # new object out of the data
 				parsedDSD$distributionName,
 				parsedDSD$distributionParameters,
@@ -144,13 +145,13 @@ ParseElement <- function(node) {
 		if (combinedChildNames == paste(c(.NODENAME_DEFINITION, .NODENAME_EXTERNALFILE), collapse="|")) {
 			# Load data from external file
 			parsed <- DataSet( # new object out of the data
-				ParseDataSetExternalFile(.getChildNode(childNodes, .NODENAME_DEFINITION), .getChildNode(childNodes, .NODENAME_EXTERNALFILE))
+				parseDataSetExternalFile(.getChildNode(childNodes, .NODENAME_DEFINITION), .getChildNode(childNodes, .NODENAME_EXTERNALFILE))
 			)
 		}
 		else if (combinedChildNames == paste(c(.NODENAME_DEFINITION, .NODENAME_TABLE), collapse="|")) {
 			# Load data from inline XML
 			parsed <- DataSet( # create new object out of the data
-				ParseDataSetInline(.getChildNode(childNodes, .NODENAME_DEFINITION), .getChildNode(childNodes, .NODENAME_TABLE))
+				parseDataSetInline(.getChildNode(childNodes, .NODENAME_DEFINITION), .getChildNode(childNodes, .NODENAME_TABLE))
 			)
 		}
 		else {
@@ -170,7 +171,7 @@ ParseElement <- function(node) {
 }
 
 
-#' ParseDataSetInline
+#' parseDataSetInline
 #'
 #' Utility function to parse a DataSet xml structure as it appears in PharmML. 
 #'
@@ -181,7 +182,7 @@ ParseElement <- function(node) {
 #' the meta data about the columns in a data frame; \code{data}, which holds the
 #' actual values in a dataframe.
 #'
-ParseDataSetInline <- function(definitionNode, tableNode) {
+parseDataSetInline <- function(definitionNode, tableNode) {
 
   rowTagName <- "Row"
   columnTagName <- "Column"
@@ -236,7 +237,7 @@ ParseDataSetInline <- function(definitionNode, tableNode) {
 }
 
 
-#' ParseDataSetExternalFile
+#' parseDataSetExternalFile
 #'
 #' Utility function to parse a DataSet xml structure by loading in data from the referenced external file.
 #'
@@ -247,7 +248,7 @@ ParseDataSetInline <- function(definitionNode, tableNode) {
 #' the meta data about the columns in a data frame; \code{data}, which holds the
 #' actual values in a dataframe.
 #'
-ParseDataSetExternalFile <- function(definitionNode, externalFileNode) {
+parseDataSetExternalFile <- function(definitionNode, externalFileNode) {
 
   # Extract all column Information and store in a data frame
   columnInfo = as.data.frame(xmlSApply(definitionNode, FUN = function(x) list(
@@ -268,7 +269,7 @@ ParseDataSetExternalFile <- function(definitionNode, externalFileNode) {
   rownames(columnInfo) <- c("columnNum", "columnType", "valueType")
   
   # Get all ExternalFile elements
-  datf <- ParseExternalFile(externalFileNode)
+  datf <- parseExternalFile(externalFileNode)
 
   if (!is.empty(colnames(datf))) {
   	colnames(datf) <- names(columnInfo)
@@ -278,7 +279,7 @@ ParseDataSetExternalFile <- function(definitionNode, externalFileNode) {
 }
 
 
-#' ParseMatrix
+#' parseMatrix
 #' 
 #' Utility function to parse a Matrix xml structure as it appears in PharmML. 
 #' 
@@ -288,7 +289,7 @@ ParseDataSetExternalFile <- function(definitionNode, externalFileNode) {
 #' @return Returns a dataframe with row and column names taken from the appropriate 
 #' tags in the Matrix structure. 
 #'
-ParseMatrix <- function(matrixNode) {
+parseMatrix <- function(matrixNode) {
   
   if ( (length(matrixNode[[.NODENAME_ROWNAMES]]) == 0) || (length(matrixNode[[.NODENAME_COLNAMES]]) == 0) ) {
 	  warning("No RowNames or ColumnNames found for Matrix element. Skipping...")
@@ -334,7 +335,7 @@ ParseMatrix <- function(matrixNode) {
 }
 
 
-#' ParseExternalFile
+#' parseExternalFile
 #'
 #' Utility function to parse and load in an external file to the PharmML, defined in the 
 #' ExternalFile node passed in. 
@@ -346,7 +347,7 @@ ParseMatrix <- function(matrixNode) {
 #' the meta data about the columns in a data frame; \code{data}, which holds the
 #' actual values in a dataframe.
 #'
-ParseExternalFile <- function(externalFileNode) {
+parseExternalFile <- function(externalFileNode) {
 	
   externalFileAttrs <- xmlApply(externalFileNode, xmlValue)
   
@@ -373,7 +374,7 @@ ParseExternalFile <- function(externalFileNode) {
 }
 
 
-#' @title ParseDataSetDistribution
+#' @title parseDataSetDistribution
 #'
 #' @description Parse a Distribution element in the PharmML SO structure.
 #' 
@@ -387,7 +388,7 @@ ParseExternalFile <- function(externalFileNode) {
 #' 			\code{data}, which holds the actual values in a dataframe
 #' 			 
 #' 
-ParseDataSetDistribution <- function(xmlNodeDataSetDistribution) {
+parseDataSetDistribution <- function(xmlNodeDataSetDistribution) {
 
 	xmlNodeProbOnto <- xmlChildren(xmlNodeDataSetDistribution)[["ProbOnto"]]
 	
@@ -399,7 +400,7 @@ ParseDataSetDistribution <- function(xmlNodeDataSetDistribution) {
 		childName <- xmlName(child)
 		switch(childName,
 			"DataSet" = {
-				dataSet <- ParseElement(child)
+				dataSet <- parseSODataElement(child)
 				retval$description <- dataSet@description
 				retval$data <- dataSet@data
 			},

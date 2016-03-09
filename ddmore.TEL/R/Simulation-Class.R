@@ -56,7 +56,7 @@ setMethod("initialize", "SimulationBlock", function(.Object, xmlNodeSimulationBl
 		
 		.Object@replicate <- xmlAttrs(xmlNodeSimulationBlock)[["replicate"]]
 		
-		# Custom parsing of child nodes that aren't simply handled by ParseElement()
+		# Custom parsing of child nodes that aren't simply handled by parseSODataElement()
 		for (child in .getChildNodes(xmlNodeSimulationBlock)) {
 			childName <- xmlName(child)
 			if (childName == "SimulatedProfiles") {
@@ -117,7 +117,7 @@ setMethod("initialize", "SimulatedProfiles", function(.Object, xmlNodeSimulatedP
 				slot(.Object, spAttrName) <- spAttrs[[spAttrName]]
 			}
 		}
-		.Object@DataSet <- ParseElement(xmlNodeSimulatedProfiles)
+		.Object@DataSet <- parseSODataElement(xmlNodeSimulatedProfiles)
 	}
 	
 	.Object

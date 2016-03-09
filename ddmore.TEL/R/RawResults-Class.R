@@ -59,7 +59,7 @@ setMethod("initialize", "RawResults", function(.Object, xmlNodeRawResults = NULL
 				if (.NODENAME_EXTERNALFILE %in% names(.getChildNodes(childNode))) {
 					externalFileNode <- .getChildNodes(childNode)[[.NODENAME_EXTERNALFILE]]
 					objectId <- xmlAttrs(externalFileNode)[['oid']] # objectId is on nested ExternalFile node instead of on the DataFile node itself as for GraphicsFile
-					.Object@DataFiles[objectId] <- list(ParseExternalFile(externalFileNode))
+					.Object@DataFiles[objectId] <- list(parseExternalFile(externalFileNode))
 				} else {
 					.Object@DataFiles[objectId] <- list(as.list(childTags))
 				}

@@ -129,7 +129,7 @@ setMethod("initialize", "PopulationEstimatesOtherMethod", function(.Object, xmlN
 #est <- .getChildNodes(parentNode = estroot)$Estimation
 #popEst <- .getChildNodes(parentNode = est)$PopulationEstimates
 #popEstMLE <- .getChildNodes(parentNode = popEst)
-#ddmore:::ParseElement(node = popEstMLE[["MLE"]])
+#ddmore:::parseSODataElement(node = popEstMLE[["MLE"]])
 
 setClass(Class = "PopulationEstimates",
     slots = c("MLE", "Bayesian", "OtherMethod"), 
@@ -156,7 +156,7 @@ setMethod("initialize", "PopulationEstimates", function(.Object, xmlNodePopulati
 			childName <- xmlName(child)
 			switch(childName,
     			"MLE" = {
-					.Object@MLE <- ParseElement(child)
+					.Object@MLE <- parseSODataElement(child)
 				},
 				"Bayesian" = {
 					.Object@Bayesian <- new (Class = "PopulationEstimatesBayesian", child)
@@ -516,7 +516,7 @@ setMethod("initialize", "IndividualEstimates", function(.Object, xmlNodeIndividu
 				},
 				"EtaShrinkage" = {
 					# Table expected - TODO call specific function ?
-					.Object@EtaShrinkage <- ParseElement(child)
+					.Object@EtaShrinkage <- parseSODataElement(child)
 				},
 				warning(paste("Unexpected child node of PrecisionPopulationEstimates node encountered: ", childName))
 			)
@@ -655,7 +655,7 @@ setMethod("initialize", "OFMeasures", function(.Object, xmlNodeOFMeasures = NULL
 			}
 			else if (childName %in% c("IndividualContribToLL")) {
 				# Table expected - TODO call specific function ?
-				slot(.Object, childName) <- ParseElement(child)
+				slot(.Object, childName) <- parseSODataElement(child)
 			}
 			else if (childName %in% c("InformationCriteria")) {
 				for (icChild in .getChildNodes(child)) {
@@ -743,7 +743,7 @@ setMethod("initialize", "Estimation", function(.Object, xmlNodeEstimation = NULL
 		for (child in .getChildNodes(xmlNodeEstimation)) {
 			childName <- xmlName(child)
 			if (childName %in% c("Predictions")) {
-				slot(.Object, childName) <- ParseElement(child)
+				slot(.Object, childName) <- parseSODataElement(child)
 			}
 			else if (childName %in% slotNames(.Object)) {
 				slot(.Object, childName) <- new (Class = childName, child)

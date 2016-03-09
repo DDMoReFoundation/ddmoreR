@@ -62,7 +62,7 @@ setMethod("initialize", "OptimalDesignBlock", function(.Object, xmlNodeOptimalDe
 				slot(.Object, spAttrName) <- spAttrs[[spAttrName]]
 			}
 		}
-		# Custom parsing of child nodes that aren't simply handled by ParseElement()
+		# Custom parsing of child nodes that aren't simply handled by parseSODataElement()
 		for (child in .getChildNodes(xmlNodeOptimalDesignBlock)) {
 			childName <- xmlName(child)
 			if (childName %in% c("SimulatedData", "Design")) {
