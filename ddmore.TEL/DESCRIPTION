@@ -32,6 +32,7 @@ Collate:
     "ModelDiagnostic-Class.R"
     "RawResults-Class.R"
     "TaskInformation-Class.R"
+    'StandardOutputObject-Class.R'
     'StandardOutputObject.R'
     'LoadSOObject.R'
     'conversion.R'
