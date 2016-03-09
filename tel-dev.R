@@ -41,7 +41,7 @@ script.files = c(
     "FISServer", "FISJob", "server", "jobExecution", "psnWrappers",
 	"StandardOutputObjectXmlParsers", "StandardOutputObjectCommonClasses",
 	"Estimation-Class", "Simulation-Class", "OptimalDesign-Class", "ModelDiagnostic-Class", "RawResults-Class", "TaskInformation-Class",
-	"StandardOutputObject-Class", "StandardOutputObject", "LoadSOObject"
+	"StandardOutputObject-Class", "StandardOutputObjectDataFunctions", "LoadSOObject"
 )
 
 sapply(script.files, function(s) {
