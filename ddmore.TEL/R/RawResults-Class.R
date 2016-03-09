@@ -16,7 +16,7 @@
 #' print(rr)
 #' validObject(rr)
 #' 
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 
 setClass("RawResults", 
 	# Define the slots
@@ -40,7 +40,7 @@ setClass("RawResults",
 #' Initialisation function / Constructor for RawResults S4 class
 #' @param .Object new instance of the class
 #' @param xmlNodeRawResults XML Node representation of the block
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 setMethod("initialize", "RawResults", function(.Object, xmlNodeRawResults = NULL) {
 	
 	if (!is.null(xmlNodeRawResults)) {

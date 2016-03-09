@@ -21,7 +21,7 @@ Depends:
 Collate:
     'FISJob.R'
     'FISServer.R'
-    'xmlParsers.R'
+    'StandardOutputObjectXmlParsers.R'
     'utils.R'
     'Classes.R'
     'readDataObj.R'

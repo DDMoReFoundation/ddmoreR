@@ -39,7 +39,7 @@ script.files = c(
     "utils", "import", "execute", "conversion", "readDataObj", "updateParObj",
     "getDataObjects", "getParameterObjects", "getPopulationParameters", "getModelObjects", "getTaskPropertiesObjects", "getMDLObjects",
     "FISServer", "FISJob", "server", "jobExecution", "psnWrappers",
-	"xmlParsers", "StandardOutputObjectCommonClasses",
+	"StandardOutputObjectXmlParsers", "StandardOutputObjectCommonClasses",
 	"Estimation-Class", "Simulation-Class", "OptimalDesign-Class", "ModelDiagnostic-Class", "RawResults-Class", "TaskInformation-Class",
 	"StandardOutputObject-Class", "StandardOutputObject", "LoadSOObject"
 )

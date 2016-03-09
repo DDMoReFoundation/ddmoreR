@@ -22,7 +22,7 @@
 #' print(sb)
 #' validObject(sb)
 #' 
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 
 setClass(Class = "SimulationBlock",
 	slots = c(
@@ -47,7 +47,7 @@ setClass(Class = "SimulationBlock",
 #' Initialisation function / Constructor for SimulationBlock S4 class
 #' @param .Object new instance of the class
 #' @param xmlNodeSimulationBlock XML Node representation of the block
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 setMethod("initialize", "SimulationBlock", function(.Object, xmlNodeSimulationBlock = NULL) {
 	
 	if (!is.null(xmlNodeSimulationBlock)) {
@@ -89,7 +89,7 @@ setMethod("initialize", "SimulationBlock", function(.Object, xmlNodeSimulationBl
 #' print(sp)
 #' validObject(sp)
 #' 
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 
 setClass(Class = "SimulatedProfiles",
 	slots = c("name", "extFileNo", "DataSet"),
@@ -107,7 +107,7 @@ setClass(Class = "SimulatedProfiles",
 #' Initialisation function / Constructor for SimulatedProfiles S4 class
 #' @param .Object new instance of the class
 #' @param xmlNodeSimulatedProfiles XML Node representation of the block
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 setMethod("initialize", "SimulatedProfiles", function(.Object, xmlNodeSimulatedProfiles = NULL) {
 	
 	if (!is.null(xmlNodeSimulatedProfiles)) {

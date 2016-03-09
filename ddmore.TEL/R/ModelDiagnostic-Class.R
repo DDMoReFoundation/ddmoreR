@@ -16,7 +16,7 @@
 #' print(dsm)
 #' validObject(dsm)
 #' 
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 
 setClass(Class = "DiagnosticStructuralModel",
 	slots = c("IndivObservationPrediction", "VPC"),
@@ -33,7 +33,7 @@ setClass(Class = "DiagnosticStructuralModel",
 #' Initialisation function / Constructor for DiagnosticStructuralModel S4 class
 #' @param .Object new instance of the class
 #' @param xmlNodeDiagnosticStructuralModel XML Node representation of the block
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 setMethod("initialize", "DiagnosticStructuralModel", function(.Object, xmlNodeDiagnosticStructuralModel = NULL) {
 	.genericParseElements(.Object, xmlNodeDiagnosticStructuralModel)
 })
@@ -56,7 +56,7 @@ setMethod("initialize", "DiagnosticStructuralModel", function(.Object, xmlNodeDi
 #' print(dips)
 #' validObject(dips)
 #' 
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 
 setClass(Class = "DiagnosticIndividualParams",
 	slots = c("RandomEffects", "IndivParamsCovariates", "DistributionIndivParams"),
@@ -74,7 +74,7 @@ setClass(Class = "DiagnosticIndividualParams",
 #' Initialisation function / Constructor for DiagnosticIndividualParams S4 class
 #' @param .Object new instance of the class
 #' @param xmlNodeDiagnosticIndividualParams XML Node representation of the block
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 setMethod("initialize", "DiagnosticIndividualParams", function(.Object, xmlNodeDiagnosticIndividualParams = NULL) {
 	.genericParseElements(.Object, xmlNodeDiagnosticIndividualParams)
 })
@@ -96,7 +96,7 @@ setMethod("initialize", "DiagnosticIndividualParams", function(.Object, xmlNodeD
 #' print(md)
 #' validObject(md)
 #' 
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 
 setClass(Class = "ModelDiagnostic",
 	slots = c("DiagnosticStructuralModel", "DiagnosticIndividualParams"),

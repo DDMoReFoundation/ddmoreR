@@ -23,7 +23,7 @@
 #' @include OptimalDesign-Class.R
 #' @include ModelDiagnostic-Class.R
 #' @include Estimation-Class.R
-#' @include xmlParsers.R 
+#' @include StandardOutputObjectXmlParsers.R 
 
 LoadSOObject <- function(file) {
 	
@@ -41,7 +41,7 @@ LoadSOObject <- function(file) {
 	}
 	
 	# Set working directory to that specified in file
-	# (I (MSW) don't like this, can't we amend the xmlParsers.R to resolve the associated data files
+	# (I (MSW) don't like this, can't we amend the StandardOutputObjectXmlParsers.R to resolve the associated data files
 	# relative to the directory in which the .SO.xml file lives, but remaining in the current directory?)
 	old.wd <- getwd()
     on.exit({
@@ -99,7 +99,7 @@ LoadSOObjects <- function(file) {
 	}
 
 	# Set working directory to that specified in file
-	# (I (MSW) don't like this, can't we amend the xmlParsers.R to resolve the associated data files
+	# (I (MSW) don't like this, can't we amend the StandardOutputObjectXmlParsers.R to resolve the associated data files
 	# relative to the directory in which the .SO.xml file lives, but remaining in the current directory?)
 	old.wd <- getwd()
     on.exit({

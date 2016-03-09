@@ -22,7 +22,7 @@
 #' print(tinfo)
 #' validObject(tinfo)
 #' 
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 #' @include utils.R
 
 setClass(Class = "TaskInformation",
@@ -47,7 +47,7 @@ setClass(Class = "TaskInformation",
 #' Initialisation function / Constructor for TaskInformation S4 class
 #' @param .Object new instance of the class
 #' @param xmlNodeTaskInformation XML Node representation of the block
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 
 setMethod("initialize", "TaskInformation", function(.Object, xmlNodeTaskInformation = NULL) {
 	

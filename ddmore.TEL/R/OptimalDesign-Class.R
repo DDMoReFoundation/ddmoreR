@@ -22,7 +22,7 @@
 #' print(od)
 #' validObject(od)
 #' 
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 
 setClass(Class = "OptimalDesignBlock",
 	slots = c( #"type", - on parent OptimalDesign node
@@ -49,7 +49,7 @@ setClass(Class = "OptimalDesignBlock",
 #' Initialisation function / Constructor for OptimalDesignBlock S4 class
 #' @param .Object new instance of the class
 #' @param xmlNodeOptimalDesignBlock XML Node representation of the block
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 setMethod("initialize", "OptimalDesignBlock", function(.Object, xmlNodeOptimalDesignBlock = NULL) {
 
 	if (!is.null(xmlNodeOptimalDesignBlock)) {

@@ -85,7 +85,7 @@ setClass("StandardOutputObject",
 #' @include ModelDiagnostic-Class.R
 #' @include RawResults-Class.R
 #' @include TaskInformation-Class.R
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 setMethod("initialize", "StandardOutputObject", function(.Object, xmlNodeSOBlock = NULL) {
 
 	# Fetch all Components of the SO object that are defined

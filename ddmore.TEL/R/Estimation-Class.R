@@ -16,7 +16,7 @@
 #' print(bayes)
 #' validObject(bayes)
 #' 
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 
 setClass(Class = "PopulationEstimatesBayesian",
 	slots = c("PosteriorMean", "PosteriorMedian", "PosteriorMode"),
@@ -34,7 +34,7 @@ setClass(Class = "PopulationEstimatesBayesian",
 #' Initialisation function / Constructor for PopulationEstimatesBayesian S4 class
 #' @param .Object new instance of the class
 #' @param xmlNodePopulationEstimatesBayesian XML Node representation of the block
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 setMethod("initialize", "PopulationEstimatesBayesian", function(.Object, xmlNodePopulationEstimatesBayesian = NULL) {
 	.genericParseElements(.Object, xmlNodePopulationEstimatesBayesian)
 })
@@ -55,7 +55,7 @@ setMethod("initialize", "PopulationEstimatesBayesian", function(.Object, xmlNode
 #' print(om)
 #' validObject(om)
 #' 
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 
 setClass(Class = "PopulationEstimatesOtherMethod",
 	slots = c("Mean", "Median"),
@@ -72,7 +72,7 @@ setClass(Class = "PopulationEstimatesOtherMethod",
 #' Initialisation function / Constructor for PopulationEstimatesOtherMethod S4 class
 #' @param .Object new instance of the class
 #' @param xmlNodePopulationEstimatesOtherMethod XML Node representation of the block
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 setMethod("initialize", "PopulationEstimatesOtherMethod", function(.Object, xmlNodePopulationEstimatesOtherMethod = NULL) {
 	.genericParseElements(.Object, xmlNodePopulationEstimatesOtherMethod)
 })
@@ -148,7 +148,7 @@ setClass(Class = "PopulationEstimates",
 #' Initialisation function / Constructor for PopulationEstimates S4 class
 #' @param .Object new instance of the class
 #' @param xmlNodePopulationEstimates XML Node representation of the block
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 setMethod("initialize", "PopulationEstimates", function(.Object, xmlNodePopulationEstimates = NULL) {
 	
 	if (!is.null(xmlNodePopulationEstimates)) {
@@ -198,7 +198,7 @@ setMethod("initialize", "PopulationEstimates", function(.Object, xmlNodePopulati
 #' print(mle)
 #' validObject(mle)
 #' 
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 
 setClass(Class = "PrecisionPopulationEstimatesMLE",
 	slots = c("FIM", "CovarianceMatrix", "CorrelationMatrix", "StandardError", 
@@ -221,7 +221,7 @@ setClass(Class = "PrecisionPopulationEstimatesMLE",
 #' Initialisation function / Constructor for PrecisionPopulationEstimatesMLE S4 class
 #' @param .Object new instance of the class
 #' @param xmlNodePrecisionPopEstsMLE XML Node representation of the block
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 setMethod("initialize", "PrecisionPopulationEstimatesMLE", function(.Object, xmlNodePrecisionPopEstsMLE = NULL) {
 	if (!is.null(xmlNodePrecisionPopEstsMLE)) {
 		.Object <- .genericParseElements(.Object, xmlNodePrecisionPopEstsMLE, customParseChildNodeNames = c("ConditionNumber"))
@@ -251,7 +251,7 @@ setMethod("initialize", "PrecisionPopulationEstimatesMLE", function(.Object, xml
 #' print(bayes)
 #' validObject(bayes)
 #' 
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 
 setClass(Class = "PrecisionPopulationEstimatesBayesian",
 	slots = c("StandardDeviation", "PosteriorDistribution", "PercentilesCI"),
@@ -269,7 +269,7 @@ setClass(Class = "PrecisionPopulationEstimatesBayesian",
 #' Initialisation function / Constructor for PrecisionPopulationEstimatesBayesian S4 class
 #' @param .Object new instance of the class
 #' @param xmlNodePrecisionPopEstsBayesian XML Node representation of the block
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 setMethod("initialize", "PrecisionPopulationEstimatesBayesian", function(.Object, xmlNodePrecisionPopEstsBayesian = NULL) {
 	.genericParseElements(.Object, xmlNodePrecisionPopEstsBayesian)
 })
@@ -296,7 +296,7 @@ setMethod("initialize", "PrecisionPopulationEstimatesBayesian", function(.Object
 #' print(om)
 #' validObject(om)
 #' 
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 
 setClass(Class = "PrecisionPopulationEstimatesOtherMethod",
 	slots = c("CovarianceMatrix", "CorrelationMatrix", "StandardDeviation", "StandardError",
@@ -319,7 +319,7 @@ setClass(Class = "PrecisionPopulationEstimatesOtherMethod",
 #' Initialisation function / Constructor for PrecisionPopulationEstimatesOtherMethod S4 class
 #' @param .Object new instance of the class
 #' @param xmlNodePrecisionPopEstsOtherMethod XML Node representation of the block
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 setMethod("initialize", "PrecisionPopulationEstimatesOtherMethod", function(.Object, xmlNodePrecisionPopEstsOtherMethod = NULL) {
 	.genericParseElements(.Object, xmlNodePrecisionPopEstsOtherMethod)
 })
@@ -357,7 +357,7 @@ setClass(Class = "PrecisionPopulationEstimates",
 #' Initialisation function / Constructor for PrecisionPopulationEstimates S4 class
 #' @param .Object new instance of the class
 #' @param xmlNodePrecisionPopulationEstimates XML Node representation of the block
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 setMethod("initialize", "PrecisionPopulationEstimates", function(.Object, xmlNodePrecisionPopulationEstimates = NULL) {
 	
 	if (!is.null(xmlNodePrecisionPopulationEstimates)) {
@@ -404,7 +404,7 @@ setMethod("initialize", "PrecisionPopulationEstimates", function(.Object, xmlNod
 #' print(paramEsts)
 #' validObject(paramEsts)
 #' 
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 
 setClass(Class = "IndividualEstimatesParamEstimates",
 	slots = c("Mean", "Median", "Mode"),
@@ -422,7 +422,7 @@ setClass(Class = "IndividualEstimatesParamEstimates",
 #' Initialisation function / Constructor for IndividualEstimatesParamEstimates S4 class
 #' @param .Object new instance of the class
 #' @param xmlNodeIndividualEstimatesParamEstimates XML Node representation of the block
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 setMethod("initialize", "IndividualEstimatesParamEstimates", function(.Object, xmlNodeIndividualEstimatesParamEstimates = NULL) {
 	.genericParseElements(.Object, xmlNodeIndividualEstimatesParamEstimates)
 })
@@ -445,7 +445,7 @@ setMethod("initialize", "IndividualEstimatesParamEstimates", function(.Object, x
 #' print(ranEffs)
 #' validObject(ranEffs)
 #' 
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 
 setClass(Class = "IndividualEstimatesRandomEffects",
 	slots = c("EffectMean", "EffectMedian", "EffectMode"),
@@ -463,7 +463,7 @@ setClass(Class = "IndividualEstimatesRandomEffects",
 #' Initialisation function / Constructor for IndividualEstimatesRandomEffects S4 class
 #' @param .Object new instance of the class
 #' @param xmlNodeIndividualEstimatesRandomEffects XML Node representation of the block
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 setMethod("initialize", "IndividualEstimatesRandomEffects", function(.Object, xmlNodeIndividualEstimatesRandomEffects = NULL) {
 	.genericParseElements(.Object, xmlNodeIndividualEstimatesRandomEffects)
 })
@@ -501,7 +501,7 @@ setClass(Class = "IndividualEstimates",
 #' Initialisation function / Constructor for IndividualEstimates S4 class
 #' @param .Object new instance of the class
 #' @param xmlNodeIndividualEstimates XML Node representation of the block
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 setMethod("initialize", "IndividualEstimates", function(.Object, xmlNodeIndividualEstimates = NULL) {
 	
 	if (!is.null(xmlNodeIndividualEstimates)) {
@@ -560,7 +560,7 @@ setClass(Class = "PrecisionIndividualEstimates",
 #' Initialisation function / Constructor for PrecisionIndividualEstimates S4 class
 #' @param .Object new instance of the class
 #' @param xmlNodePrecisionIndividualEstimates XML Node representation of the block
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 setMethod("initialize", "PrecisionIndividualEstimates", function(.Object, xmlNodePrecisionIndividualEstimates = NULL) {
 	.genericParseElements(.Object, xmlNodePrecisionIndividualEstimates)
 })
@@ -597,7 +597,7 @@ setClass(Class = "Residuals",
 #' Initialisation function / Constructor for Residuals S4 class
 #' @param .Object new instance of the class
 #' @param xmlNodeResiduals XML Node representation of the block
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 setMethod("initialize", "Residuals", function(.Object, xmlNodeResiduals = NULL) {
 	.genericParseElements(.Object, xmlNodeResiduals)
 })
@@ -644,7 +644,7 @@ setClass(Class = "OFMeasures",
 #' Initialisation function / Constructor for OFMeasures S4 class
 #' @param .Object new instance of the class
 #' @param xmlNodeOFMeasures XML Node representation of the block
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 setMethod("initialize", "OFMeasures", function(.Object, xmlNodeOFMeasures = NULL) {
 	
 	if (!is.null(xmlNodeOFMeasures)) {
@@ -736,7 +736,7 @@ setClass("Estimation",
 #' Initialisation function / Constructor for Estimation S4 class
 #' @param .Object new instance of the class
 #' @param xmlNodeEstimation XML Node representation of the block
-#' @include xmlParsers.R
+#' @include StandardOutputObjectXmlParsers.R
 setMethod("initialize", "Estimation", function(.Object, xmlNodeEstimation = NULL) {
 	
 	if (!is.null(xmlNodeEstimation)) {
