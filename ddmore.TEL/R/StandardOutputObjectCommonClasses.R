@@ -31,13 +31,14 @@ setClass(Class = "DataSet",
 		data = "matrix"
 	),
     prototype = list(
-		# TODO: Shouldn't this just be creating an empty data frame / matrix?
-		description = data.frame(Col1 = c("1", "unknown", "real")),
-		data = matrix(data = NA_real_, ncol = 1, nrow = 1)
+		description = data.frame(), # data.frame(Col1 = c("1", "unknown", "real"))
+		data = matrix(ncol = 0, nrow = 0) # matrix(data = NA_real_, ncol = 1, nrow = 1)
 	),
-	validity = function(object) { 
-    	stopifnot(ncol(object@description) == ncol(object@data))
-    	stopifnot(all(rownames(object@description) == c("columnNum", "columnType", "valueType")))
+	validity = function(object) {
+		stopifnot(ncol(object@description) == ncol(object@data))
+		if (nrow(object@description) > 0) {
+			stopifnot(all(rownames(object@description) == c("columnNum", "columnType", "valueType")))
+		}
     	return(TRUE)
 	}
 )
