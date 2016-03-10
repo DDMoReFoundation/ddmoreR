@@ -27,13 +27,13 @@
 setClass(Class = "SimulationBlock",
 	slots = c(
 		replicate = "integer",
-		SimulatedProfiles = "list",
-		IndivParameters = "DataSet",
-		RandomEffects = "DataSet",
-		Covariates = "DataSet",
-		Regressors = "DataSet",
-		PopulationParameters = "DataSet",
-		Dosing = "DataSet",
+		SimulatedProfiles = "list", # of SimulationDataSet objects
+		IndivParameters = "list", # of SimulationDataSet objects
+		RandomEffects = "list", # of SimulationDataSet objects
+		Covariates = "list", # of SimulationDataSet objects
+		Regressors = "list", # of SimulationDataSet objects
+		PopulationParameters = "list", # of SimulationDataSet objects
+		Dosing = "list", # of SimulationDataSet objects
 		RawResultsFile = "character"
 	),
 	validity = function(object) {
@@ -50,18 +50,19 @@ setMethod("initialize", "SimulationBlock", function(.Object, xmlNodeSimulationBl
 	
 	if (!is.null(xmlNodeSimulationBlock)) {
 		
-		.Object <- .genericParseElements(.Object, xmlNodeSimulationBlock, customParseChildNodeNames = c("SimulatedProfiles", "RawResultsFile"))
-		
 		.Object@replicate <- as.integer(xmlAttrs(xmlNodeSimulationBlock)[["replicate"]])
 		
-		# Custom parsing of child nodes that aren't simply handled by parseSODataElement()
 		for (child in .getChildNodes(xmlNodeSimulationBlock)) {
 			childName <- xmlName(child)
-			if (childName == "SimulatedProfiles") {
-				# Append each SimulatedProfile to the end of the list
-				slot(.Object, childName) <- as.list(c(slot(.Object, childName), new (Class = "SimulatedProfiles", xmlNodeSimulatedProfiles = child)))
-			} else if (childName == "RawResultsFile") {
+			if (childName == "RawResultsFile") {
 				.Object@RawResultsFile <- xmlValue(.getChildNode(.getChildNodes(child), "path"))
+			}
+			else if (childName %in% slotNames(.Object)) {
+				# Append each SimulationDataSet to the end of the appropriate list
+				slot(.Object, childName) <- append(slot(.Object, childName), new (Class = "SimulationDataSet", child))
+			}
+			else {
+				warning(paste("Unexpected child node of SimulationBlock node encountered:", childName))
 			}
 		}
 	}
@@ -70,54 +71,63 @@ setMethod("initialize", "SimulationBlock", function(.Object, xmlNodeSimulationBl
 })
 
 
-#' The SimulatedProfiles Object Class (S4) 
+#' The SimulationDataSet Object Class (S4) 
 #'
-#' An object to house all data associated with Simulation Block Simulated Profiles.
+#' An object to house all data associated with the following Simulation Block nested blocks:
+#' SimulatedProfiles, IndivParameters, RandomEffects, Covariates, Regressors, PopulationParameters, Dosing.
+#' 
+#' For the purposes of representation within the SO class structure, this is a \linkS4class{DataSet}
+#' class augmented with optional name and extFileNo attributes.
 #' 
 #' @slot name string
 #' @slot extFileNo integer
-#' @slot DataSet DataSet object
+#' @slot description (Optional) dataframe containing column header information for dataset
+#' @slot data (Optional) matrix containing actual data with one column for each column in description
 #' 
-#' @name SimulatedProfiles-class
-#' @rdname SimulatedProfiles-class
-#' @exportClass SimulatedProfiles
-#' @aliases SimulatedProfiles
+#' @name SimulationDataSet-class
+#' @rdname SimulationDataSet-class
+#' @exportClass SimulationDataSet
+#' @aliases SimulationDataSet
 #' @examples
-#' sp <- new(Class = "SimulatedProfiles")
-#' print(sp)
-#' validObject(sp)
+#' sds <- new(Class = "SimulationDataSet")
+#' print(sds)
+#' validObject(sds)
 #' 
 #' @include StandardOutputObjectXmlParsers.R
 
-setClass(Class = "SimulatedProfiles",
+setClass(Class = "SimulationDataSet",
+	contains = "DataSet", # superclass
 	slots = c(
 		name = "character",
-		extFileNo = "integer",
-		DataSet = "DataSet"
+		extFileNo = "integer"
 	),
 	validity = function(object) {
-		# TODO implement checking
+		# TODO implement this checking
 		return(TRUE)
 	}
 )
 
-#' Initialisation function / Constructor for SimulatedProfiles S4 class
+#' Initialisation function / Constructor for \linkS4class{SimulationDataSet} S4 class,
+#' subclass of \linkS4class{DataSet} S4 class.
+#' 
 #' @param .Object new instance of the class
-#' @param xmlNodeSimulatedProfiles XML Node representation of the block
+#' @param xmlNodeSimulationDataSet XML Node representation of the block
+#' 
+#' @slot description (Optional) dataframe containing column header information for dataset
+#' @slot data (Optional) matrix containing actual data with one column for each column in description
+#' 
 #' @include StandardOutputObjectXmlParsers.R
-setMethod("initialize", "SimulatedProfiles", function(.Object, xmlNodeSimulatedProfiles = NULL) {
-	
-	if (!is.null(xmlNodeSimulatedProfiles)) {
-		spAttrs <- xmlAttrs(xmlNodeSimulatedProfiles)
+setMethod("initialize", "SimulationDataSet", function(.Object, xmlNodeSimulationDataSet) {
+	if (!is.null(xmlNodeSimulationDataSet)) {
+		spAttrs <- xmlAttrs(xmlNodeSimulationDataSet)
 		for (spAttrName in names(spAttrs)) {
 			switch (spAttrName,
-				"name" = slot(.Object, spAttrName) <- spAttrs[[spAttrName]],
-				"extFileNo" = slot(.Object, spAttrName) <- as.integer(spAttrs[[spAttrName]])
+					"name" = slot(.Object, spAttrName) <- spAttrs[[spAttrName]],
+					"extFileNo" = slot(.Object, spAttrName) <- as.integer(spAttrs[[spAttrName]])
 			)
 		}
-		.Object@DataSet <- parseSODataElement(xmlNodeSimulatedProfiles)
+		dataSet <- parseSODataElement(xmlNodeSimulationDataSet)
+		callNextMethod(.Object, dataSet@description, dataSet@data)
 	}
-	
-	.Object
 })
 
