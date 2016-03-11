@@ -59,7 +59,7 @@
 #' #Estimation::PrecisionPopulationEstimates::MLE
 #' #Estimation::PrecisionPopulationEstimates::Bayesian
 
-setGeneric("getPopulatedSlots", function(object) {
+setGeneric("getPopulatedSlots", function(object, ...) {
 			
 	res <- NULL
 	

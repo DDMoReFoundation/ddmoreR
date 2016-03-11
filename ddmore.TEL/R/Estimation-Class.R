@@ -451,8 +451,10 @@ setMethod("initialize", "IndividualEstimatesParamEstimates", function(.Object, x
 })
 
 # Simplify the indication of the slots that are populated for IndividualEstimatesParamEstimates object,
-# to essentially a yes/no as to whether it has any of Mean/Median/Mode DataSet objects
-setMethod("getPopulatedSlots", "IndividualEstimatesParamEstimates", function(object) {
+# to essentially a yes/no as to whether it has any of Mean/Median/Mode DataSet objects.
+# Note that the 'full' parameter is used internally by getIndividualParameters()
+setMethod("getPopulatedSlots", "IndividualEstimatesParamEstimates", function(object, full = FALSE) {
+	if (full) return(callNextMethod(object))
 	if (length(callNextMethod(object)) > 0) list()
 })
 
@@ -497,8 +499,10 @@ setMethod("initialize", "IndividualEstimatesRandomEffects", function(.Object, xm
 })
 
 # Simplify the indication of the slots that are populated for IndividualEstimatesRandomEffects object,
-# to essentially a yes/no as to whether it has any of EffectMean/EffectMedian/EffectMode DataSet objects
-setMethod("getPopulatedSlots", "IndividualEstimatesRandomEffects", function(object) {
+# to essentially a yes/no as to whether it has any of EffectMean/EffectMedian/EffectMode DataSet objects.
+# Note that the 'full' parameter is used internally by getIndividualParameters()
+setMethod("getPopulatedSlots", "IndividualEstimatesRandomEffects", function(object, full = FALSE) {
+	if (full) return(callNextMethod(object))
 	if (length(callNextMethod(object)) > 0) list()
 })
 
