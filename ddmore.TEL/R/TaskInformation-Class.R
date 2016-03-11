@@ -97,4 +97,9 @@ setMethod("initialize", "TaskInformation", function(.Object, xmlNodeTaskInformat
 	.Object
 })
 
+# Task Information messages are already written out to the console as part of
+# loading in the SO so won't include these here as well
+setMethod("getPopulatedSlots", "TaskInformation", function(object) {
+	NULL
+})
 

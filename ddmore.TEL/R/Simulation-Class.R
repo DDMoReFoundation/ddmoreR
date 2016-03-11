@@ -70,6 +70,22 @@ setMethod("initialize", "SimulationBlock", function(.Object, xmlNodeSimulationBl
 	.Object
 })
 
+# Simplify the indication of the slots that are populated for SimulationBlock object,
+# to essentially a yes/no for each of the lists of SimulationDataSet objects overall,
+# rather than explicitly listing each element of each list
+setMethod("getPopulatedSlots", "SimulationBlock", function(object) {
+	res <- NULL
+	for (slotName in slotNames(object)) {
+		nestedObj <- slot(object, slotName)
+		if (class(nestedObj) == "list") {
+			if (length(getPopulatedSlots(nestedObj)) > 0) {
+				res <- append(res, paste0(slotName, "[]"))
+			}
+		}
+	}
+	res
+})
+
 
 #' The SimulationDataSet Object Class (S4) 
 #'

@@ -38,6 +38,13 @@ setMethod("initialize", "PopulationEstimatesBayesian", function(.Object, xmlNode
 	.genericParseElements(.Object, xmlNodePopulationEstimatesBayesian)
 })
 
+# Simplify the indication of the slots that are populated for PopulationEstimatesBayesian
+# object, to essentially a yes/no as to whether it has any of
+# PosteriorMean/PosteriorMedian/PosteriorMode DataSet objects
+setMethod("getPopulatedSlots", "PopulationEstimatesBayesian", function(object) {
+	if (length(callNextMethod(object)) > 0) list()
+})
+
 #' The PopulationEstimatesOtherMethod Object Class (S4) 
 #'
 #' An object to house all data associated with a set of OtherMethod-related data of the population estimates.
@@ -73,6 +80,12 @@ setClass(Class = "PopulationEstimatesOtherMethod",
 #' @include StandardOutputObjectXmlParsers.R
 setMethod("initialize", "PopulationEstimatesOtherMethod", function(.Object, xmlNodePopulationEstimatesOtherMethod = NULL) {
 	.genericParseElements(.Object, xmlNodePopulationEstimatesOtherMethod)
+})
+
+# Simplify the indication of the slots that are populated for PopulationEstimatesOtherMethod object,
+# to essentially a yes/no as to whether it has Mean and/or Median DataSet objects, or not
+setMethod("getPopulatedSlots", "PopulationEstimatesOtherMethod", function(object) {
+	if (length(callNextMethod(object)) > 0) list()
 })
 
 #' The PopulationEstimates Object Class (S4) 
@@ -228,6 +241,12 @@ setMethod("initialize", "PrecisionPopulationEstimatesMLE", function(.Object, xml
 	.Object
 })
 
+# Simplify the indication of the slots that are populated for PrecisionPopulationEstimatesMLE object,
+# to essentially a yes/no as to whether it has any of its sub-objects (of types DataSet or dataframe), or not
+setMethod("getPopulatedSlots", "PrecisionPopulationEstimatesMLE", function(object) {
+	if (length(callNextMethod(object)) > 0) list()
+})
+
 #' The PrecisionPopulationEstimatesBayesian Object Class (S4) 
 #'
 #' An object to house all data associated with the Bayesian-related data of the
@@ -266,6 +285,13 @@ setClass(Class = "PrecisionPopulationEstimatesBayesian",
 #' @include StandardOutputObjectXmlParsers.R
 setMethod("initialize", "PrecisionPopulationEstimatesBayesian", function(.Object, xmlNodePrecisionPopEstsBayesian = NULL) {
 	.genericParseElements(.Object, xmlNodePrecisionPopEstsBayesian)
+})
+
+# Simplify the indication of the slots that are populated for PrecisionPopulationEstimatesBayesian
+# object, to essentially a yes/no as to whether it has any of
+# StandardDeviation/PosteriorDistribution/PercentilesCI DataSet objects
+setMethod("getPopulatedSlots", "PrecisionPopulationEstimatesBayesian", function(object) {
+	if (length(callNextMethod(object)) > 0) list()
 })
 
 #' The PrecisionPopulationEstimatesOtherMethod Object Class (S4) 
@@ -314,6 +340,12 @@ setClass(Class = "PrecisionPopulationEstimatesOtherMethod",
 #' @include StandardOutputObjectXmlParsers.R
 setMethod("initialize", "PrecisionPopulationEstimatesOtherMethod", function(.Object, xmlNodePrecisionPopEstsOtherMethod = NULL) {
 	.genericParseElements(.Object, xmlNodePrecisionPopEstsOtherMethod)
+})
+
+# Simplify the indication of the slots that are populated for PrecisionPopulationEstimatesOtherMethod object,
+# to essentially a yes/no as to whether it has any of its sub-objects (of types DataSet or dataframe), or not
+setMethod("getPopulatedSlots", "PrecisionPopulationEstimatesOtherMethod", function(object) {
+	if (length(callNextMethod(object)) > 0) list()
 })
 
 #' The PrecisionPopulationEstimates Object Class (S4) 
@@ -418,6 +450,12 @@ setMethod("initialize", "IndividualEstimatesParamEstimates", function(.Object, x
 	.genericParseElements(.Object, xmlNodeIndividualEstimatesParamEstimates)
 })
 
+# Simplify the indication of the slots that are populated for IndividualEstimatesParamEstimates object,
+# to essentially a yes/no as to whether it has any of Mean/Median/Mode DataSet objects
+setMethod("getPopulatedSlots", "IndividualEstimatesParamEstimates", function(object) {
+	if (length(callNextMethod(object)) > 0) list()
+})
+
 #' The IndividualEstimatesRandomEffects Object Class (S4) 
 #'
 #' An object to house all data associated with the random effects related data
@@ -456,6 +494,12 @@ setClass(Class = "IndividualEstimatesRandomEffects",
 #' @include StandardOutputObjectXmlParsers.R
 setMethod("initialize", "IndividualEstimatesRandomEffects", function(.Object, xmlNodeIndividualEstimatesRandomEffects = NULL) {
 	.genericParseElements(.Object, xmlNodeIndividualEstimatesRandomEffects)
+})
+
+# Simplify the indication of the slots that are populated for IndividualEstimatesRandomEffects object,
+# to essentially a yes/no as to whether it has any of EffectMean/EffectMedian/EffectMode DataSet objects
+setMethod("getPopulatedSlots", "IndividualEstimatesRandomEffects", function(object) {
+	if (length(callNextMethod(object)) > 0) list()
 })
 
 #' The IndividualEstimates Object Class (S4) 

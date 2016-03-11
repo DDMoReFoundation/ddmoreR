@@ -70,3 +70,9 @@ setMethod("initialize", "RawResults", function(.Object, xmlNodeRawResults = NULL
 	.Object
 })
 
+# Simplify the indication of the slots that are populated for RawResults object,
+# to essentially a yes/no as to whether it has any DataFiles or GraphicsFiles
+setMethod("getPopulatedSlots", "RawResults", function(object) {
+	if (length(object@DataFiles) + length(object@GraphicsFiles)) list()
+})
+

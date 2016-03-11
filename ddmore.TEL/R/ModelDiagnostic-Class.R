@@ -37,6 +37,12 @@ setMethod("initialize", "DiagnosticStructuralModel", function(.Object, xmlNodeDi
 	.genericParseElements(.Object, xmlNodeDiagnosticStructuralModel)
 })
 
+# Simplify the indication of the slots that are populated for DiagnosticStructuralModel
+# object, to essentially a yes/no as to whether any of the slots are populated
+setMethod("getPopulatedSlots", "DiagnosticStructuralModel", function(object) {
+	if (length(callNextMethod(object)) > 0) list()
+})
+
 
 #' The DiagnosticIndividualParams Object Class (S4) 
 #'
@@ -75,6 +81,12 @@ setClass(Class = "DiagnosticIndividualParams",
 #' @include StandardOutputObjectXmlParsers.R
 setMethod("initialize", "DiagnosticIndividualParams", function(.Object, xmlNodeDiagnosticIndividualParams = NULL) {
 	.genericParseElements(.Object, xmlNodeDiagnosticIndividualParams)
+})
+
+# Simplify the indication of the slots that are populated for DiagnosticIndividualParams
+# object, to essentially a yes/no as to whether any of the slots are populated
+setMethod("getPopulatedSlots", "DiagnosticIndividualParams", function(object) {
+	if (length(callNextMethod(object)) > 0) list()
 })
 
 

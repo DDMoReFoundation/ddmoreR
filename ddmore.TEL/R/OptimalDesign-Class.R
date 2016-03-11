@@ -70,3 +70,9 @@ setMethod("initialize", "OptimalDesignBlock", function(.Object, xmlNodeOptimalDe
 	.Object
 })
 
+# Simplify the indication of the slots that are populated for OptimalDesignBlock
+# object, to essentially a yes/no as to whether any of the slots are populated
+setMethod("getPopulatedSlots", "OptimalDesignBlock", function(object) {
+	if (length(callNextMethod(object)) > 0) list()
+})
+
