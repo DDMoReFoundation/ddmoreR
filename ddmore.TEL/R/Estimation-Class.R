@@ -662,10 +662,11 @@ setClass(Class = "OFMeasures",
 		ToolObjFunction = "numeric",
 		IndividualContribToLL = "DataSet",
 		InformationCriteria = "list"
-	), 
-    prototype = list(
-        InformationCriteria = list(AIC = numeric(0), BIC = numeric(0), DIC = numeric(0))
 	),
+    # TODO do we want to have these default values? if there is no InformationCriteria block in the SO XML? 
+    #prototype = list(
+    #    InformationCriteria = list(AIC = numeric(0), BIC = numeric(0), DIC = numeric(0))
+	#),
     validity = function(object) { 
         # TODO implement checking
         return(TRUE)
@@ -705,6 +706,19 @@ setMethod("initialize", "OFMeasures", function(.Object, xmlNodeOFMeasures = NULL
 	}
 
 	.Object
+})
+
+# Custom getPopulatedSlots() implementation for the OFMeasures class that includes the numeric slots
+# that would normally be considered to be trivial and thus not included in the output.
+setMethod("getPopulatedSlots", "OFMeasures", function(object) {
+	res <- callNextMethod(object)
+	for (slotName in slotNames(object)) {
+		slotValue <- slot(object, slotName)
+		if (class(slotValue) %in% c("numeric","integer")) {
+			res <- append(res, if (length(slotValue) > 0) slotName)
+		}
+	}
+	res
 })
 
 

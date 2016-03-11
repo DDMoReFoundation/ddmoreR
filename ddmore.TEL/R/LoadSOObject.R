@@ -54,7 +54,7 @@ LoadSOObject <- function(file) {
 	SOObject <- new (Class = "StandardOutputObject", soBlocks[[1]])
 	
 	# Print parsed elements
-	message(paste("\nThe following elements were parsed successfully:", paste(getPopulatedSlots(SOObject), collapse="\n  "), sep="\n  "))
+	message(paste("\nThe following main elements were parsed successfully:", paste(getPopulatedSlots(SOObject), collapse="\n  "), sep="\n  "))
 	
 	# Populate the (hidden) slot specifying the XML file from which this SO was parsed
 	slot(object = SOObject, name = ".pathToSourceXML") <- file
