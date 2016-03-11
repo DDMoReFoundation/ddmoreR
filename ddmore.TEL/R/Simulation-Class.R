@@ -78,8 +78,11 @@ setMethod("getPopulatedSlots", "SimulationBlock", function(object) {
 	for (slotName in slotNames(object)) {
 		nestedObj <- slot(object, slotName)
 		if (class(nestedObj) == "list") {
-			if (length(getPopulatedSlots(nestedObj)) > 0) {
-				res <- append(res, paste0(slotName, "[]"))
+			populatedSubSlots <- getPopulatedSlots(nestedObj)
+			if (length(populatedSubSlots) == 1) {
+				res <- append(res, paste0(slotName, "[1]"))
+			} else if (length(populatedSubSlots) > 1) {
+				res <- append(res, paste0(slotName, "[1..", length(populatedSubSlots), "]"))
 			}
 		}
 	}
