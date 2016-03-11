@@ -1,11 +1,15 @@
+# ================================================================================ #
+# Higher-level getter Functions for returning data from the Standard Output Object #
+# ================================================================================ #
+
 #' getIndividualParameters
 #'
 #' This function acts on an object of class \linkS4class{StandardOutputObject}
 #' and returns information about the parameter values for the individuals.  
 #' 
-#' @param SOObject an object of class StandardOutputObject, the output from an estimation task
-#' @param what a character vector specifying which measure of central tendency to return, 
-#' 		  either "Mean" (default), "Median" or "Mode"
+#' @param SOObject an object of class StandardOutputObject, the output from an estimation task.
+#' @param what a character string (case insensitive) specifying which measure of central tendency to return, 
+#' 		  either "Mean" (default), "Median" or "Mode".
 #'
 #' @return A dataframe, consisting of the data from the relevant slot (Mean, Median or Mode) of the
 #' 		   Estimation::IndividualEstimates::Estimates object in the SO structure, merged (on the ID column)
@@ -24,25 +28,25 @@ getIndividualParameters <- function(SOObject, what="Mean") {
 
 	# Error checking
 	if (class(SOObject) != "StandardOutputObject") {
-		stop(paste0("getEstimationInfo expected a StandardOutputObject as input, got a ", class(SOObject), '.'))
+		stop(paste0("getIndividualParameters() expected a StandardOutputObject as input, got a ", class(SOObject), '.'))
   	}
 	if (!(tolower(what) %in% c("mean", "mode", "median"))) {
-		stop("Unrecognised value specified for 'what' parameter.")
+		stop("Unrecognised value specified for 'what' parameter. Must be \"mean\", \"median\" or \"mode\" (case insensitive).")
 	}
 
 	# Determine slots to look up from those available
 	targetEstimateSlotName = list(mean="Mean", mode="Mode", median="Median")[[tolower(what)]]
 	targetRandomEffectsSlotName = list(mean="EffectMean", mode="EffectMode", median="EffectMedian")[[tolower(what)]]
 	
-	df1 <<- NULL
-	df2 <<- NULL
+	df1 <- NULL
+	df2 <- NULL
 	
 	if (targetEstimateSlotName %in% getPopulatedSlots(SOObject@Estimation@IndividualEstimates@Estimates, full=TRUE)) {
-		df1 <<- slot(SOObject@Estimation@IndividualEstimates@Estimates, targetEstimateSlotName)@data
+		df1 <- as.data.frame(slot(SOObject@Estimation@IndividualEstimates@Estimates, targetEstimateSlotName))
 	}
 	
 	if (targetRandomEffectsSlotName %in% getPopulatedSlots(SOObject@Estimation@IndividualEstimates@RandomEffects, full=TRUE)) {
-		df2 <<- slot(SOObject@Estimation@IndividualEstimates@RandomEffects, targetRandomEffectsSlotName)@data
+		df2 <- as.data.frame(slot(SOObject@Estimation@IndividualEstimates@RandomEffects, targetRandomEffectsSlotName))
 	}
 	
 	if (is.null(df1) && is.null(df2)) {
