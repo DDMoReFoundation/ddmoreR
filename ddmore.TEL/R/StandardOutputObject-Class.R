@@ -80,86 +80,49 @@ setMethod("initialize", "StandardOutputObject", function(.Object, xmlNodeSOBlock
 	# Fetch all Components of the SO object that are defined
 	soChildren <- .getChildNodes(xmlNodeSOBlock)
 	
-	messageList <- list(parsed=list(), skipped=list())
-	
 	# Error checking of unexpected elements
 	expectedTags <- grep(pattern = '^[^\\.]', x = slotNames(.Object), value = TRUE) # Slots of SO class excluding those we want to treat as hidden i.e. .pathToSourceXML
 	unexpected <- setdiff(names(soChildren), expectedTags)
 	if (length(unexpected) != 0) {
-		warning(paste("The following unexpected elements were detected in the PharmML SO. These will be ignored.", 
-						paste(unexpected, collapse="\n      "), sep="\n      "))
+		warning(paste("The following unexpected top-level elements were detected in the PharmML SO. These will be ignored.", 
+			paste(unexpected, collapse="\n      "), sep="\n      "))
 	}
 	
 	# Error checking of expected XML structure + Parser Execution
 	if ("ToolSettings" %in% names(soChildren)) {
-		
 		# Extract child tags and values as a list with names = tag names and elements = tag values
 		xmlNodeToolSettings <- soChildren[["ToolSettings"]]
 		.Object@ToolSettings <- xmlApply(xmlNodeToolSettings, xmlValue)
 		names(.Object@ToolSettings) <- xmlApply(xmlNodeToolSettings, function(x) { xmlAttrs(x)[["oid"]] })
-		
-		messageList[["parsed"]] <- append(messageList[["parsed"]], "ToolSettings")
-	} else {
-		messageList[["skipped"]] <- append(messageList[["skipped"]], "ToolSettings")
 	}
-	
 	if ("RawResults" %in% names(soChildren)) {
 		.Object@RawResults <- new (Class = "RawResults", .getChildNode(soChildren, "RawResults"))
-		messageList[["parsed"]] <- append(messageList[["parsed"]], "RawResults")
-	} else {
-		messageList[["skipped"]] <- append(messageList[["skipped"]], "RawResults")
 	}
-	
 	if ("TaskInformation" %in% names(soChildren)) {
 		.Object@TaskInformation <- new (Class = "TaskInformation", .getChildNode(soChildren, "TaskInformation"))
-		messageList[["parsed"]] <- append(messageList[["parsed"]], "TaskInformation")
-	} else {
-		messageList[["skipped"]] <- append(messageList[["skipped"]], "TaskInformation")
 	}
-	
 	if ("Estimation" %in% names(soChildren)) {
 		.Object@Estimation <- new (Class = "Estimation", .getChildNode(soChildren, "Estimation"))
-		messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation")
-	} else {
-		messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation")
 	}
-	
 	if ("Simulation" %in% names(soChildren)) {
-		
 		# Parse all Simulation Blocks within the Simulation node
 		simulationBlockNodeList <- soChildren[["Simulation"]][names(soChildren[["Simulation"]]) == "SimulationBlock"]
 		.Object@Simulation <- lapply(
 				X = simulationBlockNodeList,
 				FUN = function(xmlNodeSimulationBlock) { new (Class = "SimulationBlock", xmlNodeSimulationBlock = xmlNodeSimulationBlock) }
 		)
-		
-		messageList[["parsed"]] <- append(messageList[["parsed"]], "Simulation")
-	} else {
-		messageList[["skipped"]] <- append(messageList[["skipped"]], "Simulation")
 	}
-	
 	if ("OptimalDesign" %in% names(soChildren)) {
-		
 		# Parse all OptimalDesign Blocks within the Simulation node
 		optimalDesignBlockNodeList <- soChildren[["OptimalDesign"]][names(soChildren[["OptimalDesign"]]) == "OptimalDesignBlock"]
 		.Object@OptimalDesign <- lapply(
 				X = optimalDesignBlockNodeList,
 				FUN = function(xmlNodeOptimalDesignBlock) { new (Class = "OptimalDesignBlock", xmlNodeOptimalDesignBlock = xmlNodeOptimalDesignBlock) }
 		)
-		
-		messageList[["parsed"]] <- append(messageList[["parsed"]], "OptimalDesign")	
-	} else {
-		messageList[["skipped"]] <- append(messageList[["skipped"]], "OptimalDesign")
 	}
-	
 	if ("ModelDiagnostic" %in% names(soChildren)) {
-		
 		# Parse the ModelDiagnostic block
 		.Object@ModelDiagnostic <- new (Class = "ModelDiagnostic", .getChildNode(soChildren, "ModelDiagnostic"))
-		
-		messageList[["parsed"]] <- append(messageList[["parsed"]], "ModelDiagnostic")	
-	} else {
-		messageList[["skipped"]] <- append(messageList[["skipped"]], "ModelDiagnostic")
 	}
 
 	# Run validation functions on S4 Class and subclasses
@@ -169,10 +132,6 @@ setMethod("initialize", "StandardOutputObject", function(.Object, xmlNodeSOBlock
 	validObject(.Object@Estimation)
 	validObject(.Object@Simulation)
 	validObject(.Object@OptimalDesign)
-	
-	# Print parsed and skipped elements
-	message(paste("\nThe following elements were parsed successfully:", 
-			paste(messageList$parsed, collapse="\n      "), sep="\n      "))
 	
 	.Object
 })

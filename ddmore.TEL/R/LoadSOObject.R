@@ -50,7 +50,11 @@ LoadSOObject <- function(file) {
     })
 	setwd(dirname(file))
 	
-	SOObject <- .createSOObjectFromXMLSOBlock(soBlocks[[1]])
+	# Parse the SO XML tree structure and create the corresponding StandardOutputObject R object structure
+	SOObject <- new (Class = "StandardOutputObject", soBlocks[[1]])
+	
+	# Print parsed elements
+	message(paste("\nThe following elements were parsed successfully:", paste(getPopulatedSlots(SOObject), collapse="\n  "), sep="\n  "))
 	
 	# Populate the (hidden) slot specifying the XML file from which this SO was parsed
 	slot(object = SOObject, name = ".pathToSourceXML") <- file
@@ -116,7 +120,7 @@ LoadSOObjects <- function(file) {
 		xmlAttrs(soBlock)[["blkId"]]
 	}))
 
-	SOObjectList <- lapply(SOBlockList, .createSOObjectFromXMLSOBlock)
+	SOObjectList <- lapply(SOBlockList, new, Class = "StandardOutputObject")
   
 	# Populate the (hidden) slot specifying the XML file from which this SO was parsed
 	SOObjectList <- lapply(SOObjectList, function(SOObject) {
@@ -133,20 +137,6 @@ LoadSOObjects <- function(file) {
 
 	names(SOObjectList) <- soObjNames
 	SOObjectList
-}
-
-#'
-#' Process an SOBlock element and its sub-tree of elements, from the SO XML tree, and populate
-#' a \linkS4class{StandardOutputObject} object from the data contained within.
-#' Delegates the parsing to the class initialiser/constructor.
-#'
-#' @param xmlNodeSOBlock
-#' @return object of class \linkS4class{StandardOutputObject}
-#' 
-#' @include StandardOutputObject-Class.R
-#' 
-.createSOObjectFromXMLSOBlock <- function(xmlNodeSOBlock) {
-	new (Class = "StandardOutputObject", xmlNodeSOBlock)
 }
 
 # get messages out of SO objects
