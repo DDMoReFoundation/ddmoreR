@@ -185,36 +185,35 @@ setMethod("getPopulatedSlots", "DataSet", function(object) {
 #'         row.names = c("columnNum", "columnType", "valueType"), stringsAsFactors = FALSE), 
 #'     data = matrix(1:10, ncol = 2))
 #' as.data.frame(x = dat)
+#' @export
 
-setGeneric("as.data.frame")
-
-setMethod(f = "as.data.frame", 
-	signature = "DataSet", 
-	definition = function(x, ...) {
-		validObject(x)
-		out <- as.data.frame(x@data, stringsAsFactors = FALSE)
-		
-		# update order
-		index <- as.numeric(unlist(x@description["columnNum", , drop = FALSE]))
-		out <- out[, index, drop = FALSE]
-		colnames(out) <- colnames(x@description)
-		for (i in seq_along(x@description)) {
-    		# manually parse valueType
-    		asType <- switch(x@description["valueType", i],
-        			"real" = as.numeric, 
-        			"Real" = as.numeric, 
-        			"integer" = as.integer, 
-        			"Int" = as.integer, 
-        			"Char" = as.character, 
-        			"String" = as.character, 
-        			"Text" = as.character, {
-            			warning("type not recognized in DataSet, treating as Real")
-            			as.numeric
-        			})
-    		out[[i]] <- asType(out[[i]])
-		}
-		return(out)
-	})
+#setGeneric("as.data.frame")
+as.data.frame.DataSet <- function(x, ...) {
+#setMethod("as.data.frame", "DataSet", function(x, ...) {
+	validObject(x)
+	out <- as.data.frame(x@data, stringsAsFactors = FALSE)
+	
+	# update order
+	index <- as.numeric(unlist(x@description["columnNum", , drop = FALSE]))
+	out <- out[, index, drop = FALSE]
+	colnames(out) <- colnames(x@description)
+	for (i in seq_along(x@description)) {
+		# manually parse valueType
+		asType <- switch(tolower(x@description[["valueType", i]]),
+    			"real" = as.numeric, 
+    			"integer" = as.integer, 
+    			"int" = as.integer, 
+    			"char" = as.character, 
+    			"string" = as.character, 
+    			"text" = as.character,
+				{
+        			warning("type not recognized in DataSet, treating as Real")
+        			as.numeric
+    			})
+		out[[i]] <- asType(out[[i]])
+	}
+	out
+}
 
 
 #' The DataSetDistribution Object Class (S4)
