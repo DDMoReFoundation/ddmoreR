@@ -9,8 +9,7 @@
 #' from the log will also be stored in the returned output. If there are any errors of warnings, 
 #' these will also be printed to the console.   
 #'
-#' @param object an object of class StandardOutputObject, the output from an 
-#' estimation task.
+#' @param object an object of class StandardOutputObject, the output from an estimation task
 #'
 #' @return A nested list with two elements:.
 #'         \describe{
@@ -23,34 +22,35 @@
 #' @export 
 getEstimationInfo <- function(SOObject){
   
-  if (!isS4(SOObject) && class(SO) == "StandardOutputObject") {
-    stop(paste0("getEstimationInfo expected a StandardOutputObject as input, got a ", class(SOObject), '.'))
-  }
+	if (class(SOObject) != "StandardOutputObject") {
+		stop(paste0("getEstimationInfo expected a StandardOutputObject as input, got a ", class(SOObject), '.'))
+  	}
 
-  # Fetch Liklihood information
-  likelihood <- SOObject@Estimation@OFMeasures
-  if ("IndividualContribToLL" %in% names(likelihood)) {
-    likelihood[["IndividualContribToLL"]] <- likelihood[["IndividualContribToLL"]][["data"]]
-  } 
+  # Fetch Likelihood information
+
+  likelihood <- list()
+  if ("IndividualContribToLL" %in% getPopulatedSlots(SOObject@Estimation@OFMeasures)) {
+    likelihood[["IndividualContribToLL"]] <- as.data.frame(SOObject@Estimation@OFMeasures@IndividualContribToLL)
+  }
   # Format as numeric 
-  if ("InformationCriteria" %in% names(likelihood)) {
-    likelihood[["InformationCriteria"]] <- lapply(likelihood$InformationCriteria, as.numeric)
+  if ("InformationCriteria" %in% getPopulatedSlots(SOObject@Estimation@OFMeasures)) {
+    likelihood[["InformationCriteria"]] <- lapply(SOObject@Estimation@OFMeasures@InformationCriteria, as.numeric)
   }
 
   # Fetch Messages 
   info.msgs <- list()
-  for (elem in (SOObject@TaskInformation$Messages$Info)) { 
+  for (elem in (SOObject@TaskInformation@InformationMessages)) { 
     info.msgs[[elem$Name]] <- elem$Content
   }
   err.msgs <- list()
-  for (elem in (SOObject@TaskInformation$Messages$Errors)) { 
+  for (elem in (SOObject@TaskInformation@ErrorMessages)) { 
     err.msgs[[elem$Name]] <- elem$Content
   }
   warn.msgs <- list()
-  for (elem in (SOObject@TaskInformation$Messages$Warnings)) { 
+  for (elem in (SOObject@TaskInformation@WarningMessages)) { 
     warn.msgs[[elem$Name]] <- elem$Content
   }
-  # Drop and list that does not contain messages
+  # Drop any list that does not contain messages
   temp.list <- list(Info=info.msgs, Errors=err.msgs, Warnings=warn.msgs)
   messages <- list()
   for (msg.list.name in names(temp.list)) {
@@ -60,15 +60,15 @@ getEstimationInfo <- function(SOObject){
   }
 
   # Print out any errors in the SO Object to the R console to make it obvious if execution failed
-  if (length(SOObject@TaskInformation$Messages$Errors) > 0) {
+  if (length(SOObject@TaskInformation@ErrorMessages) > 0) {
     message("\nThe following ERRORs were raised during the job execution:", file=stderr())
-    for (e in (SOObject@TaskInformation$Messages$Errors)) { 
+    for (e in (SOObject@TaskInformation@ErrorMessages)) { 
       message(paste0(" ", e$Name, ": ", str_trim(e$Content)), file=stderr()) 
     }
   }
-  if (length(SOObject@TaskInformation$Messages$Warnings) > 0) {
+  if (length(SOObject@TaskInformation@WarningMessages) > 0) {
     message("\nThe following WARNINGs were raised during the job execution:", file=stderr())
-    for (e in (SOObject@TaskInformation$Messages$Warnings)) { 
+    for (e in (SOObject@TaskInformation@WarningMessages)) { 
       message(paste0(" ", e$Name, ": ", str_trim(e$Content)), file=stderr()) 
     }
   }
