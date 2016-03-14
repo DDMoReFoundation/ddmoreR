@@ -8,7 +8,7 @@
 #
 # Author: cmusselle, ccampbell, mwise
 
-.NODENAMES_NAMESPACE_PREFIX = "ds:"
+.NODENAMES_NAMESPACE_PREFIX <- "ds:"
 .NODENAME_COMMENT <- "comment"
 .NODENAME_DEFINITION <- "Definition"
 .NODENAME_EXTERNALFILE <- "ExternalFile"
@@ -134,14 +134,14 @@ parseSODataElement <- function(xmlNode) {
 			if (!is.null(parsedDSD$data)) {
 				parsed <- new (Class = "DataSetDistribution",
 					distributionName = parsedDSD$distributionName,
-					distributionParameters <- parsedDSD$distributionParameters,
+					distributionParameters = parsedDSD$distributionParameters,
 					description = parsedDSD$description,
 					data = as.matrix(parsedDSD$data)
 				)
 			} else {
 				parsed <- new (Class = "DataSetDistribution",
 					distributionName = parsedDSD$distributionName,
-					distributionParameters <- parsedDSD$distributionParameters
+					distributionParameters = parsedDSD$distributionParameters
 				)
 			}
 		}
@@ -200,7 +200,6 @@ parseDataSetInline <- function(definitionNode, tableNode) {
 
   rowTagName <- "Row"
   columnTagName <- "Column"
-
   
   # Extract all column Information and store in a data frame
   columnInfo <- as.data.frame(xmlSApply(definitionNode, FUN = function(x) list(
@@ -211,7 +210,7 @@ parseDataSetInline <- function(definitionNode, tableNode) {
       )
   ))
       
-  # Filter out non Columns tags  
+  # Filter out non Columns tags i.e. comments
   columnInfo <- columnInfo[, names(columnInfo) == columnTagName]
   
   # Rename column headers to column ID
@@ -264,8 +263,11 @@ parseDataSetInline <- function(definitionNode, tableNode) {
 #'
 parseDataSetExternalFile <- function(definitionNode, externalFileNode) {
 
+  rowTagName <- "Row"
+  columnTagName <- "Column"
+	
   # Extract all column Information and store in a data frame
-  columnInfo = as.data.frame(xmlSApply(definitionNode, FUN = function(x) list(
+  columnInfo <- as.data.frame(xmlSApply(definitionNode, FUN = function(x) list(
   		xmlGetAttr(x, name="columnNum"), 
     	xmlGetAttr(x, name="columnType"),
     	xmlGetAttr(x, name="valueType"),
@@ -273,12 +275,12 @@ parseDataSetExternalFile <- function(definitionNode, externalFileNode) {
     	)
   ))
       
-  # Filter out non Columns tags  
-  # columnInfo = columnInfo[, names(columnInfo) == columnRef]
+  # Filter out non Columns tags i.e. comments
+  columnInfo <- columnInfo[, names(columnInfo) == columnTagName]
   
   # Rename column headers to column ID
   names(columnInfo) <- unlist(columnInfo[4,])
-  columnInfo = columnInfo[-4, ]
+  columnInfo <- columnInfo[-4, ]
   # Rename rows to lable column info
   rownames(columnInfo) <- c("columnNum", "columnType", "valueType")
   
@@ -329,7 +331,7 @@ parseMatrix <- function(matrixNode) {
   output.matrix <- t(output.matrix.transposed)
   
   # Convert to Data Frame
-  datf = as.data.frame(output.matrix)
+  datf <- as.data.frame(output.matrix)
   
   # Update row and column names
   if (nrow(datf) != length(matrixRowNames)) {
