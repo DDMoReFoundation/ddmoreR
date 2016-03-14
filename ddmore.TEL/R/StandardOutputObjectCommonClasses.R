@@ -200,12 +200,13 @@ as.data.frame.DataSet <- function(x, ...) {
 	for (i in seq_along(x@description)) {
 		# manually parse valueType
 		asType <- switch(tolower(x@description[["valueType", i]]),
-    			"real" = as.numeric, 
-    			"integer" = as.integer, 
-    			"int" = as.integer, 
-    			"char" = as.character, 
-    			"string" = as.character, 
+    			"real" = as.numeric,
+    			"integer" = as.integer,
+    			"int" = as.integer,
+    			"char" = as.character,
+    			"string" = as.character,
     			"text" = as.character,
+				"id" = as.character,
 				{
         			warning("type not recognized in DataSet, treating as Real")
         			as.numeric
