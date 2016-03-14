@@ -404,7 +404,7 @@ parseExternalFile <- function(externalFileNode) {
 #' 
 parseDataSetDistribution <- function(xmlNodeDataSetDistribution) {
 
-	xmlNodeProbOnto <- xmlChildren(xmlNodeDataSetDistribution)[["ProbOnto"]]
+	xmlNodeProbOnto <- .getChildNodes(xmlNodeDataSetDistribution)[["ProbOnto"]]
 	
 	retval <- list()
 	retval$distributionName <- xmlAttrs(xmlNodeProbOnto)[["name"]]
