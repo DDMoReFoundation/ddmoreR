@@ -72,7 +72,7 @@ setMethod("initialize", "TaskInformation", function(.Object, xmlNodeTaskInformat
 	    			if (messageType %in% c("ERROR", "WARNING", "TERMINATION", "INFORMATION")) {
 						slotName <- paste0(capitalise_first(tolower(messageType)), "Messages")
 						# Append the message to the end of the list in the relevant slot in the TaskInformation object
-						slot(.Object, slotName) <- c(slot(.Object, slotName), list(messageContent))
+						slot(.Object, slotName) <- append(slot(.Object, slotName), list(messageContent)) # wrap within a list to ensure it is still a list when just 1 message
 	    			} else {
 						warning("Unexpected message type ", messageType, " encountered on TaskInformation::Message")
 	    			}
