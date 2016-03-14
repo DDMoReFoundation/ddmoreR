@@ -279,6 +279,16 @@ add_quotes <- function(x) {
 	}
 }
 
+##############################################################
+#' capitalise_first
+#'
+#' Capitalise the first letter of a string.
+#'
+#' @param x the input string
+#' @return the output string
+capitalise_first <- function(s) {
+	paste0(toupper(substring(s, 1,1)), substring(s, 2))
+}
 
 ##############################################################
 #' parent.folder
@@ -425,9 +435,10 @@ log.debug <- function(message) {
 #'
 #' This function stops only if the RCurl fails.
 #'
-#'@param url - where the request should be sent to
-#'@param body - content of the request
-#'@param headers - headers of the request
+#' @param url single character, URL to which the request should be sent
+#' @param body character vector, content of the request
+#' @param headers character vector, headers of the request
+#' @import RCurl
 #'
 #'@return a named list representing http response:
 #'        \itemize{
@@ -436,10 +447,13 @@ log.debug <- function(message) {
 #'        }
 #'
 .httpPost <- function(url, body = "", headers= c()) {
-    .precondition.checkArgument(length(url)>0, "url", "Should be non empty string.")
+    if (missing(url)) { stop("url is missing") }
+    .precondition.checkArgument(length(url)>0 || !is.character(url), 
+        "url", "Should be non empty string.")
     respContentCollector <- basicTextGatherer()
     respHeaderCollector <- basicHeaderGatherer()
-    log.debug(sprintf("Performing POST request to [%s]. Headers [%s] body [%s]", url, paste(headers, collapse=','), body))
+    log.debug(sprintf("Performing POST request to [%s]. Headers [%s] body [%s]", 
+        url, paste(headers, collapse=','), body))
     curlRet <-
         RCurl:::curlPerform(
             url = url, postfields = body, httpheader = headers, writefunction =

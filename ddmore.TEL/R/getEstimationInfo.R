@@ -9,8 +9,7 @@
 #' from the log will also be stored in the returned output. If there are any errors of warnings, 
 #' these will also be printed to the console.   
 #'
-#' @param object an object of class StandardOutputObject, the output from an 
-#' estimation task.
+#' @param object an object of class StandardOutputObject, the output from an estimation task
 #'
 #' @return A nested list with two elements:.
 #'         \describe{
@@ -23,34 +22,35 @@
 #' @export 
 getEstimationInfo <- function(SOObject){
   
-  if (!isS4(SOObject) && class(SO) == "StandardOutputObject") {
-    stop(paste0("getEstimationInfo expected a StandardOutputObject as input, got a ", class(SOObject), '.'))
-  }
+	if (class(SOObject) != "StandardOutputObject") {
+		stop(paste0("getEstimationInfo expected a StandardOutputObject as input, got a ", class(SOObject), '.'))
+  	}
 
-  # Fetch Liklihood information
-  likelihood <- SOObject@Estimation@Likelihood
-  if ("IndividualContribToLL" %in% names(likelihood)) {
-    likelihood[["IndividualContribToLL"]] = likelihood[["IndividualContribToLL"]][["data"]]
-  } 
+  # Fetch Likelihood information
+
+  likelihood <- list()
+  if ("IndividualContribToLL" %in% getPopulatedSlots(SOObject@Estimation@OFMeasures)) {
+    likelihood[["IndividualContribToLL"]] <- as.data.frame(SOObject@Estimation@OFMeasures@IndividualContribToLL)
+  }
   # Format as numeric 
-  if ("InformationCriteria" %in% names(likelihood)) {
-    likelihood[["InformationCriteria"]] = lapply(likelihood$InformationCriteria, as.numeric)
+  if ("InformationCriteria" %in% getPopulatedSlots(SOObject@Estimation@OFMeasures)) {
+    likelihood[["InformationCriteria"]] <- lapply(SOObject@Estimation@OFMeasures@InformationCriteria, as.numeric)
   }
 
   # Fetch Messages 
   info.msgs <- list()
-  for (elem in (SOObject@TaskInformation$Messages$Info)) { 
+  for (elem in (SOObject@TaskInformation@InformationMessages)) { 
     info.msgs[[elem$Name]] <- elem$Content
   }
   err.msgs <- list()
-  for (elem in (SOObject@TaskInformation$Messages$Errors)) { 
+  for (elem in (SOObject@TaskInformation@ErrorMessages)) { 
     err.msgs[[elem$Name]] <- elem$Content
   }
   warn.msgs <- list()
-  for (elem in (SOObject@TaskInformation$Messages$Warnings)) { 
+  for (elem in (SOObject@TaskInformation@WarningMessages)) { 
     warn.msgs[[elem$Name]] <- elem$Content
   }
-  # Drop and list that does not contain messages
+  # Drop any list that does not contain messages
   temp.list <- list(Info=info.msgs, Errors=err.msgs, Warnings=warn.msgs)
   messages <- list()
   for (msg.list.name in names(temp.list)) {
@@ -60,20 +60,20 @@ getEstimationInfo <- function(SOObject){
   }
 
   # Print out any errors in the SO Object to the R console to make it obvious if execution failed
-  if (length(SOObject@TaskInformation$Messages$Errors) > 0) {
+  if (length(SOObject@TaskInformation@ErrorMessages) > 0) {
     message("\nThe following ERRORs were raised during the job execution:", file=stderr())
-    for (e in (SOObject@TaskInformation$Messages$Errors)) { 
+    for (e in (SOObject@TaskInformation@ErrorMessages)) { 
       message(paste0(" ", e$Name, ": ", str_trim(e$Content)), file=stderr()) 
     }
   }
-  if (length(SOObject@TaskInformation$Messages$Warnings) > 0) {
+  if (length(SOObject@TaskInformation@WarningMessages) > 0) {
     message("\nThe following WARNINGs were raised during the job execution:", file=stderr())
-    for (e in (SOObject@TaskInformation$Messages$Warnings)) { 
+    for (e in (SOObject@TaskInformation@WarningMessages)) { 
       message(paste0(" ", e$Name, ": ", str_trim(e$Content)), file=stderr()) 
     }
   }
 
-  list(Likelihood=likelihood, Messages=messages)
+  list(OFMeasures=likelihood, Messages=messages)
 }
 
 
@@ -81,45 +81,45 @@ getEstimationInfo <- function(SOObject){
 # Lower Level Getter functions: Not Currently used  #
 # ------------------------------------------------- #
 
-# #' Create a method to fetch the value of Likelihood Slot
-# setGeneric(name="getLikelihood",
+# #' Create a method to fetch the value of OFMeasures Slot
+# setGeneric(name="getOFMeasures",
 #            def=function(SOObject)
 #            {
-#               standardGeneric("getLikelihood")
+#               standardGeneric("getOFMeasures")
 #            }
 # )
-# setMethod(f="getLikelihood",
+# setMethod(f="getOFMeasures",
 #           signature="StandardOutputObject",
 #           definition=function(SOObject)
 #           { 
-#            Likelihood <- SOObject@Estimation@Likelihood
+#            OFMeasures <- SOObject@Estimation@OFMeasures
 
 #           L = list()
-#           if ("LogLikelihood" %in% names(Likelihood)) {
-#             A = list(LogLikelihood=Likelihood[["LogLikelihood"]])
+#           if ("LogLikelihood" %in% names(OFMeasures)) {
+#             A = list(LogLikelihood=OFMeasures[["LogLikelihood"]])
 #             L <- c(L, A)
 #           }
-#           if ("Deviance" %in% names(Likelihood)) {
-#             B <- list(Deviance=Likelihood[["Deviance"]]) 
+#           if ("Deviance" %in% names(OFMeasures)) {
+#             B <- list(Deviance=OFMeasures[["Deviance"]]) 
 #             L <- c(L, B)
 #           }
-#           if ("IndividualContribToLL" %in% names(Likelihood)) {
-#             C <- list(IndividualContribToLL=Likelihood[["IndividualContribToLL"]][["data"]]) 
+#           if ("IndividualContribToLL" %in% names(OFMeasures)) {
+#             C <- list(IndividualContribToLL=OFMeasures[["IndividualContribToLL"]][["data"]]) 
 #             L <- c(L, C)
 #           }          
-#           if ("AIC" %in% names(Likelihood[["InformationCriteria"]])) {
-#             D <- list(AIC=Likelihood[["InformationCriteria"]][["AIC"]])
+#           if ("AIC" %in% names(OFMeasures[["InformationCriteria"]])) {
+#             D <- list(AIC=OFMeasures[["InformationCriteria"]][["AIC"]])
 #             L <- c(L, D)
 #           }   
-#           if ("BIC" %in% names(Likelihood[["InformationCriteria"]])) {
-#             E <- list(BIC=Likelihood[["InformationCriteria"]][["BIC"]])
+#           if ("BIC" %in% names(OFMeasures[["InformationCriteria"]])) {
+#             E <- list(BIC=OFMeasures[["InformationCriteria"]][["BIC"]])
 #             L <- c(L, E)
 #           } 
-#           if ("DIC" %in% names(Likelihood[["InformationCriteria"]])) {
-#             F <- list(DIC=Likelihood[["InformationCriteria"]][["DIC"]])
+#           if ("DIC" %in% names(OFMeasures[["InformationCriteria"]])) {
+#             F <- list(DIC=OFMeasures[["InformationCriteria"]][["DIC"]])
 #             L <- c(L, F)
 #           }       
-#            pprintList(L, "Likelihood")
+#            pprintList(L, "OFMeasures")
 #           }
 # )
 

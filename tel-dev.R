@@ -38,8 +38,10 @@ script.files = c(
     "Classes", "createMogObj",
     "utils", "import", "execute", "conversion", "readDataObj", "updateParObj",
     "getDataObjects", "getParameterObjects", "getPopulationParameters", "getModelObjects", "getTaskPropertiesObjects", "getMDLObjects",
-    "FISServer", "FISJob", "server", "jobExecution", "psnWrappers", "xmlParsers", "StandardOutputSubClasses", "StandardOutputObject",
-	"LoadSOObject"
+    "FISServer", "FISJob", "server", "jobExecution", "psnWrappers",
+	"StandardOutputObjectXmlParsers", "StandardOutputObjectCommonClasses",
+	"Estimation-Class", "Simulation-Class", "OptimalDesign-Class", "ModelDiagnostic-Class", "RawResults-Class", "TaskInformation-Class",
+	"StandardOutputObject-Class", "StandardOutputObjectDataFunctions", "LoadSOObject"
 )
 
 sapply(script.files, function(s) {

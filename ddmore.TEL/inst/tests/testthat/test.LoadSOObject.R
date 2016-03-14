@@ -1,6 +1,6 @@
 library("ddmore")
 library("XML")
-require("methods")
+library("methods")
 
 testSlotsNotEmpty <- function(S4class, slotnames) {
 
@@ -22,7 +22,7 @@ test_that("PharmML SO fills expected slots in Estimation", {
   # Clear workspace. 
   rm(list=ls())
   
-  data.path = system.file("tests/data/PharmMLSO/HandCoded/warfarin_PK_ODE_SO_FULL-v0_2.SO.xml",  
+  data.path = system.file("tests/data/PharmMLSO/HandCoded/warfarin_PK_ODE_SO_FULL.xml",  
   		package = "ddmore")
         
   # Load in SO

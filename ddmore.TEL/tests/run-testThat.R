@@ -1,4 +1,4 @@
-library("testthat")
-library("DDMoRe.TEL")
+library("testthat", quietly = TRUE)
+library("ddmore", quitely = TRUE)
 
-test_package("DDMoRe.TEL")
+test_package("ddmore")
