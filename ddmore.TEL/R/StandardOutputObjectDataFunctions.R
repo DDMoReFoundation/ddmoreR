@@ -193,6 +193,61 @@ mergeCheckColumnNames <- function(df1, df2, ID.colName, TIME.colName) {
 
 }
 
+#' extractIdandIdvNames 
+#' 
+#'  @param SOObject The SOObject to extract information from. 
+#'  @param PredictionsSlotName the name of the slot for the Predictions in the SOObject. 
+#'  @param ResidualsSlotName the name of the slot for the Residuals in the SOObject.
+#'
+#' Utility to extract the names of the columns marked as id and idv. These are usually ID and TIME, 
+#' but may differ. 
+extractIdandIdvNames <- function(SOObject, PredictionsSlotName, ResidualsSlotName) {
+
+  # Check slots exist 
+  populatedSlots <- getPopulatedSlots(SOObject)
+
+  for (slotName in c(PredictionsSlotName, ResidualsSlotName)){
+    if (slotName %in% populatedSlots) {
+
+      x <- gsub("::", "@", slotName)
+      ans <- eval(parse(text=paste("SOObject", x, sep="@")))
+
+      ID.index <- ans@description['columnType', ] == "id"
+      ID.colName <- names(ans@description)[ID.index]
+
+      TIME.index <- ans@description['columnType', ] == "idv"
+      TIME.colName <- names(ans@description)[TIME.index]
+
+      # Assuming here that the id and idv columns are the same in all slots so when we have 
+      # found one we don't need to continue searching others
+      break
+    } 
+  }
+
+  # Error Check the result
+  # Check that only a single column is assigned with id or idv 
+  if (length(ID.colName) > 1) {
+    stop(paste0("Multiple DATA_INPUT_VARIABLES have use defined as 'id' in MDL file, ", 
+      "cannot determine correct column name for ID from MDL file. "))
+  } else if (length(ID.colName) == 0) {
+    stop(paste0("No DATA_INPUT_VARIABLES have a 'use' parameter defined as 'id' in the MDL file ", 
+      "cannot determine correct column name for ID from MDL file."))
+  }
+  if (length(TIME.colName) > 1) {
+    stop(paste0("Multiple DATA_INPUT_VARIABLES have use defined as 'idv' in MDL file, ", 
+      "cannot determine correct column name for TIME from MDL file."))
+  } else if (length(TIME.colName) == 0) {
+    stop(paste0("No DATA_INPUT_VARIABLES have a 'use' parameter defined as 'idv' in the MDL file ", 
+      "cannot determine correct column name for TIME from MDL file."))
+  }  
+
+  return(list(
+      ID.index=ID.index, ID.colName=ID.colName, 
+      TIME.index=TIME.index, TIME.colName=TIME.colName))
+
+}
+
+
 # ============================= #
 # Convert to single Data Frame  #
 # ============================= #
@@ -224,39 +279,11 @@ setMethod(f="as.data",
           IndivEstEstMeanSlotName <- "Estimation::IndividualEstimates::Estimates"
           IndivEstRandomEffectsMeanSlotName <- "Estimation::IndividualEstimates::RandomEffects"
 
-          for (slotName in c(PredictionsSlotName, ResidualsSlotName)){
-            if (slotName %in% populatedSlots) {
-
-              x <- gsub("::", "@", slotName)
-              ans <- eval(parse(text=paste("SOObject", x, sep="@")))
-
-              ID.index <- ans@description['columnType', ] == "id"
-              ID.colName <- names(ans@description)[ID.index]
-
-              TIME.index <- ans@description['columnType', ] == "idv"
-              TIME.colName <- names(ans@description)[TIME.index]
-
-              # Assuming here that the id and idv columns are the same in all slots so when we have 
-              # found one we don't need to continue searching others
-              break
-            } 
-          }
-
-          # Check that only a single column is assigned with id or idv 
-          if (length(ID.colName) > 1) {
-            stop(paste0("Multiple DATA_INPUT_VARIABLES have use defined as 'id' in MDL file, ", 
-              "cannot determine correct column name for ID from MDL file. "))
-          } else if (length(ID.colName) == 0) {
-            stop(paste0("No DATA_INPUT_VARIABLES have a 'use' parameter defined as 'id' in the MDL file ", 
-              "cannot determine correct column name for ID from MDL file."))
-          }
-          if (length(TIME.colName) > 1) {
-            stop(paste0("Multiple DATA_INPUT_VARIABLES have use defined as 'idv' in MDL file, ", 
-              "cannot determine correct column name for TIME from MDL file."))
-          } else if (length(TIME.colName) == 0) {
-            stop(paste0("No DATA_INPUT_VARIABLES have a 'use' parameter defined as 'idv' in the MDL file ", 
-              "cannot determine correct column name for TIME from MDL file."))
-          }
+          res <- extractIdandIdvNames(SOObject, PredictionsSlotName, ResidualsSlotName)
+          ID.index <- res[["ID.index"]]
+          ID.colName <- res[["ID.colName"]]
+          TIME.index <- res[["TIME.index"]]
+          TIME.colName <- res[["TIME.colName"]]
 
           # Pass in the rawData file 
           rawData <- read.NONMEMDataSet(inputDataPath)
@@ -358,8 +385,8 @@ setMethod(f="as.xpdb",
         xpose4_dataFrame <- as.data(SOObject, inputDataPath)
         
         # Assert that all "ETA_" column names are upper case so that they are compatible with expose. 
-        eta_cols_idx <- grep('ETA_', colnames(xpose4_dataFrame), ignore.case=TRUE)
-        colnames(xpose4_dataFrame)[eta_cols_idx] <- toupper(colnames(xpose4_dataFrame)[eta_cols_idx])
+        # eta_cols_idx <- grep('ETA_', colnames(xpose4_dataFrame), ignore.case=TRUE)
+        # colnames(xpose4_dataFrame)[eta_cols_idx] <- toupper(colnames(xpose4_dataFrame)[eta_cols_idx])
         
         library("xpose4")
         # CREATE new Xpose database
@@ -368,46 +395,42 @@ setMethod(f="as.xpdb",
         # TODO: Possibly need to check data types here
 
         ## Map data.out to xpdb@Data
-        Data(myXpdb)<-xpose4_dataFrame
+        Data(myXpdb) <- xpose4_dataFrame
         
         ## Update xpdb@Prefs@Xvardef (variable definitions)
         ###################################################
-        ## TODO: Infer these values from the full PharmML
         
-    #            ## Fill in / Confirm information from PharmML
-    #            myXpdb@Prefs@Xvardef$id<-"ID"
-    #            myXpdb@Prefs@Xvardef$idv<-"TIME"
-        myXpdb@Prefs@Xvardef$occ<-NA
-    #            myXpdb@Prefs@Xvardef$dv<-"DV"
-    #            
-    #            ## Fill in / Confirm information from SO
-        myXpdb@Prefs@Xvardef$pred<-"PRED"
-        myXpdb@Prefs@Xvardef$ipred<-"IPRED"
+        # Extract name for ID and TIME column 
+        PredictionsSlotName <- "Estimation::Predictions"
+        ResidualsSlotName <- "Estimation::Residuals::ResidualTable"
+        res <- extractIdandIdvNames(SOObject, PredictionsSlotName, ResidualsSlotName)
+        ID.colName <- res[["ID.colName"]]
+        TIME.colName <- res[["TIME.colName"]]
+
+        myXpdb@Prefs@Xvardef$id <- ID.colName
+        myXpdb@Prefs@Xvardef$idv <- TIME.colName
+
+        # Note the below values are hard coded at current as it is not obvious where to look these up from in the SO
+        myXpdb@Prefs@Xvardef$occ <-NA
+        myXpdb@Prefs@Xvardef$dv <- "DV"
+        myXpdb@Prefs@Xvardef$pred <- "PRED"
+        myXpdb@Prefs@Xvardef$ipred <- "IPRED"
         myXpdb@Prefs@Xvardef$wres <- "WRES"
         myXpdb@Prefs@Xvardef$iwres <- "IWRES"
-
-            # Below are the hard-coded column definitions for the Warfarin-latest-ODE model.
-            # These are slightly different to the default ones that are assigned; so this
-            # may give rise to errors such as "ETAs are not properly set in the database"
-            # for certain plots.
-    #            myXpdb@Prefs@Xvardef$parms <- c("V","CL","KA","TLAG")
-    #            myXpdb@Prefs@Xvardef$covariates <- "logtWT"
-    #            myXpdb@Prefs@Xvardef$ranpar <- c("ETA_V","ETA_CL","ETA_KA","ETA_TLAG")
                     
-        # TODO: Temporary workaround is to find model parameters from MDL file to populate 
-        # The Xvardef slot of the xpdb object
-        obj <- .getMdlInfoFromSO(SOObject, what='model')
-        params = sapply(obj@INDIVIDUAL_VARIABLES, FUN=function(x) x$name ) 
-        covariates = sapply(obj@COVARIATES, FUN=function(x) x$name )
-        randpar = sapply(obj@RANDOM_VARIABLE_DEFINITION, FUN=function(x) x$name ) 
+        params <- setdiff(names(SOObject@Estimation@IndividualEstimates@Estimates@Mean@description), ID.colName)
+        randpar <- setdiff(names(SOObject@Estimation@IndividualEstimates@RandomEffects@EffectMean@description), ID.colName)
+        myXpdb@Prefs@Xvardef$parms <- params
+        myXpdb@Prefs@Xvardef$ranpar <- randpar
 
-        myXpdb@Prefs@Xvardef$parms <- toupper(params)
-        myXpdb@Prefs@Xvardef$covariates <- toupper(covariates)
-        myXpdb@Prefs@Xvardef$ranpar <- toupper(randpar)
+        # Note that covariates are not currently stored in the SO so these are left unfilled for now. Possible to get these
+        # from the cotab datafile in the case of Nonmem executions, though there is no reference to this file in RawResults
+        # slot at current. 
+        #
+        # myXpdb@Prefs@Xvardef$covariates <- covariates
 
         ## Ideally would also update xpdb@Prefs@Labels (variable labels for plots)
-        #myXpdb@Prefs@Labels
-              myXpdb@Prefs@Labels$OCC <- NA
+        myXpdb@Prefs@Labels$OCC <- NA
         
         #####################################################
 
