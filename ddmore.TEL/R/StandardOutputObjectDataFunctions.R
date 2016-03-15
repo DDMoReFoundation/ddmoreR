@@ -216,19 +216,33 @@ setMethod(f="as.data",
 				  stop("Path to input data must be specified")
 			  } else {
 
-          # Fetching Column names for the raw data is now dependent on an existing MDL file
-          # file existence check is performed by .getMdlInfoFromSO
-          MDLObjs <- .getMdlInfoFromSO(SOObject, what="data")
+          # Check slots exist 
+          populatedSlots <- getPopulatedSlots(SOObject)
 
-          # Find the variable names being used as ID and TIME
-          input.var.use.definitions = lapply(MDLObjs@DATA_INPUT_VARIABLES, FUN= function(x) {x[['use']]})
+          PredictionsSlotName <- "Estimation::Predictions"
+          ResidualsSlotName <- "Estimation::Residuals::ResidualTable"
+          IndivEstEstMeanSlotName <- "Estimation::IndividualEstimates::Estimates"
+          IndivEstRandomEffectsMeanSlotName <- "Estimation::IndividualEstimates::RandomEffects"
 
-          ID.index = input.var.use.definitions == "id"
-          TIME.index = input.var.use.definitions == "idv"
+          for (slotName in c(PredictionsSlotName, ResidualsSlotName)){
+            if (slotName %in% populatedSlots) {
 
-          ID.colName = toupper(names(input.var.use.definitions[ID.index]))
-          TIME.colName = toupper(names(input.var.use.definitions[TIME.index]))
+              x <- gsub("::", "@", slotName)
+              ans <- eval(parse(text=paste("SOObject", x, sep="@")))
 
+              ID.index <- ans@description['columnType', ] == "id"
+              ID.colName <- names(ans@description)[ID.index]
+
+              TIME.index <- ans@description['columnType', ] == "idv"
+              TIME.colName <- names(ans@description)[TIME.index]
+
+              # Assuming here that the id and idv columns are the same in all slots so when we have 
+              # found one we don't need to continue searching others
+              break
+            } 
+          }
+
+          # Check that only a single column is assigned with id or idv 
           if (length(ID.colName) > 1) {
             stop(paste0("Multiple DATA_INPUT_VARIABLES have use defined as 'id' in MDL file, ", 
               "cannot determine correct column name for ID from MDL file. "))
@@ -245,8 +259,7 @@ setMethod(f="as.data",
           }
 
           # Pass in the rawData file 
-          colNames <- toupper(names(MDLObjs@DATA_INPUT_VARIABLES))
-          rawData <- read.NONMEMDataSet(inputDataPath, colNames=colNames)
+          rawData <- read.NONMEMDataSet(inputDataPath)
           # Convert all column headers to upper case 
           names(rawData) <- toupper(names(rawData))
 
@@ -266,12 +279,15 @@ setMethod(f="as.data",
           names(rawData) <- c(ID.colName, TIME.colName, remaining.names) 
 			  }
 			  
+        # Begin merging columns
+        # ---------------------
+
         mergedDataFrame <- rawData
 
-        if (!is.empty(SOObject@Estimation@Predictions)) {
+        if (PredictionsSlotName %in% populatedSlots) {
           
           df1 <- mergedDataFrame
-          df2 <- SOObject@Estimation@Predictions$data
+          df2 <- as.data.frame(SOObject@Estimation@Predictions@data)
 
           # Test to see if data rows are the same, if not remove dose rows from the 
           # input data (df1) and recompare.
@@ -283,10 +299,10 @@ setMethod(f="as.data",
           warning("No Estimation::Predictions found in the SO; the resulting data frame will not contain these")
         }
           
-			  if (!is.empty(SOObject@Estimation@Residuals)) {
+			  if (ResidualsSlotName %in% populatedSlots) {
 				  # Fetch and merge Residuals 
 				  df1 <- mergedDataFrame
-				  df2 <- SOObject@Estimation@Residuals$ResidualTable$data
+				  df2 <- as.data.frame(SOObject@Estimation@Residuals@ResidualTable@data)
 
           # Test to see if data rows are the same, if not remove dose rows from the 
           # input data (df1) and recompare.
@@ -298,19 +314,19 @@ setMethod(f="as.data",
 				  warning("No Estimation::Residuals found in the SO; the resulting data frame will not contain these")
 			  }
 			  
-			  if (!is.null(SOObject@Estimation@IndividualEstimates$Estimates$Mean)) {
+			  if (IndivEstEstMeanSlotName %in% populatedSlots) {
 				  # IndividualEstimates, Estimates
 				  df1 <- mergedDataFrame
-				  df2 <- SOObject@Estimation@IndividualEstimates$Estimates$Mean$data
+				  df2 <- as.data.frame(SOObject@Estimation@IndividualEstimates@Estimates@Mean@data)
 				  mergedDataFrame <- mergeCheckColumnNames(df1, df2, ID.colName=ID.colName, TIME.colName=TIME.colName)
 			  } else {
 				  warning("No Estimation::IndividualEstimates::Estimates::Mean found in the SO; the resulting data frame will not contain these")
 			  }
 			  
-			  if (!is.null(SOObject@Estimation@IndividualEstimates$RandomEffects$EffectMean)) {
+			  if (IndivEstRandomEffectsMeanSlotName %in% populatedSlots) {
 				  # IndividualEstimates, RandomEffects
 				  df1 <- mergedDataFrame
-				  df2 <- SOObject@Estimation@IndividualEstimates$RandomEffects$EffectMean$data
+				  df2 <- as.data.frame(SOObject@Estimation@IndividualEstimates@RandomEffects@EffectMean@data)
 				  mergedDataFrame <- mergeCheckColumnNames(df1, df2, ID.colName=ID.colName, TIME.colName=TIME.colName)
 			  } else {
 				  warning("No Estimation::IndividualEstimates::RandomEffects::EffectMean found in the SO; the resulting data frame will not contain these")
@@ -318,7 +334,7 @@ setMethod(f="as.data",
 			  
 			  return(mergedDataFrame)
 		  }
-          )
+)
 
 
 # ========================= #
