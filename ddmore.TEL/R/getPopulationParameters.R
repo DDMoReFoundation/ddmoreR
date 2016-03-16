@@ -155,7 +155,7 @@ getPopulationParameters <- function(SOObject, block="all", what="all", keep.only
 			# and there are no such naming issues with the STRUCTURAL params, hence we
 			# can apply this workaround to derive the VARIABILITY param names in the SO
 			# rather than taking them from the VARIABILITY block.
-			allVarNames <<- names(estimates.output.list[[df.name]])
+			allVarNames <- names(estimates.output.list[[df.name]])
 			variabilityParams <- setdiff(allVarNames, structuralParams)
 			
 			keep.idx <- sapply(allVarNames, 
@@ -168,7 +168,7 @@ getPopulationParameters <- function(SOObject, block="all", what="all", keep.only
 		} else {
 			
 			# Same workaround as described above is applied here
-			allVarNames <<- estimates.output.list[[df.name]][["Parameter"]]
+			allVarNames <- estimates.output.list[[df.name]][["Parameter"]]
 			variabilityParams <- setdiff(allVarNames, structuralParams)
     
 			keep.idx <- sapply(allVarNames,
