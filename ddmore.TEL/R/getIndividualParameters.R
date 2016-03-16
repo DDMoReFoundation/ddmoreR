@@ -26,6 +26,9 @@
 #' @export 
 getIndividualParameters <- function(SOObject, what="Mean") { 
 
+	# Ensure 'measure of central tendency' parameter is processed in a case-insensitive manner
+	measureOfCentralTendency = tolower(what)
+
 	# Error checking
 	if (class(SOObject) != "StandardOutputObject") {
 		stop(paste0("getIndividualParameters() expected a StandardOutputObject as input, got a ", class(SOObject), '.'))
