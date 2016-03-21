@@ -41,7 +41,9 @@ setMethod("initialize", "PopulationEstimatesBayesian", function(.Object, xmlNode
 # Simplify the indication of the slots that are populated for PopulationEstimatesBayesian
 # object, to essentially a yes/no as to whether it has any of
 # PosteriorMean/PosteriorMedian/PosteriorMode DataSet objects
-setMethod("getPopulatedSlots", "PopulationEstimatesBayesian", function(object) {
+# Note that the 'full' parameter is used internally by getPopulationParameters()
+setMethod("getPopulatedSlots", "PopulationEstimatesBayesian", function(object, full = FALSE) {
+	if (full) return(callNextMethod(object))
 	if (length(callNextMethod(object)) > 0) list()
 })
 
@@ -84,7 +86,9 @@ setMethod("initialize", "PopulationEstimatesOtherMethod", function(.Object, xmlN
 
 # Simplify the indication of the slots that are populated for PopulationEstimatesOtherMethod object,
 # to essentially a yes/no as to whether it has Mean and/or Median DataSet objects, or not
-setMethod("getPopulatedSlots", "PopulationEstimatesOtherMethod", function(object) {
+# Note that the 'full' parameter is used internally by getPopulationParameters()
+setMethod("getPopulatedSlots", "PopulationEstimatesOtherMethod", function(object, full = FALSE) {
+	if (full) return(callNextMethod(object))
 	if (length(callNextMethod(object)) > 0) list()
 })
 
@@ -243,7 +247,9 @@ setMethod("initialize", "PrecisionPopulationEstimatesMLE", function(.Object, xml
 
 # Simplify the indication of the slots that are populated for PrecisionPopulationEstimatesMLE object,
 # to essentially a yes/no as to whether it has any of its sub-objects (of types DataSet or dataframe), or not
-setMethod("getPopulatedSlots", "PrecisionPopulationEstimatesMLE", function(object) {
+# Note that the 'full' parameter is used internally by getPopulationParameters()
+setMethod("getPopulatedSlots", "PrecisionPopulationEstimatesMLE", function(object, full = FALSE) {
+	if (full) return(callNextMethod(object))
 	if (length(callNextMethod(object)) > 0) list()
 })
 
@@ -290,7 +296,9 @@ setMethod("initialize", "PrecisionPopulationEstimatesBayesian", function(.Object
 # Simplify the indication of the slots that are populated for PrecisionPopulationEstimatesBayesian
 # object, to essentially a yes/no as to whether it has any of
 # StandardDeviation/PosteriorDistribution/PercentilesCI DataSet objects
-setMethod("getPopulatedSlots", "PrecisionPopulationEstimatesBayesian", function(object) {
+# Note that the 'full' parameter is used internally by getPopulationParameters()
+setMethod("getPopulatedSlots", "PrecisionPopulationEstimatesBayesian", function(object, full = FALSE) {
+	if (full) return(callNextMethod(object))
 	if (length(callNextMethod(object)) > 0) list()
 })
 
@@ -344,7 +352,9 @@ setMethod("initialize", "PrecisionPopulationEstimatesOtherMethod", function(.Obj
 
 # Simplify the indication of the slots that are populated for PrecisionPopulationEstimatesOtherMethod object,
 # to essentially a yes/no as to whether it has any of its sub-objects (of types DataSet or dataframe), or not
-setMethod("getPopulatedSlots", "PrecisionPopulationEstimatesOtherMethod", function(object) {
+# Note that the 'full' parameter is used internally by getPopulationParameters()
+setMethod("getPopulatedSlots", "PrecisionPopulationEstimatesOtherMethod", function(object, full = FALSE) {
+	if (full) return(callNextMethod(object))
 	if (length(callNextMethod(object)) > 0) list()
 })
 

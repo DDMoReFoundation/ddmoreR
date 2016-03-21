@@ -33,13 +33,13 @@ getIndividualParameters <- function(SOObject, what="Mean") {
 	if (class(SOObject) != "StandardOutputObject") {
 		stop(paste0("getIndividualParameters() expected a StandardOutputObject as input, got a ", class(SOObject), '.'))
   	}
-	if (!(tolower(what) %in% c("mean", "mode", "median"))) {
+	if (!(measureOfCentralTendency %in% c("mean", "mode", "median"))) {
 		stop("Unrecognised value specified for 'what' parameter. Must be \"mean\", \"median\" or \"mode\" (case insensitive).")
 	}
 
 	# Determine slots to look up from those available
-	targetEstimateSlotName = list(mean="Mean", mode="Mode", median="Median")[[tolower(what)]]
-	targetRandomEffectsSlotName = list(mean="EffectMean", mode="EffectMode", median="EffectMedian")[[tolower(what)]]
+	targetEstimateSlotName = list(mean="Mean", mode="Mode", median="Median")[[measureOfCentralTendency]]
+	targetRandomEffectsSlotName = list(mean="EffectMean", mode="EffectMode", median="EffectMedian")[[measureOfCentralTendency]]
 	
 	df1 <- NULL
 	df2 <- NULL
@@ -75,7 +75,7 @@ getIndividualParameters <- function(SOObject, what="Mean") {
 	}
 
 	# Finally perform the merge of the two datasets and return the resulting dataframe
-	merge(df1, df2, by="ID")
+	merge(df1, df2, by="ID", sort=FALSE) # don't sort because IDs can be numeric e.g. 1, 2,..10 and sorting is lexicographical
 }
 
 

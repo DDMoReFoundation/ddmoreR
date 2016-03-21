@@ -379,9 +379,9 @@
                     <PercentilesCI>
                         <ds:Definition>
                             <ds:Column columnId="Percentile" columnType="statPrecision" valueType="real" columnNum="1"/>
-                            <ds:Column columnId="POP_CL " columnType="popParameter" valueType="real" columnNum="2"/>
+                            <ds:Column columnId="POP_CL" columnType="popParameter" valueType="real" columnNum="2"/>
                             <!-- omitted other parameters -->
-                            <ds:Column columnId="POP_V" columnType="popParameter" valueType="real" columnNum="10"/>
+                            <ds:Column columnId="POP_V" columnType="popParameter" valueType="real" columnNum="3"/>
                         </ds:Definition>
                         <ds:Table>
                             <ds:Row>
@@ -515,9 +515,9 @@
                     <PercentilesCI>
                         <ds:Definition>
                             <ds:Column columnId="Percentile" columnType="statPrecision" valueType="real" columnNum="1"/>
-                            <ds:Column columnId="POP_CL " columnType="popParameter" valueType="real" columnNum="2"/>
+                            <ds:Column columnId="POP_CL" columnType="popParameter" valueType="real" columnNum="2"/>
                             <!-- omitted other parameters -->
-                            <ds:Column columnId="POP_V" columnType="popParameter" valueType="real" columnNum="10"/>
+                            <ds:Column columnId="POP_V" columnType="popParameter" valueType="real" columnNum="3"/>
                         </ds:Definition>
                         <ds:Table>
                             <ds:Row>
