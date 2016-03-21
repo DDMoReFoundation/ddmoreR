@@ -239,7 +239,7 @@ test_that("Final status of submission is correctly set - FISJob is present", {
 test_that("DDMORE.verifySOStep  - results in unmodified submission status if SO doesn't contain error messages", {
     submission <- list()
     submission$fisJob <- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id="MOCK_ID", status ='COMPLETED'))
-    submission$so <- createSOObject()
+    submission$so <- new (Class = "StandardOutputObject")
     submission$status <- "Some status"
     result <- DDMORE.verifySOStep(submission)
     expect_equal(result$status, "Some status", "Submission with SO that doesn't contain error messages, should result in unchanged submission status.")
@@ -249,9 +249,9 @@ test_that("DDMORE.verifySOStep  - results in unmodified submission status if SO 
 test_that("DDMORE.verifySOStep  - results in SUBMISSION_COMPLETED_WITH_ERRORS if SO contains error messages", {
     submission <- list()
     submission$fisJob <- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id="MOCK_ID", status ='COMPLETED'))
-    submission$so <- createSOObject()
+    submission$so <- new (Class = "StandardOutputObject")
     submission$status <- SUBMISSION_COMPLETED
-    submission$so@TaskInformation$Messages$Errors <- list("First Error", "Second Error")
+    submission$so@TaskInformation@ErrorMessages <- list("First Error", "Second Error")
     result <- DDMORE.verifySOStep(submission)
     expect_equal(result$status, SUBMISSION_COMPLETED_WITH_ERRORS, "Submission with SO that contains error messages, should result in SUBMISSION_COMPLETED_WITH_ERRORS status.")
     
