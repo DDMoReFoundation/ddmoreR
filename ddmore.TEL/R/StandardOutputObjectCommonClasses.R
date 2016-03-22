@@ -200,7 +200,7 @@ as.data.frame.DataSet <- function(x, ...) {
 	for (i in seq_along(x@description)) {
 		# manually parse valueType
 		asType <- switch(tolower(x@description[["valueType", i]]),
-    			"real" = as.numeric,
+    			"real" = asNumericHandlingPercent,
     			"integer" = as.integer,
     			"int" = as.integer,
     			"char" = as.character,
@@ -208,12 +208,22 @@ as.data.frame.DataSet <- function(x, ...) {
     			"text" = as.character,
 				"id" = as.character,
 				{
-        			warning("type not recognized in DataSet, treating as Real")
+        			warning("Type not recognized in DataSet, treating as Real")
         			as.numeric
     			})
 		out[[i]] <- asType(out[[i]])
 	}
 	out
+}
+
+# Courtesy of http://stackoverflow.com/questions/8329059/how-to-convert-character-of-percentage-into-numeric-in-r
+topct <- function(x) { as.numeric( sub("\\D*([0-9.]+)\\D*","\\1",x) )/100 }
+
+asNumericHandlingPercent <- function(x) {
+	if (any(grepl("%", x))) { # Assume that if one value in the vector is a percentage then they all will be
+		return(topct(x))
+	}
+	return(as.numeric(x))
 }
 
 
