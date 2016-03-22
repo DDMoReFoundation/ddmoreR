@@ -1,3 +1,6 @@
+#
+# TODO determine what the structure of this data should be
+#
 
 ##############################################################################
 #' The RawResults Object Class (S4) 
