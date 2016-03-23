@@ -15,7 +15,7 @@ setMethod(f = "readRawData",
     definition = function(SOObject, fileIndex)
     {
         # Mappers from id to file description
-        id2FileType <- lapply(SOObject@RawResults@Files, function(x) x[["Description"]])
+        id2FileType <- lapply(SOObject@RawResults@DataFiles, function(x) x[["Description"]])
         names(id2FileType)<- tolower(names(id2FileType))
         
         fileType2Id <- as.list(names(id2FileType))
@@ -25,10 +25,10 @@ setMethod(f = "readRawData",
         
         # fileIndex can be file id or file description
         if (fileIndex %in% names(id2FileType)) {
-            fileElement <- SOObject@RawResults@Files[[fileIndex]]
+            fileElement <- SOObject@RawResults@DataFiles[[fileIndex]]
         } else { 
             if (fileIndex %in% names(fileType2Id)) {
-                fileElement <- SOObject@RawResults@Files[[fileType2Id[[fileIndex]]]]
+                fileElement <- SOObject@RawResults@DataFiles[[fileType2Id[[fileIndex]]]]
             } else {
                 stop(paste0("File Reference: ",
                     fileIndex," not found for either file id or file description"))
@@ -36,7 +36,7 @@ setMethod(f = "readRawData",
         }
         
         # TODO: Possibly need to add custom NA handelling here 
-        rawData <- read.csv(rawFile$path, na.strings=".")
+        rawData <- read.csv(file.path(dirname(SOObject@.pathToSourceXML), fileElement$path), na.strings=".")
         return (rawData)
     }
 )
