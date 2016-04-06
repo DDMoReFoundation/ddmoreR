@@ -41,7 +41,9 @@ setClass(
         startupScript = "character",
         jobStatusPollingDelay = "numeric",
         startupPollingMax = "numeric",
-        startupPollingDelay = "numeric"
+        startupPollingDelay = "numeric",
+        serverMode = "logical",
+        userInfo = "list"
     ),
     validity = validity.FISServer
 )
@@ -68,7 +70,7 @@ setClass(
 createFISServer <-
     function(url = "http://localhost:9010", operationalUrl = "http://localhost:9011",
              startupScript = NULL,
-             jobStatusPollingDelay = 20, startupPollingMax = 120, startupPollingDelay = 1) {
+             jobStatusPollingDelay = 20, startupPollingMax = 120, startupPollingDelay = 1, serverMode = FALSE, userInfo = list()) {
         new(
             "FISServer",
             url = url,
@@ -76,7 +78,9 @@ createFISServer <-
             startupScript = startupScript,
             jobStatusPollingDelay = jobStatusPollingDelay,
             startupPollingMax = startupPollingMax,
-            startupPollingDelay = startupPollingDelay
+            startupPollingDelay = startupPollingDelay, 
+            serverMode = serverMode,
+            userInfo = userInfo
         )
     }
 
@@ -99,12 +103,17 @@ createFISServerFromProperties <- function(propertiesFile) {
     .precondition.checkArgument(file.exists(propertiesFile),"propertiesFile", paste("File", propertiesFile,"does not exist." ))
     
     props <- rjson:::fromJSON(file = propertiesFile)
-    createFISServer(url = props$url, 
+    fisServer <- createFISServer(url = props$url, 
                     operationalUrl = props$operationalUrl,
                     startupScript = props$startupScript,
                     jobStatusPollingDelay = props$jobStatusPollingDelay, 
                     startupPollingMax = props$startupPollingMax, 
-                    startupPollingDelay = props$startupPollingDelay)
+                    startupPollingDelay = props$startupPollingDelay,
+                    serverMode = props$serverMode)
+    if("userInfo" %in% names(props)) {
+      fisServer@userInfo <- props$userInfo
+    }
+    return(fisServer)
 }
 
 ##############################################################
@@ -246,6 +255,9 @@ setGeneric(
 setMethod("submitJob", signature = signature("FISServer"),
           function(fisServer, job) {
               .precondition.checkArgument(is.FISJob(job), "job", "FISJob instance required.")
+              if(!is.null(fisServer@userInfo)) {
+                job@userInfo = fisServer@userInfo
+              }
               json <- .fisJobToJSON(job)
               submitURL <- sprintf('%s/jobs', fisServer@url)
               httpheader <-c(Accept = "application/json; charset=UTF-8",

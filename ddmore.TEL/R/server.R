@@ -54,6 +54,10 @@ DDMORE.startServer <-
     .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FIS Server instance is required.")
     message("Starting servers [ ", appendLF=FALSE)
     if (!DDMORE.serverRunning(fisServer)) {
+      if(fisServer@serverMode) {
+        warning("Remote FIS server is not running. Check FIS server configuration.")
+        return()
+      }
       startupScriptDir <- dirname(fisServer@startupScript)
       startupScriptName <- basename(fisServer@startupScript)
       startupScriptStdErr <- file.path(startupScriptDir, paste0(".",startupScriptName, ".stderr"))
@@ -118,17 +122,21 @@ DDMORE.serverRunning <-
 DDMORE.stopServer <-
   function(fisServer, dontWait = FALSE) {
     message("Stopping server...")
-	if (shutdown(fisServer)) {
-		# The servers might report themselves as not running immediately but they still
-		# take a few seconds to actually shut down; put in a pause to avoid the user
-		# attempting to restart the servers while they haven't fully shut down
-		if (!dontWait) {
-			Sys.sleep(10)
-		}
-		message("Server is now stopped.")
-	} else {
-		warning("Server could not be stopped.")
-	}
+    if(!fisServer@serverMode) {
+      warning("FIS is running in server mode, skipping shut down of FIS instance.")
+      return()
+    }
+  	if (shutdown(fisServer)) {
+  		# The servers might report themselves as not running immediately but they still
+  		# take a few seconds to actually shut down; put in a pause to avoid the user
+  		# attempting to restart the servers while they haven't fully shut down
+  		if (!dontWait) {
+  			Sys.sleep(10)
+  		}
+  		message("Server is now stopped.")
+  	} else {
+  		warning("Server could not be stopped.")
+  	}
   }
 
 ################################################################################
@@ -144,25 +152,12 @@ DDMORE.stopServer <-
 #' @export
 #'
 q <- function(fisServer=DDMORE.getServer()) {
-	DDMORE.safeStop(fisServer, dontWait=TRUE);
+    status <- try(DDMORE.stopServer(fisServer, dontWait=TRUE))
+    if(class(status)=="try-error") {
+      warning("Could not stop FIS instance.")
+    }
 	base:::q()
 }
-
-################################################################################
-#' DDMORE.safeStop
-#'
-#' Checks that the DDMORE server is running and if so, stops it.
-#' 
-#' @param fisServer FISServer instance.
-#' @param dontWait (Internal usage only) Defaults to FALSE; only the R console
-#' 				   termination should call this with TRUE
-#'
-DDMORE.safeStop <-
-  function(fisServer, dontWait = FALSE) {
-    if (DDMORE.serverRunning(fisServer)) {
-      DDMORE.stopServer(fisServer, dontWait)
-    }
-  }
 
 ################################################################################
 #' DDMORE.checkConfiguration

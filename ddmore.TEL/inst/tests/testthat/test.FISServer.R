@@ -25,6 +25,8 @@ test_that("createFISServer creates a valid object with defaults", {
     expect_true(instance@jobStatusPollingDelay == 20, info = "jobStatusPollingDelay was incorrect")
     expect_true(instance@startupPollingMax == 120, info = "startupPollingMax was incorrect")
     expect_true(instance@startupPollingDelay == 1, info = "startupPollingDelay was incorrect")
+    expect_false(instance@serverMode, info = "serverMode was incorrect")
+    expect_true(length(instance@userInfo) == 0, info = "userInfo was incorrect")
     
 })
 
@@ -42,6 +44,12 @@ test_that("createFISServer creates a valid object from a properties file", {
     expect_true(instance@jobStatusPollingDelay == 1, info = "jobStatusPollingDelay was incorrect")
     expect_true(instance@startupPollingMax == 60, info = "startupPollingMax was incorrect")
     expect_true(instance@startupPollingDelay == 1, info = "startupPollingDelay was incorrect")
+    expect_true(instance@serverMode, info = "serverMode was incorrect")
+    expect_true(instance@userInfo$userName == "mock-user", info = "user name was incorrect")
+    expect_true(instance@userInfo$password == "mock-password", info = "user password was incorrect")
+    expect_true(instance@userInfo$identityFilePath == "~/.ssh/identity", info = "user identityFilePath was incorrect")
+    expect_true(instance@userInfo$identityFilePassphrase == "passphrase", info = "user identityFilePassphrase was incorrect")
+    expect_true(instance@userInfo$executeAsUser, info = "user executeAsUser was incorrect")
     
 })
 
@@ -164,3 +172,5 @@ test_that("MDLToPharmML throws error for non 200 HTTP response status", {
 # works during ANT build where ddmore package is loaded
 .httpPost <- old.httpPost
 assignInNamespace('.httpPost', old.httpPost, ns="ddmore")
+
+

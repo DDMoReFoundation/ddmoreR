@@ -4,5 +4,13 @@
     "startupScript":"mock-startupScript",
     "jobStatusPollingDelay":1,
     "startupPollingMax":60,
-    "startupPollingDelay":1
+    "startupPollingDelay":1,
+    "serverMode": true,
+    "userInfo": {
+      "userName" : "mock-user",
+      "password": "mock-password",
+      "identityFilePath" : "~/.ssh/identity",
+      "identityFilePassphrase" : "passphrase",
+      "executeAsUser" : true
+     }
 }

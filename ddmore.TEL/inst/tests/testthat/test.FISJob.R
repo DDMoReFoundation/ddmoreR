@@ -3,6 +3,7 @@ library("XML")
 require("methods")
 require("testthat")
 rm(list=ls())
+
 context("FIS Job's createFISJob.")
 
 test_that("createFISJob creates a valid object for minimal set of required attributes", {
@@ -26,8 +27,9 @@ test_that("FISJob can be converted to JSON", {
     expect_true(is.FISJob(instance), 
                 info = "Instance was not of type FISJob"
     )
+    instance@userInfo <- list("userName"="mock-user", "executeAsUser" = FALSE)
     json <- .fisJobToJSON(instance)
-    expect_equal(json, "{\"executionType\":\"MOCK_TYPE\",\"commandParameters\":\"\",\"workingDirectory\":\"MOCK_WD\",\"executionFile\":\"MOCK_FILE\",\"resultsIncludeRegex\":\"\",\"resultsExcludeRegex\":\"\"}", info="Generated FISJob JSON was different than expected")
+    expect_equal(json, "{\"executionType\":\"MOCK_TYPE\",\"commandParameters\":\"\",\"workingDirectory\":\"MOCK_WD\",\"executionFile\":\"MOCK_FILE\",\"resultsIncludeRegex\":\"\",\"resultsExcludeRegex\":\"\",\"userInfo\":{\"userName\":\"mock-user\",\"executeAsUser\":false}}", info="Generated FISJob JSON was different than expected")
 })
 
 test_that("FISJob can be read from JSON", {
