@@ -412,6 +412,8 @@ DDMORE.importSOStep <- function(submission, fisServer, ...) {
 #' 
 #' @return Updated \code{submission} named list.
 #' 
+#' @include LoadSOObject.R
+#'
 DDMORE.verifySOStep <- function(submission, fisServer=DDMORE.getServer(), ...) {
     .precondition.checkArgument(!is.null(submission),
         "submission", " Must be set and can't be NULL.")
@@ -426,10 +428,9 @@ DDMORE.verifySOStep <- function(submission, fisServer=DDMORE.getServer(), ...) {
         return(submission)
     }
 	
-	if ( (!multipleSO && !is.empty(submission$so@TaskInformation$Messages$Errors)) ||
-		 (multipleSO && !all(sapply(submission$so, function(so) { is.empty(so@TaskInformation$Messages$Errors) }))) ) {
-	        submission$status <- SUBMISSION_COMPLETED_WITH_ERRORS
+	if (!is.empty(getSOMessages(submission$so, "ERROR"))) { # getSOMessages should cater for both single- and multiple- SO-block cases
+        submission$status <- SUBMISSION_COMPLETED_WITH_ERRORS
 	}
-    
+	
     submission
 }

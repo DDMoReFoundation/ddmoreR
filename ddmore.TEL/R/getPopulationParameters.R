@@ -1,14 +1,14 @@
-# ============================= #
-# Higher Level Getter Functions #
-# ============================= #
+# ================================================================================ #
+# Higher-level getter Functions for returning data from the Standard Output Object #
+# ================================================================================ #
 
 #' getPopulationParameters
 #' 
-#' This function acts on an object of class StandardOutputObject and is a wrapper 
-#' to getMLEPopulationParameters, getBayesianPopulationParameters and 
-#' getBootstrapPopulationParameters presenting estimates of the STRUCTURAL
+#' This function acts on an object of  class \linkS4class{StandardOutputObject} and is
+#' a wrapper to getMLEPopulationParameters(), getBayesianPopulationParameters() and 
+#' getBootstrapPopulationParameters() presenting estimates of the STRUCTURAL
 #' and VARIABILITY parameters along with any associated measures of uncertainty
-#' (Std Dev) and interval estimates if these are available.
+#' (standard deviation) and interval estimates if these are available.
 #'
 #' The values available for return from the StandardOutputObject depend on the 
 #' estimation method used and how these are populated - either directly from the
@@ -35,11 +35,11 @@
 #' 					}
 #' @param keep.only character string determining which central tendency statistic to use 
 #'					for the estimate when multiple are present. Only applicable to Bayesian
-#' 					which has Mean, Median and  Mode; and Bootstrap which has Mean and
+#' 					which has Mean, Median and Mode; and Bootstrap which has Mean and
 #' 					Median as options.
 #' 
 #' @return If only returning estimates by setting \code{what="estimates"} then a named vector of 
-#' real values is returned to facilitate the outputs use with the \code{update} method. 
+#' real values is returned to facilitate the outputs' use with the \code{update} method. 
 #' If what is set to "intervals", "precisions" or "all" then a data frame containing one row for
 #' each parameter is returned. The columns of which will be the parameter names, estimate values,
 #' then followed by the statistics specified e.g. precision values, interval values or both.
@@ -48,70 +48,64 @@
 #' mlx <- LoadSOObject("UseCase2.SO.xml")
 #' getPopulationParameters(mlx, what="all")
 #' getPopulationParameters(mlx, what="estimates")
-#' getPopulationParameters(mlx, block="STRUCTURAL",what="estimates")
-#'
+#' getPopulationParameters(mlx, block="STRUCTURAL", what="estimates")
 #'
 #' @export
 getPopulationParameters <- function(SOObject, block="all", what="all", keep.only=NULL, fisServer = DDMORE.getServer(), ...) {
   
-  # Parameter deprecation warning
-  extraParams = list(...)
-  if ('type' %in% names(extraParams)) {
-    block = extraParams[['type']]
-    message('The "type" parameter has been renamed to "block" for clarity. At current using both is possible though using "type" may become deprecated in the future.')
-  }
+	# Parameter deprecation warning
+	extraParams <- list(...)
+	if ('type' %in% names(extraParams)) {
+    	block <- extraParams[['type']]
+    	message('The "type" parameter has been renamed to "block" for clarity. At current using both is possible though using "type" may become deprecated in the future.')
+	}
 
-  block = tolower(block)
-  what = tolower(what)
-  
-  # Error checking  #
-  # --------------- #
-  if (!(block %in% c("structural", "variability", "all"))) {
-      stop('Parameter "block" must be one of: "STRUCTURAL", "VARIABILITY" or "all" (case insensitive).')
-  } 
+    block <- tolower(block)
+	what <- tolower(what)
 
-  if (!(what %in% c("estimates", "precisions", "intervals", "all"))) {
-      stop('Parameter "what" must be one of: "estimates", "precisions", "intervals" or "all" (case insensitive).')
-  }
+	# Error checking
+	if (class(SOObject) != "StandardOutputObject") {
+		stop(paste0("getPopulationParameters() expected a StandardOutputObject as input, got a ", class(SOObject), '.'))
+	}
+	if (!(block %in% c("structural", "variability", "all"))) {
+		stop("Unrecognised value specified for 'block' parameter. Must be one of: \"STRUCTURAL\", \"VARIABILITY\" or \"all\" (case insensitive).")
+	}
+	if (!(what %in% c("estimates", "precisions", "intervals", "all"))) {
+		stop("Unrecognised value specified for 'what' parameter. Must be one of: \"estimates\", \"precisions\", \"intervals\" or \"all\" (case insensitive).")
+	}
+	
+	# Assert that specific objects exist in the SO structure if they are asked for
+	estimationPopulatedSlots <- getPopulatedSlots(SOObject@Estimation)
+	switch (what,
+		"estimates" = {
+			if (!("PopulationEstimates" %in% estimationPopulatedSlots))
+				stop("Tried to fetch the parameter estimates, however section Estimation::PopulationEstimates was not found in the SO Object.")
+		},
+		"precisions" = {
+			if (!("PrecisionPopulationEstimates" %in% estimationPopulatedSlots))
+				stop("Tried to fetch the parameter precision values, however section Estimation::PrecisionPopulationEstimates was not found in the SO Object.")
+		},
+		"intervals" = {
+			if (!("IndividualEstimates" %in% estimationPopulatedSlots))
+				stop("Tried to fetch the parameter interval values, however section Estimation::IndividualEstimates was not found in the SO Object.")
+		}
+	)
 
-  stopifnot(isS4(SOObject) & class(SOObject) == "StandardOutputObject")
-
-  # Assert that objects exist in SO if they are asked for
-  if (is.empty(SOObject@Estimation@PopulationEstimates) && what == "estimates") {
-    stop("Tried to fetch the parameter estimates, however section Estimation:PopulationEstimates was not found in the SO Object")
-  }
-  if (is.empty(SOObject@Estimation@PrecisionPopulationEstimates) && what == "precisions") {
-    stop("Tried to fetch the parameter precision values, however section Estimation:PrecisionPopulationEstimates was not found in the SO Object")
-  }
-  if (is.empty(SOObject@Estimation@IndividualEstimates) && what == "intervals") {
-    stop("Tried to fetch the parameter interval values, however section Estimation:IndividualEstimates was not found in the SO Object")
-  }
-
+	
   # Cycle through estimates present, parsing as necessary
-  estimateTypes <- names(SOObject@Estimation@PopulationEstimates)
+
   estimates.output.list <- list()
-  
-  for (estimateType in estimateTypes) {
-  
-    if (estimateType == "MLE") {
-      
-      out <- getMLEPopulationParameters(SOObject, what=what)
-      estimates.output.list[["MLE"]] <- out
-      
-    }
-    if (estimateType == "Bayesian") {
-      
-      out <- getBayesianPopulationParameters(SOObject, what=what, keep.only=keep.only)
-      estimates.output.list[["Bayesian"]] <- out
-      
-    }
-    if (estimateType == "Bootstrap") {
-      
-      out <- getBootstrapPopulationParameters(SOObject, what=what, keep.only=keep.only)
-      estimates.output.list[["Bootstrap"]] <- out  
-      
-    }
-  
+
+  if ("MLE" %in% getPopulatedSlots(SOObject@Estimation@PopulationEstimates)) {
+      estimates.output.list[["MLE"]] <- getMLEPopulationParameters(SOObject, what=what)
+  }
+
+  if ("Bayesian" %in% getPopulatedSlots(SOObject@Estimation@PopulationEstimates)) {
+	  estimates.output.list[["Bayesian"]] <- getBayesianPopulationParameters(SOObject, what=what, keep.only=keep.only)
+  }
+
+  if (!is.null(SOObject@Estimation@PopulationEstimates@OtherMethod$Bootstrap)) {
+      estimates.output.list[["Bootstrap"]] <- getBootstrapPopulationParameters(SOObject, what=what, keep.only=keep.only)
   }
   
   if (block == "structural") {
@@ -161,7 +155,7 @@ getPopulationParameters <- function(SOObject, block="all", what="all", keep.only
 			# and there are no such naming issues with the STRUCTURAL params, hence we
 			# can apply this workaround to derive the VARIABILITY param names in the SO
 			# rather than taking them from the VARIABILITY block.
-			allVarNames <<- names(estimates.output.list[[df.name]])
+			allVarNames <- names(estimates.output.list[[df.name]])
 			variabilityParams <- setdiff(allVarNames, structuralParams)
 			
 			keep.idx <- sapply(allVarNames, 
@@ -174,7 +168,7 @@ getPopulationParameters <- function(SOObject, block="all", what="all", keep.only
 		} else {
 			
 			# Same workaround as described above is applied here
-			allVarNames <<- estimates.output.list[[df.name]][["Parameter"]]
+			allVarNames <- estimates.output.list[[df.name]][["Parameter"]]
 			variabilityParams <- setdiff(allVarNames, structuralParams)
     
 			keep.idx <- sapply(allVarNames,
@@ -218,9 +212,13 @@ getPopulationParameters <- function(SOObject, block="all", what="all", keep.only
 #'  getBootstrapPopulationParameters
 #'
 row.merge.cbind <- function(x, y, colNames) {
-
-    # TODO: Temporary fix for inconsistency of column names between SO and the spec 
-    colnames(y)[colnames(y)=="parameter"] <- "Parameter"
+	
+	if (is.null(x) || nrow(x) == 0) {
+		return(y)
+	}
+	if (is.null(y) || nrow(y) == 0) {
+		return(x)
+	}
 
     # Input checking for x dataframe 
     if (is.null(x[["Parameter"]])) {
@@ -250,12 +248,10 @@ row.merge.cbind <- function(x, y, colNames) {
 getMLEPopulationParameters <- function(SOObject, what="all") {
   
   # Extract parameter values for MLE
-  df <- SOObject@Estimation@PopulationEstimates$MLE$data
-
-  # Input checking
-  if (is.null(df)) {
-    stop("Section Estimation:PopulationEstimates not found in SO Object")
-  } 
+  df <- as.data.frame(SOObject@Estimation@PopulationEstimates@MLE)
+  if (nrow(df) == 0) {
+    stop("Section Estimation::PopulationEstimates::MLE not found in SO Object.")
+  }
   
   if (what == "estimates") {
     df.as.list <- unlist(as.list(df))
@@ -269,48 +265,52 @@ getMLEPopulationParameters <- function(SOObject, what="all") {
   MLE.output['Parameter'] <- rownames(MLE.output)
   MLE.output <- MLE.output[c("Parameter", "MLE")]
   
+  populatedSlotsPrecisionPopEstimatesMLE <- getPopulatedSlots(SOObject@Estimation@PrecisionPopulationEstimates@MLE, full=TRUE)
+  
   if (what %in% c("all", "precisions")) {
 
-    se <- SOObject@Estimation@PrecisionPopulationEstimates$MLE$StandardError$data  
-    rse <- SOObject@Estimation@PrecisionPopulationEstimates$MLE$RelativeStandardError$data
-
-    if (is.null(se)) {
-      warning(paste0("Tried to fetch the parameter precision values, however section ",
-        "Estimation:PrecisionPopulationEstimates$MLE$StandardError was not found in the SO Object\n", 
-        "Omitting standard error precision values for MLE section in returned output."))
-    } else {
-
+	if ("StandardError" %in% populatedSlotsPrecisionPopEstimatesMLE) {
+	  se <- as.data.frame(SOObject@Estimation@PrecisionPopulationEstimates@MLE@StandardError)
+      # Append standard error precision information for parameters
       MLE.output <- row.merge.cbind(MLE.output, se, colNames="SE")
-
     }
-    if (is.null(rse)) {
+	else {
       warning(paste0("Tried to fetch the parameter precision values, however section ",
-        "Estimation:PrecisionPopulationEstimates$MLE$RelativeStandardError was not found in the SO Object\n", 
-        "Omitting relative standard error precision values for MLE section in returned output."))
-    } else {
-
-      # Append Precision information for parameters
+        "Estimation::PrecisionPopulationEstimates::MLE::StandardError was not found in the SO Object.\n ", 
+        "Omitting standard error precision values for MLE section in returned output."))
+	}
+	
+	if ("RelativeStandardError" %in% populatedSlotsPrecisionPopEstimatesMLE) {
+	  rse <- as.data.frame(SOObject@Estimation@PrecisionPopulationEstimates@MLE@RelativeStandardError)
+      # Append relative standard error precision information for parameters
       MLE.output <- row.merge.cbind(MLE.output, rse, colNames="RSE")
     }
+	else {
+      warning(paste0("Tried to fetch the parameter precision values, however section ",
+        "Estimation::PrecisionPopulationEstimates::MLE::RelativeStandardError was not found in the SO Object.\n ", 
+        "Omitting relative standard error precision values for MLE section in returned output."))
+	}
+    
   }
   
   if (what %in% c("all", "intervals")) {
-    CIs <- SOObject@Estimation@PrecisionPopulationEstimates$MLE$AsymptoticCI$data  
-    
-    if (is.null(CIs)) {
-      warning(paste0("Tried to fetch the parameter interval values, however section ", 
-        "PrecisionPopulationEstimates$MLE$AsymptoticCI was not found in the SO Object\n",
-        "Omitting interval values for MLE section in returned output.")) 
-    } else {
-
+	  
+	if ("AsymptoticCI" %in% populatedSlotsPrecisionPopEstimatesMLE) {
+	  CIs <- as.data.frame(SOObject@Estimation@PrecisionPopulationEstimates@MLE@AsymptoticCI)
       # Append Confidence Interval information for parameters
       MLE.output <- row.merge.cbind(MLE.output, CIs, colNames=c("CI", "LowerBound", "UpperBound"))
     }
+    else {
+      warning(paste0("Tried to fetch the parameter interval values, however section ", 
+        "Estimation::PrecisionPopulationEstimates::MLE::AsymptoticCI was not found in the SO Object.\n ",
+        "Omitting interval values for MLE section in returned output.")) 
+    }
+	
   } 
 
   # Sort the data frame by parameters names. Merge will do this anyway be default, but its possible to 
   # have no merge operations performed due to missing SO sections. This is added for consistency in output. 
-  MLE.output = MLE.output[with(MLE.output, order(Parameter)),]
+  MLE.output <- MLE.output[with(MLE.output, order(Parameter)),]
 
   # Remove row names as they are also stored in 'Parameter' column
   rownames(MLE.output) <- NULL
@@ -318,86 +318,88 @@ getMLEPopulationParameters <- function(SOObject, what="all") {
   return(MLE.output)
 }
 
-
 getBayesianPopulationParameters <- function(SOObject, what="all", keep.only=NULL) {
+	
+  populatedSlotsPopEstimatesBayesian <- getPopulatedSlots(SOObject@Estimation@PopulationEstimates@Bayesian, full=TRUE)
   
-  # Extract parameter values for MLE
-  estimate_mean <- SOObject@Estimation@PopulationEstimates$Bayesian$PosteriorMean$data
-  if (is.null(estimate_mean)) {
-    stop(paste0("Section Estimation:PopulationEstimates$Bayesian$PosteriorMean not found in SO Object"))
+  # Extract parameter values for Bayesian
+	
+  Bayesian.mean.output <- NULL
+  if ("PosteriorMean" %in% populatedSlotsPopEstimatesBayesian) {
+	estimate_mean <- as.data.frame(SOObject@Estimation@PopulationEstimates@Bayesian@PosteriorMean)
+	Bayesian.mean.output <- as.data.frame(t(estimate_mean))
+    colnames(Bayesian.mean.output) <- "Mean"
+    Bayesian.mean.output['Parameter'] <- rownames(Bayesian.mean.output)
+    Bayesian.mean.output <- Bayesian.mean.output[c("Parameter", "Mean")]
   }
-  estimate_median <- SOObject@Estimation@PopulationEstimates$Bayesian$PosteriorMedian$data
-  if (is.null(estimate_median)) {
-    stop(paste0("Section Estimation:PopulationEstimates$Bayesian$PosteriorMedian not found in SO Object"))
+  else {
+	warning(paste0("Tried to fetch the population parameter values, however section ", 
+        		   "Estimation::PopulationEstimates::Bayesian::PosteriorMean was not found in the SO Object.\n ",
+        		   "Omitting interval values for Bayesian section in returned output.")) 
   }
-  estimate_mode <- SOObject@Estimation@PopulationEstimates$Bayesian$PosteriorMode$data
-  if (is.null(estimate_mode)) {
-    stop(paste0("Section Estimation:PopulationEstimates$Bayesian$PosteriorMode not found in SO Object"))
+  
+  Bayesian.median.output <- NULL
+  if ("PosteriorMedian" %in% populatedSlotsPopEstimatesBayesian) {
+    estimate_median <- as.data.frame(SOObject@Estimation@PopulationEstimates@Bayesian@PosteriorMedian)
+	Bayesian.median.output <- as.data.frame(t(estimate_median))
+	colnames(Bayesian.median.output) <- "Median"
+	Bayesian.median.output['Parameter'] <- rownames(Bayesian.median.output)
+	Bayesian.median.output <- Bayesian.median.output[c("Parameter", "Median")]
+  }
+  else {
+  	warning(paste0("Tried to fetch the population parameter values, however section ", 
+       		       "Estimation::PopulationEstimates::Bayesian::PosteriorMedian was not found in the SO Object.\n ",
+       		       "Omitting interval values for Bayesian section in returned output.")) 
   }
   
   if (what == "estimates" & !is.null(keep.only)) {
-      # Return only named vector of mena/median/mode if that's all that's asked for
+      # Return only named vector of mean/median/mode if that's all that's asked for
       out <- eval(parse(text=paste0("estimate_", tolower(keep.only))))
       out.as.list <- unlist(as.list(out))
       names(out.as.list) <- colnames(out)
       return(out.as.list)
   } 
   
-  # Manipulate into data frame
-  Bayesian.mean.output <- as.data.frame(t(estimate_mean))
-  colnames(Bayesian.mean.output) <- "Mean"
-  Bayesian.mean.output['Parameter'] <- rownames(Bayesian.mean.output)
-  Bayesian.mean.output <- Bayesian.mean.output[c("Parameter", "Mean")]
-  
-  Bayesian.median.output <- as.data.frame(t(estimate_median))
-  colnames(Bayesian.median.output) <- "Median"
-  Bayesian.median.output['Parameter'] <- rownames(Bayesian.median.output)
-  Bayesian.median.output <- Bayesian.median.output[c("Parameter", "Median")]
-  
-  Bayesian.mode.output <- as.data.frame(t(estimate_mode))
-  colnames(Bayesian.mode.output) <- "Mode"
-  Bayesian.mode.output['Parameter'] <- rownames(Bayesian.mode.output)
-  Bayesian.mode.output <- Bayesian.mode.output[c("Parameter", "Mode")]
-  
-  Bayesian.output <- cbind(Bayesian.mean.output, 
-                          Bayesian.median.output["Median"], 
-                          Bayesian.mode.output["Mode"])
+  Bayesian.output <- row.merge.cbind(Bayesian.mean.output, Bayesian.median.output, colNames = "Median")
 
-  # Return this data frame if thats all the user requires
+  # Return this data frame if that's all the user requires
   if (what == "estimates") {
     return(Bayesian.output)
   }
   
+  populatedSlotsPrecisPopEstimatesBayesian <- getPopulatedSlots(SOObject@Estimation@PrecisionPopulationEstimates@Bayesian, full=TRUE)
+  
   # Append precision information for parameters
   if (what %in% c("all", "precisions")) {
-    sdp <- SOObject@Estimation@PrecisionPopulationEstimates$Bayesian$StandardDeviationPosterior$data  
-    if (is.null(sdp)) {
-      warning(paste0("Tried to fetch the parameter precision values, however section ",
-        "Estimation:PrecisionPopulationEstimates$Bayesian$StandardDeviationPosterior was not found in the SO Object\n", 
-        "Omitting precision values for Bayesian section in returned output."))
-    } else {
-
-      Bayesian.output <- row.merge.cbind(Bayesian.output, sdp, colNames="SDP")
-    }
+	  if ("StandardDeviation" %in% populatedSlotsPrecisPopEstimatesBayesian) {
+    	sdp <- as.data.frame(SOObject@Estimation@PrecisionPopulationEstimates@Bayesian@StandardDeviation)
+      	Bayesian.output <- row.merge.cbind(Bayesian.output, sdp, colNames="SDP")
+	  }
+	  else {
+        warning(paste0("Tried to fetch the parameter precision values, however section ",
+			           "Estimation::PrecisionPopulationEstimates::Bayesian::StandardDeviation was not found in the SO Object.\n ",
+        			   "Omitting precision values for Bayesian section in returned output."))
+	  }
   } 
   
   # Append Confidence Interval information for parameters
   if (what %in% c("all", "intervals")) {
-    CIs <- SOObject@Estimation@PrecisionPopulationEstimates$Bayesian$PercentilesCI$data 
-    if (is.null(CIs)) {
-      warning(paste0("Tried to fetch the parameter precision values, however section ",
-        "Estimation:PrecisionPopulationEstimates$Bayesian$PercentilesCI was not found in the SO Object\n", 
-        "Omitting interval values for Bayesian section in returned output."))
-    } else {
-    
-      # Manipulate into data frame
-      CI.output <- as.data.frame(t(CIs)[-1, ])
-      colnames(CI.output) <- paste("Perc_", CIs[["Percentile"]], sep="")
-      CI.output["Parameter"] <- setdiff(rownames(CI.output), "Percentile")
-      CI.output <- CI.output[c("Parameter", paste("Perc_", CIs[["Percentile"]], sep=""))]
-
-      Bayesian.output <- row.merge.cbind(Bayesian.output, CI.output, colNames=setdiff(colnames(CI.output), "Parameter"))
-    }
+	  if ("PercentilesCI" %in% populatedSlotsPrecisPopEstimatesBayesian) {
+        CIs <- as.data.frame(SOObject@Estimation@PrecisionPopulationEstimates@Bayesian@PercentilesCI)
+		
+	      # Manipulate into data frame
+	      CI.output <- as.data.frame(t(CIs)[-1, ])
+	      colnames(CI.output) <- paste("Perc_", CIs[["Percentile"]], sep="")
+	      CI.output["Parameter"] <- setdiff(rownames(CI.output), "Percentile")
+	      CI.output <- CI.output[c("Parameter", paste("Perc_", CIs[["Percentile"]], sep=""))]
+	
+	      Bayesian.output <- row.merge.cbind(Bayesian.output, CI.output, colNames=setdiff(colnames(CI.output), "Parameter"))
+	  }
+	  else {
+	    warning(paste0("Tried to fetch the parameter precision values, however section ",
+        			   "Estimation::PrecisionPopulationEstimates::Bayesian::PercentilesCI was not found in the SO Object.\n ", 
+        			   "Omitting interval values for Bayesian section in returned output."))
+	  }
   } 
 
   if (!is.null(keep.only)) {
@@ -420,81 +422,109 @@ getBayesianPopulationParameters <- function(SOObject, what="all", keep.only=NULL
   
 }
 
-
 getBootstrapPopulationParameters <- function(SOObject, what="all", keep.only=NULL) {
 
-  # Extract parameter values for MLE
-  estimate_mean <- SOObject@Estimation@PopulationEstimates$Bootstrap$Mean$data
-  if (is.null(estimate_mean)) {
-    stop(paste0("Section Estimation:PopulationEstimates$Bootstrap$Mean not found in SO Object"))
+  if (is.null(SOObject@Estimation@PopulationEstimates@OtherMethod$Bootstrap)) {
+    stop("Section Estimation::PopulationEstimates::OtherMethod[Bootstrap] not found in SO Object")
   }
-  estimate_median <- SOObject@Estimation@PopulationEstimates$Bootstrap$Median$data
-  if (is.null(estimate_median)) {
-    stop(paste0("Section Estimation:PopulationEstimates$Bootstrap$Median not found in SO Object"))
+  
+  populatedSlotsPopEstimatesBootstrap <- getPopulatedSlots(SOObject@Estimation@PopulationEstimates@OtherMethod$Bootstrap, full=TRUE)
+  
+  # Extract parameter values for Bootstrap
+  
+  Bootstrap.mean.output <- NULL
+  if ("Mean" %in% populatedSlotsPopEstimatesBootstrap) {
+  	estimate_mean <- as.data.frame(SOObject@Estimation@PopulationEstimates@OtherMethod$Bootstrap@Mean)
+	  
+	# Manipulate into data frame
+    Bootstrap.mean.output <- as.data.frame(t(estimate_mean))
+    colnames(Bootstrap.mean.output) <- "Mean"
+    Bootstrap.mean.output['Parameter'] <- rownames(Bootstrap.mean.output)
+    Bootstrap.mean.output <- Bootstrap.mean.output[c("Parameter", "Mean")]
+  }
+  else {
+	  warning(paste0("Tried to fetch the population parameter values, however section ", 
+        		     "Estimation::PopulationEstimates::OtherMethod[Bootstrap]::Mean was not found in the SO Object.\n ",
+        		     "Omitting interval values for Bootstrap section in returned output.")) 
+  }
+  
+  Bootstrap.median.output <- NULL
+  if ("Median" %in% populatedSlotsPopEstimatesBootstrap) {
+  	estimate_median <- as.data.frame(SOObject@Estimation@PopulationEstimates@OtherMethod$Bootstrap@Median)
+	
+    Bootstrap.median.output <- as.data.frame(t(estimate_median))
+    colnames(Bootstrap.median.output) <- "Median"
+    Bootstrap.median.output['Parameter'] <- rownames(Bootstrap.median.output)
+    Bootstrap.median.output <- Bootstrap.median.output[c("Parameter", "Median")]
+  }
+  else {
+	  warning(paste0("Tried to fetch the population parameter values, however section ", 
+        		     "Estimation::PopulationEstimates::OtherMethod[Bootstrap]::Mean was not found in the SO Object.\n ",
+        		     "Omitting interval values for Bootstrap section in returned output.")) 
   }
   
   if (what == "estimates" & !is.null(keep.only)) {
-    # Return only named vector of mena/median/mode if thats all thats asked for
+    # Return only named vector of mean/median/mode if that's all that's asked for
     out <- eval(parse(text=paste0("estimate_", tolower(keep.only))))
     out.as.list <- unlist(as.list(out))
     names(out.as.list) <- colnames(out)
     return(out.as.list)
   } 
   
-  # Manipulate into data frame
-  Bootstrap.mean.output <- as.data.frame(t(estimate_mean))
-  colnames(Bootstrap.mean.output) <- "Mean"
-  Bootstrap.mean.output['Parameter'] <- rownames(Bootstrap.mean.output)
-  Bootstrap.mean.output <- Bootstrap.mean.output[c("Parameter", "Mean")]
-  
-  Bootstrap.median.output <- as.data.frame(t(estimate_median))
-  colnames(Bootstrap.median.output) <- "Median"
-  Bootstrap.median.output['Parameter'] <- rownames(Bootstrap.median.output)
-  Bootstrap.median.output <- Bootstrap.median.output[c("Parameter", "Median")]
-  
-  Bootstrap.output <- cbind(Bootstrap.mean.output, 
-                          Bootstrap.median.output["Median"])
+  Bootstrap.output <- row.merge.cbind(Bootstrap.mean.output, Bootstrap.median.output, colNames = "Median")
 
-  # Return this data frame if thats all the user requires
+  # Return this data frame if that's all the user requires
   if (what == "estimates") {
     return(Bootstrap.output)
   }
+
+  if (is.null(SOObject@Estimation@PrecisionPopulationEstimates@OtherMethod$Bootstrap)) {
+	  warning(paste0("Tried to fetch the parameter precision values, however section ",
+        			  "Estimation::PrecisionPopulationEstimates::OtherMethod[Bootstrap] was not found in the SO Object.\n ", 
+        			  "Omitting precision values for Bootstrap section in returned output."))
+  }
   
-  # Append precision information for parameters
-  if (what %in% c("all", "precisions")) {
-    precision.stats <- SOObject@Estimation@PrecisionPopulationEstimates$Bootstrap$PrecisionEstimates$data  
-    if (is.null(precision.stats)) {
-      warning(paste0("Tried to fetch the parameter precision values, however section ",
-        "Estimation:PrecisionPopulationEstimates$Bootstrap$PrecisionEstimates was not found in the SO Object\n", 
-        "Omitting precision values for Bootstrap section in returned output."))
-    } else{
-
-      Bootstrap.output <- row.merge.cbind(Bootstrap.output, precision.stats, 
-        colNames=setdiff(colnames(precision.stats), "Parameter"))      
-    }
-
-  } 
+  else {
   
-  # Append Confidence Interval information for parameters
-  if (what %in% c("all", "intervals")) {
-    perc <- SOObject@Estimation@PrecisionPopulationEstimates$Bootstrap$Percentiles$data 
-    if (is.null(perc)) {
-      warning(paste0("Tried to fetch the parameter precision values, however section ",
-        "Estimation:PrecisionPopulationEstimates$Bootstrap$Percentiles was not found in the SO Object\n", 
-        "Omitting interval values for Bootstrap section in returned output."))
-    } else {
-      # Manipulate into data frame
-      percentiles.output <- as.data.frame(t(perc)[-1, ])
-      colnames(percentiles.output) <- paste("Perc_", perc[["Percentile"]], sep="")
-      percentiles.output["Parameter"] <- setdiff(rownames(percentiles.output), "Percentile")
-      percentiles.output <- percentiles.output[c("Parameter", paste("Perc_", perc[["Percentile"]], sep=""))]
-      rownames(percentiles.output) <- NULL
-
-      Bootstrap.output <- row.merge.cbind(Bootstrap.output, percentiles.output, 
-        colNames=setdiff(colnames(percentiles.output), "Parameter"))      
-    }
-    
-  } 
+	  populatedSlotsPrecisPopEstimatesBootstrap <- getPopulatedSlots(SOObject@Estimation@PrecisionPopulationEstimates@OtherMethod$Bootstrap, full=TRUE)
+	  
+	  # Append precision information for parameters
+	  if (what %in% c("all", "precisions")) {
+		  if ("StandardDeviation" %in% populatedSlotsPrecisPopEstimatesBootstrap) {
+	    	precision.stats <- as.data.frame(SOObject@Estimation@PrecisionPopulationEstimates@OtherMethod$Bootstrap@StandardDeviation)
+	        Bootstrap.output <- row.merge.cbind(Bootstrap.output, precision.stats, colNames=setdiff(colnames(precision.stats), "Parameter"))      
+		  }
+    	  else {
+		      warning(paste0("Tried to fetch the parameter precision values, however section ",
+							 "Estimation::PrecisionPopulationEstimates::OtherMethod[Bootstrap]::StandardDeviation was not found in the SO Object.\n ", 
+							 "Omitting precision values for Bootstrap section in returned output."))
+				
+		  }
+	  }
+	  
+	  # Append Confidence Interval information for parameters
+	  if (what %in% c("all", "intervals")) {
+		  if ("PercentilesCI" %in% populatedSlotsPrecisPopEstimatesBootstrap) {
+		    perc <- as.data.frame(SOObject@Estimation@PrecisionPopulationEstimates@OtherMethod$Bootstrap@PercentilesCI)
+			
+		      # Manipulate into data frame
+		      percentiles.output <- as.data.frame(t(perc)[-1, ])
+		      colnames(percentiles.output) <- paste("Perc_", perc[["Percentile"]], sep="")
+		      percentiles.output["Parameter"] <- setdiff(rownames(percentiles.output), "Percentile")
+		      percentiles.output <- percentiles.output[c("Parameter", paste("Perc_", perc[["Percentile"]], sep=""))]
+		      rownames(percentiles.output) <- NULL
+		
+		      Bootstrap.output <- row.merge.cbind(Bootstrap.output, percentiles.output, 
+		    	    colNames=setdiff(colnames(percentiles.output), "Parameter"))
+		  }
+		  else {
+		      warning(paste0("Tried to fetch the parameter precision values, however section ",
+					         "Estimation::PrecisionPopulationEstimates::OtherMethod[Bootstrap]::PercentilesCI was not found in the SO Object.\n ", 
+	        				 "Omitting interval values for Bootstrap section in returned output."))
+		  }
+	  }
+  
+  }
 
   if (!is.null(keep.only)) {
 

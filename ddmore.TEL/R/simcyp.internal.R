@@ -1,12 +1,89 @@
 ####################################################################################################
+#' Create global environment objects
+#'
+#' Initialises any global objects which are used by other Simcyp functions. Removed via the
+#' \code{\link{simcyp.destroyGlobals}} function.
+#' 
+#' @param newConfigFile A logical value which determines if a new temporary config file name is
+#' retrieved. This name should only be set once at the beginning of a Simcyp execution.
+#'
+#' @seealso \code{\link{simcyp.destroyGlobals}}
+#'
+#' @examples 
+#' simcyp.createGlobals()
+#' 
+#' # Simcyp work...
+#' 
+#' simcyp.destroyGlobals()
+#'
+#' @author Craig Lewin (Simcyp)
+simcyp.createGlobals <- function()
+{
+	configFile <- file.path(getwd(), "simcyp-console.config")
+	configFileName <- file_path_sans_ext(basename(configFile))
+	
+	unlink(configFile, TRUE, TRUE)
+	file.create(configFile)
+	
+	assign("simcyp.input.config", configFile, globalenv())
+	
+	assign("simcyp.input.config.key.logFolder", "log_dir", globalenv())
+	assign("simcyp.input.config.key.logFile", "log_file", globalenv())
+	assign("simcyp.input.config.key.signalFile", "control_file", globalenv())
+	assign("simcyp.input.config.key.statusFile", "status_file", globalenv())
+	assign("simcyp.input.config.key.includedOutput", "otable_yes", globalenv())
+	assign("simcyp.input.config.key.embedData", "#embed_data", globalenv())
+	
+	assign("simcyp.output.file.standardOutput", paste0(configFileName, ".SO.xml"), globalenv())
+	assign("simcyp.output.file.combineArchive", paste0(configFileName, ".CA.omex"), globalenv())
+	
+	assign("simcyp.output.folder.fis", ".fis", globalenv())
+	assign("simcyp.output.folder.csv", "csv", globalenv())
+	assign("simcyp.output.folder.lua", "lua", globalenv())
+	assign("simcyp.output.folder.txt", "txt", globalenv())
+	assign("simcyp.output.folder.tmp", "tmp", globalenv())
+	
+	assign("simcyp.executionCommand.simulate", "simulation", globalenv())
+	assign("simcyp.executionCommand.generateSinglePopulation", "single population generation", globalenv())
+	assign("simcyp.executionCommand.generateMultiplePopulations", "multiple populations generation", globalenv())
+	assign("simcyp.executionCommand.getPopulationIds", "population IDs retrieval", globalenv())
+	assign("simcyp.executionCommand.getOutputIds", "output IDs retrieval", globalenv())
+}
+
+
+####################################################################################################
+#' Destroy global environment objects
+#'
+#' Removes any global objects which were used by other Simcyp functions. Created via the
+#' \code{\link{simcyp.createGlobals}} function.
+#'
+#' @seealso \code{\link{simcyp.createGlobals}}
+#'
+#' @examples 
+#' simcyp.createGlobals()
+#' 
+#' # Simcyp work...
+#' 
+#' simcyp.destroyGlobals()
+#'
+#' @author Craig Lewin (Simcyp)
+simcyp.destroyGlobals <- function()
+{
+	rm(list = ls(pattern = "^simcyp\\.input\\..+$"))
+	rm(list = ls(pattern = "^simcyp\\.output\\..+$"))
+	rm(list = ls(pattern = "^simcyp\\.executionCommand\\..+$"))
+}
+
+
+####################################################################################################
 #' Execute a Simcyp command
 #'
 #' Prepares a job for submission including populating the execution file, submits the job, monitors 
 #' the progress, and then returns the results. Any files generated as part of the execution are 
 #' moved into a unique subdirectory within the working directory.
 #'
-#' @param executionCommand The type of Simcyp command to be executed. Should be one of the items in 
-#' \code{\link{simcyp.getCommonValues}()$executionCommands}.
+#' @param executionCommand The type of Simcyp command to be executed. Should be one of the
+#' \code{simcyp.executionCommand.*} objects defined in \code{\link{simcyp.preprocess}}.
 #'
 #' @param executionParameters A list of named values which will be converted to command line 
 #' arguments for the Simcyp Console application. E.g. 
@@ -19,32 +96,31 @@
 #' @return An object of type \code{\link{SOObject}} if successful and the command isn't a query 
 #' command, TRUE if successful and the command is a query command, NULL otherwise.
 #'
-#' @seealso \code{\link{simcyp.getCommonValues}}
+#' @seealso \code{\link{simcyp.preprocess}}
 #' @seealso \code{\link{simcyp.isQueryCommand}}
 #' @seealso \code{\link{SOObject}}
 #'
 #' @examples \dontrun{
 #'
-#' commands <- simcyp.getCommonValues()$executionCommands
-#'
 #' # Execute the query job to retrieve population IDs silently.
-#' simcyp.execute(commands$getPopIds, list(q = NULL), TRUE)
+#' simcyp.execute(simcyp.executionCommand.getPopulationIds, list(q = NULL), TRUE)
 #' # TRUE
 #'
 #' # Execute the query job to retrieve population IDs silently.
-#' simcyp.execute(commands$getOutputIds, list(u = NULL), TRUE)
+#' simcyp.execute(simcyp.executionCommand.getOutputIds, list(u = NULL), TRUE)
 #' # TRUE
 #'
 #' # Execute a simulation.
-#' simcyp.execute(commands$simulate, list(w = "C:/Path/To/Workspace.wksz"))
+#' simcyp.execute(simcyp.executionCommand.simulate, list(w = "C:/Path/To/Workspace.wksz"))
 #' # SOObject
 #'
 #' # Execute a population generation.
-#' simcyp.execute(commands$generateSinglePop, list(p = "SIM-JAPANESE", n = 20))
+#' simcyp.execute(simcyp.executionCommand.generateSinglePoulation, 
+#' 				  list(p = "SIM-JAPANESE", n = 20))
 #' # SOObject
 #'
 #' # Execute a multiple population generation.
-#' simcyp.execute(commands$generateMultiPops, 
+#' simcyp.execute(simcyp.executionCommand.generateMultiplePopulations, 
 #' 				  list(p = "SIM-JAPANESE,SIM-HEALTHY_VOLUNTEERS", n = 20,20))
 #' # SOObject
 #' }
@@ -54,13 +130,13 @@ simcyp.execute <- function(executionCommand,
 						   executionParameters,
 						   silentMode = FALSE) 
 {
-	simcypCommonVals <- simcyp.getCommonValues()
-	executionCommands <- simcypCommonVals$executionCommands
+	executionCommands <- sapply(ls(globalenv(), pattern = "^simcyp\\.executionCommand\\.\\w+$"),
+								function(o) get(o, globalenv()))
 	isQueryCommand <- simcyp.isQueryCommand(executionCommand)
 
 	if (is.na(match(executionCommand, executionCommands))) 
 	{
-		stop(paste0("Unexpected Simcyp execution type - acceptable values are; ",
+		stop(paste0("Unexpected Simcyp execution type - acceptable values are; ", 
 					paste(executionCommands, collapse = ", ")))
 	}
 
@@ -82,24 +158,21 @@ simcyp.execute <- function(executionCommand,
 	if (isQueryCommand == FALSE) 
 	{
 		# Populate the config file with general information
-		keys <- simcypCommonVals$configFileKeys
-		vals <- simcypCommonVals$configFileValues
-		
-		simcyp.setConfigFileValue(keys$logFile, vals$logFile)
-		simcyp.setConfigFileValue(keys$signalFile, vals$signalFile)
-		simcyp.setConfigFileValue(keys$statusFile, vals$statusFile)
+		simcyp.setConfigFileValue(simcyp.input.config.key.logFile, "simcyp_log.txt")
+		simcyp.setConfigFileValue(simcyp.input.config.key.signalFile, "simcyp_control.txt")
+		simcyp.setConfigFileValue(simcyp.input.config.key.statusFile, "simcyp_status.txt")
 
-		executionParameters$c <- simcypCommonVals$configFile
+		executionParameters$c <- simcyp.input.config
 	}
 
 	if (silentMode == FALSE) 
 	{
-		if (executionCommand == executionCommands$simulate) 
+		if (executionCommand == simcyp.executionCommand.simulate) 
 		{
 			# Running a simulation
 			message(paste0("\tWorkspace: ", executionParameters$w))
 		} 
-		else if (executionCommand == executionCommands$generateSinglePop) 
+		else if (executionCommand == simcyp.executionCommand.generateSinglePopulation) 
 		{
 			# Generating a single population
 			if (executionParameters$n == 0) 
@@ -118,7 +191,7 @@ simcyp.execute <- function(executionCommand,
 								executionParameters$n))
 			}
 		} 
-		else if (executionCommand == executionCommands$generateMultiPops) 
+		else if (executionCommand == simcyp.executionCommand.generateMultiplePopulations) 
 		{
 			# Generating multiple populations
 			message("\tPopulations:")
@@ -151,6 +224,11 @@ simcyp.execute <- function(executionCommand,
 						   "using a dummy file"))
 		}
 	}
+	
+	if (executionCommand == simcyp.executionCommand.simulate)
+	{
+		workspace <- executionParameters$w
+	}
 
 	# Format the execution parameters into command line arguments expected by the Simcyp Console
 	formatExecutionParameter <- function(name) 
@@ -165,7 +243,7 @@ simcyp.execute <- function(executionCommand,
 
 	# Create and submit the job
 	executionType <- "simcyp"
-	executionFile <- simcypCommonVals$configFile
+	executionFile <- simcyp.input.config
 	workingDirectory <- getwd()
 
 	if (silentMode == FALSE) 
@@ -189,30 +267,34 @@ simcyp.execute <- function(executionCommand,
 
 	success <- simcyp.monitorProgress(job@id, silentMode)
 
-	# Move all of the resulting files into a new folder within the working directory (so that files 
-	# aren't overwritten when subsequent jobs are executed). Don't do this for query commands 
-	# because the files are deleted after use.
-	if (isQueryCommand == FALSE) 
+	if (silentMode == FALSE) 
 	{
-		if (silentMode == FALSE) 
-		{
-			message("Finalising:")
-		}
+		message("Finalising:")
+	}
+	
+	# Move all of the resulting files into a new folder within the working directory.
+	outputsPath <- file.path(
+		workingDirectory, 
+		sprintf(
+			"%s_SIMCYP_%s.out", 
+			basename(simcyp.input.config), 
+			format(Sys.time(), "%H%M%S")))
 
-		outputsPath <- file.path(workingDirectory, 
-								 sprintf("%s-results-%s",
-										 names(executionCommands)[match(executionCommand, 
-														 				executionCommands)],
-							 			 job@id))
+	simcyp.moveResults(outputsPath)
+	
+	file.copy(simcyp.input.config, file.path(outputsPath, basename(simcyp.input.config)))
+	file.remove(simcyp.input.config)
+	
+	if (executionCommand == simcyp.executionCommand.simulate)
+	{
+		file.copy(workspace, file.path(outputsPath, basename(workspace)))
+	}
 
-		simcyp.moveResults(outputsPath)
+	assign("simcyp.output.folder.root", outputsPath, globalenv())
 
-		simcyp.getResultsDirectory.result <<- outputsPath
-
-		if (silentMode == FALSE) 
-		{
-			message(paste0("\tResults directory: ", outputsPath))
-		}
+	if (silentMode == FALSE) 
+	{
+		message(paste0("\tResults directory: ", outputsPath))
 	}
 
 	if (success) 
@@ -223,7 +305,7 @@ simcyp.execute <- function(executionCommand,
 		} 
 		else 
 		{
-			soPath <- file.path(outputsPath, simcypCommonVals$standardOutputFileName)
+			soPath <- file.path(outputsPath, simcyp.output.file.standardOutput)
 
 			if (silentMode == FALSE) 
 			{
@@ -247,6 +329,11 @@ simcyp.execute <- function(executionCommand,
 		message(rep('#', nchar(title)), '\n')
 	}
 	
+	if (isQueryCommand == FALSE)
+	{
+		simcyp.destroyGlobals()
+	}
+	
 	return(result)
 }
 
@@ -257,25 +344,19 @@ simcyp.execute <- function(executionCommand,
 #' (each line is structured as <key>=<value>) for a specific <key> so that its corresponding <value> 
 #' can be extracted.
 #'
-#' @param configFileKey The <key> part of a line in the config file to retrieve the <value> for. 
-#' Should be one of the items in \code{\link{simcyp.getCommonValues()}$configFileKeys}.
+#' @param configFileKey The <key> part of a line in the config file to retrieve the <value> for.
 #'
 #' @return The <value> associated with the given <key>.
 #'
-#' @seealso \code{\link{simcyp.getCommonValues}}
-#'
 #' @examples
-#' simcyp.getConfigFileValue(simcyp.getCommonValues()$configFileKeys$embedDataInSO)
+#' simcyp.getConfigFileValue(simcyp.input.config.key.signalFile)
 #'
 #' @author Craig Lewin (Simcyp)
 simcyp.getConfigFileValue <- function(configFileKey) 
 {
-	simcypCommonVals <- simcyp.getCommonValues()
-
-	if (file.exists(simcypCommonVals$configFile)) 
+	if (file.exists(simcyp.input.config)) 
 	{
-		configText <- readChar(simcypCommonVals$configFile, 
-							   file.info(simcypCommonVals$configFile)$size)
+		configText <- readChar(simcyp.input.config, file.info(simcyp.input.config)$size)
 
 		if (str_detect(configText, configFileKey)) 
 		{
@@ -307,75 +388,32 @@ simcyp.getConfigFileValue <- function(configFileKey)
 
 
 ####################################################################################################
-#' Get Simcyp-specific constants
-#'
-#' Retrieves a list of constant values for use by multiple Simcyp-specific R functions within the 
-#' DDMoRe R package.
-#'
-#' @return A list of common values used by Simcyp-specific R functions.
-#'
-#' @examples
-#' simcypConsts <- simcyp.getCommonValues()
-#' cmd <- simcypConsts$executionCommands$simulate
-#'
-#' @author Craig Lewin (Simcyp)
-simcyp.getCommonValues <- function() 
-{
-	return(list(configFile = file.path(getwd(), "simcyp.config"),
-				outputFile = file.path(getwd(), "simcyp.output"),
-				fisFolder = file.path(getwd(), ".fis"),
-				dataFolder = file.path(getwd(), "data"),
-				scriptsFolder = file.path(getwd(), "scripts"),
-				logsFolder = file.path(getwd(), "logs"),
-				standardOutputFileName = "simcyp_standard_output.xml",
-				configFileKeys = list(logDir = "log_dir",
-									  logFile = "log_file",
-									  signalFile = "control_file",
-									  statusFile = "status_file",
-									  includedOutput = "otable_yes",
-									  embedDataInSO = "#embed_data"),
-				configFileValues = list(logFile = "simcyp.log",
-										signalFile = "simcyp.signal",
-										statusFile = "simcyp.status"),
-				executionCommands = list(simulate = "simulation",
-										 generateSinglePop = "single population generation",
-										 generateMultiPops = "multiple populations generation",
-										 getPopIds = "population IDs retrieval",
-										 getOutputIds = "output IDs retrieval")))
-}
-
-
-####################################################################################################
 #' Check if a an execution command is a query
 #'
 #' Checks if a given execution command is considered to be a query command or not. A query command 
 #' is one of those which retrieves IDs and does not generate any populations or run a simulation.
 #'
 #' @param executionCommand The execution command which should be checked to determine if it is a 
-#' query command. Should be one of the items in 
-#' \code{\link{simcyp.getCommonValues()}$executionCommands}.
+#' query command. Should be one of the \code{simcyp.executionCommand.*} objects defined in 
+#' \code{\link{simcyp.preprocess}}.
 #'
 #' @return TRUE if the given execution command is considered to be a query, otherwise FALSE.
 #'
-#' @seealso \code{\link{simcyp.getCommonValues}}
+#' @seealso \code{\link{simcyp.preprocess}}
 #'
 #' @examples
-#' commands <- simcyp.getCommonValues()$executionCommands
-#'
-#' simcyp.isQueryCommand(commands$getPopIds)
-#' simcyp.isQueryCommand(commands$simulate)
+#' simcyp.isQueryCommand(simcyp.executionCommand.getPopulationIds)
+#' simcyp.isQueryCommand(simcyp.executionCommand.simulate)
 #'
 #' @author Craig Lewin (Simcyp)
 simcyp.isQueryCommand <- function(executionCommand) 
 {
-	simcypCommonVals <- simcyp.getCommonValues()
-	
-	if (executionCommand == simcypCommonVals$executionCommands$getPopIds)
+	if (executionCommand == simcyp.executionCommand.getPopulationIds)
 	{
 		return(TRUE)
 	}
 	
-	if (executionCommand == simcypCommonVals$executionCommands$getOutputIds)
+	if (executionCommand == simcyp.executionCommand.getOutputIds)
 	{
 		return(TRUE)
 	}
@@ -409,7 +447,6 @@ simcyp.isQueryCommand <- function(executionCommand)
 #' @author Craig Lewin (Simcyp)
 simcyp.monitorProgress <- function(jobId, silentMode) 
 {
-	simcypCommonVals <- simcyp.getCommonValues()
 	jobStatus <- ""
 	simStatus <- ""
 	simProgress <- ""
@@ -437,12 +474,11 @@ simcyp.monitorProgress <- function(jobId, silentMode)
 			# because it is added to the execution file by the prepare handler script.
 			if (is.null(simStatusFile)) 
 			{
-				configKeys <- simcypCommonVals$configFileKeys
-				simcypStatusDirectory <- simcyp.getConfigFileValue(configKeys$logDir)
+				simcypStatusDirectory <- simcyp.getConfigFileValue(simcyp.input.config.key.logFolder)
 
 				if (is.null(simcypStatusDirectory) == FALSE) 
 				{
-					simcypStatusFileName <- simcyp.getConfigFileValue(configKeys$statusFile)
+					simcypStatusFileName <- simcyp.getConfigFileValue(simcyp.input.config.key.signalFile)
 
 					if (is.null(simcypStatusFileName) == FALSE) 
 					{
@@ -539,7 +575,7 @@ simcyp.monitorProgress <- function(jobId, silentMode)
 #'
 #' @examples \dontrun{
 #'
-#' simcyp.MoveResults("C:/Path/To/New/Location")
+#' simcyp.moveResults("C:/Path/To/New/Location")
 #' }
 #'
 #' @author Craig Lewin (Simcyp)
@@ -547,38 +583,13 @@ simcyp.moveResults <- function(newLocation)
 {
 	if (dir.create(newLocation)) 
 	{
-		simcypCommonVals <- simcyp.getCommonValues()
-
-		outputFiles <- list.files(getwd(), "*.*", full.names = TRUE, recursive = FALSE)
-		outputFiles <- outputFiles[file.info(outputFiles)$isdir == FALSE]
-		outputFiles <- outputFiles[toupper(file_ext(outputFiles)) != "WKSZ"]
-		outputFiles <- outputFiles[toupper(file_ext(outputFiles)) != "WKSX"]
-		file.copy(outputFiles, newLocation)
-		unlink(outputFiles, TRUE, TRUE)
-
-		if (file.exists(simcypCommonVals$fisFolder)) 
-		{
-			file.copy(simcypCommonVals$fisFolder, newLocation, recursive = TRUE)
-			unlink(simcypCommonVals$fisFolder, TRUE, TRUE)
-		}
-
-		if (file.exists(simcypCommonVals$dataFolder)) 
-		{
-			file.copy(simcypCommonVals$dataFolder, newLocation, recursive = TRUE)
-			unlink(simcypCommonVals$dataFolder, TRUE, TRUE)
-		}
-
-		if (file.exists(simcypCommonVals$scriptsFolder)) 
-		{
-			file.copy(simcypCommonVals$scriptsFolder, newLocation, recursive = TRUE)
-			unlink(simcypCommonVals$scriptsFolder, TRUE, TRUE)
-		}
-
-		if (file.exists(simcypCommonVals$logsFolder)) 
-		{
-			file.copy(simcypCommonVals$logsFolder, newLocation, recursive = TRUE)
-			unlink(simcypCommonVals$logsFolder, TRUE, TRUE)
-		}
+		outputs <- sapply(ls(globalenv(), pattern = "^simcyp\\.output\\..+$"),
+						  function(o) get(o, globalenv()))
+		outputs <- sapply(outputs, function(o) paste0("(^", gsub("\\.", "\\\\.", o), "$)"))
+		outputs <- list.files(getwd(), paste(outputs, collapse = "|"), TRUE, TRUE, FALSE)
+		
+		sapply(outputs, function(f) file.copy(f, newLocation, TRUE, TRUE))
+		unlink(outputs, TRUE, TRUE)
 	}
 }
 
@@ -598,19 +609,32 @@ simcyp.moveResults <- function(newLocation)
 #' @author Craig Lewin (Simcyp)
 simcyp.parseOutputFile <- function() 
 {
-	simcypCommonVals <- simcyp.getCommonValues()
-
-	if (file.exists(simcypCommonVals$outputFile)) 
+	potentialFiles <- list.files(simcyp.output.folder.root, "stdout\\.txt", TRUE, TRUE, TRUE)
+	
+	if (length(potentialFiles) > 0)
 	{
-		# Get only the lines which begin with an integer greater than 0 followed by a tab
-		lines <- readLines(simcypCommonVals$outputFile)
-		lines <- lines[str_detect(lines, '\t')]
-		lines <- lines[as.integer(str_sub(lines, 0, str_locate(lines, '\t')[1, 2])) > 0]
-
-		return(lapply(lines, function(line) { str_sub(line, str_locate(line, '\t')[1, 1] + 1) }))
+		outputFile <- potentialFiles[[1]]
+		
+		ids <- list()
+		
+		for (line in readLines(outputFile))
+		{
+			if (str_detect(line, '\t'))
+			{
+				suppressWarnings(
+						id <- as.integer(str_sub(line, 1, str_locate(line, '\t')[1, 2] - 1)))
+				
+				if (is.na(id) == FALSE & id > 0)
+				{
+					ids <- c(ids, str_sub(line, str_locate(line, '\t')[1, 1] + 1))
+				}
+			}
+		}
+		
+		return(ids)
 	}
 
-	return(NULL)
+	stop(paste0("Failed to retrieve IDs: '", outputFile, "' not found"))
 }
 
 
@@ -636,52 +660,37 @@ simcyp.parseOutputFile <- function()
 #' @author Craig Lewin (Simcyp)
 simcyp.preprocess <- function(embedDataInSO, outputIds) 
 {	
-	simcypCommonVals <- simcyp.getCommonValues()
-
+	simcyp.createGlobals()
+	
 	simcyp.getPopulationIds()
 	simcyp.getOutputIds()
-
-	if (file.exists(simcypCommonVals$configFile)) 
+	
+	if (is.logical(embedDataInSO)) 
 	{
-		if (unlink(simcypCommonVals$configFile, TRUE, TRUE) != 0) 
-		{
-			stop("Failed to delete existing execution file in ", getwd())
-		}
+		simcyp.setConfigFileValue(simcyp.input.config.key.embedData, embedDataInSO)
+	} 
+	else 
+	{
+		stop(paste0("The embedDataInStandardOutput parameter must be a logical value"))
 	}
-
-	if (file.create(simcypCommonVals$configFile)) 
+			
+	if (is.null(outputIds)) 
 	{
-		if (is.logical(embedDataInSO)) 
+		for (outputId in simcyp.getOutputIds()) 
 		{
-			simcyp.setConfigFileValue(simcypCommonVals$configFileKeys$embedDataInSO, embedDataInSO)
-		} 
-		else 
+			simcyp.setConfigFileValue(simcyp.input.config.key.includedOutput, paste0(outputId, "+"))
+		}
+	} 
+	else if (is.list(outputIds) | is.vector(outputIds)) 
+	{
+		for (outputId in outputIds) 
 		{
-			stop(paste0("The embedDataInStandardOutput parameter must be a logical value"))
-		}	
-				
-		if (is.null(outputIds)) 
-		{
-			for (outputId in simcyp.getOutputIds()) 
-			{
-				simcyp.setConfigFileValue(simcypCommonVals$configFileKeys$includedOutput, outputId)
-			}
-		} 
-		else if (is.list(outputIds) | is.vector(outputIds)) 
-		{
-			for (outputId in outputIds) 
-			{
-				simcyp.setConfigFileValue(simcypCommonVals$configFileKeys$includedOutput, outputId)
-			}
-		} 
-		else 
-		{
-			stop("The outputIds parameter should be a list or vector of IDs")
+			simcyp.setConfigFileValue(simcyp.input.config.key.includedOutput, paste0(outputId, "+"))
 		}
 	} 
 	else 
 	{
-		stop("Failed to create execution file in ", getwd())
+		stop("The outputIds parameter should be a list or vector of IDs")
 	}
 }
 
@@ -692,23 +701,18 @@ simcyp.preprocess <- function(embedDataInSO, outputIds)
 #' Appends a <key>=<value> line to the config file (which is also the execution file). Does not 
 #' check if the <key> already exists in the file.
 #'
-#' @param configFileKey The <key> part of the new line to append. Should be one of the items in 
-#' \code{\link{simcyp.getCommonValues()}$configFileKeys}.
+#' @param configFileKey The <key> part of the new line to append.
 #' 
-#' @param configFileValue The <value> part of the new line to append. Possibly one of the items in 
-#' \code{\link{simcyp.getCommonValues()}$configFileValues}.
-#'
-#' @seealso \code{\link{simcyp.getCommonValues}}
+#' @param configFileValue The <value> part of the new line to append.
 #'
 #' @examples
-#' simcyp.setConfigFileValue(simcyp.getCommonValues()$configFileKeys$embedDataInSO, TRUE)
+#' simcyp.setConfigFileValue(simcyp.input.config.key.embedData, TRUE)
+#' simcyp.setConfigFileValue(simcyp.input.config.key.signalFile, "simcyp.signal")
 #'
 #' @author Craig Lewin (Simcyp)
 simcyp.setConfigFileValue <- function(configFileKey, configFileValue) 
 {
-	write(sprintf("%s=%s", configFileKey, configFileValue),
-		  simcyp.getCommonValues()$configFile,
-		  append = TRUE)
+	write(sprintf("%s=%s", configFileKey, configFileValue), simcyp.input.config, append = TRUE)
 }
 
 

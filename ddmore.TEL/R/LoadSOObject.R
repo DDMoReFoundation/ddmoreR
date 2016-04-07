@@ -1,3 +1,4 @@
+
 ################################################################################
 #' LoadSOObject
 #'
@@ -17,7 +18,13 @@
 #'     "tests", "data", "PharmMLSO", "MachineGenerated", 
 #'     "UseCase2_TIMEchange_fixed.SO.xml"))
 #' @export
-#' @include StandardOutputObject.R xmlParsers.R 
+#' @include StandardOutputObject.R
+#' @include Simulation-Class.R
+#' @include OptimalDesign-Class.R
+#' @include ModelDiagnostic-Class.R
+#' @include Estimation-Class.R
+#' @include StandardOutputObjectXmlParsers.R 
+
 LoadSOObject <- function(file) {
 	
 	file <- file_path_as_absolute(file)
@@ -34,7 +41,7 @@ LoadSOObject <- function(file) {
 	}
 	
 	# Set working directory to that specified in file
-	# (I (MSW) don't like this, can't we amend the xmlParsers.R to resolve the associated data files
+	# (I (MSW) don't like this, can't we amend the StandardOutputObjectXmlParsers.R to resolve the associated data files
 	# relative to the directory in which the .SO.xml file lives, but remaining in the current directory?)
 	old.wd <- getwd()
     on.exit({
@@ -43,16 +50,20 @@ LoadSOObject <- function(file) {
     })
 	setwd(dirname(file))
 	
-	SOObject <- createSOObjectFromXMLSOBlock(soBlock = soBlocks[[1]])
+	# Parse the SO XML tree structure and create the corresponding StandardOutputObject R object structure
+	SOObject <- new (Class = "StandardOutputObject", soBlocks[[1]])
+	
+	# Print parsed elements
+	message(paste("\nThe following main elements were parsed successfully:", paste(getPopulatedSlots(SOObject), collapse="\n  "), sep="\n  "))
 	
 	# Populate the (hidden) slot specifying the XML file from which this SO was parsed
 	slot(object = SOObject, name = ".pathToSourceXML") <- file
 
 	# Print out any errors in the SO Object to the R console to make it obvious if execution failed
 	.printSOMessages(
-		.getSOX(so = SOObject, type = "Errors"),
-		.getSOX(so = SOObject, type = "Warnings"),
-		.getSOX(so = SOObject, type = "Info")
+		getSOMessages(so = SOObject, type = "ERROR"),
+		getSOMessages(so = SOObject, type = "WARNING"),
+		getSOMessages(so = SOObject, type = "INFORMATION")
 	)
 	
 	SOObject
@@ -73,7 +84,7 @@ LoadSOObject <- function(file) {
 #'         populated with the data from the individual SOBlock sections of the PharmML file
 #' 
 #' @export
-#' @include StandardOutputObject.R xmlParsers.R 
+
 LoadSOObjects <- function(file) {
 	
 	file <- file_path_as_absolute(file)
@@ -92,7 +103,7 @@ LoadSOObjects <- function(file) {
 	}
 
 	# Set working directory to that specified in file
-	# (I (MSW) don't like this, can't we amend the xmlParsers.R to resolve the associated data files
+	# (I (MSW) don't like this, can't we amend the StandardOutputObjectXmlParsers.R to resolve the associated data files
 	# relative to the directory in which the .SO.xml file lives, but remaining in the current directory?)
 	old.wd <- getwd()
     on.exit({
@@ -109,7 +120,7 @@ LoadSOObjects <- function(file) {
 		xmlAttrs(soBlock)[["blkId"]]
 	}))
 
-	SOObjectList <- lapply(SOBlockList, createSOObjectFromXMLSOBlock)
+	SOObjectList <- lapply(SOBlockList, new, Class = "StandardOutputObject")
   
 	# Populate the (hidden) slot specifying the XML file from which this SO was parsed
 	SOObjectList <- lapply(SOObjectList, function(SOObject) {
@@ -119,9 +130,9 @@ LoadSOObjects <- function(file) {
     
 	# Print out any errors in the SO Object to the R console to make it obvious if execution failed
 	.printSOMessages(
-		unlist(lapply(X = SOObjectList, FUN = .getSOX, type = "Errors"), recursive=FALSE),
-		unlist(lapply(X = SOObjectList, FUN = .getSOX, type = "Warnings"), recursive=FALSE),
-		unlist(lapply(X = SOObjectList, FUN = .getSOX, type = "Info"), recursive=FALSE)
+		unlist(lapply(X = SOObjectList, FUN = getSOMessages, type = "ERROR"), recursive=FALSE),
+		unlist(lapply(X = SOObjectList, FUN = getSOMessages, type = "WARNING"), recursive=FALSE),
+		unlist(lapply(X = SOObjectList, FUN = getSOMessages, type = "INFORMATION"), recursive=FALSE)
 	)
 
 	names(SOObjectList) <- soObjNames
@@ -129,10 +140,14 @@ LoadSOObjects <- function(file) {
 }
 
 # get messages out of SO objects
-.getSOX <- function(so, type) { slot(object = so, name = "TaskInformation")$Messages[[type]] }
+getSOMessages <- function(so, type) {
+	slotName <- paste0(capitalise_first(tolower(type)), "Messages")
+	slot(so@TaskInformation, slotName)
+}
 
-# Check that the .SO.xml file exists; 
-# if so then parse the XML document and return a reference to the root node.
+#'
+#' Check that the .SO.xml file exists; if so then parse the XML document and return a reference to the root node.
+#'  
 validateAndLoadXMLSOFile <- function(file) {
 	
 	# Error checking
@@ -142,163 +157,10 @@ validateAndLoadXMLSOFile <- function(file) {
 	
 	# Return a reference to the root node in the XML doc
     # useInternalNodes is an important flag that avoids exponential memory usage!
-	xmlRoot(xmlTreeParse(file, useInternalNodes=TRUE)) 
-}
-
-# Process an SOBlock element from the SO XML tree 
-# and populate a StandardOutputObject object from the data contained within.
-createSOObjectFromXMLSOBlock <- function(soBlock) {
-	
-	# Generate Blank SO object
-	SOObject <- StandardOutputObject()
-	
-	# Fetch all Components of the SO object that are defined
-	SOChildren <- xmlChildren(soBlock)
-	
-	messageList <- list(parsed=list(), skipped=list())
-
-	# Error Checking of unexpected elements
-	expectedTags <- c("ToolSettings", "RawResults", "TaskInformation", "Estimation", 
-			"Simulation", "ModelDiagnostic")
-	unexpected <- setdiff(names(SOChildren), expectedTags)
-	if (length(unexpected) != 0) {
-		warning(paste("The following unexpected elements were detected in the PharmML SO. These will be ignored.", 
-						paste(unexpected, collapse="\n      "), sep="\n      "))
-	}
-	
-	# Error checking of expected XML structure + Parser Execution
-	if ("ToolSettings" %in% names(SOChildren)){
-		SOObject <- ParseToolSettings(SOObject, SOChildren[["ToolSettings"]])
-		messageList[["parsed"]] <- append(messageList[["parsed"]], "ToolSettings")
-	} else {
-		messageList[["skipped"]] <- append(messageList[["skipped"]], "ToolSettings")
-	}
-	
-	if ("RawResults" %in% names(SOChildren)){
-		SOObject <- ParseRawResults(SOObject, SOChildren[["RawResults"]])
-		messageList[["parsed"]] <- append(messageList[["parsed"]], "RawResults")
-	} else {
-		messageList[["skipped"]] <- append(messageList[["skipped"]], "RawResults")
-	}
-	
-	if ("TaskInformation" %in% names(SOChildren)){
-		SOObject <- ParseTaskInformation(SOObject, SOChildren[["TaskInformation"]])
-		messageList[["parsed"]] <- append(messageList[["parsed"]], "TaskInformation")
-	} else {
-		messageList[["skipped"]] <- append(messageList[["skipped"]], "TaskInformation")
-	}
-	
-	if ("Estimation" %in% names(SOChildren)){
-		
-		# Error Checking of unexpected elements in Estimation Block
-		expectedTags <- c("PopulationEstimates", "PrecisionPopulationEstimates", 
-				"IndividualEstimates", "PrecisionIndividualEstimates", "Residuals", 
-				"Predictions", "Likelihood")
-		unexpected <- setdiff(names(SOChildren[["Estimation"]]), expectedTags)
-		if (length(unexpected) != 0) {
-			warning(paste("The following unexpected elements were detected in the Estimation section of the PharmML SO. These will be ignored.", 
-							paste(unexpected, collapse="\n      "), sep="\n      "))
-		}
-		
-		if ("PopulationEstimates" %in% names(SOChildren[["Estimation"]])){
-			SOObject <- ParsePopulationEstimates(SOObject, SOChildren[["Estimation"]][["PopulationEstimates"]])
-			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:PopulationEstimates")
-		} else {
-			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:PopulationEstimates")
-		}
-		
-		if ("PrecisionPopulationEstimates" %in% names(SOChildren[["Estimation"]])){
-			SOObject <- ParsePrecisionPopulationEstimates(SOObject, SOChildren[["Estimation"]][["PrecisionPopulationEstimates"]])
-			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:PrecisionPopulationEstimates")
-		} else {
-			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:PrecisionPopulationEstimates")
-		}
-		
-		if ("IndividualEstimates" %in% names(SOChildren[["Estimation"]])){
-			SOObject <- ParseIndividualEstimates(SOObject, SOChildren[["Estimation"]][["IndividualEstimates"]])
-			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:IndividualEstimates")
-		} else {
-			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:IndividualEstimates")
-		}
-		
-		if ("PrecisionIndividualEstimates" %in% names(SOChildren[["Estimation"]])){
-			SOObject <- ParsePrecisionIndividualEstimates(SOObject, SOChildren[["Estimation"]][["PrecisionIndividualEstimates"]])
-			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:PrecisionIndividualEstimates")
-		} else {
-			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:PrecisionIndividualEstimates")
-		}
-		
-		if ("Residuals" %in% names(SOChildren[["Estimation"]])){
-			SOObject <- ParseResiduals(SOObject, SOChildren[["Estimation"]][["Residuals"]])
-			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:Residuals")
-		} else {
-			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:Residuals")
-		}
-		
-		if ("Predictions" %in% names(SOChildren[["Estimation"]])){
-			SOObject <- ParsePredictions(SOObject, SOChildren[["Estimation"]][["Predictions"]])
-			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:Predictions")
-		} else {
-			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:Predictions")
-		}
-		
-		if ("Likelihood" %in% names(SOChildren[["Estimation"]])){
-			SOObject <- ParseLikelihood(SOObject, SOChildren[["Estimation"]][["Likelihood"]])
-			messageList[["parsed"]] <- append(messageList[["parsed"]], "Estimation:Likelihood")
-		} else {
-			messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation:Likelihood")
-		}
-		
-	} else {
-		messageList[["skipped"]] <- append(messageList[["skipped"]], "Estimation")
-	}
-	
-	if ("Simulation" %in% names(SOChildren)){
-		
-		# Error Checking of unexpected elements of Simulation node
-		expectedTags <- c("Description", "OriginalDataset", "SimulationBlock")
-		unexpected <- setdiff(names(SOChildren[["Simulation"]]), expectedTags)
-		if (length(unexpected) != 0) {
-			warning(paste("The following unexpected elements were detected in the parent Simulation section of the PharmML SO. These will be ignored.", 
-							paste(unexpected, collapse="\n      "), sep="\n      "))
-		} 
-		
-		# Parse the Simulation node
-		SOObject <- ParseSimulation(SOObject, SOChildren[["Simulation"]])
-		messageList[["parsed"]] <- append(messageList[["parsed"]], "Simulation")	
-	} else {
-		messageList[["skipped"]] <- append(messageList[["skipped"]], "Simulation")
-	}
-	
-	if ("ModelDiagnostic" %in% names(SOChildren)){
-		
-		# Error Checking of unexpected elements of Simulation node
-		expectedTags <- c("DiagnosticPlotsIndividualParams", "DiagnosticPlotsStructuralModel")
-		unexpected <- setdiff(names(SOChildren[["ModelDiagnostic"]]), expectedTags)
-		if (length(unexpected) != 0) {
-			warning(paste("The following unexpected elements were detected in the ModelDiagnostic section of the PharmML SO. These will be ignored.", 
-							paste(unexpected, collapse="\n      "), sep="\n      "))
-		}
-		
-		# Parse the Simulation node
-		SOObject <- ParseModelDiagnostic(SOObject, SOChildren[["ModelDiagnostic"]])
-		messageList[["parsed"]] <- append(messageList[["parsed"]], "ModelDiagnostic")	
-	} else {
-		messageList[["skipped"]] <- append(messageList[["skipped"]], "ModelDiagnostic")
-	}
-	
-	# Run validation functions on S4 Class and subclasses
-	validObject(SOObject)
-	validObject(SOObject@RawResults)
-	validObject(SOObject@Estimation)
-	validObject(SOObject@Simulation)
-	validObject(SOObject@OptimalDesign)
-	
-	# Print parsed and skipped elements.
-	message(paste("\nThe following elements were parsed successfully:", 
-				paste(messageList$parsed, collapse="\n      "), sep="\n      "))
-
-	SOObject
+	# Want to be able to pass in a no-op handler function for "comment" nodes to strip comments out during parsing, i.e.
+	#  handlers=list("comment"=function(x,...){NULL})
+	# but this doesn't seem to be compatible with useInternalNodes=TRUE!
+	xmlRoot(xmlTreeParse(file, useInternalNodes=TRUE))
 }
 
 .printSOMessages <- function(soErrorMsgs, soWarningMsgs, soInfoMsgs) {

@@ -2,6 +2,9 @@ library("ddmore")
 library("XML")
 library("methods")
 
+# Clear workspace. 
+rm(list=ls())
+
 testSlotsNotEmpty <- function(S4class, slotnames) {
 
   for (slotname in slotnames) {
@@ -15,219 +18,197 @@ testSlotsNotEmpty <- function(S4class, slotnames) {
   
 }
 
-context("Loading in SOObjects from Handcoded PharmMLSO")
+# Helper function for verifying the content of a slot of type: DataSet S4 object
+verifyDataSetSlot <- function(SOObject, objPath, nrowsExpect, ncolsExpect) {
+	obj <- eval(parse(text = paste0("SOObject@", objPath)))
+	expect_true(class(obj) == "DataSet", info = paste("Checking", objPath, "is a DataSet object"))
+	
+	df <- as.data.frame(obj)
+	expect_true(nrow(df) == nrowsExpect, info = paste("Checking number of rows of", objPath, "dataframe"))
+	expect_true(ncol(df) == ncolsExpect, info = paste("Checking number of columns of", objPath, "dataframe"))
+	
+}
 
-test_that("PharmML SO fills expected slots in Estimation", {
+# Helper function for verifying the content of a slot of type: data frame (Matrix)
+verifyMatrixSlot <- function(SOObject, objPath, nrowsExpect, ncolsExpect) {
+	obj <- eval(parse(text = paste0("SOObject@", objPath)))
+	expect_true(class(obj) == "data.frame", info = paste("Checking", objPath, "is a data frame"))
+	
+	expect_true(nrow(obj) == nrowsExpect, info = paste("Checking number of rows of", objPath, "dataframe"))
+	expect_true(ncol(obj) == ncolsExpect, info = paste("Checking number of columns of", objPath, "dataframe"))
+}
 
-  # Clear workspace. 
-  rm(list=ls())
-  
-  data.path = system.file("tests/data/PharmMLSO/HandCoded/warfarin_PK_ODE_SO_FULL.xml",  
-  		package = "ddmore")
+
+context("Loading in SOObjects from Handcoded PharmML SO")
+
+data.path <- system.file("tests/data/PharmMLSO/HandCoded/warfarin_PK_ODE_SO_FULL.xml", package = "ddmore")
         
-  # Load in SO
-  SOObject = LoadSOObject(data.path)
+# Load in SO
+SOObject <- LoadSOObject(data.path)
+
+test_that("LoadSOObject parses PharmML SO XML file", {
   
-  # Test is S4
-  expect_true(isS4(SOObject), info = "Object is S4", )
+	# Test is S4
+	expect_true(isS4(SOObject), info = "Object is S4")
+	expect_true(class(SOObject) == "StandardOutputObject", info = "Object is StandardOutputObject class")
+  
+})
   
   # Test Slots have been populated #
   # ------------------------------ #
-  
-  # ToolSettings
-  expect_true(length(SOObject@ToolSettings) > 0 , info = "Object is not empty", )
-  
-  # RawResults
-  testSlotsNotEmpty(SOObject@RawResults, c("DataFiles", "GraphicsFiles"))
-  
-  #TaskInformation
-  expect_false(
-    all(sapply(SOObject@TaskInformation$Messages, is.null)), 
-    info = "All Message slots should not be empty", )
-  
-  expect_true(
-    length(names(SOObject@TaskInformation)[names(SOObject@TaskInformation) != "Messages"]) > 0, 
-    info = "'Messages' should be the only child element present")
-  
-  # Estimates
-  slotnames = c("PopulationEstimates", "PrecisionPopulationEstimates",
-    "IndividualEstimates", "PrecisionIndividualEstimates",
-    "Residuals", "Predictions", "Likelihood")
-  testSlotsNotEmpty(SOObject@Estimation, slotnames)
 
-  # Simulation 
-  slotnames = c("SimulationBlock")
-  testSlotsNotEmpty(SOObject@Simulation, slotnames)
+test_that("Checking ToolSettings slots", {
 
-  # Model Diagnostic
-  slotnames = c("DiagnosticPlotsIndividualParams", "DiagnosticPlotsStructuralModel")
-  testSlotsNotEmpty(SOObject@ModelDiagnostic, slotnames)
-   
+	expect_true(all(names(SOObject@ToolSettings) == c("ts1", "ts2", "ts3")), info = "Checking ToolSettings oids")
+	expect_true(SOObject@ToolSettings$ts1 == "algorithms.xmlx", info = "Checking ToolSettings for oid=ts1")
+	expect_true(SOObject@ToolSettings$ts2 == "solver.xmlx", info = "Checking ToolSettings for oid=ts2")
+
 })
+
+test_that("Checking RawResults slots", {
+	
+	testSlotsNotEmpty(SOObject@RawResults, c("DataFiles", "GraphicsFiles"))
+			
+})
+
+test_that("Checking TaskInformation slots", {
+	
+	expect_true(length(SOObject@TaskInformation@ErrorMessages) == 1, info = "Checking TaskInformation::ErrorMessages")
+	expect_true(all(names(SOObject@TaskInformation@ErrorMessages[[1]]) == c("Toolname", "Name", "Content", "Severity")), info = "Checking TaskInformation::ErrorMessages message 1 attribute names")
+	expect_true(SOObject@TaskInformation@ErrorMessages[[1]]$Content == "Possibly long text...", info = "Checking TaskInformation::ErrorMessages message 1 content")
+	
+	expect_true(SOObject@TaskInformation@OutputFilePath == "/results/mainResultFile.txt", info = "Checking TaskInformation::OutputFilePath")
+	expect_true(SOObject@TaskInformation@RunTime == 23232.5, info = "Checking TaskInformation::RunTime")
+	expect_true(SOObject@TaskInformation@NumberChains == 3, info = "Checking TaskInformation::NumberChains")
+	expect_true(SOObject@TaskInformation@NumberIterations == 1000000, info = "Checking TaskInformation::NumberIterations")
+	
+})
+
+test_that("Checking Estimation::PopulationEstimates slots", {
+			
+	verifyDataSetSlot(SOObject, "Estimation@PopulationEstimates@MLE", 1, 13)
+	verifyDataSetSlot(SOObject, "Estimation@PopulationEstimates@Bayesian@PosteriorMean", 1, 13)
+	verifyDataSetSlot(SOObject, "Estimation@PopulationEstimates@Bayesian@PosteriorMedian", 1, 13)
+	
+	popEstsOtherMethod <- SOObject@Estimation@PopulationEstimates@OtherMethod
+	expect_true(names(popEstsOtherMethod) == "Bootstrap", info = "Checking Estimation::PopulationEstimates::OtherMethod types")
+	
+	verifyDataSetSlot(SOObject, "Estimation@PopulationEstimates@OtherMethod[[\"Bootstrap\"]]@Mean", 1, 13)
+	verifyDataSetSlot(SOObject, "Estimation@PopulationEstimates@OtherMethod[[\"Bootstrap\"]]@Median", 1, 13)
+  
+})
+
+test_that("Checking Estimation::PrecisionPopulationEstimates::MLE slots", {
+	
+	verifyMatrixSlot(SOObject, "Estimation@PrecisionPopulationEstimates@MLE@FIM", 2, 12)
+	verifyMatrixSlot(SOObject, "Estimation@PrecisionPopulationEstimates@MLE@CovarianceMatrix", 2, 12)
+	verifyMatrixSlot(SOObject, "Estimation@PrecisionPopulationEstimates@MLE@CorrelationMatrix", 2, 12)
+	verifyDataSetSlot(SOObject, "Estimation@PrecisionPopulationEstimates@MLE@StandardError", 4, 2)
+	verifyDataSetSlot(SOObject, "Estimation@PrecisionPopulationEstimates@MLE@RelativeStandardError", 2, 2)
+	verifyDataSetSlot(SOObject, "Estimation@PrecisionPopulationEstimates@MLE@AsymptoticCI", 2, 4)
+	expect_true(SOObject@Estimation@PrecisionPopulationEstimates@MLE@ConditionNumber == 0.0001, info = "Checking Estimation::PrecisionPopulationEstimates::MLE::ConditionNumber")
+	
+})
+
+test_that("Checking Estimation::PrecisionPopulationEstimates::Bayesian slots", {
+
+	verifyDataSetSlot(SOObject, "Estimation@PrecisionPopulationEstimates@Bayesian@StandardDeviation", 2, 2)
+			
+	expect_true(class(SOObject@Estimation@PrecisionPopulationEstimates@Bayesian@PosteriorDistribution) == "DataSetDistribution", info = "Checking Estimation::PrecisionPopulationEstimates::Bayesian::PosteriorDistribution is a DataSetDistribution object")
+	expect_true(SOObject@Estimation@PrecisionPopulationEstimates@Bayesian@PosteriorDistribution@distributionName == "RandomSample", info = "Checking Estimation::PrecisionPopulationEstimates::Bayesian::PosteriorDistribution distribution name")
+	precisPopEstsBayesianPostDistrib <- as.data.frame(SOObject@Estimation@PrecisionPopulationEstimates@Bayesian@PosteriorDistribution)
+	expect_true(nrow(precisPopEstsBayesianPostDistrib) == 10, info = "Checking number of rows of Estimation::PrecisionPopulationEstimates::Bayesian::PosteriorDistribution dataframe")
+	expect_true(ncol(precisPopEstsBayesianPostDistrib) == 3, info = "Checking number of columns of Estimation::PrecisionPopulationEstimates::Bayesian::PosteriorDistribution dataframe")	
+
+	verifyDataSetSlot(SOObject, "Estimation@PrecisionPopulationEstimates@Bayesian@PercentilesCI", 2, 3)
+	
+})
+
+test_that("Checking Estimation::PrecisionPopulationEstimates::OtherMethod slots", {
+
+	precisPopEstsOtherMethod <- SOObject@Estimation@PrecisionPopulationEstimates@OtherMethod
+	expect_true(names(precisPopEstsOtherMethod) == "LLP", info = "Checking Estimation::PrecisionPopulationEstimates::OtherMethod types")
+
+	verifyMatrixSlot(SOObject, "Estimation@PrecisionPopulationEstimates@OtherMethod[[\"LLP\"]]@CovarianceMatrix", 2, 12)
+	verifyMatrixSlot(SOObject, "Estimation@PrecisionPopulationEstimates@OtherMethod[[\"LLP\"]]@CorrelationMatrix", 2, 12)
+	verifyDataSetSlot(SOObject, "Estimation@PrecisionPopulationEstimates@OtherMethod[[\"LLP\"]]@StandardDeviation", 2, 2)
+	verifyDataSetSlot(SOObject, "Estimation@PrecisionPopulationEstimates@OtherMethod[[\"LLP\"]]@StandardError", 2, 2)
+	verifyDataSetSlot(SOObject, "Estimation@PrecisionPopulationEstimates@OtherMethod[[\"LLP\"]]@AsymptoticCI", 2, 4)
+	
+	precisPopEstsOtherMethodLLPPostDistrib <- SOObject@Estimation@PrecisionPopulationEstimates@OtherMethod[["LLP"]]@PosteriorDistribution
+	expect_true(class(precisPopEstsOtherMethodLLPPostDistrib) == "DataSetDistribution", info = "Checking Estimation::PrecisionPopulationEstimates::OtherMethod[LLP]::PosteriorDistribution is a DataSetDistribution object")
+	expect_true(precisPopEstsOtherMethodLLPPostDistrib@distributionName == "LogNormal1", info = "Checking Estimation::PrecisionPopulationEstimates::OtherMethod[LLP]::PosteriorDistribution distribution name")
+	expect_true(all(names(precisPopEstsOtherMethodLLPPostDistrib@distributionParameters) == c("meanLog", "stdevLog")), info = "Checking Estimation::PrecisionPopulationEstimates::OtherMethod[LLP]::PosteriorDistribution distribution parameters' names")
+	expect_true(precisPopEstsOtherMethodLLPPostDistrib@distributionParameters$meanLog == 10, info = "Checking Estimation::PrecisionPopulationEstimates::OtherMethod[LLP]::PosteriorDistribution distribution parameter \"meanLog\"")
+	expect_true(precisPopEstsOtherMethodLLPPostDistrib@distributionParameters$stdevLog == 1.5, info = "Checking Estimation::PrecisionPopulationEstimates::OtherMethod[LLP]::PosteriorDistribution distribution parameter \"stdevLog\"")
+
+	verifyDataSetSlot(SOObject, "Estimation@PrecisionPopulationEstimates@OtherMethod[[\"LLP\"]]@PercentilesCI", 2, 3)
+
+})
+
+
+# TODO: Estimation::IndividualEstimates
+
+# TODO: Estimation::PrecisionIndividualEstimates
+
+# TODO: Estimation::Residuals
+
+# TODO: Estimation::Predictions
+
+
+test_that("Checking Estimation::OFMeasures slots", {
+	
+	expect_true(SOObject@Estimation@OFMeasures@Likelihood == 1.23, info = "Checking Estimation::OFMeasures::Likelihood")
+	expect_true(SOObject@Estimation@OFMeasures@LogLikelihood == 0.000223, info = "Checking Estimation::OFMeasures::LogLikelihood")
+	expect_true(SOObject@Estimation@OFMeasures@Deviance == -3.23, info = "Checking Estimation::OFMeasures::Deviance")
+	expect_true(SOObject@Estimation@OFMeasures@ToolObjFunction == 0.423, info = "Checking Estimation::OFMeasures::ToolObjFunction")
+	verifyDataSetSlot(SOObject, "Estimation@OFMeasures@IndividualContribToLL", 2, 2)
+	expect_true(SOObject@Estimation@OFMeasures@InformationCriteria$AIC == 3.456, info = "Checking Estimation::OFMeasures::InformationCriteria$AIC")
+	expect_true(SOObject@Estimation@OFMeasures@InformationCriteria$BIC == 4.567, info = "Checking Estimation::OFMeasures::InformationCriteria$BIC")
+	expect_true(SOObject@Estimation@OFMeasures@InformationCriteria$DIC == 5.678, info = "Checking Estimation::OFMeasures::InformationCriteria$DIC")
+	
+})
+
+
+# TODO: ModelDiagnostic
+
+# TODO: Simulation::simulationBlock
+
+# TODO: OptimalDesign
+
+
+
+# TODO: Read in a SO generated by a Bootstrap task and verify content
+
 
 
 #-----------------------------------------------------------------------
-context("Loading in SOObjects from machine generated PharmMLSO Version 0.2")
+context("Loading in SOObjects from Simulation task PharmMLSO Version 0.3")
 #-----------------------------------------------------------------------
 
-test_that("PharmML SO returns expected slots when running a bootstrap task", {
-
-  # Clear workspace.
-  rm(list=ls())
-
-  data.path = system.file("tests/data/PharmMLSO/MachineGenerated/bootstrap.SO.xml",  
-                          package = "ddmore")
+data.path = system.file("tests/data/PharmMLSO/MachineGenerated/SOv0.3/run1.SO.xml", package = "ddmore")
   
-  # Load in SO
-  SOObject = LoadSOObject(data.path)
-
-  # Test is S4
-  expect_true(isS4(SOObject), info = "Object is S4", )
-
-  # Test Slots have been populated #
-  # ------------------------------ #
-  # Commented out tests are yet to be populated in the task generated data 
-
-  # ToolSettings
-#    expect_true(length(SOObject@ToolSettings) > 0 , info = "Object is not empty", )
-
-  # RawResults
-  testSlotsNotEmpty(SOObject@RawResults, "DataFiles")
-
-  #TaskInformation
-#   expect_false(
-#     all(sapply(SOObject@TaskInformation$Messages, is.null)), 
-#     info = "All Message slots should not be empty", )
-# 
-#   expect_true(
-#     length(names(SOObject@TaskInformation)[names(SOObject@TaskInformation) != "Messages"]) > 0, 
-#     info = "'Messages' should be the only child element present")
-
-  # Estimates
-#   slotnames = c("PopulationEstimates", "PrecisionPopulationEstimates",
-#     "IndividualEstimates", "PrecisionIndividualEstimates",
-#     "Residuals", "Predictions", "Likelihood")
-  slotnames = c("PopulationEstimates", "PrecisionPopulationEstimates")
-  testSlotsNotEmpty(SOObject@Estimation, slotnames)
-
-#   # Simulation 
-#   slotnames = c("SimulationBlock")
-#   testSlotsNotEmpty(SOObject@Simulation, slotnames)
-# 
-#   # Model Diagnostic
-#   slotnames = c("DiagnosticPlotsIndividualParams", "DiagnosticPlotsStructuralModel")
-#   testSlotsNotEmpty(SOObject@ModelDiagnostic, slotnames)
-
+# Load in SO
+SOObject = LoadSOObject(data.path)
+  
+test_that("LoadSOObject parses PharmML SO XML file", {
+    		
+	# Test is S4
+	expect_true(isS4(SOObject), info = "Object is S4")
+	expect_true(class(SOObject) == "StandardOutputObject", info = "Object is StandardOutputObject class")
+	
 })
 
 
-test_that("PharmML SO returns expected slots when running a simulation task", {
-  
-  # Clear workspace.
-  rm(list=ls())
-  
-  data.path = system.file("tests/data/PharmMLSO/MachineGenerated/run1.SO.xml",  
-                          package = "ddmore")
-  
-  # Load in SO
-  SOObject = LoadSOObject(data.path)
-  
-  # Test is S4
-  expect_true(isS4(SOObject), info = "Object is S4", )
-  
-  # Test Slots have been populated #
-  # ------------------------------ #
-  # Commented out tests are yet to be populated in the task generated data 
-  
-  # ToolSettings
-  #    expect_true(length(SOObject@ToolSettings) > 0 , info = "Object is not empty", )
-  
-  # RawResults
-  testSlotsNotEmpty(SOObject@RawResults, "DataFiles")
-  
-  # TaskInformation
-  expect_false(
-      all(sapply(SOObject@TaskInformation$Messages, is.null)), 
-      info = "All Message slots should not be empty", )
+test_that("Checking Simulation slots", {
   
   expect_true(
-      length(names(SOObject@TaskInformation)[names(SOObject@TaskInformation) != "Messages"]) > 0, 
-      info = "'Messages' should be the only child element present")
-  
-  # Estimates
-  #   slotnames = c("PopulationEstimates", "PrecisionPopulationEstimates",
-  #     "IndividualEstimates", "PrecisionIndividualEstimates",
-  #     "Residuals", "Predictions", "Likelihood")
-#   testSlotsNotEmpty(SOObject@Estimation, slotnames)
-  
-  # Simulation 
-  slotnames = c("SimulationBlock")
-  testSlotsNotEmpty(SOObject@Simulation, slotnames)
-  
-  expect_true(
-    length(SOObject@Simulation@SimulationBlock) == 20, 
-    info = "Simulation Block should contain 20 separate simulations.")
-   
-  #   # Model Diagnostic
-  #   slotnames = c("DiagnosticPlotsIndividualParams", "DiagnosticPlotsStructuralModel")
-  #   testSlotsNotEmpty(SOObject@ModelDiagnostic, slotnames)
+    length(SOObject@Simulation) == 20, 
+    info = "Simulation Block should contain 20 separate simulations")
+
+# TODO More tests
   
 })
-
-
-# TODO: Commented out due to incomplete machine generated data available for SO version 0.2    
-
-
-# test_that("PharmML SO fills expected slots in Estimation", {
-
-#   # Clear workspace.
-#   rm(list=ls())
-  
-#   data.path = system.file("tests/data/PharmMLSO/MachineGenerated/pheno.SO.xml",  
-#   		package = "ddmore")
-        
-#   # Load in SO
-#   SOObject = LoadSOObject(data.path)
-  
-#   # Test is S4
-#   expect_true(isS4(SOObject), info = "Object is S4", )
-  
-#   # Test Slots have been populated #
-#   # ------------------------------ #
-  
-#   # ToolSettings
-#   expect_true(length(SOObject@ToolSettings) > 0 , info = "Object is not empty", )
-  
-#   # RawResults
-#   testSlotsNotEmpty(SOObject@RawResults, c("DataFiles", "GraphicsFiles"))
-  
-#   #TaskInformation
-#   expect_false(
-#     all(sapply(SOObject@TaskInformation$Messages, is.null)), 
-#     info = "All Message slots should not be empty", )
-  
-#   expect_true(
-#     length(names(SOObject@TaskInformation)[names(SOObject@TaskInformation) != "Messages"]) > 0, 
-#     info = "'Messages' should be the only child element present")
-  
-#   # Estimates
-#   slotnames = c("PopulationEstimates", "PrecisionPopulationEstimates",
-#     "IndividualEstimates", "PrecisionIndividualEstimates",
-#     "Residuals", "Predictions", "Likelihood")
-#   testSlotsNotEmpty(SOObject@Estimation, slotnames)
-
-#   # Simulation 
-#   slotnames = c("SimulationBlock")
-#   testSlotsNotEmpty(SOObject@Simulation, slotnames)
-
-#   # Model Diagnostic
-#   slotnames = c("DiagnosticPlotsIndividualParams", "DiagnosticPlotsStructuralModel")
-#   testSlotsNotEmpty(SOObject@ModelDiagnostic, slotnames)
-   
-# })
-
-
-
 
 
 #-------------------------------------------------------------------------------------------------
@@ -282,39 +263,4 @@ test_that("List of 20 SO objects is parsed correctly from LoadSOObjects", {
 
 })
 
-
-context("Loading a PharmML SO with empty Matrix elements")
-
-
-test_that("Expected Estimation::PrecisionPopulationEstimates::MLE::StandardError to be populated", {
-
-  # Clear workspace. 
-  rm(list=ls())
-
-  soXmlFilePath = system.file("tests/data/PharmMLSO/HandCoded/Warfarin-ODE-latest-Monolix-EmptyMatrices.SO.xml", package = "ddmore")
-
-  # Load in SO
-  SOObject = LoadSOObject(soXmlFilePath)
-
-  # Test elements are populated correctly
-	expect_true(isS4(SOObject), info = "Object is S4")
-
-	mleStandardError <- SOObject@Estimation@PrecisionPopulationEstimates$MLE$StandardError
-	expect_true(is.list(mleStandardError) && length(mleStandardError) == 2, 
-		info="Estimation::PrecisionPopulationEstimates::MLE::StandardError should be a list of 2 elements")
-
-  mleRelativeStandardError <- SOObject@Estimation@PrecisionPopulationEstimates$MLE$RelativeStandardError
-  expect_true(is.list(mleRelativeStandardError) && length(mleRelativeStandardError) == 2, 
-    info="Estimation::PrecisionPopulationEstimates::MLE::RelativeStandardError should be a list of 2 elements")
-
-  expect_true(is.null(SOObject@Estimation@PrecisionPopulationEstimates$MLE$FIM), 
-    info="Estimation::PrecisionPopulationEstimates::MLE::FIM should NOT be present")
-	
-  expect_true(is.null(SOObject@Estimation@PrecisionPopulationEstimates$MLE$CorrelationMatrix), 
-    info="Estimation::PrecisionPopulationEstimates::MLE::CorrelationMatrix should NOT be present")
-  
-  expect_true(is.null(SOObject@Estimation@PrecisionPopulationEstimates$MLE$CovarianceMatrix), 
-    info="Estimation::PrecisionPopulationEstimates::MLE::CovarianceMatrix should NOT be present")
-  
-})
 

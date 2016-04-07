@@ -21,13 +21,20 @@ Depends:
 Collate:
     'FISJob.R'
     'FISServer.R'
-    'xmlParsers.R'
     'utils.R'
     'Classes.R'
     'readDataObj.R'
-    'StandardOutputSubClasses.R'
-    'StandardOutputObject.R'
+    'StandardOutputObjectXmlParsers.R'
+    'StandardOutputObjectCommonClasses.R'
+    "Estimation-Class.R"
+    "Simulation-Class.R"
+    "OptimalDesign-Class.R"
+    "ModelDiagnostic-Class.R"
+    "RawResults-Class.R"
+    "TaskInformation-Class.R"
+    'StandardOutputObject-Class.R'
     'LoadSOObject.R'
+    'StandardOutputObjectDataFunctions.R'
     'conversion.R'
     'createMogObj.R'
     'server.R'

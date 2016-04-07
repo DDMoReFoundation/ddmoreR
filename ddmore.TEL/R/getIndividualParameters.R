@@ -1,15 +1,23 @@
+# ================================================================================ #
+# Higher-level getter Functions for returning data from the Standard Output Object #
+# ================================================================================ #
+
 #' getIndividualParameters
 #'
-#' This function acts on an object of class StandardOutputObject 
-#' and presents information to the user about the parameter values for the individuals.  
+#' This function acts on an object of class \linkS4class{StandardOutputObject}
+#' and returns information about the parameter values for the individuals.  
 #' 
-#' @param SOObject an object of class StandardOutputObject, the output from an 
-#'     estimation task.
-#' @param what a character vector specifying which measure of central tendency to return, 
-#'     either "Mean" (default), "Median" or "Mode".
+#' @param SOObject an object of class StandardOutputObject, the output from an estimation task.
+#' @param what a character string (case insensitive) specifying which measure of central tendency to return, 
+#' 		  either "Mean" (default), "Median" or "Mode".
 #'
-#' @return A data frame with number of rows equal to the number of individuals,
-#'     and number of columns corresponding to the number of parameters.
+#' @return A dataframe, consisting of the data from the relevant slot (Mean, Median or Mode) of the
+#' 		   Estimation::IndividualEstimates::Estimates object in the SO structure, merged (on the ID column)
+#' 		   with the data from the relevant slot (EffectMean, EffectMode or EffectMedian) of the
+#' 		   Estimation::IndividualEstimates::RandomEffects object in the SO stucture. The number of rows
+#' 		   in the resulting dataframe will be the number of individuals; the number of columns
+#' 		   will usually be \code{2 * number of parameters + 1} in the case that each parameter has
+#' 		   an associated random effect, but this is not enforced.
 #'
 #' @examples 
 #' mlx <- LoadSOObject("UseCase2.SO.xml")
@@ -22,53 +30,52 @@ getIndividualParameters <- function(SOObject, what="Mean") {
 	measureOfCentralTendency = tolower(what)
 
 	# Error checking
+	if (class(SOObject) != "StandardOutputObject") {
+		stop(paste0("getIndividualParameters() expected a StandardOutputObject as input, got a ", class(SOObject), '.'))
+  	}
 	if (!(measureOfCentralTendency %in% c("mean", "mode", "median"))) {
-		stop(paste0("Value for 'what' parameter was not recognised, received: ", what))
+		stop("Unrecognised value specified for 'what' parameter. Must be \"mean\", \"median\" or \"mode\" (case insensitive).")
 	}
 
-	# Determine slots to look up and those available
-	estimateSlotNames = list(mean="Mean", mode="Mode", median="Median")
-	randomSlotNames = list(mean="EffectMean", mode="EffectMode", median="EffectMedian")
-
-	targetEstimateName = estimateSlotNames[[measureOfCentralTendency]]
-	targetRandomName = randomSlotNames[[measureOfCentralTendency]]
-
-	output = data.frame()
-
-	actualEstimateNames <- names(SOObject@Estimation@IndividualEstimates$Estimates)
-	actualRandomNames <- names(SOObject@Estimation@IndividualEstimates$RandomEffects)
-
-	if (targetEstimateName %in% actualEstimateNames) {
-	  output = c(output, SOObject@Estimation@IndividualEstimates$Estimates[[targetEstimateName]][["data"]])
-	  output = as.data.frame(output)
+	# Determine slots to look up from those available
+	targetEstimateSlotName = list(mean="Mean", mode="Mode", median="Median")[[measureOfCentralTendency]]
+	targetRandomEffectsSlotName = list(mean="EffectMean", mode="EffectMode", median="EffectMedian")[[measureOfCentralTendency]]
+	
+	df1 <- NULL
+	df2 <- NULL
+	
+	if (targetEstimateSlotName %in% getPopulatedSlots(SOObject@Estimation@IndividualEstimates@Estimates, full=TRUE)) {
+		df1 <- as.data.frame(slot(SOObject@Estimation@IndividualEstimates@Estimates, targetEstimateSlotName))
+	}
+	
+	if (targetRandomEffectsSlotName %in% getPopulatedSlots(SOObject@Estimation@IndividualEstimates@RandomEffects, full=TRUE)) {
+		df2 <- as.data.frame(slot(SOObject@Estimation@IndividualEstimates@RandomEffects, targetRandomEffectsSlotName))
+	}
+	
+	if (is.null(df1) && is.null(df2)) {
+		warning("No values found for Estimates::", targetEstimateSlotName, " or RandomEffects::", targetRandomEffectsSlotName, " in Estimation::IndividualEstimates slot of the SOObject.")
+		return(data.frame())
+	}
+	if (is.null(df2)) {
+		return(df1)
+	}
+	if (is.null(df1)) {
+		return(df2)
 	}
 
-	if (targetRandomName %in% actualRandomNames) {
-
-	  df2 = SOObject@Estimation@IndividualEstimates$RandomEffects[[targetRandomName]][["data"]]
-	  
-	  # Check column names
-	  duplicateNames = intersect(names(output), names(df2))
-	  duplicateNamesIdx = sapply(duplicateNames, FUN=function(x) grep(x, names(df2)))
-	  
-	  # raise warning if unexpected duplice column names
-	  if (length(duplicateNames) > 0 && duplicateNames != "ID") {
-	    warning(paste("The following duplicate column names were detected during a merge and will be dropped from the output: ", 
-	                  paste(duplicateNames, collapse="\n      "), sep="\n      "))
-	  } 
-	  # ID column is always dropped
-	  df2 <- df2[-duplicateNamesIdx]
-	  
-	  # Concatonate output 
-	  output = c(output, df2)
-	  output = as.data.frame(output)
+	# Check column names for duplicates
+	# Excluding ID which is always in both dataframes and is used as the join column
+	duplicateNames <- setdiff(intersect(colnames(df1), colnames(df2)), "ID")
+  
+	# Raise warning if unexpected duplicate column names
+	if (length(duplicateNames) > 0) {
+    	warning(paste("The following duplicate column names were detected during a merge and the second occurrence in each case will be dropped from the resulting dataframe:", 
+			paste(duplicateNames, collapse=", ")))
+		df2 <- df2[, !(colnames(df2) %in% duplicateNames)]
 	}
 
-	if (length(output) == 0 ) {
-		message("No values found in Estimation:IndividualEstimates slot of the SOObject")
-	}
-
-	return(output)
+	# Finally perform the merge of the two datasets and return the resulting dataframe
+	merge(df1, df2, by="ID", sort=FALSE) # don't sort because IDs can be numeric e.g. 1, 2,..10 and sorting is lexicographical
 }
 
 
