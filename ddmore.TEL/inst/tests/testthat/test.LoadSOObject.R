@@ -42,9 +42,10 @@ verifyMatrixSlot <- function(SOObject, objPath, nrowsExpect, ncolsExpect) {
 context("Loading in SOObjects from Handcoded PharmML SO")
 
 data.path <- system.file("tests/data/PharmMLSO/HandCoded/warfarin_PK_ODE_SO_FULL.xml", package = "ddmore")
-        
+
 # Load in SO
-SOObject <- LoadSOObject(data.path)
+SOObject <- suppressMessages(
+    suppressWarnings(LoadSOObject(data.path)))
 
 test_that("LoadSOObject parses PharmML SO XML file", {
   
@@ -186,13 +187,13 @@ test_that("Checking Estimation::OFMeasures slots", {
 context("Loading in SOObjects from Simulation task PharmMLSO Version 0.3")
 #-----------------------------------------------------------------------
 
-data.path = system.file("tests/data/PharmMLSO/MachineGenerated/SOv0.3/run1.SO.xml", package = "ddmore")
+data.path <- system.file("tests/data/PharmMLSO/MachineGenerated/SOv0.3/run1.SO.xml", package = "ddmore")
   
 # Load in SO
-SOObject = LoadSOObject(data.path)
+SOObject <- suppressMessages(LoadSOObject(data.path))
   
 test_that("LoadSOObject parses PharmML SO XML file", {
-    		
+    
 	# Test is S4
 	expect_true(isS4(SOObject), info = "Object is S4")
 	expect_true(class(SOObject) == "StandardOutputObject", info = "Object is StandardOutputObject class")
@@ -217,7 +218,7 @@ context("Loading an empty, i.e. no SOBlocks, PharmML SO. Checking an Error is ra
 
 test_that("Error is raised on passing an empty PharmML SO.", {
 
-	soXmlFilePath = system.file("tests/data/PharmMLSO/HandCoded/emptySO_v0_1.xml", 
+	soXmlFilePath <- system.file("tests/data/PharmMLSO/HandCoded/emptySO_v0_1.xml", 
 	package = "ddmore")
 
 	# Single SO version
@@ -238,11 +239,12 @@ test_that("List of 20 SO objects is parsed correctly from LoadSOObjects", {
   # Clear workspace. 
   rm(list=ls())
 
-  soXmlFilePath = system.file("tests/data/PharmMLSO/MachineGenerated/PsN/Warfarin-ODE-latest-sse.SO.xml", package = "ddmore")
+  soXmlFilePath <- system.file("tests/data/PharmMLSO/MachineGenerated/PsN/Warfarin-ODE-latest-sse.SO.xml", 
+    package = "ddmore")
 
   # Load in SO
-  SOObjects = LoadSOObjects(soXmlFilePath)  
-		
+  SOObjects <- suppressMessages(LoadSOObjects(soXmlFilePath))
+  
   # Checking list structure
 	expect_true(is.list(SOObjects), info="LoadSOObjects should return a List")
 	expect_equal(length(SOObjects), 20, info="Expected 20 objects in list returned from LoadSOObjects")

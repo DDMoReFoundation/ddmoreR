@@ -307,41 +307,56 @@ parseDataSetExternalFile <- function(definitionNode, externalFileNode) {
 #'
 parseMatrix <- function(matrixNode) {
   
-  if ( (length(matrixNode[[.NODENAME_ROWNAMES]]) == 0) || (length(matrixNode[[.NODENAME_COLNAMES]]) == 0) ) {
-	  warning("No RowNames or ColumnNames found for Matrix element. Skipping...")
-	  return(NULL)
+  if ((length(matrixNode[[.NODENAME_ROWNAMES]]) == 0) || 
+      (length(matrixNode[[.NODENAME_COLNAMES]]) == 0)) {
+	warning("No RowNames or ColumnNames found for Matrix element. Skipping...")
+    return(NULL)
   }
-	
+  # attempt to identify block based on parent call
+  blockName <- sys.frame(which = -2)$childName
+  if (is.null(blockName) || !is.character(blockName)) { 
+    blockName <- "parseMatrix" }
   # Get rownames of matrix 
   matrixRowNames <- xmlSApply(matrixNode[[.NODENAME_ROWNAMES]], xmlValue)
+  # remove comments
+  matrixRowNames <- matrixRowNames[!names(matrixRowNames) %in% "comment"]
+  if (any(duplicated(matrixRowNames))) { warning("Duplicated RowNames in ", blockName) }
   
   # Get colnames of matrix 
   matrixColumnNames <- xmlSApply(matrixNode[[.NODENAME_COLNAMES]], xmlValue)
+  # remove comments
+  matrixColumnNames <- matrixColumnNames[!names(matrixColumnNames) %in% "comment"]
+  if (any(duplicated(matrixColumnNames))) { warning("Duplicated ColumnNames in ", blockName) }
   
   # Get all Matrix Rows that contain data
   matrixDataRows <- matrixNode[names(matrixNode) == .NODENAME_MATRIXROW]
 
   if (length(matrixDataRows) == 0) {
-	  warning("No MatrixRows found for Matrix element. Skipping...")
+	  warning("No MatrixRows found in ", blockName, " element. Skipping...")
 	  return(NULL)
   }
   
   # Extract the value element of each element
-  output.matrix.transposed <- sapply(matrixDataRows, FUN=function(x) xmlApply(x, xmlValue))
+  output.matrix.transposed <- sapply(matrixDataRows, 
+    FUN = function(x) xmlApply(x, xmlValue))
   output.matrix <- t(output.matrix.transposed)
+  # duplicated rownames are not allowed in data.frame class
+  rownames(output.matrix) <- NULL
   
   # Convert to Data Frame
   datf <- as.data.frame(output.matrix)
   
   # Update row and column names
   if (nrow(datf) != length(matrixRowNames)) {
-    warning("Number of row names given does not match matrix dimensions. Row names ignored.")
+    warning("Number of row names given does not match matrix dimensions in ", 
+      blockName, ". Row names ignored.")
     rownames(datf) <- NULL
   } else {
     rownames(datf) <- matrixRowNames
   }
   if (ncol(datf) != length(matrixColumnNames)) {
-    warning("Number of column names given does not match matrix dimensions. Column names ignored.")
+    warning("Number of column names given does not match matrix dimensions in ", 
+      blockName, ". Column names ignored.")
     colnames(datf) <- NULL
   } else {
     colnames(datf) <- matrixColumnNames
