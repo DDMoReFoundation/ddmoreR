@@ -193,58 +193,80 @@ mergeCheckColumnNames <- function(df1, df2, ID.colName, TIME.colName) {
 
 }
 
-#' extractIdandIdvNames 
+#' @title Extract ID and IDV Names 
 #' 
-#'  @param SOObject The SOObject to extract information from. 
-#'  @param PredictionsSlotName the name of the slot for the Predictions in the SOObject. 
-#'  @param ResidualsSlotName the name of the slot for the Residuals in the SOObject.
-#'
-#' Utility to extract the names of the columns marked as id and idv. These are usually ID and TIME, 
+#' @description Utility to extract the names of the columns marked as id and idv. These are usually ID and TIME, 
 #' but may differ. 
-extractIdandIdvNames <- function(SOObject, PredictionsSlotName, ResidualsSlotName) {
+#' 
+#' @param SOObject The SOObject to extract information from. 
+#' @param PredictionsSlotName the name of the slot for the Predictions in the SOObject. (default NULL)
+#' @param ResidualsSlotName the name of the slot for the Residuals in the SOObject. (default NULL)
+#' @return length 4 list with elements \enumerate{
+#'   \item ID.index logical matrix with one row (name columnType) with zero or more columns named for names present
+#'   \item ID.colName single character corresponding to name of ID.index where columnType is TRUE
+#'   \item TIME.index matrix with one row (name columnType) with zero or more columns named for names present
+#'   \item TIME.colName single character corresponding to name of TIME.index where columnType is TRUE
+#' }
+#' @examples
+#' soXmlFilePath <- system.file("tests", "data", "PharmMLSO", "MachineGenerated", 
+#'     "UseCase2_TIMEchange_fixed.SO.xml", 
+#'     package = "ddmore")
+#' SOObject <- suppressMessages(LoadSOObject(dataFile))
+#' ddmore:::extractIdandIdvNames(SOObject = SOObject, 
+#'     PredictionsSlotName = "Estimation::Predictions")
 
-  # Check slots exist 
+extractIdandIdvNames <- function(SOObject, 
+    PredictionsSlotName = NULL, ResidualsSlotName = NULL) {
+  
+  mat0 <- matrix(data = NA, nrow = 1, ncol = 0, 
+    dimnames = list("columnType", character(0)))
+  
+  idTimeLs <- list(
+      ID.index = mat0, 
+      ID.colName = character(0), 
+      TIME.index = mat0, 
+      TIME.colName = character(0))
+  
+  # Check slots exist (character vector)
   populatedSlots <- getPopulatedSlots(SOObject)
-
+  
   for (slotName in c(PredictionsSlotName, ResidualsSlotName)){
     if (slotName %in% populatedSlots) {
 
       x <- gsub("::", "@", slotName)
       ans <- eval(parse(text=paste("SOObject", x, sep="@")))
 
-      ID.index <- ans@description['columnType', ] == "id"
-      ID.colName <- names(ans@description)[ID.index]
+      idTimeLs$ID.index <- ans@description["columnType", , drop = FALSE] == "id"
+      idTimeLs$ID.colName <- names(ans@description)[idTimeLs$ID.index]
 
-      TIME.index <- ans@description['columnType', ] == "idv"
-      TIME.colName <- names(ans@description)[TIME.index]
+      idTimeLs$TIME.index <- ans@description["columnType", , drop = FALSE] == "idv"
+      idTimeLs$TIME.colName <- names(ans@description)[idTimeLs$TIME.index]
 
-      # Assuming here that the id and idv columns are the same in all slots so when we have 
-      # found one we don't need to continue searching others
+      # Assuming here that the id and idv columns are the same in all slots 
+      # so when we have found one we don't need to continue searching others
       break
-    } 
+    }
   }
-
+  
   # Error Check the result
   # Check that only a single column is assigned with id or idv 
-  if (length(ID.colName) > 1) {
-    stop(paste0("Multiple DATA_INPUT_VARIABLES have use defined as 'id' in StandardOutputObject, ", 
-      "cannot determine correct column name for ID from StandardOutputObject. "))
-  } else if (length(ID.colName) == 0) {
-    stop(paste0("No DATA_INPUT_VARIABLES have a 'use' parameter defined as 'id' in the StandardOutputObject ", 
+  if (length(idTimeLs$ID.colName) > 1) {
+    warning(paste0("Multiple DATA_INPUT_VARIABLES have use defined as 'id' in StandardOutputObject, (", 
+      paste(idTimeLs$ID.colName, collapse = ", "), 
+      ") cannot determine correct column name for ID from StandardOutputObject. "))
+  } else if (length(idTimeLs$ID.colName) == 0) {
+    warning(paste0("No DATA_INPUT_VARIABLES have a 'use' parameter defined as 'id' in the StandardOutputObject ", 
       "cannot determine correct column name for ID from StandardOutputObject."))
   }
-  if (length(TIME.colName) > 1) {
-    stop(paste0("Multiple DATA_INPUT_VARIABLES have use defined as 'idv' in StandardOutputObject, ", 
+  if (length(idTimeLs$TIME.colName) > 1) {
+    warning(paste0("Multiple DATA_INPUT_VARIABLES have use defined as 'idv' in StandardOutputObject, (", 
+      paste(idTimeLs$TIME.colName, collapse = ", "), 
+      ") cannot determine correct column name for TIME from StandardOutputObject."))
+  } else if (length(idTimeLs$TIME.colName) == 0) {
+    warning(paste0("No DATA_INPUT_VARIABLES have a 'use' parameter defined as 'idv' in the StandardOutputObject ", 
       "cannot determine correct column name for TIME from StandardOutputObject."))
-  } else if (length(TIME.colName) == 0) {
-    stop(paste0("No DATA_INPUT_VARIABLES have a 'use' parameter defined as 'idv' in the StandardOutputObject ", 
-      "cannot determine correct column name for TIME from StandardOutputObject."))
-  }  
-
-  return(list(
-      ID.index=ID.index, ID.colName=ID.colName, 
-      TIME.index=TIME.index, TIME.colName=TIME.colName))
-
+  }
+  return(idTimeLs)
 }
 
 
