@@ -227,18 +227,18 @@ extractIdandIdvNames <- function(SOObject, PredictionsSlotName, ResidualsSlotNam
   # Error Check the result
   # Check that only a single column is assigned with id or idv 
   if (length(ID.colName) > 1) {
-    stop(paste0("Multiple DATA_INPUT_VARIABLES have use defined as 'id' in MDL file, ", 
-      "cannot determine correct column name for ID from MDL file. "))
+    stop(paste0("Multiple DATA_INPUT_VARIABLES have use defined as 'id' in StandardOutputObject, ", 
+      "cannot determine correct column name for ID from StandardOutputObject. "))
   } else if (length(ID.colName) == 0) {
-    stop(paste0("No DATA_INPUT_VARIABLES have a 'use' parameter defined as 'id' in the MDL file ", 
-      "cannot determine correct column name for ID from MDL file."))
+    stop(paste0("No DATA_INPUT_VARIABLES have a 'use' parameter defined as 'id' in the StandardOutputObject ", 
+      "cannot determine correct column name for ID from StandardOutputObject."))
   }
   if (length(TIME.colName) > 1) {
-    stop(paste0("Multiple DATA_INPUT_VARIABLES have use defined as 'idv' in MDL file, ", 
-      "cannot determine correct column name for TIME from MDL file."))
+    stop(paste0("Multiple DATA_INPUT_VARIABLES have use defined as 'idv' in StandardOutputObject, ", 
+      "cannot determine correct column name for TIME from StandardOutputObject."))
   } else if (length(TIME.colName) == 0) {
-    stop(paste0("No DATA_INPUT_VARIABLES have a 'use' parameter defined as 'idv' in the MDL file ", 
-      "cannot determine correct column name for TIME from MDL file."))
+    stop(paste0("No DATA_INPUT_VARIABLES have a 'use' parameter defined as 'idv' in the StandardOutputObject ", 
+      "cannot determine correct column name for TIME from StandardOutputObject."))
   }  
 
   return(list(
