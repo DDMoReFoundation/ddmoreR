@@ -35,6 +35,9 @@ DDMORE.setServer <- function(fisServer) {
     if("fisServer" %in% ls(DDMORE.server.env)) {
         warning(sprintf("One FIS Server instance is already configured pointing to %s. ", DDMORE.server.env$fisServer@url))
     }
+    if(length(fisServer)==0) {
+        warning("User authentication details not specified on the server object, jobs will be executed using framework service account. Use DDMORE.setUserInfo to specify authentication details.")
+    }
     assign("fisServer", fisServer, envir = DDMORE.server.env)
 }
 
@@ -157,6 +160,41 @@ q <- function(fisServer=DDMORE.getServer()) {
       warning("Could not stop FIS instance.")
     }
 	base:::q()
+}
+
+##############################################################
+#' DDMORE.setUserInfo
+#'
+#' Function to set user authentication information that will be used to execute jobs.
+#'
+#' @examples 
+#' DDMORE.setUserInfo(userName="Me", password="My-password")
+#' DDMORE.setUserInfo(userName="Me", identityFile = "~/.ssh/id_rsa", identityFilePassphrase = "my-passphrase")
+#' DDMORE.setUserInfo(userName="", executeAsUser = FALSE) 
+#'
+#' @param userName user name which executes the job, required.
+#' @param password password of the user (optional if identity file (private key) is used for authentication)
+#' @param identityFilePath path to the identity file (private key) on TES host which will be used by TES service account to authenticate as the user. (Optional if password-based authentication is used.)
+#' @param identityFilePassphrase passphrase for the private key file. (Optional if password-based authentication is used.)
+#' @param executeAsUser flag indicating if jobs should be invoked using service account or using account provided with this object. Setting this to FALSE is equivalent to not setting user info at all.
+#'
+#' @return user info list
+#' @export
+DDMORE.setUserInfo <- function(userName = NULL, password = NULL, identityFilePath = NULL, identityFilePassphrase = NULL, executeAsUser = TRUE) {
+    .precondition.checkArgument(!is.null(userName),"userName", "User name must be set." )
+    
+    userInfo <- list("userName" = userName, 
+    				"password" = password,
+    				"identityFilePath" = identityFilePath,
+    				"identityFilePassphrase" = identityFilePassphrase,
+    				"executeAsUser" = executeAsUser
+    				)
+    
+    fisServer <- DDMORE.getServer()
+    fisServer$userInfo <- userInfo
+    assign("fisServer", fisServer, envir = DDMORE.server.env)
+    
+    return(userInfo)
 }
 
 ################################################################################

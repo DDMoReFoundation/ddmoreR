@@ -30,7 +30,7 @@ validity.FISJob <- function(object) {
 #' @slot status status of a job
 #' @slot resultsIncludeRegex regular expression specifying additional input files
 #' @slot resultsExcludeRegex list of additional job input files being included
-#' @slot userInfo user authentication information
+#' @slot userInfo - internal - user authentication information
 #' @slot version - internal - entity version identifier
 #'
 #'
