@@ -75,21 +75,21 @@ getPopulationParameters <- function(SOObject, block="all", what="all", keep.only
 	}
 	
 	# Assert that specific objects exist in the SO structure if they are asked for
-	estimationPopulatedSlots <- getPopulatedSlots(SOObject@Estimation)
-	switch (what,
-		"estimates" = {
-			if (!("PopulationEstimates" %in% estimationPopulatedSlots))
-				stop("Tried to fetch the parameter estimates, however section Estimation::PopulationEstimates was not found in the SO Object.")
-		},
-		"precisions" = {
-			if (!("PrecisionPopulationEstimates" %in% estimationPopulatedSlots))
-				stop("Tried to fetch the parameter precision values, however section Estimation::PrecisionPopulationEstimates was not found in the SO Object.")
-		},
-		"intervals" = {
-			if (!("IndividualEstimates" %in% estimationPopulatedSlots))
-				stop("Tried to fetch the parameter interval values, however section Estimation::IndividualEstimates was not found in the SO Object.")
-		}
-	)
+#	estimationPopulatedSlots <- getPopulatedSlots(SOObject@Estimation)
+#	switch (what,
+#		"estimates" = {
+#			if (!("PopulationEstimates" %in% estimationPopulatedSlots))
+#				stop("Tried to fetch the parameter estimates, however section Estimation::PopulationEstimates was not found in the SO Object.")
+#		},
+#		"precisions" = {
+#			if (!("PrecisionPopulationEstimates" %in% estimationPopulatedSlots))
+#				stop("Tried to fetch the parameter precision values, however section Estimation::PrecisionPopulationEstimates was not found in the SO Object.")
+#		},
+#		"intervals" = {
+#			if (!("IndividualEstimates" %in% estimationPopulatedSlots))
+#				stop("Tried to fetch the parameter interval values, however section Estimation::IndividualEstimates was not found in the SO Object.")
+#		}
+#	)
 
 	
   # Cycle through estimates present, parsing as necessary
