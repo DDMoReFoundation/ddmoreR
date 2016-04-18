@@ -13,7 +13,6 @@ Imports:
     rjson(>= 0.2.13),
     RCurl(>= 1.95)
 Depends:
-    RNMImport(>= 0.3.6),
     tools(>= 3.0.2),
     lattice(>= 0.20-14),
     XML(>= 3.98-1.1),

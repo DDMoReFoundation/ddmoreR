@@ -125,10 +125,6 @@ DDMORE.serverRunning <-
 DDMORE.stopServer <-
   function(fisServer, dontWait = FALSE) {
     message("Stopping server...")
-    if(!fisServer@serverMode) {
-      warning("FIS is running in server mode, skipping shut down of FIS instance.")
-      return()
-    }
   	if (shutdown(fisServer)) {
   		# The servers might report themselves as not running immediately but they still
   		# take a few seconds to actually shut down; put in a pause to avoid the user
@@ -191,7 +187,7 @@ DDMORE.setUserInfo <- function(userName = NULL, password = NULL, identityFilePat
     				)
     
     fisServer <- DDMORE.getServer()
-    fisServer$userInfo <- userInfo
+    fisServer@userInfo <- userInfo
     assign("fisServer", fisServer, envir = DDMORE.server.env)
     
     return(userInfo)
