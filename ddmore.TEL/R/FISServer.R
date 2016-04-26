@@ -406,10 +406,6 @@ setGeneric(
 )
 setMethod("shutdown", signature = signature("FISServer"),
           function (fisServer) {
-             if(fisServer@serverMode) {
-                  warning("FIS is running in server mode, skipping shut down of FIS instance.")
-                  return(FALSE)
-              }
               shutdownURL <- sprintf('%s/shutdown', fisServer@url)
               ret <- RCurl:::postForm(shutdownURL, style = "HTTPPOST", shutdown =
                                          "yes")

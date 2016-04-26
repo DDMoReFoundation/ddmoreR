@@ -151,9 +151,13 @@ DDMORE.stopServer <-
 #' @export
 #'
 q <- function(fisServer=DDMORE.getServer()) {
-    status <- try(DDMORE.stopServer(fisServer, dontWait=TRUE))
-    if(class(status)=="try-error") {
-      warning("Could not stop FIS instance.")
+    if(fisServer@serverMode) {
+        message("FIS is running in server mode, skipping shut down of FIS instance.")
+    } else {
+        status <- try(DDMORE.stopServer(fisServer, dontWait=TRUE))
+        if(class(status)=="try-error") {
+            warning("Could not stop FIS instance.")
+        }
     }
 	base:::q()
 }
