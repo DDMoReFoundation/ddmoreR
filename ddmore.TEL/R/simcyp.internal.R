@@ -1,620 +1,284 @@
 ####################################################################################################
-#' Create global environment objects
+#' Perform a Simcyp execution
 #'
-#' Initialises any global objects which are used by other Simcyp functions. Removed via the
-#' \code{\link{simcyp.destroyGlobals}} function.
-#' 
-#' @param newConfigFile A logical value which determines if a new temporary config file name is
-#' retrieved. This name should only be set once at the beginning of a Simcyp execution.
+#' Prepares and submits a Simcyp execution. This includes creation and population of the execution
+#' file and any necessary parsing / copying / deleting of resulting files. All results are placed
+#' in a folder within the user's working directory. Some executions leave no resulting files (i.e.
+#' when \code{executionArgs} contains either of the names 'q' or 'u').
 #'
-#' @seealso \code{\link{simcyp.destroyGlobals}}
-#'
-#' @examples 
-#' simcyp.createGlobals()
-#' 
-#' # Simcyp work...
-#' 
-#' simcyp.destroyGlobals()
-#'
-#' @author Craig Lewin (Simcyp)
-simcyp.createGlobals <- function()
-{
-	configFile <- file.path(getwd(), "simcyp-console.config")
-	configFileName <- file_path_sans_ext(basename(configFile))
-	
-	unlink(configFile, TRUE, TRUE)
-	file.create(configFile)
-	
-	assign("simcyp.input.config", configFile, globalenv())
-	
-	assign("simcyp.input.config.key.logFolder", "log_dir", globalenv())
-	assign("simcyp.input.config.key.logFile", "log_file", globalenv())
-	assign("simcyp.input.config.key.signalFile", "control_file", globalenv())
-	assign("simcyp.input.config.key.statusFile", "status_file", globalenv())
-	assign("simcyp.input.config.key.includedOutput", "otable_yes", globalenv())
-	assign("simcyp.input.config.key.embedData", "#embed_data", globalenv())
-	
-	assign("simcyp.output.file.standardOutput", paste0(configFileName, ".SO.xml"), globalenv())
-	assign("simcyp.output.file.combineArchive", paste0(configFileName, ".CA.omex"), globalenv())
-	
-	assign("simcyp.output.folder.fis", ".fis", globalenv())
-	assign("simcyp.output.folder.csv", "csv", globalenv())
-	assign("simcyp.output.folder.lua", "lua", globalenv())
-	assign("simcyp.output.folder.txt", "txt", globalenv())
-	assign("simcyp.output.folder.tmp", "tmp", globalenv())
-	
-	assign("simcyp.executionCommand.simulate", "simulation", globalenv())
-	assign("simcyp.executionCommand.generateSinglePopulation", "single population generation", globalenv())
-	assign("simcyp.executionCommand.generateMultiplePopulations", "multiple populations generation", globalenv())
-	assign("simcyp.executionCommand.getPopulationIds", "population IDs retrieval", globalenv())
-	assign("simcyp.executionCommand.getOutputIds", "output IDs retrieval", globalenv())
-}
-
-
-####################################################################################################
-#' Destroy global environment objects
-#'
-#' Removes any global objects which were used by other Simcyp functions. Created via the
-#' \code{\link{simcyp.createGlobals}} function.
-#'
-#' @seealso \code{\link{simcyp.createGlobals}}
-#'
-#' @examples 
-#' simcyp.createGlobals()
-#' 
-#' # Simcyp work...
-#' 
-#' simcyp.destroyGlobals()
-#'
-#' @author Craig Lewin (Simcyp)
-simcyp.destroyGlobals <- function()
-{
-	rm(list = ls(pattern = "^simcyp\\.input\\..+$"))
-	rm(list = ls(pattern = "^simcyp\\.output\\..+$"))
-	rm(list = ls(pattern = "^simcyp\\.executionCommand\\..+$"))
-}
-
-
-####################################################################################################
-#' Execute a Simcyp command
-#'
-#' Prepares a job for submission including populating the execution file, submits the job, monitors 
-#' the progress, and then returns the results. Any files generated as part of the execution are 
-#' moved into a unique subdirectory within the working directory.
-#'
-#' @param executionCommand The type of Simcyp command to be executed. Should be one of the
-#' \code{simcyp.executionCommand.*} objects defined in \code{\link{simcyp.preprocess}}.
-#'
-#' @param executionParameters A list of named values which will be converted to command line 
+#' @param executionArgs A list of named values which will be converted to command line 
 #' arguments for the Simcyp Console application. E.g. 
 #' \code{list(p = "SIM-HEALTH_VOLUNTEERS", n = 25)} would become the command line arguments 
 #' \code{-p=SIM-HEALTHY_VOLUNTEERS -n=25}.
+#' 
+#' @param embedDataInSO TRUE if data from the Simcyp outputs should be embedded within 
+#' the resulting Standard Output, FALSE if the outputs should simply be referenced as external files
+#' within the Standard Output.
+#' 
+#' @param importSO TRUE if the resulting Standard Output file should be loaded into memory and
+#' returned as an object of type \code{\link{SOObject}} upon successful execution. FALSE if NULL 
+#' should be returned.
+#' 
+#' @param outputIDs A list of identifiers indicating the types of outputs to generate. Each 
+#' identifier should be one of the items in \code{\link{simcyp.getOutputIDs}} or a numeric value 
+#' which is the position of an ID within this list. Unused if \code{executionArgs} contains either 
+#' of the names 'q' or 'u'.
 #'
-#' @param silentMode TRUE if messages should be output in the console during the execution of the 
-#' job to acquire output IDs, FALSE if no output should be displayed.
+#' @return An object of type \code{\link{SOObject}} if; a) execution is successful, b) 
+#' \code{executionArgs} doesn't contain either of the names 'q' or 'u', and c) \code{importSO} is 
+#' TRUE. Otherwise NULL is returned.
 #'
-#' @return An object of type \code{\link{SOObject}} if successful and the command isn't a query 
-#' command, TRUE if successful and the command is a query command, NULL otherwise.
-#'
-#' @seealso \code{\link{simcyp.preprocess}}
-#' @seealso \code{\link{simcyp.isQueryCommand}}
 #' @seealso \code{\link{SOObject}}
+#' ~seealso \code{\link{simcyp.getOutputIDs}}
 #'
 #' @examples \dontrun{
 #'
-#' # Execute the query job to retrieve population IDs silently.
-#' simcyp.execute(simcyp.executionCommand.getPopulationIds, list(q = NULL), TRUE)
-#' # TRUE
+#' # Execute a query which returns a list of output IDs.
+#' simcyp.execute(list(q = NULL), FALSE, FALSE, NULL)
 #'
-#' # Execute the query job to retrieve population IDs silently.
-#' simcyp.execute(simcyp.executionCommand.getOutputIds, list(u = NULL), TRUE)
-#' # TRUE
+#' # Execute a query which returns a list of population IDs.
+#' simcyp.execute(list(u = NULL), FALSE, FALSE, NULL)
 #'
-#' # Execute a simulation.
-#' simcyp.execute(simcyp.executionCommand.simulate, list(w = "C:/Path/To/Workspace.wksz"))
+#' # Execute a simulation which returns a SOObject of the resulting large SO file, and generates all 
+#' # possible Simcyp optional outputs.
+#' simcyp.execute(list(w = "C:/Path/To/Workspace.wksz"), TRUE, TRUE, NULL)
+#'
+#' # Execute a population generation which returns NULL, generates a small SO file, and generates 
+#' # possible Simcyp optional outputs.
+#' simcyp.execute(list(p = "SIM-JAPANESE", n = 20), FALSE, FALSE, simcyp.getOutputIDs())
 #' # SOObject
 #'
-#' # Execute a population generation.
-#' simcyp.execute(simcyp.executionCommand.generateSinglePoulation, 
-#' 				  list(p = "SIM-JAPANESE", n = 20))
-#' # SOObject
-#'
-#' # Execute a multiple population generation.
-#' simcyp.execute(simcyp.executionCommand.generateMultiplePopulations, 
-#' 				  list(p = "SIM-JAPANESE,SIM-HEALTHY_VOLUNTEERS", n = 20,20))
-#' # SOObject
+#' # Execute a multiple populations generation which returns NULL, generates a small SO file, and 
+#' # generates only 2 Simcyp optional outputs.
+#' ids <- simcyp.getOutputIDs()
+#' simcyp.execute(
+#' 		list(p = "SIM-JAPANESE,SIM-HEALTHY_VOLUNTEERS", n = 20,20), 
+#' 		FALSE, 
+#' 		FALSE, 
+#' 		c(ids[[1]], ids[[12]]))
 #' }
 #'
 #' @author Craig Lewin (Simcyp)
-simcyp.execute <- function(executionCommand,
-						   executionParameters,
-						   silentMode = FALSE) 
-{
-	executionCommands <- sapply(ls(globalenv(), pattern = "^simcyp\\.executionCommand\\.\\w+$"),
-								function(o) get(o, globalenv()))
-	isQueryCommand <- simcyp.isQueryCommand(executionCommand)
-
-	if (is.na(match(executionCommand, executionCommands))) 
+simcyp.execute <- function(executionArgs, embedDataInSO, importSO, outputIDs)
+{	
+	if (is.null(executionArgs) | is.list(executionArgs) == FALSE | length(executionArgs) == 0)
 	{
-		stop(paste0("Unexpected Simcyp execution type - acceptable values are; ", 
-					paste(executionCommands, collapse = ", ")))
+		stop("'executionArgs' parameter must be a list containing at least 1 argument")
 	}
-
-	if (silentMode == FALSE) 
+	
+	workingDirectory <- getwd()
+	tempDirectory <- tempdir()
+	isOutputIDsQuery <- is.na(match("u", names(executionArgs))) == FALSE
+	isPopulationIDsQuery <- is.na(match("q", names(executionArgs))) == FALSE
+	isSimulation <- is.na(match("w", names(executionArgs))) == FALSE
+	isSinglePopulationGeneration <- FALSE
+	isMultiplePopulationsGeneration <- FALSE
+	isPopulationGeneration <- is.na(match("p", names(executionArgs))) == FALSE
+	
+	if (isPopulationGeneration)
 	{
-		title <- sprintf("# Start of Simcyp execution (%s) #", executionCommand)
-
-		message('\n', rep('#', nchar(title)))
-		message(title)
-		message(rep('#', nchar(title)))
+		isSinglePopulationGeneration <- str_detect(executionArgs$p, ",") == FALSE
+		isMultiplePopulationsGeneration <- str_detect(executionArgs$p, ",")
 	}
-
-	# Execution file initialisation
-	if (silentMode == FALSE) 
+	
+	if (isSimulation)
 	{
-		message("Initialising execution file:")
+		file.copy(executionArgs$w, file.path(tempDirectory, basename(executionArgs$w)))
 	}
-
-	if (isQueryCommand == FALSE) 
+	
+	# Perform the execution in a temporary folder to avoid residual files appearing in the user's
+	# working directory.
+	setwd(tempDirectory)
+	
+	if (isOutputIDsQuery | isPopulationIDsQuery)
 	{
-		# Populate the config file with general information
-		simcyp.setConfigFileValue(simcyp.input.config.key.logFile, "simcyp_log.txt")
-		simcyp.setConfigFileValue(simcyp.input.config.key.signalFile, "simcyp_control.txt")
-		simcyp.setConfigFileValue(simcyp.input.config.key.statusFile, "simcyp_status.txt")
-
-		executionParameters$c <- simcyp.input.config
-	}
-
-	if (silentMode == FALSE) 
-	{
-		if (executionCommand == simcyp.executionCommand.simulate) 
+		# Execution file isn't necessary for a query job but it is required by the execute function, 
+		# so just create an empty dummy file to use.
+		if (isOutputIDsQuery)
 		{
-			# Running a simulation
-			message(paste0("\tWorkspace: ", executionParameters$w))
-		} 
-		else if (executionCommand == simcyp.executionCommand.generateSinglePopulation) 
+			executionFile <- "outputIDs.config"
+		}
+		
+		if (isPopulationIDsQuery)
 		{
-			# Generating a single population
-			if (executionParameters$n == 0) 
+			executionFile <- "populationIDs.config"
+		}
+		
+		if (file.create(executionFile) == FALSE)
+		{
+			setwd(workingDirectory)
+			stop(paste0("Failed to create temporary execution file: ", executionFile))
+		}
+	}
+	else
+	{
+		# Execution file is needed, so create and populate it.
+		if (isSimulation)
+		{
+			name <- file_path_sans_ext(basename(executionArgs$w))
+			name <- gsub("_", "-", name)
+			name <- gsub(" ", "-", name)
+			
+			executionFile <- paste0(name, ".config")
+		}
+		
+		if (isSinglePopulationGeneration)
+		{
+			name <- str_sub(executionArgs$p, 5)
+			name <- gsub("_", "-", name)
+					
+			executionFile <- paste0(name, ".config")
+		}
+		
+		if (isMultiplePopulationsGeneration)
+		{
+			numPops <- switch(str_count(executionArgs$p, ","), "Two", "Three", "Four")
+			executionFile <- paste0(numPops, "-Populations.config")
+		}
+		
+		if (file.create(executionFile))
+		{			
+			if (length(outputIDs) > 1) 
 			{
-				message(sprintf("\tPopulation: %s (population representative)", 
-								executionParameters$p))
-			} 
-			else if (executionParameters$n == 1) 
-			{
-				message(sprintf("\tPopulation: %s (1 individual)", executionParameters$p))
+				for (outputID in sapply(outputIDs, simcyp.validateOutputID))
+				{
+					write(sprintf("%s=%s+", "otable_yes", outputID), executionFile, append = TRUE)
+				}
 			} 
 			else 
 			{
-				message(sprintf("\tPopulation: %s (%i individuals)", 
-								executionParameters$p, 
-								executionParameters$n))
+				setwd(workingDirectory)
+				stop("The outputIDs parameter should be a list containing multiple IDs")
 			}
-		} 
-		else if (executionCommand == simcyp.executionCommand.generateMultiplePopulations) 
+			
+			write(sprintf("%s=%s", "#embed_data", embedDataInSO), executionFile, append = TRUE)
+			write(sprintf("%s=%s", "log_file", "simcyp_log.txt"), executionFile, append = TRUE)
+			write(sprintf("%s=%s", "status_file", "simcyp_status.txt"), executionFile, append = TRUE)
+			write(sprintf("%s=%s", "control_file", "simcyp_control.txt"), executionFile, append = TRUE)
+		}
+		else
 		{
-			# Generating multiple populations
-			message("\tPopulations:")
-
-			popIds <- str_split(executionParameters$p, ',')[[1]]
-			popSizes <- str_split(executionParameters$n, ',')[[1]]
-
-			for (i in 1:length(popIds)) 
-			{
-				popId <- popIds[i]
-				popSize <- as.integer(popSizes[i])
-
-				if (popSize == 0) 
-				{
-					message(sprintf("\t\t%s (population representative)", popId))
-				} 
-				else if (popSize == 1) 
-				{
-					message(sprintf("\t\t%s (1 individual)", popId))
-				} 
-				else 
-				{
-					message(sprintf("\t\t%s (%s individuals)", popId, popSize))
-				}
-			}
-		} 
-		else if (isQueryCommand) 
-		{
-			message(paste0("\tExecution file not required for this type of Simcyp execution - ",
-						   "using a dummy file"))
+			setwd(workingDirectory)
+			stop(paste0("Failed to create execution file: ", executionFile))
 		}
 	}
 	
-	if (executionCommand == simcyp.executionCommand.simulate)
-	{
-		workspace <- executionParameters$w
-	}
-
-	# Format the execution parameters into command line arguments expected by the Simcyp Console
-	formatExecutionParameter <- function(name) 
-	{
-		ifelse(isQueryCommand, 
-			   paste0('-', name), 
-			   sprintf('-%s="%s"', name, executionParameters[[name]]))
-	}
-	executionParameters <- paste(sapply(names(executionParameters), 
-										formatExecutionParameter), 
-								 collapse = ' ')
-
-	# Create and submit the job
-	executionType <- "simcyp"
-	executionFile <- simcyp.input.config
-	workingDirectory <- getwd()
-
-	if (silentMode == FALSE) 
-	{
-		message("Initialising job:")
-	}
-
-	job <- createFISJob(executionType, executionFile, workingDirectory, executionParameters)
-	job <- DDMORE.submitJob(job)
-
-	if (silentMode == FALSE) 
-	{
-		message(paste0("\tID: ", job@id))
-		message(paste0("\tWorking directory: ", workingDirectory))
-		message(paste0("\tExecution type: ", executionType))
-		message(paste0("\tExecution file: ", executionFile))
-		message(paste0("\tExecution parameters: ", executionParameters))
-
-		message("Monitoring progress:")
-	}
-
-	success <- simcyp.monitorProgress(job@id, silentMode)
-
-	if (silentMode == FALSE) 
-	{
-		message("Finalising:")
-	}
+	addargs <- ""
+	executionArgs$c <- executionFile
+	subfolder <- sprintf("%s_SIMCYP_%s.out", executionFile, format(Sys.time(), "%H%M%S"))
 	
-	# Move all of the resulting files into a new folder within the working directory.
-	outputsPath <- file.path(
-		workingDirectory, 
-		sprintf(
-			"%s_SIMCYP_%s.out", 
-			basename(simcyp.input.config), 
-			format(Sys.time(), "%H%M%S")))
-
-	simcyp.moveResults(outputsPath)
-	
-	file.copy(simcyp.input.config, file.path(outputsPath, basename(simcyp.input.config)))
-	file.remove(simcyp.input.config)
-	
-	if (executionCommand == simcyp.executionCommand.simulate)
+	for (argName in names(executionArgs))
 	{
-		file.copy(workspace, file.path(outputsPath, basename(workspace)))
-	}
-
-	assign("simcyp.output.folder.root", outputsPath, globalenv())
-
-	if (silentMode == FALSE) 
-	{
-		message(paste0("\tResults directory: ", outputsPath))
-	}
-
-	if (success) 
-	{
-		if (isQueryCommand) 
+		argValue <- executionArgs[[argName]]
+		
+		if (is.null(argValue))
 		{
-			result <- TRUE
-		} 
-		else 
-		{
-			soPath <- file.path(outputsPath, simcyp.output.file.standardOutput)
-
-			if (silentMode == FALSE) 
-			{
-				message(paste0("\tLoading Standard Output file: ", soPath))
-			}
-
-			result <- LoadSOObject(soPath)
+			addargs <- paste(addargs, paste0("-", argName), collapse = " ")
 		}
-	} 
-	else 
-	{
-		result <- NULL
-	}
-
-	if (silentMode == FALSE) 
-	{
-		title <- sprintf("# End of Simcyp execution (%s) #", executionCommand)
-
-		message(rep('#', nchar(title)))
-		message(title)
-		message(rep('#', nchar(title)), '\n')
+		else
+		{
+			addargs <- paste(addargs, sprintf("-%s=\"%s\"", argName, argValue), collapse = " ")
+		}
 	}
 	
-	if (isQueryCommand == FALSE)
+	addargs <- sub("^\\s+", "", addargs) # Remove leading whitespace
+	extraInputFiles <- NULL
+	
+	if (isSimulation)
 	{
-		simcyp.destroyGlobals()
+		extraInputFiles <- basename(executionArgs$w)
+		message("\n-- Simulate using workspace file")
 	}
+	else if (isSinglePopulationGeneration)
+	{
+		message("\n-- Generate single population")
+	}
+	else if (isMultiplePopulationsGeneration)
+	{
+		message("\n-- Generate multiple populations")
+	}
+	else if (isOutputIDsQuery)
+	{
+		message("\n-- Get available output IDs")
+	}
+	else if (isPopulationIDsQuery)
+	{
+		message("\n-- Get available population IDs")
+	}
+		
+	result <- ddmore:::execute(
+		x = executionFile,
+		target = "simcyp",
+		addargs = addargs,
+		subfolder = subfolder,
+		extraInputFiles = extraInputFiles,
+		importSO = importSO)
+
+	if (isOutputIDsQuery | isPopulationIDsQuery)
+	{		
+		result <- simcyp.getIDsFromOutput(file.path(getwd(), subfolder, "stdout.txt"))
+		
+		# Delete all files from the temprorary folder.
+		unlink(executionFile, TRUE, TRUE)
+		unlink(subfolder, TRUE, TRUE)
+	}
+	else
+	{
+		# Move the standard output and error files into the 'txt' folder.
+		txtFolder <- file.path(subfolder, "txt")
+		stdoutFile <- file.path(subfolder, "stdout.txt")
+		stderrFile <- file.path(subfolder, "stderr.txt")
+		
+		dir.create(txtFolder, FALSE)
+		
+		if (file.exists(txtFolder) &
+			file.exists(stdoutFile) &
+			file.exists(stderrFile))
+		{
+			file.rename(stdoutFile, file.path(txtFolder, basename(stdoutFile)))
+			file.rename(stderrFile, file.path(txtFolder, basename(stderrFile)))
+		}
+		
+		# Move all results from the temporary folder into the user's working directory.
+		file.rename(subfolder, file.path(workingDirectory, subfolder))
+		
+		# Clean up residual files in the temporary folder.
+		unlink(executionFile, TRUE, TRUE)
+		
+		if (isSimulation)
+		{
+			unlink(basename(executionArgs$w), TRUE, TRUE)
+		}
+	}
+	
+	setwd(workingDirectory)
 	
 	return(result)
 }
 
-####################################################################################################
-#' Retrieve a value from the config / execution file
-#'
-#' Reads the contents of the config file (which is also the execution file) and searches the lines 
-#' (each line is structured as <key>=<value>) for a specific <key> so that its corresponding <value> 
-#' can be extracted.
-#'
-#' @param configFileKey The <key> part of a line in the config file to retrieve the <value> for.
-#'
-#' @return The <value> associated with the given <key>.
-#'
-#' @examples
-#' simcyp.getConfigFileValue(simcyp.input.config.key.signalFile)
-#'
-#' @author Craig Lewin (Simcyp)
-simcyp.getConfigFileValue <- function(configFileKey) 
-{
-	if (file.exists(simcyp.input.config)) 
-	{
-		configText <- readChar(simcyp.input.config, file.info(simcyp.input.config)$size)
-
-		if (str_detect(configText, configFileKey)) 
-		{
-			# The config file has been updated by the prepare handler script to include the data 
-			# we're looking for. Find the <key>=<value> line where the <key> matches and extract 
-			# the corresponding <value>.
-			startIndex <- str_locate(configText, configFileKey)[1, 2] + 2
-			configText <- str_sub(configText, startIndex)
-			endIndex <- str_locate(configText, '\n')[1, 1] - 1
-
-			if (is.na(endIndex)) 
-			{
-				value <- str_trim(configText)
-			} 
-			else 
-			{
-				value <- str_trim(str_sub(configText, 0, endIndex))
-			}
-
-			if (is.na(value) == FALSE) 
-			{
-				return(value)
-			}
-		}
-	}
-
-	return(NULL)
-}
-
 
 ####################################################################################################
-#' Check if a an execution command is a query
-#'
-#' Checks if a given execution command is considered to be a query command or not. A query command 
-#' is one of those which retrieves IDs and does not generate any populations or run a simulation.
-#'
-#' @param executionCommand The execution command which should be checked to determine if it is a 
-#' query command. Should be one of the \code{simcyp.executionCommand.*} objects defined in 
-#' \code{\link{simcyp.preprocess}}.
-#'
-#' @return TRUE if the given execution command is considered to be a query, otherwise FALSE.
-#'
-#' @seealso \code{\link{simcyp.preprocess}}
-#'
-#' @examples
-#' simcyp.isQueryCommand(simcyp.executionCommand.getPopulationIds)
-#' simcyp.isQueryCommand(simcyp.executionCommand.simulate)
-#'
-#' @author Craig Lewin (Simcyp)
-simcyp.isQueryCommand <- function(executionCommand) 
-{
-	if (executionCommand == simcyp.executionCommand.getPopulationIds)
-	{
-		return(TRUE)
-	}
-	
-	if (executionCommand == simcyp.executionCommand.getOutputIds)
-	{
-		return(TRUE)
-	}
-
-	return(FALSE)
-}
-
-
-####################################################################################################
-#' Monitor the progress of a Simcyp job
-#'
-#' Monitors the progress of a Simcyp job from start to end and reports information to the console if 
-#' not running in silent mode.
-#'
-#' @param jobId The unique identifier of the \code{\link{FISJob}} being monitored.
-#'
-#' @param silentMode TRUE if messages should be output in the console during the execution of the 
-#' job to acquire output IDs, FALSE if no output should be displayed.
-#'
-#' @return TRUE if the final job status is "COMPLETED", otherwise FALSE.
-#'
-#' @seealso \code{\link{FISJob}}
-#'
-#' @examples \dontrun{
-#'
-#' fisJob <- createFISJob(...)
-#' fisJob <- DDMORE.submitJob(job)
-#' success <- simcyp.monitorProgress(fisJob@@id, FALSE)
-#' }
-#'
-#' @author Craig Lewin (Simcyp)
-simcyp.monitorProgress <- function(jobId, silentMode) 
-{
-	jobStatus <- ""
-	simStatus <- ""
-	simProgress <- ""
-	simStatusCheckTime <- Sys.time()
-	simStatusFile <- NULL
-
-	while (jobStatus != "COMPLETED" & jobStatus != "FAILED" & jobStatus != "CANCELLED") {
-		# Job status
-		job <- DDMORE.getJob(jobId)
-
-		if (job@status != jobStatus) 
-		{
-			jobStatus <- job@status
-
-			if (silentMode == FALSE) 
-			{
-				message(paste0("\tJob status: ", jobStatus))
-			}
-		}
-
-		if (silentMode == FALSE) 
-		{
-			# Try to extract the location of the Simcyp Console status file from the execution file 
-			# if it hasn't already been retrieved. This information may not be initially available 
-			# because it is added to the execution file by the prepare handler script.
-			if (is.null(simStatusFile)) 
-			{
-				simcypStatusDirectory <- simcyp.getConfigFileValue(simcyp.input.config.key.logFolder)
-
-				if (is.null(simcypStatusDirectory) == FALSE) 
-				{
-					simcypStatusFileName <- simcyp.getConfigFileValue(simcyp.input.config.key.signalFile)
-
-					if (is.null(simcypStatusFileName) == FALSE) 
-					{
-						simStatusFile <- file.path(simcypStatusDirectory, simcypStatusFileName)
-					}
-				}
-			}
-
-			# Read the Simcyp status file if we know its location and it has been modified since the 
-			# last time it was read. Only checked every 30 seconds (used to show the status of long
-			# simulations)
-			if (is.null(simStatusFile) == FALSE) 
-			{
-				if (file.exists(simStatusFile) & simStatusCheckTime < (Sys.time() - 30)) 
-				{
-					nullFunc <- function(p) { return(NULL) }
-					simcypStatusInfo <- tryCatch(file.info(simStatusFile),
-												 warning = nullFunc,
-												 error = nullFunc)
-
-					if (is.null(simcypStatusInfo) == FALSE) 
-					{
-						if (simStatusCheckTime < simcypStatusInfo$mtime) 
-						{
-							simStatusCheckTime <- simcypStatusInfo$mtime
-
-							simcypStatusFileContent <- 
-								tryCatch(readChar(simStatusFile, file.info(simStatusFile)$size),
-										 warning = nullFunc,
-										 error = nullFunc)
-
-							if (is.null(simcypStatusFileContent) == FALSE) 
-							{
-								if (length(simcypStatusFileContent) > 0) 
-								{
-									statusParts <- str_split(simcypStatusFileContent, ',')[[1]]
-
-									if (length(statusParts) > 1) 
-									{
-										if (length(statusParts) > 2) 
-										{
-											# Contains simulation progress as well as a status
-											newSimcypStatus <- statusParts[2]
-											newSimcypProgress <- sprintf(paste0(": %s%% complete ",
-																				"(~%s minutes ",
-																				"remaining)"),
-																		 statusParts[3],
-																		 statusParts[4])
-										} 
-										else 
-										{
-											# Just a status
-											newSimcypStatus <- statusParts[2]
-											newSimcypProgress <- ""
-										}
-
-										if (newSimcypStatus != simStatus |
-											newSimcypProgress != simProgress) 
-										{
-											simStatus <- newSimcypStatus
-											simProgress <- newSimcypProgress
-
-											# Currently only reporting the simulation progress (for 
-											# longer simulations)
-											if (simStatus == "SIMULATING") 
-											{
-												message(paste0("\tSimcyp status: ",
-															   simStatus,
-															   simProgress))
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
-		Sys.sleep(1)
-	}
-
-	return(jobStatus == "COMPLETED")
-}
-
-
-####################################################################################################
-#' Move the results files
-#'
-#' Moves all files resulting from the execution of a job into the specified location.
-#'
-#' @param newLocation The directory into which output files will be moved.
-#'
-#' @examples \dontrun{
-#'
-#' simcyp.moveResults("C:/Path/To/New/Location")
-#' }
-#'
-#' @author Craig Lewin (Simcyp)
-simcyp.moveResults <- function(newLocation) 
-{
-	if (dir.create(newLocation)) 
-	{
-		outputs <- sapply(ls(globalenv(), pattern = "^simcyp\\.output\\..+$"),
-						  function(o) get(o, globalenv()))
-		outputs <- sapply(outputs, function(o) paste0("(^", gsub("\\.", "\\\\.", o), "$)"))
-		outputs <- list.files(getwd(), paste(outputs, collapse = "|"), TRUE, TRUE, FALSE)
-		
-		sapply(outputs, function(f) file.copy(f, newLocation, TRUE, TRUE))
-		unlink(outputs, TRUE, TRUE)
-	}
-}
-
-
-####################################################################################################
-#' Parse the primary Simcyp Console output file
+#' Extract IDs from the primary Simcyp Console output file
 #'
 #' Extracts IDs from the primary output file generated by the Simcyp Console (typically 
-#' 'simcyp.output'). Used by \code{\link{simcyp.getPopulationIds}} and 
-#' \code{\link{simcyp.getOutputIds}}.
+#' 'simcyp.output'). Used by \code{\link{simcyp.getPopulationIDs}} and 
+#' \code{\link{simcyp.getOutputIDs}}.
 #'
+#' @param outputFile The primary output file to parse IDs from.
+#' 
 #' @return A list of IDs extracted from the output file.
+#' 
+#' @seealso \code{\link{simcyp.getPopulationIDs}}
+#' @seealso \code{\link{simcyp.getOutputIDs}}
 #'
 #' @examples
-#' simcyp.parseOutputFile()
+#' simcyp.getIDsFromOutput()
 #'
 #' @author Craig Lewin (Simcyp)
-simcyp.parseOutputFile <- function() 
+simcyp.getIDsFromOutput <- function(outputFile) 
 {
-	potentialFiles <- list.files(simcyp.output.folder.root, "stdout\\.txt", TRUE, TRUE, TRUE)
-	
-	if (length(potentialFiles) > 0)
+	if (file.exists(outputFile)) 
 	{
-		outputFile <- potentialFiles[[1]]
-		
 		ids <- list()
 		
 		for (line in readLines(outputFile))
@@ -622,7 +286,7 @@ simcyp.parseOutputFile <- function()
 			if (str_detect(line, '\t'))
 			{
 				suppressWarnings(
-						id <- as.integer(str_sub(line, 1, str_locate(line, '\t')[1, 2] - 1)))
+					id <- as.integer(str_sub(line, 1, str_locate(line, '\t')[1, 2] - 1)))
 				
 				if (is.na(id) == FALSE & id > 0)
 				{
@@ -633,86 +297,86 @@ simcyp.parseOutputFile <- function()
 		
 		return(ids)
 	}
-
-	stop(paste0("Failed to retrieve IDs: '", outputFile, "' not found"))
+	
+	return(NULL)
 }
 
 
 ####################################################################################################
-#' Perform preprocessing steps common to Simcyp functions
+#' Perform Simcyp execution preprocessing
 #'
-#' Retrieves population IDs and Output IDs and persists them in memory to avoid subsequent lengthy 
-#' jobs to retrieve them during execution. Creates the config file (which is also the execution 
-#' file) and populates it with a single entry to determine what is put into a resulting Standard 
-#' Output file.
-#'
-#' @param embedDataInStandardOutput TRUE if data from the Simcyp outputs should be embedded within 
-#' the resulting Standard Output, FALSE if the outputs should simply be referenced as external files 
-#' within the Standard Output.
+#' Performs some preprocessing prior to execution of \code{\link{simcyp.simulate}},
+#' \code{\link{simcyp.generateSinglePopulation}}, or 
+#' \code{\link{simcyp.generateMultiplePopulations}}. Avoids having to execute additional tasks (to
+#' acquire IDs) mid-execution by performing the tasks beforehand instead. 
 #'
 #' @examples
-#' # Large SO file size.
-#' simcyp.preprocess(TRUE)
-#'
-#' # Small SO file size.
-#' simcyp.preprocess(FALSE)
+#' simcyp.preprocess()
 #'
 #' @author Craig Lewin (Simcyp)
-simcyp.preprocess <- function(embedDataInSO, outputIds) 
-{	
-	simcyp.createGlobals()
-	
-	simcyp.getPopulationIds()
-	simcyp.getOutputIds()
-	
-	if (is.logical(embedDataInSO)) 
-	{
-		simcyp.setConfigFileValue(simcyp.input.config.key.embedData, embedDataInSO)
-	} 
-	else 
-	{
-		stop(paste0("The embedDataInStandardOutput parameter must be a logical value"))
-	}
-			
-	if (is.null(outputIds)) 
-	{
-		for (outputId in simcyp.getOutputIds()) 
-		{
-			simcyp.setConfigFileValue(simcyp.input.config.key.includedOutput, paste0(outputId, "+"))
-		}
-	} 
-	else if (is.list(outputIds) | is.vector(outputIds)) 
-	{
-		for (outputId in outputIds) 
-		{
-			simcyp.setConfigFileValue(simcyp.input.config.key.includedOutput, paste0(outputId, "+"))
-		}
-	} 
-	else 
-	{
-		stop("The outputIds parameter should be a list or vector of IDs")
-	}
-}
-
-
-####################################################################################################
-#' Add an entry to the config / execution file
-#'
-#' Appends a <key>=<value> line to the config file (which is also the execution file). Does not 
-#' check if the <key> already exists in the file.
-#'
-#' @param configFileKey The <key> part of the new line to append.
-#' 
-#' @param configFileValue The <value> part of the new line to append.
-#'
-#' @examples
-#' simcyp.setConfigFileValue(simcyp.input.config.key.embedData, TRUE)
-#' simcyp.setConfigFileValue(simcyp.input.config.key.signalFile, "simcyp.signal")
-#'
-#' @author Craig Lewin (Simcyp)
-simcyp.setConfigFileValue <- function(configFileKey, configFileValue) 
+simcyp.preprocess <- function()
 {
-	write(sprintf("%s=%s", configFileKey, configFileValue), simcyp.input.config, append = TRUE)
+	simcyp.getPopulationIDs()
+	simcyp.getOutputIDs()
+}
+
+
+####################################################################################################
+#' Validate an output ID
+#'
+#' Checks that a given parameter can be parsed to a valid output ID and returns the parsed ID if 
+#' so. This function is used by \code{\link{simcyp.generateSinglePopulation}},
+#' \code{\link{simcyp.generateMultiplePopulations}}, and
+#' \code{\link{simcyp.simulate}} for parameter validation.
+#'
+#' @param outputID The ID to try and parse / validate. Can be the numeric position of an ID within
+#' its parent list or the name of the ID.
+#'
+#' @return The parsed ID
+#'
+#' @examples
+#' simcyp.validateOutputID(1)
+#' simcyp.validateOutputID("DEMOGRAPHIC")
+#' simcyp.validateOutputID("demographic")
+#' simcyp.validateOutputID("profiles") #ERROR
+#' simcyp.validateOutputID(50) #ERROR
+#'
+#' @author Craig Lewin (Simcyp)
+simcyp.validateOutputID <- function(outputID) 
+{
+	if (is.numeric(outputID)) 
+	{
+		allOutputIDs <- simcyp.getOutputIDs()
+		
+		if (outputID < 1 | outputID > length(allOutputIDs)) 
+		{
+			stop(sprintf(
+				paste0("The acceptable range for specifying an output ID numerically is 1-%i ",
+					"(positions of the output IDs retrieved via the simcyp.getOutputIDs ",
+					"function)"),
+				length(allOutputIDs)))
+		}
+		
+		return(allOutputIDs[[as.integer(outputID)]])
+	} 
+	else if (is.character(outputID)) 
+	{
+		allOutputIDs <- simcyp.getOutputIDs()
+		
+		if (is.na(match(tolower(outputID), tolower(allOutputIDs)))) 
+		{
+			stop(paste0("When specifying an output ID by name it must match one of the IDs ",
+				"retrieved via the simcyp.getOutputIDs function"))
+		}
+		
+		return(toupper(outputID))
+	} 
+	else 
+	{
+		stop(paste0("The output ID must either be an ID found in the list retrieved via the ",
+			"simcyp.getOutputIDs function or the numeric index of one such ID within this ",
+			"list"))
+	}
 }
 
 
@@ -724,52 +388,53 @@ simcyp.setConfigFileValue <- function(configFileKey, configFileValue)
 #' \code{\link{simcyp.generateMultiplePopulations}}, and
 #' \code{\link{simcyp.simulate}} for parameter validation.
 #'
-#' @param populationId The ID to try and parse / validate. Can be the numeric position of an ID 
+#' @param populationID The ID to try and parse / validate. Can be the numeric position of an ID 
 #' within its parent list or the name of the ID.
 #'
 #' @return The parsed ID
 #'
 #' @examples
-#' simcyp.validatePopulationId(1)
-#' simcyp.validatePopulationId("SIM-HEALTHY_VOLUNTEERS")
-#' simcyp.validatePopulationId("sim-healthy_volunteers")
-#' simcyp.validatePopulationId("sim-aliens") # ERROR
-#' simcyp.validatePopulationId(50) # ERROR
+#' simcyp.validatePopulationID(1)
+#' simcyp.validatePopulationID("SIM-HEALTHY_VOLUNTEERS")
+#' simcyp.validatePopulationID("sim-healthy_volunteers")
+#' simcyp.validatePopulationID("sim-aliens") #ERROR
+#' simcyp.validatePopulationID(50) #ERROR
 #'
 #' @author Craig Lewin (Simcyp)
-simcyp.validatePopulationId <- function(populationId) 
+simcyp.validatePopulationID <- function(populationID) 
 {
-	if (is.numeric(populationId)) 
+	if (is.numeric(populationID)) 
 	{
-		allPopulationIds <- simcyp.getPopulationIds(TRUE)
-
-		if (populationId < 1 | populationId > length(allPopulationIds)) 
+		allPopulationIDs <- simcyp.getPopulationIDs()
+		
+		if (populationID < 1 | populationID > length(allPopulationIDs)) 
 		{
-			stop(sprintf(paste0("The acceptable range for specifying a population ID numerically ",
-								"is 1-%i (positions of the population IDs retrieved via the ",
-								"simcyp.getPopulationIds function)"),
-						 length(allPopulationIds)))
+			stop(sprintf(
+				paste0("The acceptable range for specifying a population ID numerically is 1-%i ",
+					"(positions of the population IDs retrieved via the simcyp.getPopulationIDs ",
+					"function)"),
+				length(allPopulationIDs)))
 		}
-
-		return(allPopulationIds[[as.integer(populationId)]])
+		
+		return(allPopulationIDs[[as.integer(populationID)]])
 	} 
-	else if (is.character(populationId)) 
+	else if (is.character(populationID)) 
 	{
-		allPopulationIds <- simcyp.getPopulationIds(TRUE)
-
-		if (is.na(match(tolower(populationId), tolower(allPopulationIds)))) 
+		allPopulationIDs <- simcyp.getPopulationIDs()
+		
+		if (is.na(match(tolower(populationID), tolower(allPopulationIDs)))) 
 		{
 			stop(paste0("When specifying a population ID by name it must match one of the IDs ",
-						"retrieved via the simcyp.getPopulationIds function"))
+				"retrieved via the simcyp.getPopulationIDs function"))
 		}
-
-		return(toupper(populationId))
+		
+		return(toupper(populationID))
 	} 
 	else 
 	{
 		stop(paste0("The population ID must either be an ID found in the list retrieved via the ",
-					"simcyp.getPopulationIds function or the numeric index of one such ID within ",
-					"this list"))
+			"simcyp.getPopulationIDs function or the numeric index of one such ID within this ",
+			"list"))
 	}
 }
 
@@ -788,8 +453,8 @@ simcyp.validatePopulationId <- function(populationId)
 #' @examples
 #' simcyp.validatePopulationSize(0)
 #' simcyp.validatePopulationSize(1)
-#' simcyp.validatePopulationSize("100")
-#' simcyp.validatePopulationSize(10000)
+#' simcyp.validatePopulationSize("100") #ERROR
+#' simcyp.validatePopulationSize(10000) #ERROR
 #'
 #' @author Craig Lewin (Simcyp)
 simcyp.validatePopulationSize <- function(populationSize) 
@@ -799,9 +464,9 @@ simcyp.validatePopulationSize <- function(populationSize)
 		if (populationSize < 0 | populationSize > 5000) 
 		{
 			stop(paste0("Population size must be 0 (for population representative) or greater (up ",
-						"to a maximum of 5000)"))
+							"to a maximum of 5000)"))
 		}
-
+		
 		return(as.integer(populationSize))
 	} 
 	else 
