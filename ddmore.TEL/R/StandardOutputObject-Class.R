@@ -83,7 +83,8 @@ setMethod("initialize", "StandardOutputObject", function(.Object, xmlNodeSOBlock
 		soChildren <- .getChildNodes(xmlNodeSOBlock)
 		
 		# Error checking of unexpected elements
-		expectedTags <- grep(pattern = '^[^\\.]', x = slotNames(.Object), value = TRUE) # Slots of SO class excluding those we want to treat as hidden i.e. .pathToSourceXML
+        # Slots of SO class excluding those we want to treat as hidden i.e. .pathToSourceXML
+		expectedTags <- grep(pattern = '^[^\\.]', x = slotNames(.Object), value = TRUE) 
 		unexpected <- setdiff(names(soChildren), expectedTags)
 		if (length(unexpected) != 0) {
 			warning(paste("The following unexpected top-level elements were detected in the PharmML SO. These will be ignored.", 
@@ -111,7 +112,8 @@ setMethod("initialize", "StandardOutputObject", function(.Object, xmlNodeSOBlock
 			simulationBlockNodeList <- soChildren[["Simulation"]][names(soChildren[["Simulation"]]) == "SimulationBlock"]
 			.Object@Simulation <- lapply(
 					X = simulationBlockNodeList,
-					FUN = function(xmlNodeSimulationBlock) { new (Class = "SimulationBlock", xmlNodeSimulationBlock = xmlNodeSimulationBlock) }
+					FUN = function(xmlNodeSimulationBlock) { 
+                        new (Class = "SimulationBlock", xmlNodeSimulationBlock = xmlNodeSimulationBlock) }
 			)
 		}
 		if ("OptimalDesign" %in% names(soChildren)) {
@@ -119,7 +121,8 @@ setMethod("initialize", "StandardOutputObject", function(.Object, xmlNodeSOBlock
 			optimalDesignBlockNodeList <- soChildren[["OptimalDesign"]][names(soChildren[["OptimalDesign"]]) == "OptimalDesignBlock"]
 			.Object@OptimalDesign <- lapply(
 					X = optimalDesignBlockNodeList,
-					FUN = function(xmlNodeOptimalDesignBlock) { new (Class = "OptimalDesignBlock", xmlNodeOptimalDesignBlock = xmlNodeOptimalDesignBlock) }
+					FUN = function(xmlNodeOptimalDesignBlock) { 
+                        new (Class = "OptimalDesignBlock", xmlNodeOptimalDesignBlock = xmlNodeOptimalDesignBlock) }
 			)
 		}
 		if ("ModelDiagnostic" %in% names(soChildren)) {
