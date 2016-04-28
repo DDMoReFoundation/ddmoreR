@@ -57,7 +57,8 @@ getPopulationParameters <- function(SOObject, block="all", what="all", keep.only
 	extraParams <- list(...)
 	if ('type' %in% names(extraParams)) {
     	block <- extraParams[['type']]
-    	message('The "type" parameter has been renamed to "block" for clarity. At current using both is possible though using "type" may become deprecated in the future.')
+    	warning('The "type" parameter has been renamed to "block" for clarity. ',
+            '\nCurrently type may be used to specify block, but this will likely be deprecated.')
 	}
 
     block <- tolower(block)
@@ -76,6 +77,8 @@ getPopulationParameters <- function(SOObject, block="all", what="all", keep.only
 	
 	# Assert that specific objects exist in the SO structure if they are asked for
 	estimationPopulatedSlots <- getPopulatedSlots(SOObject@Estimation)
+    if (is.null(estimationPopulatedSlots)) { 
+        stop("Tried to fetch the parameter estimates, but no Estimation slots found in the SO Object") }
 	switch (what,
 		"estimates" = {
 			if (!any(grepl(pattern = "^PopulationEstimates", x = estimationPopulatedSlots)))
@@ -95,10 +98,19 @@ getPopulationParameters <- function(SOObject, block="all", what="all", keep.only
                 FUN = function(block, slots) { 
                     any(grepl(pattern = block, x = slots)) }, 
                 slots = estimationPopulatedSlots)
+            # allow 1-3 blocks to be returned with warning
             if (!all(blocksPresent))
-				warning("Tried to fetch the parameter estimates, however section", 
-                    ifelse(test = sum(!all(blocksPresent) > 1), yes = "s ", no = " "),
-                    paste(paste0("Estimation::", gsub(pattern = "\\^", replacement = "", x = blocks)[!blocksPresent], collapse = ", "), "not found in the SO Object."))
+                action <- stop
+                if (any(blocksPresent)) {
+                    action <- warning
+                }
+                action("Tried to fetch the parameter estimates, however section", 
+                    # pretty printing
+                    ifelse(test = sum(!blocksPresent) > 1, yes = "s ", no = " "),
+                    paste(paste0("Estimation::", gsub(pattern = "\\^", 
+                                replacement = "", x = blocks)[!blocksPresent], collapse = ", "), 
+                        "not found in the SO Object."))
+                
         }
 	)
 

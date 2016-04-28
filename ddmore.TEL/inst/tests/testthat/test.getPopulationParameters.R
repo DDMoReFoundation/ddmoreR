@@ -1,5 +1,5 @@
 
-context("Test getPopulationParameters from Handcoded PharmMLSO Version 0.3")
+context("Test getPopulationParameters from MachineGenerated PharmMLSO Version 0.3")
 
 test_that("Test getPopulationParameters returns a list of dataframes, one per estimate type.", {
   
@@ -11,50 +11,79 @@ test_that("Test getPopulationParameters returns a list of dataframes, one per es
   SOObject <- suppressMessages(LoadSOObject(data.path))
   
   # By default will return estimates,measures for precisions and confidence intervals; for each of: MLE Baysian and Bootstrap
-  output <- getPopulationParameters(SOObject)
+  # ignore warning:
+  # Tried to fetch the parameter interval values, however section Estimation::PrecisionPopulationEstimates::MLE::AsymptoticCI was not found in the SO Object.
+  output <- suppressWarnings(getPopulationParameters(SOObject))
     
   expect_true(class(output) == "list", info = "Returned object should be a list")
 
-  expect_true(length(output) == 3, info = "Returned list should be of length 3")
-
-  expect_true(all(names(output) == c("MLE", "Bayesian", "Bootstrap")), info = "Names of elements should match SO slots")
+  expect_true(length(output) == 1, info = "Returned list should be of length 1")
   
-  for (df in output) {
-  	expect_true(class(df) == "data.frame", info = "Elements should be data frames")
-  	expect_true(length(df) > 0, info = "Elements should not be empty")
-  }
-   
+  # TODO find examples for "Bayesian" and "Bootstrap" blocks 
+  expect_true(all(names(output) == "MLE"), info = "Names of elements should match SO slots")
+  
+  PARAMETERS <- c("IVCL", "IVV", "TVCL", "TVV")
+  
+  # MLE
+  # --------------
+  # TODO find example with colnames: "CI", "LowerBound", "UpperBound"
+  MLE <- output[["MLE"]]
+  expect_true(all(colnames(MLE) == c("Parameter", "MLE", "SE", "RSE")),
+  				 info = "MLE should have correct column names.")
+
+  expect_true(all(MLE[["Parameter"]] == PARAMETERS),
+  			   info = "MLE should contain statistics of correct parameter names.")
+
+  # Check all number columns are of type numeric 
+  coltypes <- sapply(MLE[, setdiff(colnames(MLE), "Parameter")], class)
+  expect_true(all(coltypes == "numeric"), info = "Column types for values should be numeric.")
+
  })
 
-#
-#test_that("Test getPopulationParameters returns correct statistics by default for MLE, Bayesian and Bootstrap estimates.", {
-#  
-#  data.path <- system.file("tests//data//PharmMLSO/HandCoded//warfarin_PK_ODE_SO_FULL.xml",  
-#                          package = "ddmore")
-#  
-#  # Load in SO
-#  SOObject <- LoadSOObject(data.path)
-#  
-#  # By default will return estimates, measures for precisions and confidence intervals; for each of: MLE Baysian and Bootstrap
-#  output <- getPopulationParameters(SOObject)
-#  
-#  PARAMETERS <- c("BETA_CL_WT", "BETA_V_WT", "CORR_PPV_CL_V", "POP_CL", "POP_KA", "POP_TLAG", 
-#                  "POP_V", "PPV_CL", "PPV_KA", "PPV_TLAG", "PPV_V", "RUV_ADD", "RUV_PROP")
-#
-#  # MLE
-#  # --------------
-#
-#  MLE <- output[["MLE"]]
-#  expect_true(all(colnames(MLE) == c("Parameter", "MLE", "SE", "RSE", "CI", "LowerBound", "UpperBound")),
-#  				 info = "MLE should have correct column names.")
-#
-#  expect_true(all(MLE[["Parameter"]] == PARAMETERS),
-#  			   info = "MLE should contain statistics of correct parameter names.")
-#
-#  # Check all number columns are of type numeric 
-#  coltypes <- sapply(MLE[, setdiff(colnames(MLE), "Parameter")], class)
-#  expect_true(all(coltypes == "numeric"), info = "Column types for values should be numeric.")
-#
+
+test_that("Test getPopulationParameters error when no estimates.", {
+  
+  data.path <- system.file("tests", "data", "PharmMLSO", "MachineGenerated", "SOv0.3", 
+    "run1.SO.xml",  
+    package = "ddmore")
+  
+  # Load in SO
+  SOObject <- suppressMessages(LoadSOObject(data.path))
+  
+  # By default will return estimates, measures for precisions and confidence intervals; for each of: MLE Baysian and Bootstrap
+  expect_error(object = getPopulationParameters(SOObject), 
+      regex = "but no Estimation slots found")
+  
+})
+
+# TODO Bayesian and Bootstrap 
+test_that("Test getPopulationParameters returns correct statistics by default for MLE estimates.", {
+  
+  data.path <- system.file("tests", "data", "PharmMLSO", "MachineGenerated", 
+    "UseCase11.SO.xml",  
+    package = "ddmore")
+  
+  # Load in SO
+  SOObject <- suppressMessages(LoadSOObject(data.path))
+  
+  output <- suppressWarnings(getPopulationParameters(SOObject))
+  
+  PARAMETERS <- c("POP_BASECOUNT", "POP_BETA", "PPV_EVENT")
+  
+  # MLE
+  # --------------
+  # TODO find example with colnames: "CI", "LowerBound", "UpperBound"
+  MLE <- output[["MLE"]]
+  expect_true(all(colnames(MLE) == c("Parameter", "MLE")),
+  				 info = "MLE should have correct column names.")
+
+  expect_true(all(MLE[["Parameter"]] == PARAMETERS),
+  			   info = "MLE should contain statistics of correct parameter names.")
+
+  # Check all number columns are of type numeric 
+  coltypes <- sapply(MLE[, setdiff(colnames(MLE), "Parameter")], class)
+  expect_true(all(coltypes == "numeric"), info = "Column types for values should be numeric.")
+
 #  # Bayesian
 #  # ---------------
 #
@@ -85,8 +114,8 @@ test_that("Test getPopulationParameters returns a list of dataframes, one per es
 #  # Check all number columns are of type numeric 
 #  coltypes <- sapply(Bootstrap[, setdiff(colnames(Bootstrap), "Parameter")], class)
 #  expect_true(all(coltypes == "numeric"), info = "Column types for values should be numeric.")
-#  
-# })
+  
+ })
 #
 #
 #test_that("Test getPopulationParameters returns correct statistics using 'estimates' option for MLE, Bayesian and Bootstrap estimates.", {
