@@ -75,21 +75,32 @@ getPopulationParameters <- function(SOObject, block="all", what="all", keep.only
 	}
 	
 	# Assert that specific objects exist in the SO structure if they are asked for
-#	estimationPopulatedSlots <- getPopulatedSlots(SOObject@Estimation)
-#	switch (what,
-#		"estimates" = {
-#			if (!("PopulationEstimates" %in% estimationPopulatedSlots))
-#				stop("Tried to fetch the parameter estimates, however section Estimation::PopulationEstimates was not found in the SO Object.")
-#		},
-#		"precisions" = {
-#			if (!("PrecisionPopulationEstimates" %in% estimationPopulatedSlots))
-#				stop("Tried to fetch the parameter precision values, however section Estimation::PrecisionPopulationEstimates was not found in the SO Object.")
-#		},
-#		"intervals" = {
-#			if (!("IndividualEstimates" %in% estimationPopulatedSlots))
-#				stop("Tried to fetch the parameter interval values, however section Estimation::IndividualEstimates was not found in the SO Object.")
-#		}
-#	)
+	estimationPopulatedSlots <- getPopulatedSlots(SOObject@Estimation)
+	switch (what,
+		"estimates" = {
+			if (!any(grepl(pattern = "^PopulationEstimates", x = estimationPopulatedSlots)))
+				stop("Tried to fetch the parameter estimates, however section Estimation::PopulationEstimates was not found in the SO Object.")
+		},
+		"precisions" = {
+			if (!any(grepl(pattern = "^PrecisionPopulationEstimates", x = estimationPopulatedSlots)))
+				stop("Tried to fetch the parameter precision values, however section Estimation::PrecisionPopulationEstimates was not found in the SO Object.")
+		},
+		"intervals" = {
+			if (!any(grepl(pattern = "^IndividualEstimates", x = estimationPopulatedSlots)))
+				stop("Tried to fetch the parameter interval values, however section Estimation::IndividualEstimates was not found in the SO Object.")
+		}, 
+        "all" = {
+            blocks <- c("^PopulationEstimates", "^PrecisionPopulationEstimates", "^IndividualEstimates")
+            blocksPresent <- sapply(X = blocks, 
+                FUN = function(block, slots) { 
+                    any(grepl(pattern = block, x = slots)) }, 
+                slots = estimationPopulatedSlots)
+            if (!all(blocksPresent))
+				warning("Tried to fetch the parameter estimates, however section", 
+                    ifelse(test = sum(!all(blocksPresent) > 1), yes = "s ", no = " "),
+                    paste(paste0("Estimation::", gsub(pattern = "\\^", replacement = "", x = blocks)[!blocksPresent], collapse = ", "), "not found in the SO Object."))
+        }
+	)
 
 	
   # Cycle through estimates present, parsing as necessary
