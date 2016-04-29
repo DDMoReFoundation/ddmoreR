@@ -43,16 +43,16 @@ test_that("Test getPopulatedSlots returns a character vector of slot names.", {
   
   # TODO check why "PopulationEstimates::OtherMethod[1]"
   expect_equal(output, 
-    expected = c(c("RawResults",
+    expected = c("RawResults", 
         "Estimation::PopulationEstimates::MLE", 
-        "Estimation::PopulationEstimates::OtherMethod[1]", 
-        "Estimation::PrecisionPopulationEstimates::OtherMethod[1]", 
+        "Estimation::PopulationEstimates::OtherMethodBootstrap", 
+        "Estimation::PrecisionPopulationEstimates::OtherMethodBootstrap", 
         "Estimation::IndividualEstimates::Estimates", 
         "Estimation::IndividualEstimates::RandomEffects", 
         "Estimation::Residuals::ResidualTable", 
         "Estimation::Predictions", 
-        "Estimation::OFMeasures::Deviance")))
-   
+        "Estimation::OFMeasures::Deviance"))
+    
  })
 
 

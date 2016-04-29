@@ -92,6 +92,15 @@ setMethod("getPopulatedSlots", "PopulationEstimatesOtherMethod", function(object
 	if (length(callNextMethod(object)) > 0) list()
 })
 
+
+# If S3 list object, assume that presence implies is populated.
+setMethod("getPopulatedSlots", signature = "list", 
+    definition = function(object, full = FALSE) {
+        if (full) return(callNextMethod(object))
+        names(object)
+    })
+
+
 #' The PopulationEstimates Object Class (S4) 
 #'
 #' An object to house all data associated with population estimates.
