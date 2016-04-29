@@ -77,6 +77,12 @@ getPopulationParameters <- function(SOObject, block="all", what="all", keep.only
 		stop("Unrecognised value specified for 'what' parameter. Must be one of: \"estimates\", \"precisions\", \"intervals\" or \"all\" (case insensitive).")
 	}
 	
+    if (!is.null(keep.only)) {
+        keep.only <- tolower(keep.only)
+        if (!all(keep.only %in% c("mean", "median", "mode"))) {
+          stop("Unrecognised value specified for 'keep.only' parameter. Must be one of: \"mean\", \"median\" or \"mode\" (case insensitive).")
+        }
+    }
 	# Assert that specific objects exist in the SO structure if they are asked for
 	estimationPopulatedSlots <- getPopulatedSlots(SOObject@Estimation)
     if (is.null(estimationPopulatedSlots)) { 
