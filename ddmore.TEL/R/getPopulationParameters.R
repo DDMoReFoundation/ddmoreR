@@ -2,7 +2,7 @@
 # Higher-level getter Functions for returning data from the Standard Output Object #
 # ================================================================================ #
 
-#' getPopulationParameters
+#' @title Get Population Parameters from SO Object
 #' 
 #' This function acts on an object of  class \linkS4class{StandardOutputObject} and is
 #' a wrapper to getMLEPopulationParameters(), getBayesianPopulationParameters() and 
@@ -45,12 +45,14 @@
 #' then followed by the statistics specified e.g. precision values, interval values or both.
 #' 
 #' @examples 
-#' mlx <- LoadSOObject("UseCase2.SO.xml")
+#' data.path <- system.file("tests", "data", "PharmMLSO", "MachineGenerated", "SOv0.3", 
+#'     "UseCase1.SO.xml", package = "ddmore")
+#' mlx <- LoadSOObject(data.path)
 #' getPopulationParameters(mlx, what="all")
 #' getPopulationParameters(mlx, what="estimates")
 #' getPopulationParameters(mlx, block="STRUCTURAL", what="estimates")
-#'
 #' @export
+
 getPopulationParameters <- function(SOObject, block="all", what="all", keep.only=NULL, fisServer = DDMORE.getServer(), ...) {
   
 	# Parameter deprecation warning
@@ -65,7 +67,7 @@ getPopulationParameters <- function(SOObject, block="all", what="all", keep.only
 	what <- tolower(what)
 
 	# Error checking
-	if (class(SOObject) != "StandardOutputObject") {
+	if (!is(SOObject, class2 = "StandardOutputObject")) {
 		stop(paste0("getPopulationParameters() expected a StandardOutputObject as input, got a ", class(SOObject), '.'))
 	}
 	if (!(block %in% c("structural", "variability", "all"))) {
@@ -99,7 +101,7 @@ getPopulationParameters <- function(SOObject, block="all", what="all", keep.only
                     any(grepl(pattern = block, x = slots)) }, 
                 slots = estimationPopulatedSlots)
             # allow 1-3 blocks to be returned with warning
-            if (!all(blocksPresent))
+            if (!all(blocksPresent)) {
                 action <- stop
                 if (any(blocksPresent)) {
                     action <- warning
@@ -110,7 +112,7 @@ getPopulationParameters <- function(SOObject, block="all", what="all", keep.only
                     paste(paste0("Estimation::", gsub(pattern = "\\^", 
                                 replacement = "", x = blocks)[!blocksPresent], collapse = ", "), 
                         "not found in the SO Object."))
-                
+            }
         }
 	)
 
@@ -267,6 +269,20 @@ row.merge.cbind <- function(x, y, colNames) {
     return(x)
 }
 
+#' @title Extract MLE Population Parameters from SO Object
+#' @description Returns a data frame with first column Parameter, 
+#' and additional columns corresponding to statistics present/selected.
+#' If \code{what="estimates"}, a named vector is returned instead.
+#' This function always returns the parameter estimates.
+#' @inheritParams getPopulationParameters
+#' @return data.frame, or named vector
+#' @seealso \code{\link{getPopulationParameters}}
+#' @examples
+#' data.path <- system.file("tests", "data", "PharmMLSO", "MachineGenerated", "SOv0.3", 
+#'     "UseCase1.SO.xml", package = "ddmore")
+#' soo <- LoadSOObject(data.path)
+#' ddmore:::getMLEPopulationParameters(SOObject = soo, what = "all")
+#' ddmore:::getMLEPopulationParameters(SOObject = soo, what = "estimates")
 
 getMLEPopulationParameters <- function(SOObject, what="all") {
   
