@@ -220,6 +220,24 @@ test_that("Test getPopulationParameters returns a list of dataframes - MLE & Boo
   coltypes <- sapply(Bootstrap[, setdiff(colnames(Bootstrap), "Parameter")], class)
   expect_true(all(coltypes == "numeric"), info = "Column types for values should be numeric.")
   
+  # DDMORE-1650
+  # --------------
+  
+  output <- suppressWarnings(getPopulationParameters(SOObject, keep.only = "median"))
+  
+  Bootstrap <- output[["Bootstrap"]]
+  expect_true(all(colnames(Bootstrap) == c("Parameter", "Median", "Perc_5", "Perc_95")),
+           info = "Bootstrap should keep median estimate.")
+  
+  output <- suppressWarnings(getPopulationParameters(SOObject, 
+      what = "estimates", keep.only = "median"))
+  
+  Bootstrap <- output[["Bootstrap"]]
+  expect_true(all(colnames(Bootstrap) == c("Parameter", "Median")),
+           info = "Bootstrap should keep median estimate only.")
+  
+  expect_error(getPopulationParameters(SOObject, keep.only = "martin"), 
+      regex = "Unrecognised value specified")
  })
 
 
