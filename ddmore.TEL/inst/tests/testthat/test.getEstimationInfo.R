@@ -1,60 +1,87 @@
-library("ddmore")
-library("XML")
-require("methods")
 
-context("Test getEstimationInfo")
+context("Test getEstimationInfo from MachineGenerated PharmMLSO Version 0.3")
 
-test_that("Test getEstimationInfo parses hand coded warfarin_PK_ODE_SO_FULL.xml", {
+test_that("Test getEstimationInfo", {
   
-  data.path <- system.file("tests//data//PharmMLSO/HandCoded//warfarin_PK_ODE_SO_FULL.xml",  
-                          package = "ddmore")
+  data.path <- system.file("tests", "data", "PharmMLSO", "MachineGenerated", "SOv0.3", 
+    "pheno.SO.xml",  
+    package = "ddmore")
   
   # Load in SO
-  SOObject <- LoadSOObject(data.path)
+  SOObject <- suppressMessages(LoadSOObject(data.path))
 
   output <- getEstimationInfo(SOObject)
 
-  target <- structure(list(Likelihood = structure(list(LogLikelihood = 1.234, 
-    Deviance = 2.345, IndividualContribToLL = structure(list(
-        ID = structure(1:2, .Label = c("i1", "i2"), class = "factor"), 
-        ICtoLL = structure(c(2L, 1L), .Label = c("7.670", "7.892"
-        ), class = "factor")), .Names = c("ID", "ICtoLL"), row.names = c(NA, 
-    -2L), class = "data.frame"), InformationCriteria = structure(list(
-        AIC = 3.456, BIC = 4.567, DIC = 5.678), .Names = c("AIC", 
-    "BIC", "DIC"))), .Names = c("LogLikelihood", "Deviance", 
-"IndividualContribToLL", "InformationCriteria")), Messages = structure(list(
-    Errors = structure(list(`nmtran error` = "Possibly long text..."), .Names = "nmtran error")), .Names = "Errors")), .Names = c("Likelihood", 
-"Messages"))
+  target <- structure(
+    list(
+        OFMeasures = structure(
+            list(
+                Deviance = list(758.663331069924)), 
+            .Names = "Deviance"),
+        Messages = structure(
+            list(Info = structure(
+                list(
+                    minimization_successful = "1", 
+                    covariance_step_run = "1", 
+                    covariance_step_successful = "1", 
+                    covariance_step_warnings = "0", 
+                    rounding_errors = "0", 
+                    hessian_reset = "0", 
+                    zero_gradients = "0", 
+                    final_zero_gradients = "0", 
+                    estimate_near_boundary = "0", 
+                    s_matrix_singular = "0", 
+                    significant_digits = "4.1", 
+                    nmoutput2so_version = "This SOBlock was created with nmoutput2so version 4.5.13"), 
+                .Names = c("minimization_successful", 
+                    "covariance_step_run", "covariance_step_successful", 
+                    "covariance_step_warnings", 
+                    "rounding_errors", "hessian_reset", "zero_gradients", 
+                    "final_zero_gradients", 
+                    "estimate_near_boundary", "s_matrix_singular", 
+                    "significant_digits", 
+                    "nmoutput2so_version"))), 
+            .Names = "Info")), 
+        .Names = c("OFMeasures", "Messages"))
+
 
   expect_equal(output, target)
 
 })
 
 
-test_that("Test getEstimationInfo parses machine generated bootstrap_UPDRS1.SO.xml", {
+test_that("Test getEstimationInfo no OFMeasures.", {
   
-  data.path <- system.file("tests//data//PharmMLSO/MachineGenerated//bootstrap_UPDRS1.SO.xml",  
-                          package = "ddmore")
+  data.path <- system.file("tests", "data", "PharmMLSO", "MachineGenerated", "SOv0.3", 
+    "UseCase2-bootstrap.SO.xml",  
+    package = "ddmore")
   
   # Load in SO
-  SOObject <- LoadSOObject(data.path)
+  SOObject <- suppressMessages(LoadSOObject(data.path))
 
-  output <- getEstimationInfo(SOObject)
-
-  target <- structure(list(Likelihood = structure(list(Deviance = 1151.01368878809), .Names = "Deviance"), 
-    Messages = structure(list(Info = structure(list(minimization_successful = "1", 
-        covariance_step_run = "1", covariance_step_successful = "1", 
-        covariance_step_warnings = "0", rounding_errors = "0", 
-        hessian_reset = "0", zero_gradients = "0", final_zero_gradients = "0", 
-        estimate_near_boundary = "0", s_matrix_singular = "0", 
-        significant_digits = "3.5", nmoutput2so_version = "This SOBlock was created with nmoutput2so version 4.4.4"), .Names = c("minimization_successful", 
-    "covariance_step_run", "covariance_step_successful", "covariance_step_warnings", 
-    "rounding_errors", "hessian_reset", "zero_gradients", "final_zero_gradients", 
-    "estimate_near_boundary", "s_matrix_singular", "significant_digits", 
-    "nmoutput2so_version"))), .Names = "Info")), .Names = c("Likelihood", 
-"Messages"))
-
-  expect_equal(output, target)
+  output <- suppressMessages(getEstimationInfo(SOObject))
+  
+  expect_equal(ceiling(output$OFMeasures$Deviance[[1]]), 
+      expected = -284)
+  
+  expect_equal(names(output$Messages$Info), 
+      c("estimation_successful", "covariance_step_run", "rounding_errors", 
+          "estimate_near_boundary", "s_matrix_singular", "nmoutput2so_version"))
 
 })
 
+
+test_that("Test getEstimationInfo returns correct statistics by default for MLE estimates.", {
+  
+  data.path <- system.file("tests", "data", "PharmMLSO", "MachineGenerated", 
+    "UseCase11.SO.xml",  
+    package = "ddmore")
+  
+  # Load in SO
+  SOObject <- suppressMessages(LoadSOObject(data.path))
+  
+  output <- suppressWarnings(getEstimationInfo(SOObject))
+  
+  expect_equal(ceiling(output$OFMeasures$Deviance[[1]]), 
+      expected = 3560)
+})
