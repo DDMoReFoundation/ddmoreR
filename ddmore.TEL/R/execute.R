@@ -171,7 +171,7 @@ setGeneric("execute", function(x, target = NULL,
     workflow
 }
 ################################################################################
-#' DDMORE.performSyncExecutionWorkflow
+#' DDMORE.performExecutionWorkflow
 #' 
 #' Function performing a workflow involved in execution of a Job in FIS. 
 #' 
@@ -240,7 +240,7 @@ DDMORE.performExecutionWorkflow <-
 #' The use of the submission$status is optional by the *Step functions, 
 #' and they are free to to use it if there is a need and set these to free-style text. 
 #' 
-#' @inheritParams DDMORE.performSyncExecutionWorkflow
+#' @inheritParams DDMORE.performExecutionWorkflow
 #' @return updated submission object
 .setFinalSubmissionStatus <- function(submission) {
     .precondition.checkArgument("status" %in% names(submission) && !is.null(submission$status) , "submission$status", "Is required and should be not-null.")
