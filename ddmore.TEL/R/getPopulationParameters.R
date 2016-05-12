@@ -2,7 +2,7 @@
 # Higher-level getter Functions for returning data from the Standard Output Object #
 # ================================================================================ #
 
-#' getPopulationParameters
+#' @title Get Population Parameters from SO Object
 #' 
 #' This function acts on an object of  class \linkS4class{StandardOutputObject} and is
 #' a wrapper to getMLEPopulationParameters(), getBayesianPopulationParameters() and 
@@ -45,26 +45,29 @@
 #' then followed by the statistics specified e.g. precision values, interval values or both.
 #' 
 #' @examples 
-#' mlx <- LoadSOObject("UseCase2.SO.xml")
+#' data.path <- system.file("tests", "data", "PharmMLSO", "MachineGenerated", "SOv0.3", 
+#'     "UseCase1.SO.xml", package = "ddmore")
+#' mlx <- LoadSOObject(data.path)
 #' getPopulationParameters(mlx, what="all")
 #' getPopulationParameters(mlx, what="estimates")
 #' getPopulationParameters(mlx, block="STRUCTURAL", what="estimates")
-#'
 #' @export
+
 getPopulationParameters <- function(SOObject, block="all", what="all", keep.only=NULL, fisServer = DDMORE.getServer(), ...) {
   
 	# Parameter deprecation warning
 	extraParams <- list(...)
 	if ('type' %in% names(extraParams)) {
     	block <- extraParams[['type']]
-    	message('The "type" parameter has been renamed to "block" for clarity. At current using both is possible though using "type" may become deprecated in the future.')
+    	warning('The "type" parameter has been renamed to "block" for clarity. ',
+            '\nCurrently type may be used to specify block, but this will likely be deprecated.')
 	}
 
     block <- tolower(block)
 	what <- tolower(what)
 
 	# Error checking
-	if (class(SOObject) != "StandardOutputObject") {
+	if (!is(SOObject, class2 = "StandardOutputObject")) {
 		stop(paste0("getPopulationParameters() expected a StandardOutputObject as input, got a ", class(SOObject), '.'))
 	}
 	if (!(block %in% c("structural", "variability", "all"))) {
@@ -74,21 +77,49 @@ getPopulationParameters <- function(SOObject, block="all", what="all", keep.only
 		stop("Unrecognised value specified for 'what' parameter. Must be one of: \"estimates\", \"precisions\", \"intervals\" or \"all\" (case insensitive).")
 	}
 	
+    if (!is.null(keep.only)) {
+        keep.only <- tolower(keep.only)
+        if (!all(keep.only %in% c("mean", "median", "mode"))) {
+          stop("Unrecognised value specified for 'keep.only' parameter. Must be one of: \"mean\", \"median\" or \"mode\" (case insensitive).")
+        }
+    }
 	# Assert that specific objects exist in the SO structure if they are asked for
 	estimationPopulatedSlots <- getPopulatedSlots(SOObject@Estimation)
+    if (is.null(estimationPopulatedSlots)) { 
+        stop("Tried to fetch the parameter estimates, but no Estimation slots found in the SO Object") }
 	switch (what,
 		"estimates" = {
-			if (!("PopulationEstimates" %in% estimationPopulatedSlots))
+			if (!any(grepl(pattern = "^PopulationEstimates", x = estimationPopulatedSlots)))
 				stop("Tried to fetch the parameter estimates, however section Estimation::PopulationEstimates was not found in the SO Object.")
 		},
 		"precisions" = {
-			if (!("PrecisionPopulationEstimates" %in% estimationPopulatedSlots))
+			if (!any(grepl(pattern = "^PrecisionPopulationEstimates", x = estimationPopulatedSlots)))
 				stop("Tried to fetch the parameter precision values, however section Estimation::PrecisionPopulationEstimates was not found in the SO Object.")
 		},
 		"intervals" = {
-			if (!("IndividualEstimates" %in% estimationPopulatedSlots))
+			if (!any(grepl(pattern = "^IndividualEstimates", x = estimationPopulatedSlots)))
 				stop("Tried to fetch the parameter interval values, however section Estimation::IndividualEstimates was not found in the SO Object.")
-		}
+		}, 
+        "all" = {
+            blocks <- c("^PopulationEstimates", "^PrecisionPopulationEstimates", "^IndividualEstimates")
+            blocksPresent <- sapply(X = blocks, 
+                FUN = function(block, slots) { 
+                    any(grepl(pattern = block, x = slots)) }, 
+                slots = estimationPopulatedSlots)
+            # allow 1-3 blocks to be returned with warning
+            if (!all(blocksPresent)) {
+                action <- stop
+                if (any(blocksPresent)) {
+                    action <- warning
+                }
+                action("Tried to fetch the parameter estimates, however section", 
+                    # pretty printing
+                    ifelse(test = sum(!blocksPresent) > 1, yes = "s ", no = " "),
+                    paste(paste0("Estimation::", gsub(pattern = "\\^", 
+                                replacement = "", x = blocks)[!blocksPresent], collapse = ", "), 
+                        "not found in the SO Object."))
+            }
+        }
 	)
 
 	
@@ -244,6 +275,20 @@ row.merge.cbind <- function(x, y, colNames) {
     return(x)
 }
 
+#' @title Extract MLE Population Parameters from SO Object
+#' @description Returns a data frame with first column Parameter, 
+#' and additional columns corresponding to statistics present/selected.
+#' If \code{what="estimates"}, a named vector is returned instead.
+#' This function always returns the parameter estimates.
+#' @inheritParams getPopulationParameters
+#' @return data.frame, or named vector
+#' @seealso \code{\link{getPopulationParameters}}
+#' @examples
+#' data.path <- system.file("tests", "data", "PharmMLSO", "MachineGenerated", "SOv0.3", 
+#'     "UseCase1.SO.xml", package = "ddmore")
+#' soo <- LoadSOObject(data.path)
+#' ddmore:::getMLEPopulationParameters(SOObject = soo, what = "all")
+#' ddmore:::getMLEPopulationParameters(SOObject = soo, what = "estimates")
 
 getMLEPopulationParameters <- function(SOObject, what="all") {
   

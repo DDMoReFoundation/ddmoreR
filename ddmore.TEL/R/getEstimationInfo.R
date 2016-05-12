@@ -13,7 +13,7 @@
 #'
 #' @return A nested list with two elements:.
 #'         \describe{
-#'  \item{"Liklihood"}{All information from the Liklihood slot of the SOObject}
+#'  \item{"OFMeasures"}{All information from the OFMeasures slot of the SOObject}
 #'  \item{"Messages"}{A nested list for each message grouped by message type ("Info", "Error", and/or "Warning" if present)}
 #' }
 #'
@@ -26,13 +26,31 @@ getEstimationInfo <- function(SOObject){
 		stop(paste0("getEstimationInfo expected a StandardOutputObject as input, got a ", class(SOObject), '.'))
   	}
 
-  # Fetch Likelihood information
+  # Fetch OFMeasures information
 
   likelihood <- list()
+  
+  # Format as numeric 
+  if ("Likelihood" %in% getPopulatedSlots(SOObject@Estimation@OFMeasures)) {
+    likelihood[["Likelihood"]] <- lapply(SOObject@Estimation@OFMeasures@Likelihood, as.numeric)
+  }
+  # Format as numeric 
+  if ("LogLikelihood" %in% getPopulatedSlots(SOObject@Estimation@OFMeasures)) {
+    likelihood[["LogLikelihood"]] <- lapply(SOObject@Estimation@OFMeasures@LogLikelihood, as.numeric)
+  }
+  # Format as numeric 
+  if ("Deviance" %in% getPopulatedSlots(SOObject@Estimation@OFMeasures)) {
+    likelihood[["Deviance"]] <- lapply(SOObject@Estimation@OFMeasures@Deviance, as.numeric)
+  }
+  # Format as numeric (TODO get metadata "type", string)
+  if ("ToolObjFunction" %in% getPopulatedSlots(SOObject@Estimation@OFMeasures)) {
+    likelihood[["ToolObjFunction"]] <- lapply(SOObject@Estimation@OFMeasures@ToolObjFunction, as.numeric)
+  }
+  # data set
   if ("IndividualContribToLL" %in% getPopulatedSlots(SOObject@Estimation@OFMeasures)) {
     likelihood[["IndividualContribToLL"]] <- as.data.frame(SOObject@Estimation@OFMeasures@IndividualContribToLL)
   }
-  # Format as numeric 
+  # Format as numeric TODO (TODO get metadata "type", string)
   if ("InformationCriteria" %in% getPopulatedSlots(SOObject@Estimation@OFMeasures)) {
     likelihood[["InformationCriteria"]] <- lapply(SOObject@Estimation@OFMeasures@InformationCriteria, as.numeric)
   }

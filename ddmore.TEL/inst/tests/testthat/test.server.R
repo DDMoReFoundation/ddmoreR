@@ -1,13 +1,16 @@
 #' Tests functions involved in task execution
 
 library("ddmore")
-require("methods")
-require("testthat")
+library("methods")
+library("testthat")
+
 rm(list = ls())
+
 setClass(
     "MockFISServer",
     contains = "FISServer"
 )
+
 createMockFISServer <-
     function(url = "http://localhost:9010", operationalUrl = "http://localhost:9011",
              startupScript = "MOCK",
@@ -25,10 +28,9 @@ createMockFISServer <-
 
 
 mockServer<- createMockFISServer(jobStatusPollingDelay=1)
-DDMORE.setServer(mockServer)
+suppressWarnings(DDMORE.setServer(mockServer))
 
 context("DDMORE.pollStep")
-
 
 test_that("DDMORE.pollStep should poll untill Job status is COMPLETED", {
     # Given
