@@ -174,21 +174,27 @@ setMethod("readDataObj", "mogObj", function(object, sourceDir=getwd(), deriveVar
 #' 
 #' @export
 #' @seealso R base function \code{read.csv}
+#' @examples
+#' warf <- read.NONMEMDataSet(filePath = system.file("tests", "data", 
+#'     "warfarin_conc.csv", package = "ddmore"))
+#' head(warf)
 read.NONMEMDataSet <- function(filePath, colNames=NULL) {
 	
 	if (!file.exists(filePath)) {
 		stop("Specified data file ", filePath, " does not exist.")
 	}
-	
-	potentialHeaderRows <- readLines(filePath, n=5) # Maximum arbitrary number of potential header rows to skip past
+	# Maximum arbitrary number of potential header rows to skip past
+	potentialHeaderRows <- readLines(filePath, n=5) 
 
 	# The first row of actual data starts with a numeric value
-	firstDataRow = grep('^\\d.*', potentialHeaderRows)[[1]]
+	firstDataRow = grep(pattern = '^\\d.*', x = potentialHeaderRows)[[1]]
 
 	# Assume that the line immediately preceding the first row of data is the
 	# header row, and skip past any comment characters or whitespace (i.e.,
 	# skip past any non-alphabetical characters)
-	headerRow <- sub('[^A-Za-z]*', '', potentialHeaderRows[[firstDataRow - 1]])
+	headerRow <- sub(pattern = '[^A-Za-z]*', 
+        replacement = '', 
+        x = potentialHeaderRows[[firstDataRow - 1]])
 	
   if (is.null(colNames)) {
   	# Read the comma-delimited column names from the row that has been assumed to be the header row

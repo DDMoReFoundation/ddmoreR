@@ -279,110 +279,125 @@ extractIdandIdvNames <- function(SOObject,
 #'
 #' @include readDataObj.R
 #' @export
-setGeneric(name="as.data",
-           def=function(SOObject, inputDataPath)
-          {
-             standardGeneric("as.data")
-          }
-          )
-setMethod(f="as.data",
-          signature=signature(SOObject="StandardOutputObject", inputDataPath="character"),
-          definition=function(SOObject, inputDataPath)
-		  {
-			  if (missing(inputDataPath)){
-				  stop("Path to input data must be specified")
-			  } else {
+setGeneric(name = "as.data",
+           def = function(SOObject, inputDataPath) {
+    standardGeneric("as.data")
+  }
+)
 
-          # Check slots exist 
-          populatedSlots <- getPopulatedSlots(SOObject)
+setMethod(f = "as.data",
+  signature = signature(SOObject = "StandardOutputObject", inputDataPath = "character"),
+  definition = function(SOObject, inputDataPath) {
+    
+    # note never called due to S4 dispatch
+	if (missing(inputDataPath)) {
+        stop("Path to input data must be specified")
+    }
+    
+    # Check slots exist 
+    populatedSlots <- getPopulatedSlots(SOObject)
+    
+    PredictionsSlotName <- "Estimation::Predictions"
+    ResidualsSlotName <- "Estimation::Residuals::ResidualTable"
+    IndivEstEstMeanSlotName <- "Estimation::IndividualEstimates::Estimates"
+    IndivEstRandomEffectsMeanSlotName <- "Estimation::IndividualEstimates::RandomEffects"
+    
+    res <- extractIdandIdvNames(SOObject, PredictionsSlotName, ResidualsSlotName)
+    ID.colName <- res[["ID.colName"]]
+    if (is.null(ID.colName) || any(is.na(ID.colName)) || length(ID.colName) != 1L) {
+        warning("ID.colName was ", paste(deparse(ID.colName), collapse = ", "), 
+            ", setting to 'ID' in as.data")
+        ID.colName <- "ID"
+    }
+    TIME.colName <- res[["TIME.colName"]]
+    if (is.null(TIME.colName) || any(is.na(TIME.colName)) || length(TIME.colName) != 1L) {
+        warning("TIME.colName was ", paste(deparse(TIME.colName), collapse = ", "), 
+            ", setting to 'TIME' in as.data")
+        TIME.colName <- "TIME"
+    }
+    # Pass in the rawData file 
+    rawData <- read.NONMEMDataSet(inputDataPath)
+    # Convert all column headers to upper case 
+    names(rawData) <- toupper(names(rawData))
+    ID.colName <- toupper(ID.colName)
+    TIME.colName <- toupper(TIME.colName)
+    ID.col <- names(rawData) == ID.colName
+    TIME.col <- names(rawData) == TIME.colName
+    
+    if (!any(ID.col)) {
+        stop(ID.colName, " not present in file at inputDataPath")
+    }
+    if (!any(TIME.col)) {
+        stop(TIME.colName, " not present in file at inputDataPath")
+    }
+    # Checks for Column format
+    rawData[[ID.colName]] <- as.numeric(rawData[[ID.colName]])
+    rawData[[TIME.colName]] <- as.numeric(rawData[[TIME.colName]])
+    
+    # Reorder data frame to have ID and TIME column as first two. 
+    remainingNames <- setdiff(x = names(rawData),
+        y = c(ID.colName, TIME.colName))
+    rawData <- rawData[, c(ID.colName, TIME.colName, remainingNames)]
 
-          PredictionsSlotName <- "Estimation::Predictions"
-          ResidualsSlotName <- "Estimation::Residuals::ResidualTable"
-          IndivEstEstMeanSlotName <- "Estimation::IndividualEstimates::Estimates"
-          IndivEstRandomEffectsMeanSlotName <- "Estimation::IndividualEstimates::RandomEffects"
+    # Begin merging columns
+    # ---------------------
 
-          res <- extractIdandIdvNames(SOObject, PredictionsSlotName, ResidualsSlotName)
-          ID.index <- res[["ID.index"]]
-          ID.colName <- res[["ID.colName"]]
-          TIME.index <- res[["TIME.index"]]
-          TIME.colName <- res[["TIME.colName"]]
+    mergedDataFrame <- rawData
+    rm(rawData)
+    
+    if (PredictionsSlotName %in% populatedSlots) {
+      # Predictions
+      df1 <- mergedDataFrame
+      df2 <- as.data.frame(SOObject@Estimation@Predictions@data)
+      # Test to see if data rows are the same, if not remove dose rows from the 
+      # input data (df1) and recompare.
+      df1 <- checkDoseRows(df1, df2, label1="rawData", label2="Predictions")
+      # Fetch and merge Predictions 
+      mergedDataFrame <- mergeByPosition(df1, df2, 
+        msg = 'predictions', ID.colName = ID.colName, TIME.colName = TIME.colName)
+    } else {
+        warning("No Estimation::Predictions found in the SO; ",
+            "the resulting data frame will not contain these")
+    }
+      
+    if (ResidualsSlotName %in% populatedSlots) {
+        # Fetch and merge Residuals 
+        df1 <- mergedDataFrame
+        df2 <- as.data.frame(SOObject@Estimation@Residuals@ResidualTable@data)
+        # Test to see if data rows are the same, if not remove dose rows from the 
+        # input data (df1) and recompare.
+        df1 <- checkDoseRows(df1, df2, label1="rawData+Predictions", label2="Residuals", 
+            extraInfo = "Residuals data does not currently contain dose rows in output from Nonmem executions.")
+        mergedDataFrame <- mergeByPosition(df1, df2, 
+            msg = 'residuals', ID.colName = ID.colName, TIME.colName = TIME.colName)
+    } else {
+        warning("No Estimation::Residuals found in the SO; ", 
+            "the resulting data frame will not contain these")
+    }
 
-          # Pass in the rawData file 
-          rawData <- read.NONMEMDataSet(inputDataPath)
-          # Convert all column headers to upper case 
-          names(rawData) <- toupper(names(rawData))
+    if (IndivEstEstMeanSlotName %in% populatedSlots) {
+        # IndividualEstimates, Estimates
+        df1 <- mergedDataFrame
+        df2 <- as.data.frame(SOObject@Estimation@IndividualEstimates@Estimates@Mean@data)
+        mergedDataFrame <- mergeCheckColumnNames(df1, df2, 
+            ID.colName=ID.colName, TIME.colName=TIME.colName)
+    } else {
+        warning("No Estimation::IndividualEstimates::Estimates::Mean found in the SO; ", 
+            "the resulting data frame will not contain these")
+    }
 
-          # Checks for Column format
-				  rawData[[ID.colName]] <- as.numeric(rawData[[ID.colName]]) 
-				  rawData[[TIME.colName]] <- as.numeric(rawData[[TIME.colName]]) 
-
-          # Reorder data frame to have ID and TIME column as first two. 
-          ID.col = names(rawData) == ID.colName
-          TIME.col = names(rawData) == TIME.colName
-          remaining.names = setdiff(names(rawData),c(ID.colName,TIME.colName))
-          rawData = cbind(rawData[, ID.col], 
-                          rawData[, TIME.col], 
-                          rawData[, remaining.names],
-                          deparse.level = 0)
-          # Update names for first two columns 
-          names(rawData) <- c(ID.colName, TIME.colName, remaining.names) 
-			  }
-			  
-        # Begin merging columns
-        # ---------------------
-
-        mergedDataFrame <- rawData
-
-        if (PredictionsSlotName %in% populatedSlots) {
-          
-          df1 <- mergedDataFrame
-          df2 <- as.data.frame(SOObject@Estimation@Predictions@data)
-
-          # Test to see if data rows are the same, if not remove dose rows from the 
-          # input data (df1) and recompare.
-          df1 <- checkDoseRows(df1, df2, label1="rawData", label2="Predictions")
-
-          # Fetch and merge Predictions 
-          mergedDataFrame <- mergeByPosition(df1, df2, 'predictions', ID.colName=ID.colName, TIME.colName=TIME.colName)
-        } else {
-          warning("No Estimation::Predictions found in the SO; the resulting data frame will not contain these")
-        }
-          
-			  if (ResidualsSlotName %in% populatedSlots) {
-				  # Fetch and merge Residuals 
-				  df1 <- mergedDataFrame
-				  df2 <- as.data.frame(SOObject@Estimation@Residuals@ResidualTable@data)
-
-          # Test to see if data rows are the same, if not remove dose rows from the 
-          # input data (df1) and recompare.
-          df1 = checkDoseRows(df1, df2, label1="rawData+Predictions", label2="Residuals", 
-            extraInfo="Residuals data does not currently contain dose rows in output from Nonmem executions.")
-
-				  mergedDataFrame <- mergeByPosition(df1, df2, 'residuals', ID.colName=ID.colName, TIME.colName=TIME.colName)
-			  } else {
-				  warning("No Estimation::Residuals found in the SO; the resulting data frame will not contain these")
-			  }
-			  
-			  if (IndivEstEstMeanSlotName %in% populatedSlots) {
-				  # IndividualEstimates, Estimates
-				  df1 <- mergedDataFrame
-				  df2 <- as.data.frame(SOObject@Estimation@IndividualEstimates@Estimates@Mean@data)
-				  mergedDataFrame <- mergeCheckColumnNames(df1, df2, ID.colName=ID.colName, TIME.colName=TIME.colName)
-			  } else {
-				  warning("No Estimation::IndividualEstimates::Estimates::Mean found in the SO; the resulting data frame will not contain these")
-			  }
-			  
-			  if (IndivEstRandomEffectsMeanSlotName %in% populatedSlots) {
-				  # IndividualEstimates, RandomEffects
-				  df1 <- mergedDataFrame
-				  df2 <- as.data.frame(SOObject@Estimation@IndividualEstimates@RandomEffects@EffectMean@data)
-				  mergedDataFrame <- mergeCheckColumnNames(df1, df2, ID.colName=ID.colName, TIME.colName=TIME.colName)
-			  } else {
-				  warning("No Estimation::IndividualEstimates::RandomEffects::EffectMean found in the SO; the resulting data frame will not contain these")
-			  }
-			  
-			  return(mergedDataFrame)
-		  }
+    if (IndivEstRandomEffectsMeanSlotName %in% populatedSlots) {
+        # IndividualEstimates, RandomEffects
+        df1 <- mergedDataFrame
+        df2 <- as.data.frame(SOObject@Estimation@IndividualEstimates@RandomEffects@EffectMean@data)
+        mergedDataFrame <- mergeCheckColumnNames(df1, df2, 
+           ID.colName=ID.colName, TIME.colName=TIME.colName)
+    } else {
+        warning("No Estimation::IndividualEstimates::RandomEffects::EffectMean found in the SO; ", 
+            "the resulting data frame will not contain these")
+    }
+    return(mergedDataFrame)
+  }
 )
 
 
