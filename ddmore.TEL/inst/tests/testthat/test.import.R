@@ -1,30 +1,10 @@
-#' Tests function involved in FIS job's results import
-rm(list = ls())
-library("ddmore")
-require("methods")
-require("testthat")
-setClass(
-    "MockFISServer",
-    contains = "FISServer"
-)
-createMockFISServer <-
-    function(url = "http://localhost:9010", operationalUrl = "http://localhost:9011",
-             startupScript = "MOCK",
-             jobStatusPollingDelay = 20, startupPollingMax = 60, startupPollingDelay = 1) {
-        new(
-            "MockFISServer",
-            url = url,
-            operationalUrl = operationalUrl,
-            startupScript = startupScript,
-            jobStatusPollingDelay = jobStatusPollingDelay,
-            startupPollingMax = startupPollingMax,
-            startupPollingDelay = startupPollingDelay
-        )
-    }
+# Tests function involved in FIS job's results import
 
+if (is(try(DDMORE.getServer(), silent = TRUE), class2 = "try-error")) {
+    mockServer <- ddmore:::createMockFISServer(jobStatusPollingDelay=1)
+    suppressWarnings(DDMORE.setServer(mockServer))
+}
 
-mockServer<- createMockFISServer(jobStatusPollingDelay=1)
-DDMORE.setServer(mockServer)
 context("Importing Job Results")
 
 test_that("importJobResultFiles should import job result files", {

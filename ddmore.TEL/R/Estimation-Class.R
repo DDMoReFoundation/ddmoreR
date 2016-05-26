@@ -686,7 +686,8 @@ setClass(Class = "OFMeasures",
 		IndividualContribToLL = "DataSet",
 		InformationCriteria = "list"
 	),
-    # TODO do we want to have these default values? if there is no InformationCriteria block in the SO XML? 
+    # TODO do we want to have these default values? 
+    # if there is no InformationCriteria block in the SO XML? 
     #prototype = list(
     #    InformationCriteria = list(AIC = numeric(0), BIC = numeric(0), DIC = numeric(0))
 	#),
@@ -808,7 +809,8 @@ setMethod("initialize", "Estimation", function(.Object, xmlNodeEstimation = NULL
 				slot(.Object, childName) <- new (Class = childName, child)
 			}
 			else {
-				warning(paste("Unexpected child node of Estimation node encountered:", childName))
+				warning(paste("Unexpected child node of Estimation node encountered",
+                        "when initializing Estimation block:", childName))
 			}
 		}
 	}

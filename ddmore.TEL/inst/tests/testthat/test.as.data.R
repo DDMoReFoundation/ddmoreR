@@ -1,47 +1,3 @@
-#
-## Switch this if you want to invoke actual FIS service. Mind that it must already be running.
-#USE_MOCK <- TRUE
-#
-## Function setting up a FISService mock
-#setupMock <- function() {
-#    setClass(
-#        "MockFISServer",
-#        contains = "FISServer"
-#    )
-#    createMockFISServer <-
-#        function(url = "http://localhost:9010", operationalUrl = "http://localhost:9011",
-#                 startupScript = "MOCK",
-#                 jobStatusPollingDelay = 20, startupPollingMax = 60, startupPollingDelay = 1) {
-#            new(
-#                "MockFISServer",
-#                url = url,
-#                operationalUrl = operationalUrl,
-#                startupScript = startupScript,
-#                jobStatusPollingDelay = jobStatusPollingDelay,
-#                startupPollingMax = startupPollingMax,
-#                startupPollingDelay = startupPollingDelay
-#            )
-#        }
-#    
-#    setMethod("readMDL", signature = signature("MockFISServer"),
-#              function(fisServer, filePath) {
-#                  path <- sub(x=filePath, pattern="\\.mdl$", replacement=".json")
-#                  message("Trying to use ", path, " as conversion result.")
-#                  con <- file(path, "r")
-#                  json <- readLines(con)
-#                  close(con)
-#                  return(json)
-#              })
-#    
-#    mockServer<- createMockFISServer()
-#    DDMORE.setServer(mockServer)
-#}
-#
-#if(USE_MOCK) {
-#    setupMock()
-#} else {
-#    DDMORE.setServer(createFISServer(startupScript = "MOCK"))
-#}
 
 # context("Testing as.data conversion function.")
 
@@ -85,8 +41,6 @@
 context("Testing as.data can read machine generated SO and extract header information from associated mdl file.")
 
 test_that("as.data correctly merges raw input data with SO data", {
-
-  # Note: these tests require the local servers to be running in order to parse the mdl file.
 
   # Setup paths to files
   csvFilePath <- system.file("tests", "data", "warfarin_conc.csv", package = "ddmore")

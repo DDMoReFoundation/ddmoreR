@@ -71,7 +71,7 @@ test_that("Expected output Mog to have been written out as JSON", {
 			
 	skeletonJsonFileOutput <<- file.path(tempdir(), "skeleton.output.json")
 	
-	writeLines(.generateJSON(mySkeletonOutputMog), skeletonJsonFileOutput)
+	writeLines(ddmore:::.generateJSON(mySkeletonOutputMog), skeletonJsonFileOutput)
 	
 	expect_true(file.exists(skeletonJsonFileOutput), info="Output JSON file should exist")
 	

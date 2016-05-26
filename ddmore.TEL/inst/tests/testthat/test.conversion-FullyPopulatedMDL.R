@@ -1,12 +1,8 @@
-#' Tests for MDL file with as many blocks and sub-blocks populated as possible, and with a variety of types/formats of variables and attributes
 
-library("ddmore")
-require("methods")
+# Tests for MDL file with as many blocks and sub-blocks populated as possible, 
+# and with a variety of types/formats of variables and attributes
 
 context("Loading in MDL into R objects, for fully populated MDL file")
-
-# Clear workspace 
-rm(list=ls())
 
 jsonFile <- system.file("tests/data/json/FullyPopulated.json", package = "ddmore")
 
@@ -95,19 +91,19 @@ test_that("Expected output Mog to have been created", {
 
 })
 
-test_that("Expected output Mog to have been written out as JSON", {
+jsonFileOutput <- file.path(tempdir(), "FullyPopulated.output.json")
 
-	jsonFileOutput <<- file.path(tempdir(), "FullyPopulated.output.json")
-	
-	writeLines(.generateJSON(myOutputMog), jsonFileOutput)
-	
+writeLines(text = ddmore:::.generateJSON(myOutputMog), con = jsonFileOutput)
+
+jsonAsNestedListsOutput <- rjson::fromJSON(file=jsonFileOutput)
+
+test_that("Expected output Mog to have been written out as JSON", {
+    
 	expect_true(file.exists(jsonFileOutput), info="Output JSON file should exist")
-	
-	jsonAsNestedListsOutput <<- rjson:::fromJSON(file=jsonFileOutput)
+    
+    unlink(x = jsonFileOutput)
 
 })
-
-stopifnot(file.exists(jsonFileOutput))
 
 test_that("Checking that output JSON-as-nested-lists could be parsed", {
 	expect_true(is.list(jsonAsNestedListsOutput), info="JSON-as-nested-lists should be a list")
@@ -207,7 +203,10 @@ compareNestedListsRepresentationOfTopLevelObject <- function(inputData, outputDa
 	test_that(paste("Comparing the object types for the input and output nested-list representations of object:", inputData$name, "(", inputData$type, ")"), {
 		expect_equal(outputData$type, inputData$type)
 	})
-
+    
+    inputObjBlockNames <- names(inputData$blocks)
+    outputObjBlockNames <- names(outputData$blocks)
+    
 	test_that(paste("Comparing the blocks for the input and output nested-list representations of object:", inputData$name, "(", inputData$type, ")"), {
 
 		expect_true(
@@ -218,9 +217,6 @@ compareNestedListsRepresentationOfTopLevelObject <- function(inputData, outputDa
 			is.list(outputData$blocks) && length(outputData$blocks) > 0,
 			info=paste("Output JSON-as-nested-lists should contain list of blocks for object:", outputData$name, "(", inputData$type, ")")
 		)
-		
-		inputObjBlockNames <<- names(inputData$blocks)
-		outputObjBlockNames <<- names(outputData$blocks)
 		
 		expect_equal(length(outputData$blocks), length(inputData$blocks),
 			info=paste("Same number of blocks expected for input and output nested-list representations of object:", inputData$name, "(", inputData$type, ")"))

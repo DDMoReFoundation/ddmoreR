@@ -1,9 +1,7 @@
 ################################################################################
-#' startingValues
+#' @title startingValues
 #' 
-#' TODO: This function needs reviewing and updating!
-#'
-#' Creates parameter values from an object of class parObj or mogObj by sampling 
+#' @description Creates parameter values from an object of class parObj or mogObj by sampling 
 #' from a user-specified distribution. Default is to use a Uniform distribution 
 #' with bounds given by (or derived from) the Parameter object bounds (if available). 
 #' In the parameter estimation task, this task can be used to sample new starting 
@@ -11,27 +9,26 @@
 #' It can also be used to generate random initial values for an MCMC fit (see inits 
 #' functions in R2WinBUGS examples). 
 #'
-#' @usage startingValues(object, distribution=list(STRUCTURAL = list(), VARIABILITY = list()))
+#' @usage startingValues(object, distList = list(STRUCTURAL = list(), VARIABILITY = list()))
 #' 
 #' @param object an object of class parObj or mogObj
-#' @param distribution list of lists, which takes the following form: 
+#' @param distList list of lists, which takes the following form: 
 #' \code{list(STRUCTURAL = list(paramName1 = list(dist="rnorm", args=list(mean=0, sd=1))), VARIABILITY = list()))}
 #'
 #' @return A named list containing STRUCTURAL and VARIABILITY items with one value per parameter.
 #' 
-#' @examples dat <- getMDLObjects("tumour_size_25June2014_OAM.mdl")
-#' # Read in example data (found in the R package under data/training)
-#' dat <- getMDLObjects("tumour_size_25June2014_OAM.mdl")
-#' myMog <- as.mogObj(dat)
-#' 
-#' # Create a list of distributions and variable names:
-#'ml <- list(
-#'  STRUCTURAL= list(POP_TEQ=list(dist="rnorm", args=list(mean=1, sd=1))),
-#'  VARIABILITY=list(OTHER = list(dist="runif", args=list(min=1, max=10)))
-#')
-#' # We can use the function either on the arObj, or a mogObj
-#' startingValues(object = slot(myMog, name = "parObj"), size = ml)
-#' startingValues(object = myMog, size = ml)
+#' @examples 
+#' fpath <- system.file(package = "ddmore", "training", "data", 
+#'     "UseCase1.mdl")
+#' mockServer <- ddmore:::createMockFISServer(jobStatusPollingDelay = 1)
+#' DDMORE.setServer(mockServer)
+#' dat <- getMDLObjects(x = fpath) 
+#' ucMog <- as.mogObj(dat)
+#' startingValues(object = ucMog, distList = list())
+#' distList1 <- ddmore:::.createListTemplate(ucMog@@parObj)
+#' distList1$STRUCTURAL$POP_CL$dist <- "rnorm"
+#' distList1$STRUCTURAL$POP_CL$args <- list(mean = 100, sd = 2)
+#' startingValues(object = ucMog, distList = distList1)
 #' @include Classes.R
 #' @export
 #' @docType methods
@@ -68,15 +65,11 @@ setMethod("startingValues", signature=signature(object="parObj"),
   # Loop through the names in distList (split by block), and overwrite the value
   # in the template if it is specified
   for(nms in  names(st)){
-  
-  temp$STRUCTURAL[[nms]] <- st[[nms]]
-  
+      temp$STRUCTURAL[[nms]] <- st[[nms]]
   }
   
   for(nmv in  names(vb)){
-  
-  temp$VARIABILITY[[nmv]] <- vb[[nmv]]
-  
+      temp$VARIABILITY[[nmv]] <- vb[[nmv]]
   }
 
   # Sample values from the distributions specified in temp for each argument
@@ -108,10 +101,19 @@ setMethod("startingValues", signature=signature(object="parObj"),
 #' @name createListTemplate
 #' @aliases .createListTemplate
 #' @title Create List Template
-#'
-#' Function that takes the names from a parObj object, and creates a list containing
+#' @description Function that takes the names from a parObj object, and creates a list containing
 #' the default requirements of list(dist="runif", args=list(min=0, max=1)) for each 
 #' name in the object
+#' @param object parObj
+#' @return list with elements STRUCTURAL and VARIABILITY
+#' @examples 
+#' fpath <- system.file(package = "ddmore", "training", "data", 
+#'     "UseCase1.mdl")
+#' dat <- getMDLObjects(x = fpath) 
+#' ucMog <- as.mogObj(dat)
+#' startingValues(object = ucMog, distList = list())
+#' ddmore:::.createListTemplate(ucMog@@parObj)
+
 .createListTemplate <- function(object){
 
   # Create list of distributions and arguments for all named elements in the 
@@ -123,19 +125,15 @@ setMethod("startingValues", signature=signature(object="parObj"),
   templateStruct <- lapply(namesStruct, .defaultAssigner)
   names(templateStruct) <- namesStruct
   
-  # VARIABILITY block (note: Currently the results in the variability are contained 
-  # within an unnamed list. The mdl parser will soon change this, so this is anticipated 
-  # to work in the same way as for the structural block. For now, however, we will treat it 
-  # differently.)
-  
-  namesVariab <- sapply(object@VARIABILITY, names)
+  # VARIABILITY block
+  namesVariab <- names(object@VARIABILITY)
   templateVariab <- lapply(namesVariab, .defaultAssigner)
   names(templateVariab) <- namesVariab
   
   # Create a list containing these two lists:
-  
-  res <- list(STRUCTURAL=templateStruct, VARIABILITY=templateVariab )
+  res <- list(STRUCTURAL = templateStruct, 
+      VARIABILITY = templateVariab )
 
-
+  return(res)
 }
 

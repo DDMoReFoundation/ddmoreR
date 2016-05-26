@@ -1,35 +1,11 @@
-#' Tests functions involved in task execution
+# Tests functions involved in task execution
 
-library("ddmore")
-require("methods")
-require("testthat")
+if (is(try(DDMORE.getServer(), silent = TRUE), class2 = "try-error")) {
+    mockServer <- ddmore:::createMockFISServer(jobStatusPollingDelay=1)
+    suppressWarnings(DDMORE.setServer(mockServer))
+}
 
-rm(list = ls())
-setClass(
-    "MockFISServer",
-    contains = "FISServer"
-)
-createMockFISServer <-
-    function(url = "http://localhost:9010", operationalUrl = "http://localhost:9011",
-             startupScript = "MOCK",
-             jobStatusPollingDelay = 20, startupPollingMax = 60, startupPollingDelay = 1) {
-        new(
-            "MockFISServer",
-            url = url,
-            operationalUrl = operationalUrl,
-            startupScript = startupScript,
-            jobStatusPollingDelay = jobStatusPollingDelay,
-            startupPollingMax = startupPollingMax,
-            startupPollingDelay = startupPollingDelay
-        )
-    }
-
-
-mockServer<- createMockFISServer(jobStatusPollingDelay=1)
-DDMORE.setServer(mockServer)
 context("Executing and monitoring a job manually.")
-
-
 
 # Test data
 testDataInputs <- system.file("tests/data/test.execute.async/inputs", package = "ddmore")
@@ -38,7 +14,7 @@ testInputFiles <- lapply(dir(testDataInputs), function(x) { file.path(testDataIn
 testResultFiles <- lapply(dir(testDataOutputs), function(x) { file.path(testDataOutputs,x) })
 
 
-test_that("I can perform all steps involved in job execution manually.", {
+test_that("perform all steps involved in job execution manually.", {
     pollCount <- 1
     statuses = list("NEW", "RUNNING", "COMPLETED")
     
@@ -87,10 +63,10 @@ test_that("I can perform all steps involved in job execution manually.", {
     # when I submit a job
     dir.create(fisJobDir) # FIXME Legacy, FIS expects the client to create a FIS job directory
     newJob <- createFISJob(executionType = "NONMEM", 
-                              executionFile = inputModelFile, 
-                              workingDirectory = fisJobDir, 
-                              extraInputFiles = list(), 
-                              commandParameters = "mock command line parameters")
+        executionFile = inputModelFile, 
+        workingDirectory = fisJobDir, 
+        extraInputFiles = list(), 
+        commandParameters = "mock command line parameters")
     tmpJob <<- DDMORE.submitJob(newJob)
     
     expect_true(tmpJob@id == 'MOCK_ID', info = "Job id was incorrect.")
@@ -102,12 +78,15 @@ test_that("I can perform all steps involved in job execution manually.", {
 
     expect_true(tmpJob@status == 'COMPLETED', info = "FIS Job was not in 'COMPLETED' state.")
     
-    # I can copy result files to users working directory
+    # copy result files to users working directory
     outputDirectory <- file.path(usersDir, "out")
     tmpJob <<- importJobResultFiles(tmpJob, targetDirectory=outputDirectory, fisServer=mockServer)
     
-    # and I can import SO
-    so <- LoadSOObject(file.path(outputDirectory, paste0(file_path_sans_ext(basename(inputModelFile)), ".SO.xml")))
+    # and import SO
+    # note model is v0.2, block invalidly named Likelihood; so suppress warnings
+    so <- suppressWarnings(
+        LoadSOObject(file = file.path(outputDirectory, 
+                paste0(file_path_sans_ext(basename(inputModelFile)), ".SO.xml"))))
     expect_true(is.SOObject(so), info  = "'so' was not of type StandardOutputObject")
     
 })

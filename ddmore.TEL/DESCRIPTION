@@ -10,17 +10,19 @@ Description: Initial implementation of the DDMORE R package. It integrates with 
     using REST API.
 License: TBD
 Imports:
+    methods,
     rjson(>= 0.2.13),
-    RCurl(>= 1.95)
+    RCurl(>= 1.95),
+    XML(>= 3.98-1.1)
 Depends:
     RNMImport(>= 0.3.6),
     tools(>= 3.0.2),
     lattice(>= 0.20-14),
-    XML(>= 3.98-1.1),
     stringr(>= 0.6.2)
 Collate:
     'FISJob.R'
     'FISServer.R'
+    'FISServerMock.R'
     'utils.R'
     'Classes.R'
     'readDataObj.R'

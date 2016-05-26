@@ -34,6 +34,7 @@ validity.dataObj <- function(object)
 #' @slot name The name assigned to the \code{dataObj} in the MDL file.
 #' 
 #' @author mwise
+#' @include FISServerMock.R
 setClass("dataObj", 
   slots = c(
     SOURCE = "list",

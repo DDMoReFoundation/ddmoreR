@@ -66,6 +66,16 @@ MOG_OBJECT_TYPES <- c("dataObj", "parObj", "mdlObj", "taskObj")
   return(res)
 }
 
+# @title Read MDL input from MDL or JSON file
+# @description Returns object raw in \code{\link{getMDLObjects}}
+# @inheritParams parseMDLFile
+# @seealso \code{\link{readMDL}}, \code{\link{getMDLObjects}}
+# @examples
+# jpath <- system.file(package = "ddmore", "training", "data", 
+#        "ex_model7_prolactin_04Jun2014_OAM.json")
+# mockServer <- createMockFISServer(jobStatusPollingDelay = 1)
+# DDMORE.setServer(mockServer)
+# ddmore:::.parseMDLFile0(f = jpath, fisServer = DDMORE.getServer())
 
 .parseMDLFile0 <- function(f, fisServer) {
     .precondition.checkArgument(is.FISServer(fisServer), "fisServer", "FIS Server instance is required.")
@@ -89,16 +99,44 @@ MOG_OBJECT_TYPES <- c("dataObj", "parObj", "mdlObj", "taskObj")
 
 .extractNamedObject <- function(raw, name) {
 	
-	val <- raw[sapply(raw, function(e) {e$name == name})] # Creates a list containing the single matching object
+    # Creates a list containing the single matching object
+	val <- raw[sapply(raw, function(e) {e$name == name})] 
   
 	.extractObjs(val)[[1]]
 }
 
 
+# Creates a list containing the matching objects
+#
+# TODO check whether type has been renamed identifier, 
+# or vice versa
+# @examples
+# jpath <- system.file(package = "ddmore", "training", "data", 
+#        "ex_model7_prolactin_04Jun2014_OAM.json")
+# mockServer <- createMockFISServer(jobStatusPollingDelay = 1)
+# DDMORE.setServer(mockServer)
+# rawEg <- ddmore:::.parseMDLFile0(f = jpath, fisServer = DDMORE.getServer())
+# ddmore:::.extractTypeObjects(raw = rawEg, type = "dataObj")
 .extractTypeObjects <- function(raw, type) {
 	
-	val <- raw[sapply(raw, function(e) {e$type == type})] # Creates a list containing the matching objects
-
+    val <- raw[sapply(raw, function(e) {e$type == type})]
+    #val <- list()
+    #
+    #if (!is.null(names(raw))) {
+    #    raw <- list(raw)
+    #}
+    #for (i in seq_along(raw)) {
+    #    
+    #    ind <- sapply(X = raw[[i]], 
+    #        FUN = function(e) {
+    #            if ("type" %in% names(e)) {
+    #                any(casefold(e$type) == casefold(type))
+    #            } else { 
+    #                FALSE
+    #            }
+    #        })
+    #    val <- c(val, raw[[i]][ind])
+    #}
 	.extractObjs(val)
 }
 
@@ -107,16 +145,20 @@ MOG_OBJECT_TYPES <- c("dataObj", "parObj", "mdlObj", "taskObj")
 	
 	applyObjectNamesToListOfObjects(
 		lapply(raw, function(b) {
-	
-			createObjFn <- switch(b$type,
-				dataObj = .createDataObj,
-				parObj = .createParObj,
-				mdlObj = .createMdlObj,
-				taskObj = .createTaskObj
-			)
-			
-			createObjFn(b$blocks, b$name)
-	
+	        if ("type" %in% names(b)) {
+                if (all(c("blocks", "name") %in% names(b))) {
+                    createObjFn <- switch(casefold(b$type),
+                        dataobj = .createDataObj,
+                        parobj = .createParObj,
+                        mdlobj = .createMdlObj,
+                        taskobj = .createTaskObj
+                    )
+                    
+                    createObjFn(b$blocks, b$name)
+                } else {
+                    warning("expected elements blocks and name in raw data passed to .extractObjs")
+                }
+            }
 		})
 	)
 	

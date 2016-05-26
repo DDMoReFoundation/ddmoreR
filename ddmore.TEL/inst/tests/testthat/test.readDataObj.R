@@ -1,16 +1,11 @@
-library("ddmore")
-require("methods")
 
 context("Reading in data from data file referenced by data object")
-
-# Clear workspace 
-rm(list=ls())
 
 myDataObjFile <- system.file("tests/data/UseCase5DataObj.Rdata", package = "ddmore")
 
 load(file=myDataObjFile)
 
-myData <- readDataObj(UseCase5DataObj, sourceDir=parent.folder(myDataObjFile), categoricalAsFactor=TRUE)
+myData <- readDataObj(UseCase5DataObj, sourceDir = ddmore:::parent.folder(myDataObjFile), categoricalAsFactor=TRUE)
 
 test_that("Checking that a dataframe is returned", {
 	expect_true(is.data.frame(myData))

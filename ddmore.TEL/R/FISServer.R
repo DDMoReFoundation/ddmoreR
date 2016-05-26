@@ -29,7 +29,8 @@ validity.FISServer <- function(object)
 #' @slot startupPollingMax how many times package should check if FIS has started up before reporting failure.
 #' @slot startupPollingDelay what should be the delay between subsequent checks if FIS has started up. (in seconds)
 #'
-#'
+#' @import methods
+#' @import XML
 #' @author mrogalski
 #'
 #' @export

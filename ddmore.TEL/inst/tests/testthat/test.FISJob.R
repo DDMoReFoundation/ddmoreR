@@ -1,8 +1,4 @@
-library("ddmore")
-library("XML")
-require("methods")
-require("testthat")
-rm(list=ls())
+
 context("FIS Job's createFISJob.")
 
 test_that("createFISJob creates a valid object for minimal set of required attributes", {
@@ -26,13 +22,13 @@ test_that("FISJob can be converted to JSON", {
     expect_true(is.FISJob(instance), 
                 info = "Instance was not of type FISJob"
     )
-    json <- .fisJobToJSON(instance)
+    json <- ddmore:::.fisJobToJSON(instance)
     expect_equal(json, "{\"executionType\":\"MOCK_TYPE\",\"commandParameters\":\"\",\"workingDirectory\":\"MOCK_WD\",\"executionFile\":\"MOCK_FILE\",\"resultsIncludeRegex\":\"\",\"resultsExcludeRegex\":\"\"}", info="Generated FISJob JSON was different than expected")
 })
 
 test_that("FISJob can be read from JSON", {
     
-    instance <- createFISJobFromNamedList(fromJSON(file=system.file("tests/data/json/FISJob.json", package = "ddmore")))
+    instance <- createFISJobFromNamedList(rjson::fromJSON(file=system.file("tests/data/json/FISJob.json", package = "ddmore")))
     
     expect_true(is.FISJob(instance), 
                 info = "Instance was not of type FISServer"
@@ -54,7 +50,7 @@ test_that("FISJob can be read from JSON", {
 
 test_that("FISJob with extra input files can be read from JSON", {
     
-    instance <- createFISJobFromNamedList(fromJSON(file=system.file("tests/data/json/FISJobWithExtraInputFiles.json", package = "ddmore")))
+    instance <- createFISJobFromNamedList(rjson::fromJSON(file=system.file("tests/data/json/FISJobWithExtraInputFiles.json", package = "ddmore")))
     
     expect_true(is.FISJob(instance), 
                 info = "Instance was not of type FISServer"

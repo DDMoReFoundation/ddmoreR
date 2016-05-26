@@ -1,34 +1,9 @@
-#' Tests functions involved in task execution
+# Tests functions involved in task execution
 
-library("ddmore")
-library("methods")
-library("testthat")
-
-rm(list = ls())
-
-setClass(
-    "MockFISServer",
-    contains = "FISServer"
-)
-
-createMockFISServer <-
-    function(url = "http://localhost:9010", operationalUrl = "http://localhost:9011",
-             startupScript = "MOCK",
-             jobStatusPollingDelay = 20, startupPollingMax = 60, startupPollingDelay = 1) {
-        new(
-            "MockFISServer",
-            url = url,
-            operationalUrl = operationalUrl,
-            startupScript = startupScript,
-            jobStatusPollingDelay = jobStatusPollingDelay,
-            startupPollingMax = startupPollingMax,
-            startupPollingDelay = startupPollingDelay
-        )
-    }
-
-
-mockServer<- createMockFISServer(jobStatusPollingDelay=1)
-suppressWarnings(DDMORE.setServer(mockServer))
+if (is(try(DDMORE.getServer(), silent = TRUE), class2 = "try-error")) {
+    mockServer <- ddmore:::createMockFISServer(jobStatusPollingDelay=1)
+    suppressWarnings(DDMORE.setServer(mockServer))
+}
 
 context("DDMORE.pollStep")
 
@@ -50,7 +25,8 @@ test_that("DDMORE.pollStep should poll untill Job status is COMPLETED", {
     submission$fisJob <- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id =  "MOCK_ID", status = "NEW"))
     submission$status <- "Submitted"
     # when
-    result = DDMORE.pollStep(submission, fisServer = mockServer)
+    result <- suppressMessages(ddmore:::DDMORE.pollStep(submission, 
+            fisServer = DDMORE.getServer()))
     
     #then
     
@@ -78,7 +54,8 @@ test_that("DDMORE.pollStep should poll untill Job status is FAILED", {
     submission$fisJob <- createFISJobFromNamedList(list(executionType = "Mock-Execution", executionFile = "mock-file", id =  "MOCK_ID", status = "NEW"))
     submission$status <- "Submitted"
     # when
-    result = DDMORE.pollStep(submission, fisServer = mockServer)
+    result <- suppressMessages(ddmore:::DDMORE.pollStep(submission, 
+        fisServer = DDMORE.getServer()))
     
     #then
     

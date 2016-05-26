@@ -30,9 +30,10 @@
 #' warfPKdat_obj <- getMDLObjects ("UseCase2.mdl",names=c("warfarin_PK_ANALYTIC_dat"))
 #'
 #' @include Classes.R FISServer.R
-getMDLObjects <- function(x, name, fisServer=DDMORE.getServer()) { 
+getMDLObjects <- function(x, name, fisServer = DDMORE.getServer()) { 
   
-  if(!is.character(x)){stop("x must be a string containing either the file name or URL of the MDL file")}
+  if(!is.character(x)){
+    stop("x must be a string containing either the file name or URL of the MDL file")}
   if(!missing(name)){
     if(!is.vector(name)){stop("argument 'name' must be a vector of strings")}
   }
@@ -42,7 +43,7 @@ getMDLObjects <- function(x, name, fisServer=DDMORE.getServer()) {
   
   allObjs <- list()
   sapply(MOG_OBJECT_TYPES, function(mog_object_type) {
-	allObjs <<- c(allObjs, .extractTypeObjects(raw, mog_object_type))
+	allObjs <<- c(allObjs, .extractTypeObjects(raw = raw, type = mog_object_type))
   })
 
   if (length(allObjs) == 0) {

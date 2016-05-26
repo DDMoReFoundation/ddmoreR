@@ -1,9 +1,3 @@
-library("ddmore")
-library("XML")
-library("methods")
-
-# Clear workspace. 
-rm(list=ls())
 
 testSlotsNotEmpty <- function(S4class, slotnames) {
 
@@ -187,7 +181,8 @@ test_that("Checking Estimation::OFMeasures slots", {
 context("Loading in SOObjects from Simulation task PharmMLSO Version 0.3")
 #-----------------------------------------------------------------------
 
-data.path <- system.file("tests/data/PharmMLSO/MachineGenerated/SOv0.3/run1.SO.xml", package = "ddmore")
+data.path <- system.file("tests/data/PharmMLSO/MachineGenerated/SOv0.3/run1.SO.xml", 
+    package = "ddmore")
   
 # Load in SO
 SOObject <- suppressMessages(LoadSOObject(data.path))
@@ -236,9 +231,6 @@ context("Loading multiple SOBlocks contained within a PsN SSE PharmML SO")
 
 test_that("List of 20 SO objects is parsed correctly from LoadSOObjects", {
 
-  # Clear workspace. 
-  rm(list=ls())
-
   soXmlFilePath <- system.file("tests/data/PharmMLSO/MachineGenerated/PsN/Warfarin-ODE-latest-sse.SO.xml", 
     package = "ddmore")
 
@@ -265,4 +257,4 @@ test_that("List of 20 SO objects is parsed correctly from LoadSOObjects", {
 
 })
 
-
+rm(testSlotsNotEmpty, verifyDataSetSlot, verifyMatrixSlot, data.path, SOObject)
