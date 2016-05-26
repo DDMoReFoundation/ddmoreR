@@ -36,11 +36,11 @@
 #' @include StandardOutputObject.R
 setGeneric("estimate", function(x, target=NULL,
 	addargs=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), clearUp=FALSE,
-	fisServer=DDMORE.getServer()) {
+	fisServer=DDMORE.getServer(), ...) {
   
 	execute(x=x, target=target,
 			addargs=addargs, subfolder=subfolder, clearUp=clearUp,
-			fisServer=fisServer)
+			fisServer=fisServer, ...)
 })
 
 #' @rdname estimate-methods
@@ -48,7 +48,7 @@ setGeneric("estimate", function(x, target=NULL,
 setMethod("estimate", signature=signature(x="mogObj"), 
 	function(x, target=NULL,
 			 addargs=NULL, subfolder=format(Sys.time(), "%Y%b%d%H%M%S"), clearUp=FALSE,
-			 fisServer=DDMORE.getServer()) {
+			 fisServer=DDMORE.getServer(), ...) {
 
     # First write out MOG to MDL.
     # TODO: This will write out to the current directory - probably not what is desired! Where is/would the data file be taken from?
@@ -58,7 +58,7 @@ setMethod("estimate", signature=signature(x="mogObj"),
     # Now call the generic method using the mdl file
 	execute(x="output.mdl", target=target,
 			addargs=addargs, subfolder=subfolder, clearUp=clearUp,
-			fisServer=fisServer)
+			fisServer=fisServer, ...)
   })
   
 
@@ -98,6 +98,18 @@ setMethod("estimate", signature=signature(x="mogObj"),
 #'        Mutually exclusive with the \code{importSO} parameter (which would be
 #'        used for the specific case where it is known that only one SOBlock will
 #'        be present in the Standard Output results). Default is false.
+#' @param preprocessSteps (Optional Advanced) List of functions that should be executed
+#'        at the beginning of the execution workflow. Each of these functions should have
+#'        the following descriptor:
+#'        \code{ function( submission, fisServer=DDMORE.getServer(), ...) }
+#'        and return the 'submission' object. See \code{DDMORE.prepareSubmissionStep} 
+#'        for the submission structure definition.
+#' @param preprocessSteps (Optional Advanced) List of functions that should be executed
+#'        at the end of the execution workflow. Each of these functions should have
+#'        the following descriptor:
+#'        \code{ function( submission, fisServer=DDMORE.getServer(), ...) }
+#'        and return the 'submission' object. See \code{DDMORE.prepareSubmissionStep} 
+#'        for the submission structure definition.
 #' @param fisServer FISServer instance.
 #' @return The results from executing the MDL file, in the form of an object of
 #'         class \linkS4class{StandardOutputObject}, or a list thereof, depending
@@ -158,6 +170,9 @@ setGeneric("execute", function(x, target = NULL,
 #' @return a list of steps for execution
 .buildWorkflow <- function( params ) {
     workflow <- list()
+    if(!is.null(params$preprocessSteps)) {
+        workflow <- c(workflow,params$preprocessSteps)
+    }
     workflow <- c(workflow,DDMORE.submitJobStep)
     workflow <- c(workflow,DDMORE.pollStep)
     workflow <- c(workflow,DDMORE.importFilesStep)
@@ -167,6 +182,9 @@ setGeneric("execute", function(x, target = NULL,
     if(is.null(params$importSO) || params$importSO) {
         workflow <- c(workflow,DDMORE.importSOStep)
         workflow <- c(workflow,DDMORE.verifySOStep)
+    }
+    if(!is.null(params$postprocessSteps)) {
+        workflow <- c(workflow,params$postprocessSteps)
     }
     workflow
 }
