@@ -104,7 +104,7 @@ setMethod("estimate", signature=signature(x="mogObj"),
 #'        \code{ function( submission, fisServer=DDMORE.getServer(), ...) }
 #'        and return the 'submission' object. See \code{DDMORE.prepareSubmissionStep} 
 #'        for the submission structure definition.
-#' @param preprocessSteps (Optional Advanced) List of functions that should be executed
+#' @param postprocessSteps (Optional Advanced) List of functions that should be executed
 #'        at the end of the execution workflow. Each of these functions should have
 #'        the following descriptor:
 #'        \code{ function( submission, fisServer=DDMORE.getServer(), ...) }

@@ -54,7 +54,7 @@ Collate:
     'plot.R'
     'psnWrappers.R'
     'sample.R'
-    'startingValues.r'
+    'startingValues.R'
     'subset.R'
     'updateParObj.R'
     'as.mdl.R'
