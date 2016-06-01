@@ -56,8 +56,3 @@ test_that("startingValues method is able to specify distributions for parameters
     expect_equal(object = sum(unlist(res$VARIABILITY)), 
         expected = 3.9977150533814)
 })
-
-
-
-
-

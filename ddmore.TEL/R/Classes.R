@@ -67,9 +67,9 @@ is.dataObj <- function(obj){
 
 validity.taskObj <- function(object)
 {
-	stopifnot(is.list(object@ESTIMATE))
-	stopifnot(is.list(object@SIMULATE))
-	#stopifnot(is.character(object@EVALUATE))
+	stopifnot(is.null(object@ESTIMATE) || is.list(object@ESTIMATE))
+	stopifnot(is.null(object@SIMULATE) || is.list(object@SIMULATE))
+	stopifnot(is.null(object@EVALUATE) || is.list(object@EVALUATE))
 	#stopifnot(is.character(object@OPTIMISE))
 	#stopifnot(is.character(object@DATA))
 	#stopifnot(is.character(object@MODEL))
@@ -91,9 +91,9 @@ validity.taskObj <- function(object)
 #' @author mwise
 setClass("taskObj", 
   slots = c(
-	ESTIMATE = "list",
-	SIMULATE = "list",
-	#EVALUATE = "character",
+	ESTIMATE = "ANY",
+	SIMULATE = "ANY",
+	EVALUATE = "ANY",
 	#OPTIMISE = "character",
 	#DATA = "character",
 	#MODEL = "character",
@@ -255,17 +255,67 @@ is.mdlObj <- function(obj){
 
 }
 
+#### Design object class
 
+
+validity.designObj <- function(object)
+{
+	stopifnot(is.list(object@DECLARED_VARIABLES))
+	stopifnot(is.list(object@INTERVENTION))
+	stopifnot(is.list(object@STUDY_DESIGN))
+    stopifnot(is.list(object@SAMPLING))
+  return(TRUE)
+}
+
+################################################################################
+#' Design Object S4 Class Definition.
+#' 
+#' Objects of this class map to occurrences of the \code{designObj} top-level block
+#' in an MDL file. They are created by parsing an MDL file using
+#' \link{getParameterObjects} or \link{getMDLObjects}.
+#'
+#' @slot DECLARED_VARIABLES List of sets of name-value-pair attributes, each
+#'       set encoding the definition of a variable.
+#' @slot INTERVENTION Named list of intervention names mapping to interventions definitions.
+#' @slot STUDY_DESIGN Named list of study arms names mapping to their design
+#' @slot SAMPLING Named list of sampling definitions
+#' @slot name The name assigned to the \code{parObj} in the MDL file.
+#' 
+#' @author mrogalski
+setClass("designObj", 
+  slots = c(
+	DECLARED_VARIABLES = "list",
+	INTERVENTION = "list",
+	STUDY_DESIGN = "list",
+    SAMPLING = "list",
+	name = "character"
+  ),
+  validity = validity.designObj
+)
+
+#' is.designObj
+#'
+#' Determines if an object is of class "designObj"
+#'
+#' @usage is.designObj(object)
+#'
+#' @return TRUE or FALSE 
+is.designObj <- function(obj){
+
+  class(obj)=="designObj"
+
+}
 
 #### MOG class
 
 
 validity.mogObj <- function(object)
 {
-	stopifnot(validity.dataObj(object@dataObj))
+	stopifnot(is.null(object@dataObj) || validity.dataObj(object@dataObj))
 	stopifnot(validity.parObj(object@parObj))
 	stopifnot(validity.mdlObj(object@mdlObj))
 	stopifnot(validity.taskObj(object@taskObj))
+	stopifnot(is.null(object@designObj) || validity.designObj(object@designObj))
   return(TRUE)
 }
 
@@ -282,21 +332,24 @@ validity.mogObj <- function(object)
 #'   \item{\link{parObj}}
 #'   \item{\link{mdlObj}}
 #'   \item{\link{taskObj}}
+#'   \item{\link{designObj}}
 #' }
 #' 
 #' @slot dataObj Object of class \code{dataObj}.
 #' @slot parObj Object of class \code{parObj}.
 #' @slot mdlObj Object of class \link{mdlOb}.
 #' @slot taskObj Object of class \link{taskObj}.
+#' @slot designObj Object of class \link{designObj}.
 #' @slot name A name to be assigned to the MOG; used when writing back out to MDL.
 #' 
 #' @author khanley
 setClass("mogObj", 
   slots = c(
-	dataObj = "dataObj",
+	dataObj = "ANY",
 	parObj = "parObj",
 	mdlObj = "mdlObj", 
 	taskObj = "taskObj",
+	designObj = "ANY",
 	name = "character"
   ),
   validity = validity.mogObj
@@ -327,30 +380,38 @@ is.mogObj <- function(obj){
 as.mogObj <- function(list){
 
   classes <- sapply(list, function(x){class(x)})
-
+  
   nDat <- sum(classes=="dataObj")
   nPar <- sum(classes=="parObj")
   nMdl <- sum(classes=="mdlObj")
   nTask <- sum(classes=="taskObj")
+  nDesign <- sum(classes=="designObj")
   
-  if (nDat!=1 | nPar!=1 | nMdl!=1 | nTask!=1) {
-	  stop("The list provided must contain exactly one of each type of object: dataObj, parObj, mdlObj and taskObj")
+  if (nPar!=1 | nMdl!=1 | nTask!=1 | nDat>1 | nDesign>1) {
+    stop("The list provided must contain exactly one of each type of object: parObj, mdlObj and taskObj and at most one of designObj or dataObj")
+  }
+  dat <- NULL
+  if(nDat==1) {
+    dat <- list[classes=="dataObj"][[1]]
   }
   
-  dat <- list[classes=="dataObj"][[1]]
   par <- list[classes=="parObj"][[1]]
   mdl <- list[classes=="mdlObj"][[1]]
   task <- list[classes=="taskObj"][[1]]
   
+  design <- NULL
+  if(nDesign==1) {
+    design <- list[classes=="designObj"][[1]]
+  }
+  
   
   res <- new("mogObj", 
-    dataObj = dat,
-    parObj = par,
-    mdlObj = mdl, 
-    taskObj = task 
+             dataObj = dat,
+             parObj = par,
+             mdlObj = mdl, 
+             taskObj = task, 
+             designObj = design 
   )
   
   return(res)
-
 }
-

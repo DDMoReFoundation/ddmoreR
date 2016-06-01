@@ -49,6 +49,7 @@ Collate:
     'getMDLObjects.R'
     'getModelObjects.R'
     'getParameterObjects.R'
+    'getDesignObjects.R'
     'getPopulationParameters.R'
     'getTaskPropertiesObjects.R'
     'plot.R'

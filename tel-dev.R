@@ -9,7 +9,9 @@
 ## rather than having to re-build the DDMoRE package every time a change is made.
 ##
 
-reqdLibs <- c('rjson','RCurl','RNMImport','XML','stringr')
+rm(list=ls())
+
+reqdLibs <- c('rjson','RCurl','RNMImport','XML','stringr', 'testthat')
 
 # Unload libraries if they're already loaded, this is required because
 # loading in the XML library messes up the environment that source()
@@ -37,8 +39,8 @@ print(sprintf("DDMoRe R libraries directory: %s", libPath))
 script.files = c(
     "Classes", "createMogObj",
     "utils", "import", "execute", "conversion", "readDataObj", "updateParObj",
-    "getDataObjects", "getParameterObjects", "getPopulationParameters", "getModelObjects", "getTaskPropertiesObjects", "getMDLObjects",
-    "FISServer", "FISJob", "server", "jobExecution", "psnWrappers",
+    "getDataObjects", "getParameterObjects", "getDesignObjects", "getPopulationParameters", "getModelObjects", "getTaskPropertiesObjects", "getMDLObjects",
+    "FISServer", "FISJob", "server", "startingValues", "jobExecution", "psnWrappers",
 	"StandardOutputObjectXmlParsers", "StandardOutputObjectCommonClasses",
 	"Estimation-Class", "Simulation-Class", "OptimalDesign-Class", "ModelDiagnostic-Class", "RawResults-Class", "TaskInformation-Class",
 	"StandardOutputObject-Class", "StandardOutputObjectDataFunctions", "LoadSOObject"

@@ -2,7 +2,7 @@
 MDL_FILE_EXT <- 'mdl'
 JSON_FILE_EXT <- 'json'
 
-MOG_OBJECT_TYPES <- c("dataObj", "parObj", "mdlObj", "taskObj")
+MOG_OBJECT_TYPES <- c("dataObj", "parObj", "mdlObj", "taskObj", "designObj")
 
 
 ################################################################################
@@ -151,7 +151,8 @@ MOG_OBJECT_TYPES <- c("dataObj", "parObj", "mdlObj", "taskObj")
                         dataobj = .createDataObj,
                         parobj = .createParObj,
                         mdlobj = .createMdlObj,
-                        taskobj = .createTaskObj
+                        taskobj = .createTaskObj,
+                        designobj = .createDesignObj
                     )
                     
                     createObjFn(b$blocks, b$name)
@@ -239,13 +240,33 @@ MOG_OBJECT_TYPES <- c("dataObj", "parObj", "mdlObj", "taskObj")
 	}
 	
 	taskObj <- new("taskObj",
-		ESTIMATE = as.list(taskObjAsList$ESTIMATE), # as.list handles null
-		SIMULATE = as.list(taskObjAsList$SIMULATE), # as.list handles null
+		ESTIMATE = if(!is.null(taskObjAsList$ESTIMATE)) as.list(taskObjAsList$ESTIMATE) else NULL, # as.list handles null
+		SIMULATE = if(!is.null(taskObjAsList$SIMULATE)) as.list(taskObjAsList$SIMULATE) else NULL, # as.list handles null
+		EVALUATE = if(!is.null(taskObjAsList$EVALUATE)) as.list(taskObjAsList$EVALUATE) else NULL,
 		name = name
 	)
 	
 	taskObj
 }
+
+
+.createDesignObj <- function(objAsList, name) {
+	
+	if (is.null(objAsList)) {
+		stop("Input argument objAsList is null")
+	}
+	
+    designObj <- new("designObj",
+		DECLARED_VARIABLES = as.list(objAsList$DECLARED_VARIABLES), # as.list handles null; TODO Transformation like translateIntoNamedList to be applied to this instead
+		INTERVENTION = as.list(objAsList$INTERVENTION), # as.list handles null; TODO Transformation like translateIntoNamedList to be applied to this instead
+		STUDY_DESIGN = as.list(objAsList$STUDY_DESIGN), # as.list handles null; TODO Transformation like translateIntoNamedList to be applied to this instead
+		SAMPLING = as.list(objAsList$SAMPLING), # as.list handles null; TODO Transformation like translateIntoNamedList to be applied to this instead
+		name = name
+    )
+	
+	designObj
+}
+
 
 ##############################################################
 #' writeMogObj
@@ -288,76 +309,126 @@ setMethod("writeMogObj", "mogObj", function(object, f, fisServer=DDMORE.getServe
     .write.mclobj0(json, f, fisServer = fisServer)
 })
 
+setGeneric(".prepareForJSON", function(object) { 
+  standardGeneric(".prepareForJSON")
+})
+
+setMethod(".prepareForJSON", "dataObj", function(object) {
+  .precondition.checkArgument(validity.dataObj(object), "object", "valid dataObj required.")
+  dataObjBlocksSOURCE <- lapply(object@SOURCE, function(srcfile) {
+    # Enclose the file name in double quotes ready for writing back to MDL
+    srcfile$file <- add_quotes(srcfile$file)
+    # Similarly for the Ignore character
+    srcfile$ignore <- add_quotes(srcfile$ignore)
+    srcfile
+  })
+  
+  dataObjBlocks <- .removeNullEntries(list(
+    SOURCE = addExtraLayerOfNesting(dataObjBlocksSOURCE),
+    DECLARED_VARIABLES = object@DECLARED_VARIABLES,
+    DATA_INPUT_VARIABLES = addExtraLayerOfNesting(object@DATA_INPUT_VARIABLES),
+    DATA_DERIVED_VARIABLES = object@DATA_DERIVED_VARIABLES
+  ))
+  dataObjName <- object@name
+  list(name=dataObjName, type="dataObj", blocks=dataObjBlocks)
+})
+
+setMethod(".prepareForJSON", "designObj", function(object) {
+  .precondition.checkArgument(validity.designObj(object), "object", "valid designObj required.")
+  
+  objBlocks <- .removeNullEntries(list(
+    DECLARED_VARIABLES = object@DECLARED_VARIABLES,
+    INTERVENTION = object@INTERVENTION,
+    STUDY_DESIGN = object@STUDY_DESIGN,
+    SAMPLING = object@SAMPLING
+  ))
+  objName <- object@name
+  list(name=objName, type="designObj", blocks=objBlocks)
+})
+
+setMethod(".prepareForJSON", "parObj", function(object) {
+  .precondition.checkArgument(validity.parObj(object), "object", "valid parObj required.")
+  parObjBlocks <- .removeNullEntries(list(
+    DECLARED_VARIABLES = object@DECLARED_VARIABLES,
+    STRUCTURAL = addExtraLayerOfNesting(object@STRUCTURAL),
+    VARIABILITY = addExtraLayerOfNesting(object@VARIABILITY)
+  ))
+  parObjName <- object@name
+  
+  list(name=parObjName, type="parObj", blocks=parObjBlocks)
+  })
+
+setMethod(".prepareForJSON", "mdlObj", function(object) {
+  .precondition.checkArgument(validity.mdlObj(object), "object", "valid mdlObj required.")
+  mdlObjBlocks <- .removeNullEntries(list(
+    IDV = object@IDV,
+    COVARIATES = object@COVARIATES,
+    VARIABILITY_LEVELS = addExtraLayerOfNesting(object@VARIABILITY_LEVELS),
+    STRUCTURAL_PARAMETERS = object@STRUCTURAL_PARAMETERS,
+    VARIABILITY_PARAMETERS = object@VARIABILITY_PARAMETERS,
+    RANDOM_VARIABLE_DEFINITION = object@RANDOM_VARIABLE_DEFINITION,
+    INDIVIDUAL_VARIABLES = object@INDIVIDUAL_VARIABLES,
+    MODEL_PREDICTION = object@MODEL_PREDICTION,
+    OBSERVATION = object@OBSERVATION,
+    GROUP_VARIABLES = object@GROUP_VARIABLES
+  ))
+  
+  mdlObjName <- object@name
+  
+  list(name=mdlObjName, type="mdlObj", blocks=mdlObjBlocks)
+})
+
+setMethod(".prepareForJSON", "taskObj", function(object) {
+  .precondition.checkArgument(validity.taskObj(object), "object", "valid taskObj required.")
+  
+  taskObjBlocks <- list()
+  if(!is.null(object@ESTIMATE)) {
+    taskObjBlocks$ESTIMATE <- object@ESTIMATE
+  }
+  if(!is.null(object@SIMULATE)) {
+    taskObjBlocks$SIMULATE <- object@SIMULATE
+  }
+  if(!is.null(object@EVALUATE)) {
+    taskObjBlocks$EVALUATE <- object@EVALUATE
+  }
+  
+  taskObjName <- object@name
+  
+  list(name=taskObjName, type="taskObj", blocks=taskObjBlocks)
+})
+
 .generateJSON <- function(object) {
     if (!validity.mogObj(object)) {
         stop("Object is not a valid MOG Object")
     }
     m = object
-    
-    parObjBlocks <- .removeNullEntries(list(
-        DECLARED_VARIABLES = m@parObj@DECLARED_VARIABLES,
-        STRUCTURAL = addExtraLayerOfNesting(m@parObj@STRUCTURAL),
-        VARIABILITY = addExtraLayerOfNesting(m@parObj@VARIABILITY)
-    ))
-
-	dataObjBlocksSOURCE <- lapply(m@dataObj@SOURCE, function(srcfile) {
-		# Enclose the file name in double quotes ready for writing back to MDL
-		srcfile$file <- add_quotes(srcfile$file)
-		# Similarly for the Ignore character
-		srcfile$ignore <- add_quotes(srcfile$ignore)
-		srcfile
-	})
-    
-    dataObjBlocks <- .removeNullEntries(list(
-        SOURCE = addExtraLayerOfNesting(dataObjBlocksSOURCE),
-        DECLARED_VARIABLES = m@dataObj@DECLARED_VARIABLES,
-        DATA_INPUT_VARIABLES = addExtraLayerOfNesting(m@dataObj@DATA_INPUT_VARIABLES),
-        DATA_DERIVED_VARIABLES = m@dataObj@DATA_DERIVED_VARIABLES
-    ))
-
-    mdlObjBlocks <- .removeNullEntries(list(
-        IDV = m@mdlObj@IDV,
-        COVARIATES = m@mdlObj@COVARIATES,
-        VARIABILITY_LEVELS = addExtraLayerOfNesting(m@mdlObj@VARIABILITY_LEVELS),
-        STRUCTURAL_PARAMETERS = m@mdlObj@STRUCTURAL_PARAMETERS,
-        VARIABILITY_PARAMETERS = m@mdlObj@VARIABILITY_PARAMETERS,
-        RANDOM_VARIABLE_DEFINITION = m@mdlObj@RANDOM_VARIABLE_DEFINITION,
-        INDIVIDUAL_VARIABLES = m@mdlObj@INDIVIDUAL_VARIABLES,
-        MODEL_PREDICTION = m@mdlObj@MODEL_PREDICTION,
-        OBSERVATION = m@mdlObj@OBSERVATION,
-        GROUP_VARIABLES = m@mdlObj@GROUP_VARIABLES
-    ))
-    
-    taskObjBlocks <- .removeNullEntries(list(
-        ESTIMATE = m@taskObj@ESTIMATE,
-		SIMULATE = m@taskObj@SIMULATE
-    ))
-    
-    dataObjName <- m@dataObj@name
-    parObjName <- m@parObj@name
-    mdlObjName <- m@mdlObj@name
-    taskObjName <- m@taskObj@name
+    allObjsAsList <- list()
+    if(!is.null(m@dataObj)) {
+      allObjsAsList <- c(allObjsAsList, list(.prepareForJSON(m@dataObj)))
+    }
+    if(!is.null(m@designObj)) {
+      allObjsAsList <- c(allObjsAsList, list(.prepareForJSON(m@designObj)))
+    }
+    if(!is.null(m@parObj)) {
+      allObjsAsList <- c(allObjsAsList, list(.prepareForJSON(m@parObj)))
+    }
+    if(!is.null(m@mdlObj)) {
+      allObjsAsList <- c(allObjsAsList, list(.prepareForJSON(m@mdlObj)))
+    }
+    if(!is.null(m@taskObj)) {
+      allObjsAsList <- c(allObjsAsList, list(.prepareForJSON(m@taskObj)))
+    }
     mogDefinitionName <- if (length(m@name) == 0 || m@name == '') "outputMog" else m@name
 	
 	# Extra layer of nesting needed for the JSON - ensures that order of items is maintained (although it doesn't actually matter for this block)
-	mogObjBlocks <- list(OBJECTS=list(
-		list(list(type="dataObj")),
-		list(list(type="parObj")),
-		list(list(type="mdlObj")),
-		list(list(type="taskObj"))
-	))
-	names(mogObjBlocks$OBJECTS[[1]]) <- c(dataObjName)
-	names(mogObjBlocks$OBJECTS[[2]]) <- c(parObjName)
-	names(mogObjBlocks$OBJECTS[[3]]) <- c(mdlObjName)
-	names(mogObjBlocks$OBJECTS[[4]]) <- c(taskObjName)
+    mogObjBlocks <- list()
+    mogObjBlocks$OBJECTS <- lapply(allObjsAsList, function(x) { return(list(list("type" = x$type)))} )
+    for (i in seq(1:length(allObjsAsList))) {
+      names(mogObjBlocks$OBJECTS[[i]]) <- c(allObjsAsList[[i]]$name)
+    }
     
-	allObjsAsList <- list(
-		list(name=dataObjName, type="dataObj", blocks=dataObjBlocks),
-		list(name=parObjName, type="parObj", blocks=parObjBlocks),
-		list(name=mdlObjName, type="mdlObj", blocks=mdlObjBlocks),
-		list(name=taskObjName, type="taskObj", blocks=taskObjBlocks),
-		list(name=mogDefinitionName, type="mogObj", blocks=mogObjBlocks)
-	)
+	  allObjsAsList <- c(allObjsAsList, list(
+		list(name=mogDefinitionName, type="mogObj", blocks=mogObjBlocks)))
     
     json <- toJSON(allObjsAsList)
     return(json)

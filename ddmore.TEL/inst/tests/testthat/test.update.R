@@ -6,9 +6,16 @@ context("Testing the updating of attribute values of variables within a paramete
 # Clear workspace. 
 rm(list=ls())
 
-myParObjFile = system.file("tests/data/UseCase1ParObj.Rdata", package = "ddmore")
-stopifnot(file.exists(myParObjFile))
-load(file=myParObjFile)
+
+jsonFile <- system.file("tests/data/json/UseCase1.json", package = "ddmore")
+
+test_that("Checking the existence of the test data file containing the JSON-format text representing the MDL", {
+  expect_true(file.exists(jsonFile), info="Checking that test data file exists")
+})
+
+jsonAsNestedLists <- rjson:::fromJSON(file=jsonFile)
+
+myParObj<-ddmore:::.extractTypeObjects(jsonAsNestedLists, "parObj")[[1]]
 stopifnot(ddmore:::is.parObj(myParObj))
 
 test_that("A single update of an attribute value of a variable", {
@@ -23,12 +30,10 @@ test_that("A single update of an attribute value of a variable", {
 
 test_that("An update of multiple attribute values of a variable", {
 	
-	updMyParObj <- updateParObj(myParObj, block="VARIABILITY", item="PPV_TLAG", with=list(value=0.5, type="var"))
+	updMyParObj <- updateParObj(myParObj, block="VARIABILITY", item="PPV_TLAG", with=list(value=0.5))
 	expect_equivalent(class(updMyParObj), "parObj")
 	expect_equal(updMyParObj@VARIABILITY$PPV_TLAG$value, "0.5", info="Checking that the \"value\" attr of the appropriate variable was updated")
-	expect_equal(updMyParObj@VARIABILITY$PPV_TLAG$type, "var", info="Checking that the \"type\" attr of the appropriate variable was updated")
 	expect_equal(updMyParObj@VARIABILITY$PPV_TLAG$fix, "true", info="Checking that the \"fix\" attr of the appropriate variable was unchanged")
-	
 })
 
 test_that("An update of values of the same attribute across multiple variables", {
@@ -85,8 +90,6 @@ test_that("Specifying a item to update that is not an item of the specified bloc
 test_that("Specifying an attribute to update that is not an attribute of all the specified items, raises an error", {
 	
 	expect_error(updateParObj(myParObj, block="VARIABILITY", item=c("OMEGA","PPV_TLAG"), with=list(parameter="[blah]")),
-		regexp="Names given do not exist in given block \"VARIABILITY\"and item \"PPV_TLAG\"")
+	             regexp="Item \\(e\\.g\\. variable\\) provided does not exist in given block \"VARIABILITY\"")
 	
 })
-
-

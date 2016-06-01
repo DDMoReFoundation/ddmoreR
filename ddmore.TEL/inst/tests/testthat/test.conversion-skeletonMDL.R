@@ -1,12 +1,8 @@
 #' Tests for MDL file with just the requisite top-level objects present but no sub-blocks
 
-library("ddmore")
-require("methods")
 
 context("Loading in MDL into R objects, for skeleton MDL file")
 
-# Clear workspace 
-rm(list=ls())
 
 skeletonJsonFile <- system.file("tests/data/json/skeleton.json", package = "ddmore")
 
@@ -55,7 +51,7 @@ test_that("Expected taskObj to have been created from the JSON-format text repre
 
 test_that("Expected output Mog to have been created", {
 
-	mySkeletonOutputMog <<- createMogObj(mySkeletonDataObj, mySkeletonParObj, mySkeletonMdlObj, mySkeletonTaskObj, "skeleton_mog")
+	mySkeletonOutputMog <<- createMogObj(dataObj = mySkeletonDataObj, parObj = mySkeletonParObj, mdlObj = mySkeletonMdlObj, taskObj = mySkeletonTaskObj, mogName = "skeleton_mog")
 	
 	expect_true(isS4(mySkeletonOutputMog), info="Output MOG object should be an S4 class")
 	expect_true(class(mySkeletonOutputMog) == "mogObj", info="Checking the class of the Output MOG object")
@@ -106,5 +102,4 @@ test_that("Checking the content of the nested list representing the taskObj in t
 #test_that("Checking the content of the nested list representing the mogObj in the output Mog", {
 #	expect_equal(skeletonJsonAsNestedListsOutput[[5]], list(name="skeleton_mog", blocks=list(), type="mogObj"))
 #})
-
 

@@ -2,9 +2,10 @@
 # Tests for MDL file with as many blocks and sub-blocks populated as possible, 
 # and with a variety of types/formats of variables and attributes
 
-context("Loading in MDL into R objects, for fully populated MDL file")
 
-jsonFile <- system.file("tests/data/json/FullyPopulated.json", package = "ddmore")
+context("Loading in MDL into R objects, for fully populated MDL file with StudyDesign")
+
+jsonFile <- system.file("tests/data/json/StudyDesign.json", package = "ddmore")
 
 test_that("Checking the existence of the test data file containing the JSON-format text representing the MDL", {
 	expect_true(file.exists(jsonFile), info="Checking that test data file exists")
@@ -14,21 +15,9 @@ jsonAsNestedLists <- rjson:::fromJSON(file=jsonFile)
 
 test_that("Checking that JSON-format text representing the MDL could be parsed", {
 	expect_true(is.list(jsonAsNestedLists), info="JSON-as-nested-lists should be a list")
-	expect_true(length(jsonAsNestedLists) == 5, info="JSON-as-nested-lists should be a list containing 5 elements")
+	expect_equal(length(jsonAsNestedLists), 5, info="JSON-as-nested-lists should be a list containing 5 elements")
 })
 
-test_that("Expected dataObj to have been created from the JSON-format text representing the MDL", {
-
-	myDataObj <<- ddmore:::.extractTypeObjects(jsonAsNestedLists, "dataObj")[[1]]
-	
-	expect_true(isS4(myDataObj), info="dataObj should be an S4 class")
-	
-	expect_false(is.null(myDataObj@SOURCE), info="SOURCE slot should be populated")
-	expect_false(is.null(myDataObj@DECLARED_VARIABLES), info="DECLARED_VARIABLES slot should be populated")
-	expect_false(is.null(myDataObj@DATA_INPUT_VARIABLES), info="DATA_INPUT_VARIABLES slot should be populated")
-	expect_false(is.null(myDataObj@DATA_DERIVED_VARIABLES), info="DATA_DERIVED_VARIABLES slot should be populated")
-
-})
 
 test_that("Expected parObj to have been created from the JSON-format text representing the MDL", {
 
@@ -56,16 +45,16 @@ test_that("Expected mdlObj to have been created from the JSON-format text repres
 	expect_false(is.null(myMdlObj@RANDOM_VARIABLE_DEFINITION), info="RANDOM_VARIABLE_DEFINITION slot should be populated")
 	expect_false(is.null(myMdlObj@INDIVIDUAL_VARIABLES), info="INDIVIDUAL_VARIABLES slot should be populated")
 	expect_false(is.null(myMdlObj@MODEL_PREDICTION), info="MODEL_PREDICTION slot should be populated")
-	expect_false(is.null(myMdlObj@MODEL_PREDICTION[[8]]$DEQ), info="MODEL_PREDICTION::DEQ should be populated")
-	expect_true(length(myMdlObj@MODEL_PREDICTION[[8]]$DEQ) > 0, info="MODEL_PREDICTION::DEQ should be populated")
-	expect_equal(myMdlObj@MODEL_PREDICTION[[8]]$.subtype, "BlockStmt", info="MODEL_PREDICTION::DEQ should be populated")
-	expect_false(is.null(myMdlObj@MODEL_PREDICTION[[9]]$COMPARTMENT), info="MODEL_PREDICTION::COMPARTMENT should be populated")
-	expect_true(length(myMdlObj@MODEL_PREDICTION[[9]]$COMPARTMENT) > 0, info="MODEL_PREDICTION::COMPARTMENT should be populated")
-	expect_equal(myMdlObj@MODEL_PREDICTION[[9]]$.subtype, "BlockStmt", info="MODEL_PREDICTION::COMPARTMENT should be populated")
+	expect_false(is.null(myMdlObj@MODEL_PREDICTION[[1]]$DEQ), info="MODEL_PREDICTION::DEQ should be populated")
+	expect_true(length(myMdlObj@MODEL_PREDICTION[[1]]$DEQ) > 0, info="MODEL_PREDICTION::DEQ should be populated")
+	expect_equal(myMdlObj@MODEL_PREDICTION[[1]]$.subtype, "BlockStmt", info="MODEL_PREDICTION::DEQ should be populated")
+	expect_true(is.null(myMdlObj@MODEL_PREDICTION[[1]]$COMPARTMENT), info="MODEL_PREDICTION::COMPARTMENT should be populated")
+	expect_equal(myMdlObj@MODEL_PREDICTION[[1]]$.subtype, "BlockStmt", info="MODEL_PREDICTION::COMPARTMENT should be populated")
 	expect_false(is.null(myMdlObj@OBSERVATION), info="OBSERVATION slot should be populated")
 	expect_false(is.null(myMdlObj@GROUP_VARIABLES), info="GROUP_VARIABLES slot should be populated")
 	
 })
+
 
 test_that("Expected taskObj to have been created from the JSON-format text representing the MDL", {
 
@@ -73,27 +62,40 @@ test_that("Expected taskObj to have been created from the JSON-format text repre
 	
 	expect_true(isS4(myTaskObj), info="taskObj should be an S4 class")
 
-	expect_false(is.null(myTaskObj@ESTIMATE), info="ESTIMATE slot should be populated")
+	expect_false(is.null(myTaskObj@EVALUATE), info="EVALUATE slot should be populated")
+	
+})
+
+test_that("Expected designObj to have been created from the JSON-format text representing the MDL", {
+
+	myDesignObject <<- ddmore:::.extractTypeObjects(jsonAsNestedLists, "designObj")[[1]]
+	
+	expect_true(isS4(myDesignObject), info="designObj should be an S4 class")
+
+	expect_false(is.null(myDesignObject@DECLARED_VARIABLES), info="DECLARED_VARIABLES slot should be populated")
+	expect_false(is.null(myDesignObject@INTERVENTION), info="INTERVENTION slot should be populated")
+	expect_false(is.null(myDesignObject@STUDY_DESIGN), info="STUDY_DESIGN slot should be populated")
+	expect_false(is.null(myDesignObject@SAMPLING), info="SAMPLING slot should be populated")
 	
 })
 
 test_that("Expected output Mog to have been created", {
 
-	myOutputMog <<- createMogObj(dataObj=myDataObj, parObj=myParObj, mdlObj= myMdlObj, taskObj=myTaskObj, mogName="fully_populated_mog")
+	myOutputMog <<- createMogObj(parObj = myParObj, mdlObj = myMdlObj, taskObj = myTaskObj, designObj = myDesignObject,  mogName = "design_mog")
 	
 	expect_true(isS4(myOutputMog), info="Output MOG object should be an S4 class")
 	expect_true(class(myOutputMog) == "mogObj", info="Checking the class of the Output MOG object")
-	expect_identical(myOutputMog@dataObj, myDataObj, info="dataObj slot in the Output MOG object should have been populated")
 	expect_identical(myOutputMog@parObj, myParObj, info="parObj slot in the Output MOG object should have been populated")
 	expect_identical(myOutputMog@mdlObj, myMdlObj, info="mdlObj slot in the Output MOG object should have been populated")
 	expect_identical(myOutputMog@taskObj, myTaskObj, info="taskObj slot in the Output MOG object should have been populated")
-	expect_equal(myOutputMog@name, "fully_populated_mog", info="Checking the name of the Output MOG object")
+	expect_identical(myOutputMog@designObj, myDesignObject, info="designObj slot in the Output MOG object should have been populated")
+	expect_equal(myOutputMog@name, "design_mog", info="Checking the name of the Output MOG object")
 
 })
 
-jsonFileOutput <- file.path(tempdir(), "FullyPopulated.output.json")
+jsonFileOutput <- file.path(tempdir(), "StudyDesign.output.json")
 
-writeLines(text = ddmore:::.generateJSON(myOutputMog), con = jsonFileOutput)
+writeLines(text = .generateJSON(myOutputMog), con = jsonFileOutput)
 
 jsonAsNestedListsOutput <- rjson::fromJSON(file=jsonFileOutput)
 
@@ -171,8 +173,7 @@ compareVectorRepresentationOfBlock <- function(objName, blockName, inputBlockAsV
 
 # Compares the blocks within dataObj, parObj, mdlObj or taskObj, in nested-list representation
 compareNestedListsRepresentationOfBlock <- function(objName, blockName, inputBlockAsNestedList, outputBlockAsNestedList) {
-	
-	# message(paste0("\nComparing block name ", objName, "::", blockName, "...\n"))
+  # message(paste0("\nComparing block name ", objName, "::", blockName, "...\n"))
     
     if (is.null(inputBlockAsNestedList) || is.null(outputBlockAsNestedList)) {
         message(paste("Warning one of the blocks",blockName,"is null.\n"))
@@ -184,13 +185,13 @@ compareNestedListsRepresentationOfBlock <- function(objName, blockName, inputBlo
 	test_that(paste("Same number of items expected for input and output nested-list representations of block:", blockName), {
 		expect_equal(length(outputBlockAsNestedList), length(inputBlockAsNestedList))
 	})
-
-	lapply(seq(1:length(inputBlockAsNestedList)), function(i) {
-		
-		compareBlockItems(objName, blockName, paste0("#",i), inputBlockAsNestedList[[i]], outputBlockAsNestedList[[i]])
-		
-	})
-
+  if(length(inputBlockAsNestedList)>0 && length(outputBlockAsNestedList)>0) {
+  	lapply(seq(1:length(inputBlockAsNestedList)), function(i) {
+  		
+  		compareBlockItems(objName, blockName, paste0("#",i), inputBlockAsNestedList[[i]], outputBlockAsNestedList[[i]])
+  		
+  	})
+  }
 }
 
 # Compares dataObj, parObj, mdlObj or taskObj, in nested-list representation
@@ -243,10 +244,6 @@ compareNestedListsRepresentationOfTopLevelObject <- function(inputData, outputDa
 
 
 compareNestedListsRepresentationOfTopLevelObject(
-	jsonAsNestedLists[sapply(jsonAsNestedLists, function(it) { it$type=="dataObj"})][[1]],
-	jsonAsNestedListsOutput[sapply(jsonAsNestedListsOutput, function(it) { it$type=="dataObj"})][[1]]
-)
-compareNestedListsRepresentationOfTopLevelObject(
 	jsonAsNestedLists[sapply(jsonAsNestedLists, function(it) { it$type=="parObj"})][[1]],
 	jsonAsNestedListsOutput[sapply(jsonAsNestedListsOutput, function(it) { it$type=="parObj"})][[1]]
 )
@@ -257,6 +254,10 @@ compareNestedListsRepresentationOfTopLevelObject(
 compareNestedListsRepresentationOfTopLevelObject(
 	jsonAsNestedLists[sapply(jsonAsNestedLists, function(it) { it$type=="taskObj"})][[1]],
 	jsonAsNestedListsOutput[sapply(jsonAsNestedListsOutput, function(it) { it$type=="taskObj"})][[1]]
+)
+compareNestedListsRepresentationOfTopLevelObject(
+	jsonAsNestedLists[sapply(jsonAsNestedLists, function(it) { it$type=="designObj"})][[1]],
+	jsonAsNestedListsOutput[sapply(jsonAsNestedListsOutput, function(it) { it$type=="designObj"})][[1]]
 )
 # TODO: compareNestedListsRepresentationOfTopLevelObject() for MOG obj
 
