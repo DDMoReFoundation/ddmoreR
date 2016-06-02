@@ -312,6 +312,46 @@ is.designObj <- function(obj){
 
 }
 
+
+
+################################################################################
+#' Prior Object S4 Class Definition.
+#' 
+#' Objects of this class map to occurrences of the \code{priorObj} top-level block
+#' in an MDL file. They are created by parsing an MDL file using
+#' \link{getPriorObjects} or \link{getMDLObjects}.
+#'
+#' @slot DECLARED_VARIABLES List of sets of name-value-pair attributes, each
+#'       set encoding the definition of a variable.
+#' @slot INTERVENTION Named list of intervention names mapping to interventions definitions.
+#' @slot STUDY_DESIGN Named list of study arms names mapping to their design
+#' @slot SAMPLING Named list of sampling definitions
+#' @slot name The name assigned to the \code{parObj} in the MDL file.
+
+setClass("priorObj", 
+  slots = c(
+    PRIOR_PARAMETERS = "list",
+    PRIOR_VARIABLE_DEFINITION = "list",
+    PRIOR_SOURCE = "list",
+    INPUT_PRIOR_DATA = "list",
+    name = "character"
+  ),
+  validity = validity.priorObj
+)
+
+#' is.priorObj
+#'
+#' Determines if an object is of class "priorObj"
+#'
+#' @usage is.priorObj(obj = object)
+#'
+#' @return TRUE or FALSE
+is.priorObj <- function(obj) {
+  is(obj, class2 = "priorObj")
+}
+
+
+################################################################################
 #### MOG class
 
 
