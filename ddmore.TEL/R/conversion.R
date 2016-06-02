@@ -261,6 +261,9 @@ MOG_OBJECT_TYPES <- c("dataObj", "parObj", "mdlObj", "taskObj", "designObj")
 		INTERVENTION = as.list(objAsList$INTERVENTION), # as.list handles null; TODO Transformation like translateIntoNamedList to be applied to this instead
 		STUDY_DESIGN = as.list(objAsList$STUDY_DESIGN), # as.list handles null; TODO Transformation like translateIntoNamedList to be applied to this instead
 		SAMPLING = as.list(objAsList$SAMPLING), # as.list handles null; TODO Transformation like translateIntoNamedList to be applied to this instead
+		DESIGN_SPACES = as.list(objAsList$DESIGN_SPACES), # as.list handles null; TODO Transformation like translateIntoNamedList to be applied to this instead
+		COVARIATES = as.list(objAsList$COVARIATES), # as.list handles null; TODO Transformation like translateIntoNamedList to be applied to this instead
+		POPULATION = as.list(objAsList$POPULATION), # as.list handles null; TODO Transformation like translateIntoNamedList to be applied to this instead
 		name = name
     )
 	
@@ -340,7 +343,10 @@ setMethod(".prepareForJSON", "designObj", function(object) {
     DECLARED_VARIABLES = object@DECLARED_VARIABLES,
     INTERVENTION = object@INTERVENTION,
     STUDY_DESIGN = object@STUDY_DESIGN,
-    SAMPLING = object@SAMPLING
+    SAMPLING = object@SAMPLING,
+    POPULATION = object@POPULATION,
+    DESIGN_SPACES = object@DESIGN_SPACES,
+    COVARIATES = object@COVARIATES
   ))
   objName <- object@name
   list(name=objName, type="designObj", blocks=objBlocks)

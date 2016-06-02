@@ -260,10 +260,13 @@ is.mdlObj <- function(obj){
 
 validity.designObj <- function(object)
 {
-	stopifnot(is.list(object@DECLARED_VARIABLES))
-	stopifnot(is.list(object@INTERVENTION))
-	stopifnot(is.list(object@STUDY_DESIGN))
-    stopifnot(is.list(object@SAMPLING))
+  stopifnot(is.list(object@DECLARED_VARIABLES))
+  stopifnot(is.list(object@INTERVENTION))
+  stopifnot(is.list(object@STUDY_DESIGN))
+  stopifnot(is.list(object@SAMPLING))
+  stopifnot(is.list(object@DESIGN_SPACES))
+  stopifnot(is.list(object@POPULATION))
+  stopifnot(is.list(object@COVARIATES))
   return(TRUE)
 }
 
@@ -284,11 +287,14 @@ validity.designObj <- function(object)
 #' @author mrogalski
 setClass("designObj", 
   slots = c(
-	DECLARED_VARIABLES = "list",
-	INTERVENTION = "list",
-	STUDY_DESIGN = "list",
+    DECLARED_VARIABLES = "list",
+    INTERVENTION = "list",
+    STUDY_DESIGN = "list",
     SAMPLING = "list",
-	name = "character"
+    DESIGN_SPACES = "list",
+    POPULATION = "list",
+    COVARIATES = "list",
+    name = "character"
   ),
   validity = validity.designObj
 )
