@@ -315,6 +315,18 @@ is.designObj <- function(obj){
 
 
 ################################################################################
+# Prior Object Specification.
+
+validity.priorObj <- function(object)
+{
+  stopifnot(is.list(object@PRIOR_PARAMETERS))
+  stopifnot(is.list(object@PRIOR_VARIABLE_DEFINITION))
+  stopifnot(is.list(object@PRIOR_SOURCE))
+  stopifnot(is.list(object@INPUT_PRIOR_DATA))
+  return(TRUE)
+}
+
+
 #' Prior Object S4 Class Definition.
 #' 
 #' Objects of this class map to occurrences of the \code{priorObj} top-level block
