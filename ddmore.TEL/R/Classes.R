@@ -373,6 +373,7 @@ validity.mogObj <- function(object)
 	stopifnot(validity.parObj(object@parObj))
 	stopifnot(validity.mdlObj(object@mdlObj))
 	stopifnot(validity.taskObj(object@taskObj))
+    stopifnot(is.null(object@priorObj) || validity.priorObj(object@priorObj))
 	stopifnot(is.null(object@designObj) || validity.designObj(object@designObj))
   return(TRUE)
 }
@@ -407,6 +408,7 @@ setClass("mogObj",
 	parObj = "parObj",
 	mdlObj = "mdlObj", 
 	taskObj = "taskObj",
+    priorObj = "ANY",
 	designObj = "ANY",
 	name = "character"
   ),
@@ -443,10 +445,12 @@ as.mogObj <- function(list){
   nPar <- sum(classes=="parObj")
   nMdl <- sum(classes=="mdlObj")
   nTask <- sum(classes=="taskObj")
+  nPrior <- sum(classes=="priorObj")
   nDesign <- sum(classes=="designObj")
   
-  if (nPar!=1 | nMdl!=1 | nTask!=1 | nDat>1 | nDesign>1) {
-    stop("The list provided must contain exactly one of each type of object: parObj, mdlObj and taskObj and at most one of designObj or dataObj")
+  if (nPar!=1 | nMdl!=1 | nTask!=1 | nDat>1 | nPrior>1 | nDesign>1) {
+    stop("The list provided must contain exactly one of each type of object: parObj, mdlObj and taskObj",
+        " and at most one of priorObj, designObj and dataObj")
   }
   dat <- NULL
   if(nDat==1) {
@@ -456,6 +460,11 @@ as.mogObj <- function(list){
   par <- list[classes=="parObj"][[1]]
   mdl <- list[classes=="mdlObj"][[1]]
   task <- list[classes=="taskObj"][[1]]
+  
+  prior <- NULL
+  if(nPrior==1) {
+    prior <- list[classes=="priorObj"][[1]]
+  }
   
   design <- NULL
   if(nDesign==1) {
@@ -468,6 +477,7 @@ as.mogObj <- function(list){
              parObj = par,
              mdlObj = mdl, 
              taskObj = task, 
+             priorObj = prior,
              designObj = design 
   )
   

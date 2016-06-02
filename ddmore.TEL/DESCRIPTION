@@ -28,12 +28,12 @@ Collate:
     'readDataObj.R'
     'StandardOutputObjectXmlParsers.R'
     'StandardOutputObjectCommonClasses.R'
-    "Estimation-Class.R"
-    "Simulation-Class.R"
-    "OptimalDesign-Class.R"
-    "ModelDiagnostic-Class.R"
-    "RawResults-Class.R"
-    "TaskInformation-Class.R"
+    'Estimation-Class.R'
+    'Simulation-Class.R'
+    'OptimalDesign-Class.R'
+    'ModelDiagnostic-Class.R'
+    'RawResults-Class.R'
+    'TaskInformation-Class.R'
     'StandardOutputObject-Class.R'
     'LoadSOObject.R'
     'StandardOutputObjectDataFunctions.R'
@@ -49,6 +49,7 @@ Collate:
     'getMDLObjects.R'
     'getModelObjects.R'
     'getParameterObjects.R'
+    'getPriorObjects.R'
     'getDesignObjects.R'
     'getPopulationParameters.R'
     'getTaskPropertiesObjects.R'
@@ -59,9 +60,9 @@ Collate:
     'subset.R'
     'updateParObj.R'
     'as.mdl.R'
-    "cleanUp.R"
-    "simcyp.internal.R"
-    "simcyp.external.R"
+    'cleanUp.R'
+    'simcyp.internal.R'
+    'simcyp.external.R'
 Suggests:
     testthat,
     xpose4
