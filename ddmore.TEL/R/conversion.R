@@ -2,7 +2,7 @@
 MDL_FILE_EXT <- 'mdl'
 JSON_FILE_EXT <- 'json'
 
-MOG_OBJECT_TYPES <- c("dataObj", "parObj", "mdlObj", "taskObj", "designObj")
+MOG_OBJECT_TYPES <- c("dataObj", "parObj", "mdlObj", "taskObj", "priorObj", "designObj")
 
 
 ################################################################################
@@ -72,7 +72,7 @@ MOG_OBJECT_TYPES <- c("dataObj", "parObj", "mdlObj", "taskObj", "designObj")
 # @seealso \code{\link{readMDL}}, \code{\link{getMDLObjects}}
 # @examples
 # jpath <- system.file(package = "ddmore", "training", "data", 
-#        "ex_model7_prolactin_04Jun2014_OAM.json")
+#        "UseCase2.json")
 # mockServer <- createMockFISServer(jobStatusPollingDelay = 1)
 # DDMORE.setServer(mockServer)
 # ddmore:::.parseMDLFile0(f = jpath, fisServer = DDMORE.getServer())
@@ -108,35 +108,15 @@ MOG_OBJECT_TYPES <- c("dataObj", "parObj", "mdlObj", "taskObj", "designObj")
 
 # Creates a list containing the matching objects
 #
-# TODO check whether type has been renamed identifier, 
-# or vice versa
 # @examples
 # jpath <- system.file(package = "ddmore", "training", "data", 
-#        "ex_model7_prolactin_04Jun2014_OAM.json")
+#        "UseCase2.json")
 # mockServer <- createMockFISServer(jobStatusPollingDelay = 1)
 # DDMORE.setServer(mockServer)
 # rawEg <- ddmore:::.parseMDLFile0(f = jpath, fisServer = DDMORE.getServer())
 # ddmore:::.extractTypeObjects(raw = rawEg, type = "dataObj")
 .extractTypeObjects <- function(raw, type) {
-	
     val <- raw[sapply(raw, function(e) {e$type == type})]
-    #val <- list()
-    #
-    #if (!is.null(names(raw))) {
-    #    raw <- list(raw)
-    #}
-    #for (i in seq_along(raw)) {
-    #    
-    #    ind <- sapply(X = raw[[i]], 
-    #        FUN = function(e) {
-    #            if ("type" %in% names(e)) {
-    #                any(casefold(e$type) == casefold(type))
-    #            } else { 
-    #                FALSE
-    #            }
-    #        })
-    #    val <- c(val, raw[[i]][ind])
-    #}
 	.extractObjs(val)
 }
 
@@ -152,6 +132,7 @@ MOG_OBJECT_TYPES <- c("dataObj", "parObj", "mdlObj", "taskObj", "designObj")
                         parobj = .createParObj,
                         mdlobj = .createMdlObj,
                         taskobj = .createTaskObj,
+                        priorobj = .createPriorObj,
                         designobj = .createDesignObj
                     )
                     
@@ -271,6 +252,24 @@ MOG_OBJECT_TYPES <- c("dataObj", "parObj", "mdlObj", "taskObj", "designObj")
 }
 
 
+.createPriorObj <- function(objAsList, name) {
+	
+	if (is.null(objAsList)) {
+		stop("Input argument objAsList is null")
+	}
+	# as.list handles null; 
+    # TODO Transformation like translateIntoNamedList to be applied to this instead
+    priorObj <- new("priorObj",
+        PRIOR_PARAMETERS = as.list(objAsList$PRIOR_PARAMETERS),
+        PRIOR_VARIABLE_DEFINITION = as.list(objAsList$PRIOR_VARIABLE_DEFINITION),
+        PRIOR_SOURCE = as.list(objAsList$PRIOR_SOURCE),
+        INPUT_PRIOR_DATA = as.list(objAsList$INPUT_PRIOR_DATA),
+		name = name
+    )
+	priorObj
+}
+
+
 ##############################################################
 #' writeMogObj
 #'
@@ -335,6 +334,22 @@ setMethod(".prepareForJSON", "dataObj", function(object) {
   dataObjName <- object@name
   list(name=dataObjName, type="dataObj", blocks=dataObjBlocks)
 })
+
+setMethod(".prepareForJSON", "priorObj", function(object) {
+  .precondition.checkArgument(validity.priorObj(object), "object", "valid priorObj required.")
+  
+  objBlocks <- .removeNullEntries(list(
+    PRIOR_PARAMETERS = object@PRIOR_PARAMETERS,
+    PRIOR_VARIABLE_DEFINITION = object@PRIOR_VARIABLE_DEFINITION,
+    PRIOR_SOURCE = object@PRIOR_SOURCE,
+    INPUT_PRIOR_DATA = object@INPUT_PRIOR_DATA
+  ))
+  objName <- object@name
+  list(name = objName, 
+    type = "priorObj", 
+    blocks = objBlocks)
+})
+
 
 setMethod(".prepareForJSON", "designObj", function(object) {
   .precondition.checkArgument(validity.designObj(object), "object", "valid designObj required.")
@@ -417,6 +432,9 @@ setMethod(".prepareForJSON", "taskObj", function(object) {
     }
     if(!is.null(m@parObj)) {
       allObjsAsList <- c(allObjsAsList, list(.prepareForJSON(m@parObj)))
+    }
+    if(!is.null(m@priorObj)) {
+      allObjsAsList <- c(allObjsAsList, list(.prepareForJSON(m@priorObj)))
     }
     if(!is.null(m@mdlObj)) {
       allObjsAsList <- c(allObjsAsList, list(.prepareForJSON(m@mdlObj)))
@@ -585,7 +603,8 @@ as.PharmML <- function(f, fisServer = DDMORE.getServer()) {
 	resultFile <- MDLToPharmML(fisServer, f)
 	
 	if (!file.exists(resultFile)) {
-		stop("Failed to convert MDL to PharmML; PharmML file path returned from the conversion service was \"", resultFile, "\" but this file does not exist.");
+		stop("Failed to convert MDL to PharmML; PharmML file path returned from the conversion service was \"", 
+            resultFile, "\" but this file does not exist.")
 	}
 	return(resultFile)
 }
