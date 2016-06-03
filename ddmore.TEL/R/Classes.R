@@ -317,9 +317,8 @@ is.designObj <- function(obj){
 ################################################################################
 # Prior Object Specification.
 
-validity.priorObj <- function(object)
-{
-  stopifnot(is.list(object@PRIOR_PARAMETERS))
+validity.priorObj <- function(object) {
+  stopifnot(is.list(object@PRIOR_PARAMETERS) || is.null(object@PRIOR_PARAMETERS))
   stopifnot(is.list(object@PRIOR_VARIABLE_DEFINITION))
   stopifnot(is.list(object@PRIOR_SOURCE))
   stopifnot(is.list(object@INPUT_PRIOR_DATA))
@@ -342,7 +341,7 @@ validity.priorObj <- function(object)
 
 setClass("priorObj", 
   slots = c(
-    PRIOR_PARAMETERS = "list",
+    PRIOR_PARAMETERS = "ANY",
     PRIOR_VARIABLE_DEFINITION = "list",
     PRIOR_SOURCE = "list",
     INPUT_PRIOR_DATA = "list",
@@ -394,11 +393,12 @@ validity.mogObj <- function(object)
 #'   \item{\link{designObj}}
 #' }
 #' 
-#' @slot dataObj Object of class \code{dataObj}.
+#' @slot dataObj (Optional) Object of class \code{dataObj}.
 #' @slot parObj Object of class \code{parObj}.
 #' @slot mdlObj Object of class \link{mdlOb}.
 #' @slot taskObj Object of class \link{taskObj}.
-#' @slot designObj Object of class \link{designObj}.
+#' @slot priorObj (Optional) Object of class \code{priorObj}.
+#' @slot designObj (Optional) Object of class \link{designObj}.
 #' @slot name A name to be assigned to the MOG; used when writing back out to MDL.
 #' 
 #' @author khanley
