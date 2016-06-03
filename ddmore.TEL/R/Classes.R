@@ -56,9 +56,7 @@ setClass("dataObj",
 #'
 #' @return TRUE or FALSE 
 is.dataObj <- function(obj){
-
-  class(obj)=="dataObj"
-
+  is(obj, class2 = "dataObj")
 }
 
 
@@ -112,9 +110,7 @@ setClass("taskObj",
 #'
 #' @return TRUE or FALSE 
 is.taskObj <- function(obj){
-
-  class(obj)=="taskObj"
-
+  is(obj, class2 = "taskObj")
 }
 
 
@@ -159,13 +155,11 @@ setClass("parObj",
 #'
 #' Determines if an object is of class "parObj"
 #'
-#' @usage is.parObj(object)
+#' @usage is.parObj(obj = object)
 #'
 #' @return TRUE or FALSE 
 is.parObj <- function(obj){
-
-  class(obj)=="parObj"
-
+  is(obj, class2 = "parObj")
 }
 
 
@@ -246,13 +240,11 @@ setClass("mdlObj",
 #'
 #' Determines if an object is of class "mdlObj"
 #'
-#' @usage is.mdlObj(object)
+#' @usage is.mdlObj(obj = object)
 #'
 #' @return TRUE or FALSE 
 is.mdlObj <- function(obj){
-
-  class(obj)=="mdlObj"
-
+  is(obj, class2 = "mdlObj")
 }
 
 #### Design object class
@@ -303,13 +295,11 @@ setClass("designObj",
 #'
 #' Determines if an object is of class "designObj"
 #'
-#' @usage is.designObj(object)
+#' @usage is.designObj(obj = object)
 #'
 #' @return TRUE or FALSE 
 is.designObj <- function(obj){
-
-  class(obj)=="designObj"
-
+  is(obj, class2 = "designObj")
 }
 
 
@@ -369,12 +359,12 @@ is.priorObj <- function(obj) {
 validity.mogObj <- function(object)
 {
 	stopifnot(is.null(object@dataObj) || validity.dataObj(object@dataObj))
-	stopifnot(validity.parObj(object@parObj))
+	stopifnot(is.null(object@parObj) || validity.parObj(object@parObj))
 	stopifnot(validity.mdlObj(object@mdlObj))
 	stopifnot(validity.taskObj(object@taskObj))
     stopifnot(is.null(object@priorObj) || validity.priorObj(object@priorObj))
 	stopifnot(is.null(object@designObj) || validity.designObj(object@designObj))
-  return(TRUE)
+    return(TRUE)
 }
 
 
@@ -383,19 +373,20 @@ validity.mogObj <- function(object)
 ################################################################################
 #' MOG (Model Object Group) S4 Class Definition.
 #'
-#' 'Aggregator' class comprising exactly one occurrence of each of the following
-#' types of object as parsed from an MDL file:
+#' 'Aggregator' class comprising no more than one occurrence of each of the 
+#' following types of object as parsed from an MDL file:
 #' \itemize{
 #'   \item{\link{dataObj}}
 #'   \item{\link{parObj}}
 #'   \item{\link{mdlObj}}
 #'   \item{\link{taskObj}}
+#'   \item{\link{priorObj}}
 #'   \item{\link{designObj}}
 #' }
 #' 
 #' @slot dataObj (Optional) Object of class \code{dataObj}.
-#' @slot parObj Object of class \code{parObj}.
-#' @slot mdlObj Object of class \link{mdlOb}.
+#' @slot parObj (Optional) Object of class \code{parObj}.
+#' @slot mdlObj Object of class \link{mdlObj}.
 #' @slot taskObj Object of class \link{taskObj}.
 #' @slot priorObj (Optional) Object of class \code{priorObj}.
 #' @slot designObj (Optional) Object of class \link{designObj}.
@@ -405,7 +396,7 @@ validity.mogObj <- function(object)
 setClass("mogObj", 
   slots = c(
 	dataObj = "ANY",
-	parObj = "parObj",
+	parObj = "ANY",
 	mdlObj = "mdlObj", 
 	taskObj = "taskObj",
     priorObj = "ANY",
@@ -420,21 +411,20 @@ setClass("mogObj",
 #'
 #' Determines if an object is of class "mogObj"
 #'
-#' @usage is.mogObj(object)
+#' @usage is.mogObj(obj = object)
 #'
 #' @return TRUE or FALSE 
 is.mogObj <- function(obj){
-
-  class(obj)=="mogObj"
-
+    is(obj, class2 = "mogObj")
 }
 
 #' as.mogObj
 #'
-#' Creates a mogObj from a list of dataObj, parObj, mdlObj and taskObj objects. Note
-#' that only one of each type may be included, and all types need to be present.
+#' Creates a mogObj from a list of mdlObj and taskObj objects, 
+#' and optionally dataObj, parObj, priorObj and designObj. Note
+#' that only one of each type may be included.
 #'
-#' @usage as.mogObj(list)
+#' @usage as.mogObj(list = list(myMdlObj, myTaskObj))
 #' @export
 #' @return An object of class mogObj
 as.mogObj <- function(list){
@@ -448,29 +438,28 @@ as.mogObj <- function(list){
   nPrior <- sum(classes=="priorObj")
   nDesign <- sum(classes=="designObj")
   
-  if (nPar!=1 | nMdl!=1 | nTask!=1 | nDat>1 | nPrior>1 | nDesign>1) {
-    stop("The list provided must contain exactly one of each type of object: parObj, mdlObj and taskObj",
-        " and at most one of priorObj, designObj and dataObj")
+  if (nPar>1 | nMdl!=1 | nTask!=1 | nDat>1 | nPrior>1 | nDesign>1) {
+    stop("The list provided must contain exactly one of each type of object: mdlObj and taskObj",
+        " and at most one of parObj, priorObj, designObj and dataObj")
   }
   dat <- NULL
   if(nDat==1) {
     dat <- list[classes=="dataObj"][[1]]
   }
-  
-  par <- list[classes=="parObj"][[1]]
+  par <- NULL
+  if(nPar==1) {
+    par <- list[classes=="parObj"][[1]]
+  }
   mdl <- list[classes=="mdlObj"][[1]]
   task <- list[classes=="taskObj"][[1]]
-  
   prior <- NULL
   if(nPrior==1) {
     prior <- list[classes=="priorObj"][[1]]
   }
-  
   design <- NULL
   if(nDesign==1) {
     design <- list[classes=="designObj"][[1]]
   }
-  
   
   res <- new("mogObj", 
              dataObj = dat,
@@ -480,6 +469,5 @@ as.mogObj <- function(list){
              priorObj = prior,
              designObj = design 
   )
-  
   return(res)
 }

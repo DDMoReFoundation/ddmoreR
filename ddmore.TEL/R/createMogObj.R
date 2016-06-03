@@ -5,11 +5,11 @@
 #' data object (dataObj), parameter object (parObj), model object (mdlObj)
 #' and task object (taskObj). The mog name can be specified if desired.
 #'
-#' @usage createMogObj(dataObj=myDataObj, parObj=myParObj, mdlObj=myMdlObj, taskObj=myTaskObj)
+#' @usage createMogObj(mdlObj=myMdlObj, taskObj=myTaskObj)
 #' @usage createMogObj(dataObj=myDataObj, parObj=myParObj, mdlObj=myMdlObj, taskObj=myTaskObj, mogName="myNewMog")
 #'
 #' @param dataObj (Optional) An object of class dataObj
-#' @param parObj An object of class parObj
+#' @param parObj (Optional) An object of class parObj
 #' @param mdlObj An object of class mdlObj
 #' @param taskObj An object of class taskObj
 #' @param priorObj (Optional) An object of class priorObj
@@ -22,7 +22,7 @@
 #' @docType methods
 #' @rdname createMogObj
 #' 
-createMogObj <- function(dataObj = NULL, parObj, mdlObj, taskObj, priorObj = NULL, 
+createMogObj <- function(dataObj = NULL, parObj = NULL, mdlObj, taskObj, priorObj = NULL, 
     designObj = NULL, mogName = "outputMog") {
 	if (missing(mogName)) {
 		new("mogObj", 
