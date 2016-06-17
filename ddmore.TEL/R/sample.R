@@ -1,7 +1,5 @@
 ################################################################################
 #' sample
-#' 
-#' TODO: This function needs reviewing and updating!
 #'
 #' A sample method for objects of class \code{dataObj}. Returns an object of class 
 #' \code{dataObj} with number of records / individuals defined by 
@@ -13,7 +11,7 @@
 #' default behaviour is to sample by ID variables and retain all data for each 
 #' sampled ID.
 #'
-#' @usage sample(object, size, replace=FALSE, prob=NULL, by= slot(object, name = "Data")$ID,...) 
+#' @usage sample(object, size, replace=FALSE, prob=NULL, by= "ID", fileout = NULL) 
 #'
 #' @param object  an object of class \code{dataObj}
 #' @param size a non-negative integer giving 
@@ -24,9 +22,11 @@
 #' @param prob a vector of probabilities for obtaining the elements of the 
 #'  observations being sampled. Must sum to 1.
 #' @param by a stratification variable defined within object. Default is to sample by ID.
-#' @param ... additional arguments to be passed to the DDMORE readDataObj method
+#' @param fileout single character or NULL. If not NULL, a CSV file containing the sampled data 
+#' will be created with name <fileout><timestamp>.csv (default "sample")
+#' @param ... additional arguments to be passed to the DDMORE \code{\link{readDataObj}} method
 #'
-#' @seealso R base function \code{sample}
+#' @seealso R base function \code{sample}, \code{\link{readDataObj}}
 #' @return A copy of the dataObj with the sampled data set substituted for the original
 #'
 #' @examples 
@@ -44,7 +44,8 @@
 #' @docType methods
 #' @rdname sample-methods
 setGeneric("sample", 
-  function(object, size, replace=FALSE, prob=NULL, by="ID",...){
+  function(object, size, replace=FALSE, prob=NULL, by="ID", 
+    fileout = "sample", ...){
       standardGeneric("sample")
 })
 #' @rdname sample-methods
@@ -61,18 +62,26 @@ setMethod("sample", signature=signature(object="mogObj"),
 })
 #' @rdname sample-methods
 #' @aliases sample,dataObj,dataObj-method
-setMethod("sample", signature=signature(object="dataObj"), 
-  function(object, size, replace=FALSE, prob=NULL, by="ID",...){
+setMethod("sample", signature = signature(object="dataObj"), 
+  function(object, size, replace = FALSE, prob = NULL, by = "ID", 
+    fileout = "sample", ...){
 
     # Check "by" column exists in the data
     if(!(by %in% names(object@DATA_INPUT_VARIABLES))){
       stop("'by' name is not a column of the data, as detailed in the DATA_INPUT_VARIABLES slot")
     }
+    if (!is.null(fileout) || (length(fileout) == 1L && is.character(fileout))) {
+        stop("fileout must be a single character stating the data output path or NULL")
+    }
+    # do not write if fileout is missing
+    if (!is.null(fileout)) {
+        if (is.na(fileout)) { fileout <- NULL }
+    }
     # read in the data:
-    dat <- read(object, ...)
+    dat <- readDataObj(object, ...)
     
     # If not specified, the sample is assumed to be the same size as the original dataset
-    if(missing(size)){
+    if (missing(size)){
       size <- dim(dat)[1]
     }
     
@@ -122,16 +131,12 @@ setMethod("sample", signature=signature(object="dataObj"),
         at least one strata is/are rounded to the nearest whole number. Therefore, the number of samples returned
         may not match the number requested."))}
     
-    # Write the data out as a csv:
-    fileName <- paste0("sample", Sys.time(), ".csv")
-    
-    # Remove punctuation and spaces from file name:
-    fileName <- gsub(":", "", fileName)
-    fileName <- gsub("-", "", fileName)
-    fileName <- gsub(" ", "", fileName)
-    
-    write.csv(res, fileName, row.names=FALSE)
- 
+    if (!is.null(fileout)) {
+        # Write the data out as a csv:
+        fileName <- paste0(fileout, format(Sys.time(), "%Y%m%d_%H%M%S"), ".csv")
+        
+        write.csv(res, fileName, row.names=FALSE)
+    }
     # Create a dataObj with a pointer to the data
     mogOut <- object
     mogOut@SOURCE$file <- fileName
