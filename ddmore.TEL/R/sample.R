@@ -21,7 +21,7 @@
 #' @param replace should sampling be with replacement?
 #' @param prob a vector of probabilities for obtaining the elements of the 
 #'  observations being sampled. Must sum to 1.
-#' @param by a stratification variable defined within object. Default is to sample by ID.
+#' @param by single character, a stratification variable defined within object. Default is to sample by ID.
 #' @param fileout single character or NULL. If not NULL, a CSV file containing the sampled data 
 #' will be created with name <fileout><timestamp>.csv (default "sample")
 #' @param ... additional arguments to be passed to the DDMORE \code{\link{readDataObj}} method
@@ -44,23 +44,24 @@
 #' @docType methods
 #' @rdname sample-methods
 setGeneric("sample", 
-  function(object, size, replace=FALSE, prob=NULL, by="ID", 
+  function(object, size, replace = FALSE, prob = NULL, by = "ID", 
     fileout = "sample", ...){
       standardGeneric("sample")
 })
+
 #' @rdname sample-methods
 #' @aliases sample,mogObj,mogObj-method
-setMethod("sample", signature=signature(object="mogObj"), 
-  function(object, size, replace=FALSE, prob=NULL, by="ID", 
-    fileout = "sample", ...){
+setMethod("sample", signature = signature(object = "mogObj"), 
+  function(object, size, replace = FALSE, prob = NULL, by = "ID", 
+    fileout = "sample", ...) {
   # Extract out dataObj:
-  obj <- object@dataObj
-  
+  obj <- slot(object = object, name = "dataObj")
   
   # Then call the dataObj method
   sample(obj, size, replace, prob, by, fileout, ... )
 
 })
+
 #' @rdname sample-methods
 #' @aliases sample,dataObj,dataObj-method
 setMethod("sample", signature = signature(object="dataObj"), 
