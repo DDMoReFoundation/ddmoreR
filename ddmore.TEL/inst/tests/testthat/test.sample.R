@@ -1,4 +1,4 @@
-context("Tests for the subset methods")
+context("Tests for the sample methods")
 
 csvpath <- system.file("training", "data", package="ddmore")
 

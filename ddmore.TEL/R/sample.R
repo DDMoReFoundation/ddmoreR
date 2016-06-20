@@ -1,8 +1,8 @@
 ################################################################################
-#' sample
+#' @title sample from a dataObj
 #'
-#' A sample method for objects of class \code{dataObj}. Returns an object of class 
-#' \code{dataObj} with number of records / individuals defined by 
+#' @description A sample method for objects of class \code{dataObj}. Returns an 
+#' object of class \code{dataObj} with number of records / individuals defined by 
 #' arguments. Sampling may be with or without replacement. Default sampling scheme 
 #' is with replacement. Default is to assume the same number of records / 
 #' individuals as in the original dataset i.e. bootstrap the dataset. The user 
@@ -51,13 +51,14 @@ setGeneric("sample",
 #' @rdname sample-methods
 #' @aliases sample,mogObj,mogObj-method
 setMethod("sample", signature=signature(object="mogObj"), 
-  function(object, size, replace=FALSE, prob=NULL, by="ID",...){
+  function(object, size, replace=FALSE, prob=NULL, by="ID", 
+    fileout = "sample", ...){
   # Extract out dataObj:
   obj <- object@dataObj
   
   
   # Then call the dataObj method
-  sample(obj, size, replace, prob, by, ... )
+  sample(obj, size, replace, prob, by, fileout, ... )
 
 })
 #' @rdname sample-methods
@@ -65,12 +66,15 @@ setMethod("sample", signature=signature(object="mogObj"),
 setMethod("sample", signature = signature(object="dataObj"), 
   function(object, size, replace = FALSE, prob = NULL, by = "ID", 
     fileout = "sample", ...){
-
+    
+    if (!(length(by) == 1L && is.character(by))) {
+        stop("by must be a single character naming the column by which to sample")
+    }
     # Check "by" column exists in the data
     if(!(by %in% names(object@DATA_INPUT_VARIABLES))){
       stop("'by' name is not a column of the data, as detailed in the DATA_INPUT_VARIABLES slot")
     }
-    if (!is.null(fileout) || (length(fileout) == 1L && is.character(fileout))) {
+    if (!is.null(fileout) && !(length(fileout) == 1L && is.character(fileout))) {
         stop("fileout must be a single character stating the data output path or NULL")
     }
     # do not write if fileout is missing
@@ -136,6 +140,8 @@ setMethod("sample", signature = signature(object="dataObj"),
         fileName <- paste0(fileout, format(Sys.time(), "%Y%m%d_%H%M%S"), ".csv")
         
         write.csv(res, fileName, row.names=FALSE)
+    } else {
+        fileName <- ""
     }
     # Create a dataObj with a pointer to the data
     mogOut <- object

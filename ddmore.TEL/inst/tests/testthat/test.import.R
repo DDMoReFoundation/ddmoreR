@@ -35,5 +35,7 @@ test_that("importJobResultFiles should import job result files", {
     expect_true(file.exists(file.path(targetDirectory,"stderr.txt")), info  = "STD ERR file should be created in the target directory.")
     expect_true(file.exists(file.path(targetDirectory,"some-result")), info  = "some-result file should be created in the target directory.")
     expect_false(file.exists(file.path(targetDirectory,".fis")), info  = ".fis directory should not be created in the target directory.")
+    
+    unlink(jobWd, recursive = TRUE)
 })
 

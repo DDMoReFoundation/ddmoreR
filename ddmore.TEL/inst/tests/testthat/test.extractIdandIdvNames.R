@@ -10,7 +10,10 @@ test_that("Extraction from SOO Slots Use Case 2", {
     # note this model was created under version 0.2, 
     # so ignore message about Likelihood block 
     # (this was renamed in version 0.3)
-    SOObject <- suppressMessages(LoadSOObject(soXmlFilePath))
+    
+    SOObject <- suppressWarnings(
+        suppressMessages(
+            LoadSOObject(soXmlFilePath)))
     
     p1 <- ddmore:::extractIdandIdvNames(SOObject = SOObject, 
         PredictionsSlotName = "Estimation::Predictions")
