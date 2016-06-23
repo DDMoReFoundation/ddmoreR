@@ -1,7 +1,5 @@
 ##############################################################
-#' plot.mogObj
-#' 
-#' TODO: This function needs reviewing and updating!
+#' plot a mogObj object
 #'
 #' Plots the data contained in the data file referenced within the \code{dataObj}
 #' object within the specified object of class \code{mogObj}. Delegates to
@@ -29,9 +27,7 @@ plot.mogObj <-
 }
 
 ##############################################################
-#' plot.dataObj
-#' 
-#' TODO: This function needs reviewing and updating!
+#' plot a dataObj object
 #' 
 #' Plots the data contained in the data file referenced within the specified \code{dataObj}.
 #' The DATA_INPUT_VARIABLES information from the \code{dataObj} is used to define the
@@ -43,11 +39,11 @@ plot.mogObj <-
 #' @usage plot(object, by, group, sourceDir=getwd(), deriveVariables=TRUE, categoricalAsFactor=TRUE, recode=TRUE, ...)
 #'
 #' @param object Object of class \code{dataObj}.
-#' @param by A data variable specified within the \code{dataObj}. Defines the 
+#' @param by (Optional) single character naming data variable in object. Defines the 
 #' conditioning for each panel in the plot.
-#' @param group Defines grouping variables within each panel, usually varying 
+#' @param group (Optional) single character naming grouping variable within each panel, usually varying 
 #' graphical parameters for each level of the grouping variable.
-#' @param IDVVar (Optional) Character string denoting data column which is the indepndent
+#' @param IDVVar (Optional) Character string denoting data column which is the independent
 #' variable. Defaults to "IDV".
 #' @param sourceDir (Optional) The directory in which the referenced data file is to be found.
 #' Defaults to the current working directory.
@@ -74,49 +70,52 @@ plot.mogObj <-
 #' myThamMOG <- as.mogObj(ThamMDLObjects)
 #' plot(myThamMOG)
 #' 
-#' @seealso \code{read}, \code{xyplot}
+#' @seealso \code{readDataObj}, \code{xyplot}
 #' 
 #' @include Classes.R
 #' @include utils.R
 #' @method plot dataObj
 #' @export
+#' @importFrom lattice xyplot
 #' @rdname plot.dataObj
 #' @aliases plot,dataObj,dataObj-method
 
 plot.dataObj <-
-  function(object, by, group, IDVVar="IDV", sourceDir=getwd(), deriveVariables=FALSE, 
-    categoricalAsFactor=FALSE, recode=FALSE, ...) {
-
+  function(object, by, group, IDVVar = "IDV", sourceDir = getwd(), deriveVariables = FALSE, 
+    categoricalAsFactor = FALSE, recode = FALSE, ...) {
+  
+  validObject(object)
   # First, read in the data:
-  dat <- read(object, sourceDir, deriveVariables, categoricalAsFactor, recode)
-
+  dat <- readDataObj(object, sourceDir, deriveVariables, categoricalAsFactor, recode, ...)
+  
   nam <- names(dat)
   
   # Create a formula string to evaluate
   cmd <- paste("DV", IDVVar, sep="~")
   
   # Function requires columns called DV and IDV, and will error if not:
-  if(!"DV"%in%nam){stop("Column DV is not present in the data set. Unable to produce plot.")}
-  if(!IDVVar%in%nam){stop("Column specified by IDVVar argument is not present in the data set. Unable to produce plot.")}
+  if (!"DV" %in% nam) {
+    stop("Column DV is not present in the data set.")
+  }
+  if (!IDVVar %in% nam) {
+    stop("Column specified by IDVVar argument is not present in the data set.")
+  }
  
-  if(!missing(by)) {
-    if(!by%in%nam){stop("Column specified by 'by' argument is not present in the data set. Unable to produce plot.")}
+  if (!missing(by)) {
+    if (!by %in% nam) {
+      stop("Column specified by 'by' argument is not present in the data set.")
+    }
     # If by variable included, add to formula string for evaluation
     cmd <- paste(cmd, "|", by)
-  
   }
   
-  if(!missing(group)) {
-    
-    if(!group%in%nam){stop("Column specified by 'group' argument is not present in the data set. Unable to produce plot.")}
-
-    xyplot(formula(cmd), group=dat[,group], data=dat, ...)
-  
+  if (!missing(group)) {
+    if (!group %in% nam) {
+      stop("Column specified by 'group' argument is not present in the data set.")
+    }
+    xyplot(formula(cmd), group = dat[,group], data = dat, ...)
   } else {
-  
     xyplot(formula(cmd), data=dat, ...)
   }
-  
 }
-
 

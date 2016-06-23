@@ -18,6 +18,7 @@
 #'     "tests", "data", "PharmMLSO", "MachineGenerated", 
 #'     "UseCase2_TIMEchange_fixed.SO.xml"))
 #' @export
+#' @import stringr
 #' @include StandardOutputObject.R
 #' @include Simulation-Class.R
 #' @include OptimalDesign-Class.R
