@@ -63,6 +63,7 @@ Collate:
     'cleanUp.R'
     'simcyp.internal.R'
     'simcyp.external.R'
+    'pfim.R'
 Suggests:
     testthat,
     xpose4
