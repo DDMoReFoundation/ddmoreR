@@ -327,7 +327,7 @@ validity.priorObj <- function(object) {
 #' @slot INTERVENTION Named list of intervention names mapping to interventions definitions.
 #' @slot STUDY_DESIGN Named list of study arms names mapping to their design
 #' @slot SAMPLING Named list of sampling definitions
-#' @slot name The name assigned to the \code{parObj} in the MDL file.
+#' @slot name The name assigned to the \code{priorObj} in the MDL file.
 
 setClass("priorObj", 
   slots = c(
@@ -438,9 +438,9 @@ as.mogObj <- function(list){
   nPrior <- sum(classes=="priorObj")
   nDesign <- sum(classes=="designObj")
   
-  if (nPar>1 | nMdl!=1 | nTask!=1 | nDat>1 | nPrior>1 | nDesign>1) {
-    stop("The list provided must contain exactly one of each type of object: mdlObj and taskObj",
-        " and at most one of parObj, priorObj, designObj and dataObj")
+  if (nMdl!=1 | nTask!=1 | nPar>1 | nDat>1 | nPrior>1 | nDesign>1) {
+    stop("The list provided must contain exactly one of each mdlObj and taskObj objects,",
+        " exactly one parObj or priorObj and exaclty one designObj or dataObj.")
   }
   dat <- NULL
   if(nDat==1) {
