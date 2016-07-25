@@ -64,10 +64,10 @@ postprocessWinbugsRes <- function( submission, fisServer=DDMORE.getServer(), ...
 #' 
 #' @return The results from executing the MDL file, in the form of an object of class \linkS4class{StandardOutputObject} or CODA objet.
 #' 
-#' @examples 
-# BUGS<-run.winbugs(mdlfile)
-# BUGSSO<-run.winbugs(mdlfile, subfolder="WINBUGSSO")
-# BUGSCoda<-run.winbugs(mdlfile, subfolder="WINBUGSCoda", LoadCoda=TRUE)
+#' @examples
+#' BUGS<-run.winbugs(mdlfile)
+#' BUGSSO<-run.winbugs(mdlfile, subfolder="WINBUGSSO")
+#' BUGSCoda<-run.winbugs(mdlfile, subfolder="WINBUGSCoda", LoadCoda=TRUE)
 #'
 #' @author Paolo Magni
 #' @export

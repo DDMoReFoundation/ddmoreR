@@ -64,6 +64,7 @@ Collate:
     'simcyp.internal.R'
     'simcyp.external.R'
     'pfim.R'
+    'WinBUGS.R'
 Suggests:
     testthat,
     xpose4
