@@ -68,7 +68,7 @@ validity.taskObj <- function(object)
 	stopifnot(is.null(object@ESTIMATE) || is.list(object@ESTIMATE))
 	stopifnot(is.null(object@SIMULATE) || is.list(object@SIMULATE))
 	stopifnot(is.null(object@EVALUATE) || is.list(object@EVALUATE))
-	#stopifnot(is.character(object@OPTIMISE))
+	stopifnot(is.null(object@OPTIMISE) || is.list(object@OPTIMISE))
 	#stopifnot(is.character(object@DATA))
 	#stopifnot(is.character(object@MODEL))
 	#stopifnot(is.character(object@TARGET_CODE))
@@ -84,6 +84,8 @@ validity.taskObj <- function(object)
 #' 
 #' @slot ESTIMATE Set of name-value-pair attributes, i.e. named list
 #' @slot SIMULATE Set of name-value-pair attributes, i.e. named list
+#' @slot EVALUATE Set of name-value-pair attributes, i.e. named list
+#' @slot OPTIMISE Set of name-value-pair attributes, i.e. named list
 #' @slot name The name assigned to the \code{taskObj} in the MDL file.
 #' 
 #' @author mwise
@@ -92,7 +94,7 @@ setClass("taskObj",
 	ESTIMATE = "ANY",
 	SIMULATE = "ANY",
 	EVALUATE = "ANY",
-	#OPTIMISE = "character",
+	OPTIMISE = "ANY",
 	#DATA = "character",
 	#MODEL = "character",
 	#TARGET_CODE = "character",
@@ -254,6 +256,7 @@ validity.designObj <- function(object)
 {
   stopifnot(is.list(object@DECLARED_VARIABLES))
   stopifnot(is.list(object@INTERVENTION))
+  stopifnot(is.list(object@DESIGN_PARAMETERS))
   stopifnot(is.list(object@STUDY_DESIGN))
   stopifnot(is.list(object@SAMPLING))
   stopifnot(is.list(object@DESIGN_SPACES))
@@ -280,6 +283,7 @@ validity.designObj <- function(object)
 setClass("designObj", 
   slots = c(
     DECLARED_VARIABLES = "list",
+    DESIGN_PARAMETERS = "list",
     INTERVENTION = "list",
     STUDY_DESIGN = "list",
     SAMPLING = "list",

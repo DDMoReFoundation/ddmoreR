@@ -224,6 +224,7 @@ MOG_OBJECT_TYPES <- c("dataObj", "parObj", "mdlObj", "taskObj", "priorObj", "des
 		ESTIMATE = if(!is.null(taskObjAsList$ESTIMATE)) as.list(taskObjAsList$ESTIMATE) else NULL, # as.list handles null
 		SIMULATE = if(!is.null(taskObjAsList$SIMULATE)) as.list(taskObjAsList$SIMULATE) else NULL, # as.list handles null
 		EVALUATE = if(!is.null(taskObjAsList$EVALUATE)) as.list(taskObjAsList$EVALUATE) else NULL,
+		OPTIMISE = if(!is.null(taskObjAsList$OPTIMISE)) as.list(taskObjAsList$OPTIMISE) else NULL,
 		name = name
 	)
 	
@@ -239,6 +240,7 @@ MOG_OBJECT_TYPES <- c("dataObj", "parObj", "mdlObj", "taskObj", "priorObj", "des
 	
     designObj <- new("designObj",
 		DECLARED_VARIABLES = as.list(objAsList$DECLARED_VARIABLES), # as.list handles null; TODO Transformation like translateIntoNamedList to be applied to this instead
+		DESIGN_PARAMETERS = as.list(objAsList$DESIGN_PARAMETERS), # as.list handles null; TODO Transformation like translateIntoNamedList to be applied to this instead
 		INTERVENTION = as.list(objAsList$INTERVENTION), # as.list handles null; TODO Transformation like translateIntoNamedList to be applied to this instead
 		STUDY_DESIGN = as.list(objAsList$STUDY_DESIGN), # as.list handles null; TODO Transformation like translateIntoNamedList to be applied to this instead
 		SAMPLING = as.list(objAsList$SAMPLING), # as.list handles null; TODO Transformation like translateIntoNamedList to be applied to this instead
@@ -356,6 +358,7 @@ setMethod(".prepareForJSON", "designObj", function(object) {
   
   objBlocks <- .removeNullEntries(list(
     DECLARED_VARIABLES = object@DECLARED_VARIABLES,
+    DESIGN_PARAMETERS = object@DESIGN_PARAMETERS,
     INTERVENTION = object@INTERVENTION,
     STUDY_DESIGN = object@STUDY_DESIGN,
     SAMPLING = object@SAMPLING,
@@ -411,6 +414,10 @@ setMethod(".prepareForJSON", "taskObj", function(object) {
   }
   if(!is.null(object@EVALUATE)) {
     taskObjBlocks$EVALUATE <- object@EVALUATE
+  }
+  
+  if(!is.null(object@OPTIMISE)) {
+    taskObjBlocks$OPTIMISE <- object@OPTIMISE
   }
   
   taskObjName <- object@name
