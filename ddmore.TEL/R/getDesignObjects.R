@@ -11,15 +11,15 @@
 #' @param file File path to the .mdl file containing the parameter object(s).
 #' @param object TODO Not currently used.
 #' @param name (Optional) Specifies the design object item, by name, to be
-#'        retrieved by getDesignObjects If multiple parameter objects exist
+#'        retrieved by getDesignObjects If multiple design objects exist
 #'        in the .mdl file then using the name argument allows the user to target
 #'        a specific design object.
 #' @param fisServer FISServer instance.
-#' @return List of S4 Objects of class \code{parObj}. If name is specified, only the 
+#' @return List of S4 Objects of class \code{designObj}. If name is specified, only the 
 #'         single specified object is returned.
 #' 
 #' @examples
-#' # Retrieve all parameter objects
+#' # Retrieve all design objects
 #' paramObjsList <- getDesignObjects("UseCase2.mdl")
 #' 
 #' @export
