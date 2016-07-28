@@ -458,8 +458,11 @@ setMethod(".prepareForJSON", "taskObj", function(object) {
       names(mogObjBlocks$OBJECTS[[i]]) <- c(allObjsAsList[[i]]$name)
     }
     
-	  allObjsAsList <- c(allObjsAsList, list(
-		list(name=mogDefinitionName, type="mogObj", blocks=mogObjBlocks)))
+    if(length(object@info)>0) {
+        mogObjBlocks$INFO <- object@info
+    }
+    allObjsAsList <- c(allObjsAsList, list(
+        list(name=mogDefinitionName, type="mogObj", blocks=mogObjBlocks)))
     
     json <- toJSON(allObjsAsList)
     return(json)

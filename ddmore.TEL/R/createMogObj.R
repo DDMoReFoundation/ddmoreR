@@ -15,6 +15,7 @@
 #' @param priorObj (Optional) An object of class priorObj
 #' @param designObj (Optional) An object of class designObj
 #' @param mogName (Optional) The name to assign to the new mogObj
+#' @param info (Optional) Additional information which should be included in the 'INFO' sub-block of the new mogObj
 #'
 #' @return An S4 Object of class "mogObj".
 #'
@@ -23,7 +24,7 @@
 #' @rdname createMogObj
 #' 
 createMogObj <- function(dataObj = NULL, parObj = NULL, mdlObj, taskObj, priorObj = NULL, 
-    designObj = NULL, mogName = "outputMog") {
+    designObj = NULL, mogName = "outputMog", info = list()) {
 	if (missing(mogName)) {
 		new("mogObj", 
 			dataObj = dataObj,
@@ -31,7 +32,8 @@ createMogObj <- function(dataObj = NULL, parObj = NULL, mdlObj, taskObj, priorOb
 			mdlObj = mdlObj,
 			taskObj = taskObj,
             priorObj = priorObj,
-			designObj = designObj
+			designObj = designObj,
+            info = .createInfo(info)
 		)
 	} else {
 		new("mogObj", 
@@ -41,7 +43,23 @@ createMogObj <- function(dataObj = NULL, parObj = NULL, mdlObj, taskObj, priorOb
 			taskObj = taskObj,
             priorObj = priorObj,
 			designObj = designObj,
-			name = mogName
+			name = mogName,
+            info = .createInfo(info)
 		)
 	}
+}
+
+#'
+#' Creates representation of the mogObj's INFO sub-block from list of key-value pairs
+#' 
+.createInfo <- function(info = list()) {
+	if(is.null(info)) {
+		return(list())
+	}
+	lapply(names(info), function(x) {
+				def <- list()
+				def[[x]]<-sprintf("\"%s\"", info[[x]])
+				res <- list(".subtype"="PropertyStmt", "def" = def)
+				res
+			})
 }

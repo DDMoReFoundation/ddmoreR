@@ -368,6 +368,7 @@ validity.mogObj <- function(object)
 	stopifnot(validity.taskObj(object@taskObj))
     stopifnot(is.null(object@priorObj) || validity.priorObj(object@priorObj))
 	stopifnot(is.null(object@designObj) || validity.designObj(object@designObj))
+	stopifnot(is.list(object@info))
     return(TRUE)
 }
 
@@ -380,12 +381,10 @@ validity.mogObj <- function(object)
 #' 'Aggregator' class comprising no more than one occurrence of each of the 
 #' following types of object as parsed from an MDL file:
 #' \itemize{
-#'   \item{\link{dataObj}}
-#'   \item{\link{parObj}}
+#'   \item{\link{dataObj} or \link{designObj}}
+#'   \item{\link{parObj} or \link{priorObj}}
 #'   \item{\link{mdlObj}}
-#'   \item{\link{taskObj}}
-#'   \item{\link{priorObj}}
-#'   \item{\link{designObj}}
+#'   \item{\link{taskObj}}}
 #' }
 #' 
 #' @slot dataObj (Optional) Object of class \code{dataObj}.
@@ -405,6 +404,7 @@ setClass("mogObj",
 	taskObj = "taskObj",
     priorObj = "ANY",
 	designObj = "ANY",
+	info = "list",
 	name = "character"
   ),
   validity = validity.mogObj
@@ -471,7 +471,8 @@ as.mogObj <- function(list){
              mdlObj = mdl, 
              taskObj = task, 
              priorObj = prior,
-             designObj = design 
+             designObj = design,
+			 info = list()
   )
   return(res)
 }
