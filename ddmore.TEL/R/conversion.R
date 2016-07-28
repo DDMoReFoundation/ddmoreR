@@ -199,7 +199,7 @@ MOG_OBJECT_TYPES <- c("dataObj", "parObj", "mdlObj", "taskObj", "priorObj", "des
     mdlObj <- new("mdlObj",
 		IDV = as.char.vector(mdlObjAsList$IDV), # our version of as.vector for strings that handles null
 		COVARIATES = as.list(mdlObjAsList$COVARIATES), # as.list handles null; TODO Transformation like translateIntoNamedList to be applied to this instead
-		VARIABILITY_LEVELS = removeExtraLayerOfNesting(mdlObjAsList$VARIABILITY_LEVELS), # removeExtraLayerOfNesting handles null
+		VARIABILITY_LEVELS = as.list(mdlObjAsList$VARIABILITY_LEVELS), # removeExtraLayerOfNesting handles null
         STRUCTURAL_PARAMETERS = as.char.vector(mdlObjAsList$STRUCTURAL_PARAMETERS), # our version of as.vector for strings that handles null
         VARIABILITY_PARAMETERS = as.char.vector(mdlObjAsList$VARIABILITY_PARAMETERS), # our version of as.vector for strings that handles null
         RANDOM_VARIABLE_DEFINITION = as.list(mdlObjAsList$RANDOM_VARIABLE_DEFINITION), # as.list handles null; TODO Transformation like translateIntoNamedList to be applied to this instead
@@ -387,7 +387,7 @@ setMethod(".prepareForJSON", "mdlObj", function(object) {
   mdlObjBlocks <- .removeNullEntries(list(
     IDV = object@IDV,
     COVARIATES = object@COVARIATES,
-    VARIABILITY_LEVELS = addExtraLayerOfNesting(object@VARIABILITY_LEVELS),
+    VARIABILITY_LEVELS = object@VARIABILITY_LEVELS,
     STRUCTURAL_PARAMETERS = object@STRUCTURAL_PARAMETERS,
     VARIABILITY_PARAMETERS = object@VARIABILITY_PARAMETERS,
     RANDOM_VARIABLE_DEFINITION = object@RANDOM_VARIABLE_DEFINITION,
