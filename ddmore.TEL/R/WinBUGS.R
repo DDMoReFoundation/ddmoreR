@@ -806,7 +806,7 @@ NMTRAN2BUGSdataconverter <- function(model){
 	}
 	str <- paste(str, ')', sep="")
 	write(str, filename)
-	write(paste("NUM2=",as.character(max(N_t)+100),sep=""),filename2,append=T) 
+	write(paste("NUM2=",as.character(max(N_t)+10),sep=""),filename2,append=T) 
 }
 
 #Two files must be returned: 
