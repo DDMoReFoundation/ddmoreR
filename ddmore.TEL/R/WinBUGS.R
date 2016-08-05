@@ -28,31 +28,6 @@ prepareWinbugsDs <- function(submission, fisServer=DDMORE.getServer(), ...) {
 	return(submission)
 }
 
-#' @title postprocessinWinbugsRes
-#' 
-#' This function implements the required steps after running a model in WinBugs. Only called by the runWinBUGS function
-#' In particular, the output files (in the SO or CODA format) are passed to the connector an eventually loaded into an R object
-#'
-#' @param updated submission object
-#' @param fisServer FISServer instance.
-#'
-#' @return updated submission object
-#' 
-#'
-#' @author Paolo Magni
-
-postprocessWinbugsRes <- function( submission, fisServer=DDMORE.getServer(), ...) {
-	tOutputIndex <- file.path(submission$parameters$importDirectory,"outputIndex.txt")#
-	tOutput <- file.path(submission$parameters$importDirectory,"output1.txt")
-	tOutputSO <- file.path(submission$parameters$importDirectory,paste(c(basename(file_path_sans_ext(submission$parameters$modelFile)), ".SO.xml"), collapse=""))
-	if (LoadCoda){
-		submission$so <- read.coda(output.file=tOutput, index.file=tOutputIndex)
-	}	
-	else {
-		submission$so <- LoadSOObject(tOutputSO)
-	}	
-	return(submission)
-}
 
 #' @title runWinBUGS
 #' 
@@ -64,7 +39,7 @@ postprocessWinbugsRes <- function( submission, fisServer=DDMORE.getServer(), ...
 #' 
 #' @return The results from executing the MDL file, in the form of an object of class \linkS4class{StandardOutputObject} or CODA objet.
 #' 
-#' @examples
+#' @examples 
 #' BUGS<-run.winbugs(mdlfile)
 #' BUGSSO<-run.winbugs(mdlfile, subfolder="WINBUGSSO")
 #' BUGSCoda<-run.winbugs(mdlfile, subfolder="WINBUGSCoda", LoadCoda=TRUE)
@@ -74,7 +49,22 @@ postprocessWinbugsRes <- function( submission, fisServer=DDMORE.getServer(), ...
 
 
 runWinBUGS <- function(mdlfile, subfolder=paste0("WinBUGS_",format(Sys.time(), "%Y%b%d%H%M%S")), LoadCoda=FALSE) {
-    ddmore:::execute(mdlfile, target="winbugs", importSO=FALSE,  preprocessSteps=list(prepareWinbugsDs), postprocessSteps=list(postprocessWinbugsRes), subfolder=subfolder)
+
+postprocessWinbugsResSOCoda <- function( submission, fisServer=DDMORE.getServer(), ...) {
+	tOutputIndex <- file.path(submission$parameters$importDirectory,"outputIndex.txt")
+	tOutput <- file.path(submission$parameters$importDirectory,"output1.txt")
+	tOutputSO <- file.path(submission$parameters$importDirectory,paste(c(basename(file_path_sans_ext(submission$parameters$modelFile)), ".SO.xml"), collapse=""))
+	if (LoadCoda){
+		submission$so <- read.coda(output.file=tOutput, index.file=tOutputIndex)
+	}	
+	else {
+		submission$so <- LoadSOObject(tOutputSO)
+	}	
+	return(submission)
+}
+
+
+    ddmore:::execute(mdlfile, target="winbugs", importSO=FALSE,  preprocessSteps=list(prepareWinbugsDs), postprocessSteps=list(postprocessWinbugsResSOCoda), subfolder=subfolder)
 }
 
 
@@ -107,8 +97,6 @@ NMTRAN2BUGSdataconverter <- function(model){
 	
 	# Load the libraries
 	require(XML)
-	require(xlsx)
-	require(gdata)
 	require(plyr)
 	require(tools)
 	
@@ -818,7 +806,7 @@ NMTRAN2BUGSdataconverter <- function(model){
 	}
 	str <- paste(str, ')', sep="")
 	write(str, filename)
-	write(paste("NUM2=",as.character(max(N_t)+100),sep=""),filename2,append=T) 
+	write(paste("NUM2=",as.character(max(N_t)+10),sep=""),filename2,append=T) 
 }
 
 #Two files must be returned: 
